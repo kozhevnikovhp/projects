@@ -1,0 +1,896 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\QuerySDMS.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    BUTTON      ID_FILE_PRINT
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "Файл"
+    BEGIN
+        MENUITEM "Выход",                       ID_APP_EXIT
+    END
+    POPUP "Вид"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "Параметры опроса",            ID_VIEW_PARAMS
+        MENUITEM "Модулятор: IF Table",         ID_VIEW_MODIFTABLE
+        MENUITEM "Модулятор: Data Table",       ID_VIEW_MODDATATABLE
+        MENUITEM "Модулятор: BUC Table",        ID_VIEW_MOD_BUC_FORM
+        MENUITEM "Демодулятор: IF Table",       ID_VIEW_DEMODIFTABLE
+        MENUITEM "Демодулятор: Data Table",     ID_VIEW_DEMODDATATABLE
+        MENUITEM "Демодулятор: LNB Table",      ID_VIEW_DEMOD_LNB_FORM
+        MENUITEM "Статус демодулятора",         ID_VIEW_DEMODSTATUS
+    END
+    POPUP "Помощь"
+    BEGIN
+        MENUITEM "О программе",                 ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About QuerySDMS"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "QuerySDMS Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2009",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_PARAMS_FORM DIALOG DISCARDABLE  0, 0, 294, 206
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Опрос SDMS каждые",IDC_STATIC,62,39,74,8
+    EDITTEXT        IDC_DELTA_TIME_EDIT,141,36,40,14,ES_AUTOHSCROLL
+    LTEXT           "секунд",IDC_STATIC,184,39,24,8
+    PUSHBUTTON      "Применить",IDC_APPLY_BUTTON,112,66,50,14
+END
+
+IDD_MOD_IF_TABLE_FORM DIALOG DISCARDABLE  0, 0, 231, 180
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Частота, kHz :",IDC_STATIC,46,20,50,8
+    EDITTEXT        IDC_MOD_IF_FREQUENCY_EDIT,100,18,70,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Смещение частоты, Hz :",IDC_STATIC,13,43,83,8
+    EDITTEXT        IDC_MOD_IF_OFFSET_EDIT,100,40,70,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Уровень, dBm :",IDC_STATIC,44,64,52,8
+    EDITTEXT        IDC_MOD_IF_LEVEL_EDIT,100,60,70,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Сигнал :",IDC_STATIC,67,85,29,8
+    EDITTEXT        IDC_MOD_IF_ON_OFF_EDIT,100,80,70,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Модуляция :",IDC_STATIC,54,104,42,8
+    EDITTEXT        IDC_MOD_IF_MODULATION_EDIT,100,100,70,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Спектр :",IDC_STATIC,67,123,29,8
+    EDITTEXT        IDC_MOD_IF_SPECTRUM_EDIT,100,120,70,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",IDC_STATIC,23,149,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,93,146,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Изменить",IDC_MOD_FREQUENCY_BUTTON,174,18,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_OFFSET_BUTTON,174,40,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_LEVEL_BUTTON,174,60,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_ONOFF_BUTTON,174,80,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_MODULATION_BUTTON,174,100,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_SPECTRUM_BUTTON,174,120,50,14
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,174,145,50,14
+END
+
+IDD_DEMOD_IF_TABLE_FORM DIALOG DISCARDABLE  0, 0, 261, 203
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Частота, КГц :",IDC_STATIC,64,20,50,8
+    EDITTEXT        IDC_DEMOD_IF_FREQUENCY_EDIT,118,18,72,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Модуляция :",IDC_STATIC,72,104,42,8
+    EDITTEXT        IDC_DEMOD_IF_MODULATION_EDIT,118,100,72,14,
+                    ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Спектр :",IDC_STATIC,85,123,29,8
+    EDITTEXT        IDC_DEMOD_IF_SPECTRUM_EDIT,118,120,72,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Диапазон поиска несущей, Гц :",IDC_STATIC,6,42,108,8
+    EDITTEXT        IDC_DEMOD_IF_SWEEP_RANGE_EDIT,118,39,72,14,
+                    ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Режим поиска несущей :",IDC_STATIC,28,63,86,8
+    EDITTEXT        IDC_DEMOD_IF_SWEEP_MODE_EDIT,118,60,72,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",IDC_STATIC,41,153,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,111,149,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Изменить",IDC_DEMOD_FREQUENCY_BUTTON,194,18,50,14
+    PUSHBUTTON      "Изменить",IDC_DEMOD_SWEEP_RANGE_BUTTON,194,38,50,14
+    PUSHBUTTON      "Изменить",IDC_DEMOD_MODULATION_BUTTON,194,100,50,14
+    PUSHBUTTON      "Изменить",IDC_DEMOD_SPECTRUM_BUTTON,194,120,50,14
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,195,148,50,14
+END
+
+IDD_DEMOD_STATUS_FORM DIALOG DISCARDABLE  0, 0, 236, 203
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Смещение, Гц :",IDC_STATIC,40,20,53,8
+    EDITTEXT        IDC_DEMOD_STATUS_OFFSET_EDIT,95,18,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "BER :",IDC_STATIC,73,103,20,8
+    EDITTEXT        IDC_DEMOD_STATUS_BER_EDIT,95,100,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "SER :",IDC_STATIC,73,123,20,8
+    EDITTEXT        IDC_DEMOD_STATUS_SER_EDIT,95,120,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Уровень сигнала, дБм :",IDC_STATIC,10,42,83,8
+    EDITTEXT        IDC_DEMOD_STATUS_INPUT_LEVEL_EDIT,95,39,50,14,
+                    ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Сигнал/шум, дБ :",IDC_STATIC,34,63,59,8
+    EDITTEXT        IDC_DEMOD_STATUS_EBNO_EDIT,95,60,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Буфер :",IDC_STATIC,67,143,26,8
+    EDITTEXT        IDC_DEMOD_STATUS_BUFFER_EDIT,95,140,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Захват несущей :",IDC_STATIC,33,82,60,8
+    EDITTEXT        IDC_DEMOD_STATUS_LOCK_EDIT,95,80,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",IDC_STATIC,12,165,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,82,162,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,167,161,50,14
+END
+
+IDD_MOD_DATA_TABLE_FORM DIALOG DISCARDABLE  0, 0, 236, 166
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Битовая скорость, бод :",IDC_STATIC,21,20,85,8
+    EDITTEXT        IDC_DATA_BITRATE_EDIT,110,18,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Сверточное кодирование :",IDC_STATIC,16,42,90,8
+    EDITTEXT        IDC_DATA_CODERATE_EDIT,110,40,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Дифф. кодер :",IDC_STATIC,51,63,55,8
+    EDITTEXT        IDC_DATA_DIFF_EDIT,110,60,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Скремблер :",IDC_STATIC,61,82,45,8
+    EDITTEXT        IDC_DATA_SCRAMBLER_EDIT,110,80,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Источник синхронизации :",IDC_STATIC,11,103,95,8
+    EDITTEXT        IDC_DATA_CLOCK_SRC_EDIT,110,100,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",IDC_STATIC,13,130,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,84,125,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Изменить",IDC_MOD_DATA_BITRATE_BUTTON,170,18,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_DATA_CODERATE_BUTTON,170,40,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_DATA_DIFF_BUTTON,170,60,50,14
+    PUSHBUTTON      "Изменить",IDC_MOD_DATA_SCRAMBLER_BUTTON,170,80,50,14
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,170,125,50,14
+END
+
+IDD_DEMOD_DATA_TABLE_FORM DIALOG DISCARDABLE  0, 0, 232, 157
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Битовая скорость, бод :",IDC_STATIC,26,20,84,8
+    EDITTEXT        IDC_DATA_BITRATE_EDIT,113,18,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Сверточное декодирование :",IDC_STATIC,10,42,100,8
+    EDITTEXT        IDC_DATA_CODERATE_EDIT,113,40,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Дифф. декодер :",IDC_STATIC,48,63,62,8
+    EDITTEXT        IDC_DATA_DIFF_EDIT,113,60,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Дескремблер :",IDC_STATIC,56,82,54,8
+    EDITTEXT        IDC_DATA_DESCRAMBLER_EDIT,113,80,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Источник синхронизации :",IDC_STATIC,17,103,93,8
+    EDITTEXT        IDC_DATA_CLOCK_SRC_EDIT,113,100,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",IDC_STATIC,16,131,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,84,128,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Изменить",IDC_DEMOD_DATA_BITRATE_BUTTON,170,18,50,14
+    PUSHBUTTON      "Изменить",IDC_DEMOD_DATA_CODERATE_BUTTON,170,40,50,14
+    PUSHBUTTON      "Изменить",IDC_DEMOD_DATA_DIFF_BUTTON,170,60,50,14
+    PUSHBUTTON      "Изменить",IDC_DEMOD_DATA_DESCRAMBLER_BUTTON,170,80,50,
+                    14
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,170,128,50,14
+END
+
+IDD_MOD_BUC_TABLE_FORM DIALOG DISCARDABLE  0, 0, 235, 180
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Напряжение, В :",-1,46,20,56,8
+    EDITTEXT        IDC_MOD_VOLTAGE_EDIT,106,18,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Потребляемый ток, мА :",-1,18,43,84,8
+    EDITTEXT        IDC_MOD_CURRENT_EDIT,106,40,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Источник питания :",-1,36,63,66,8
+    EDITTEXT        IDC_BUC_POWER_EDIT,106,60,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Опорный сигнал 10 МГц :",-1,15,83,87,8
+    EDITTEXT        IDC_MOD_10MHZ_EDIT,106,80,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",-1,14,149,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,83,146,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,167,145,50,14
+END
+
+IDD_DEMOD_LNB_TABLE_FORM DIALOG DISCARDABLE  0, 0, 226, 180
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Напряжение, В :",-1,46,20,56,8
+    EDITTEXT        IDC_MOD_VOLTAGE_EDIT,106,18,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Потребляемый ток, мА :",-1,18,43,84,8
+    EDITTEXT        IDC_MOD_CURRENT_EDIT,106,40,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Источник питания :",-1,36,63,66,8
+    EDITTEXT        IDC_BUC_POWER_EDIT,106,60,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Опорный сигнал 10 МГц :",-1,15,83,87,8
+    EDITTEXT        IDC_MOD_10MHZ_EDIT,106,80,50,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Данные получены ",-1,14,149,64,8
+    EDITTEXT        IDC_SECONDS_EDIT,81,146,75,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Опросить",IDC_QUERY_NOW_BUTTON,162,146,50,14
+END
+
+IDD_UINT_DIALOG DIALOG DISCARDABLE  0, 0, 186, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Изменить значение параметра"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,105,100,50,14
+    EDITTEXT        IDC_VALUE_EDIT,67,20,56,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_VALUE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,119,21,
+                    11,14
+    LTEXT           "Внимание! Изменение параметров может",IDC_STATIC,18,49,
+                    144,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    18,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,19,77,
+                    142,8
+END
+
+IDD_INT_DIALOG DIALOG DISCARDABLE  0, 0, 186, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Изменить значение параметра"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,105,100,50,14
+    EDITTEXT        IDC_VALUE_EDIT,67,20,56,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_VALUE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,119,21,
+                    11,14
+    LTEXT           "Внимание! Изменение параметров может",IDC_STATIC,18,49,
+                    144,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    18,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,19,77,
+                    142,8
+END
+
+IDD_DOUBLE_DIALOG DIALOG DISCARDABLE  0, 0, 186, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Изменить значение параметра"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,105,100,50,14
+    EDITTEXT        IDC_VALUE_EDIT,67,20,56,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_VALUE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,119,21,
+                    11,14
+    LTEXT           "Внимание! Изменение параметров может",IDC_STATIC,18,49,
+                    144,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    18,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,19,77,
+                    142,8
+END
+
+IDD_MODULATION_DIALOG DIALOG DISCARDABLE  0, 0, 186, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Изменить тип модуляции"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,105,100,50,14
+    LTEXT           "Внимание! Изменение типа модуляции может",IDC_STATIC,18,
+                    49,158,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    18,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,19,77,
+                    142,8
+    CONTROL         "BPSK",IDC_BPSK_RADIO,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,45,15,35,10
+    CONTROL         "QPSK",IDC_QPSK_RADIO,"Button",BS_AUTORADIOBUTTON,110,15,
+                    35,10
+END
+
+IDD_ONOFF_DIALOG DIALOG DISCARDABLE  0, 0, 190, 127
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Включить/выключить"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,105,100,50,14
+    LTEXT           "Внимание! Изменение этого параметра может",IDC_STATIC,
+                    18,49,161,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    18,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,19,77,
+                    142,8
+    CONTROL         "Выкл.",IDC_OFF_RADIO,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,45,15,36,10
+    CONTROL         "Вкл.",IDC_ON_RADIO,"Button",BS_AUTORADIOBUTTON,110,15,
+                    31,10
+END
+
+IDD_SPECTRUM_DIALOG DIALOG DISCARDABLE  0, 0, 186, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Спектр"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,105,100,50,14
+    LTEXT           "Внимание! Изменение параметров может",IDC_STATIC,18,49,
+                    144,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    18,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,19,77,
+                    142,8
+    CONTROL         "Нормальный",IDC_NORMAL_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,25,15,60,10
+    CONTROL         "Инвертированный",IDC_INVERTED_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,93,15,78,10
+END
+
+IDD_CODERATE_DIALOG DIALOG DISCARDABLE  0, 0, 232, 127
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Изменить тип сверточного (де)кодирования Витерби"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,60,100,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,130,100,50,14
+    LTEXT           "Внимание! Изменение типа кодирования может",IDC_STATIC,
+                    36,49,165,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    36,63,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,37,77,
+                    142,8
+    CONTROL         "1/2",IDC_12_RADIO,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,45,15,27,10
+    CONTROL         "3/4",IDC_34_RADIO,"Button",BS_AUTORADIOBUTTON,110,15,27,
+                    10
+    CONTROL         "7/8",IDC_78_RADIO,"Button",BS_AUTORADIOBUTTON,155,15,27,
+                    10
+END
+
+IDD_SCRAMBLER_DIALOG DIALOG DISCARDABLE  0, 0, 236, 130
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Изменить тип сверточного (де)скремблирования"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,60,104,50,14
+    PUSHBUTTON      "Отменить",IDCANCEL,130,104,50,14
+    LTEXT           "Внимание! Изменение типа (де)скремблирования может",
+                    IDC_STATIC,21,53,194,8
+    LTEXT           "привести к потере связи. Если Вы не уверены",IDC_STATIC,
+                    38,67,159,8
+    LTEXT           "в своих действиях, нажмите ОТМЕНИТЬ.",IDC_STATIC,46,81,
+                    142,8
+    CONTROL         "Выкл.",IDC_DISABLE_RADIO,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,15,15,36,10
+    CONTROL         "IESS-308",IDC_IESS308_RADIO,"Button",BS_AUTORADIOBUTTON,
+                    60,15,46,10
+    CONTROL         "IESS-309",IDC_IESS309_RADIO,"Button",BS_AUTORADIOBUTTON,
+                    110,15,46,10
+    CONTROL         "V.35",IDC_V35_RADIO,"Button",BS_AUTORADIOBUTTON,165,15,
+                    31,10
+    CONTROL         "Alt. V.35",IDC_ALT_V35_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,15,30,43,10
+    CONTROL         "Intelsat",IDC_INTELSAT_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,60,30,39,10
+    CONTROL         "Alt. Intelsat",IDC_ALT_INTELSAT_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,110,30,51,10
+    CONTROL         "TPC Sync",IDC_TPC_SYNC_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,165,30,48,10
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "QuerySDMS MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "QuerySDMS\0"
+            VALUE "LegalCopyright", "Copyright (C) 2009\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "QuerySDMS.EXE\0"
+            VALUE "ProductName", "QuerySDMS Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_PARAMS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 287
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 199
+    END
+
+    IDD_MOD_IF_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 173
+    END
+
+    IDD_DEMOD_IF_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 254
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 196
+    END
+
+    IDD_DEMOD_STATUS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 229
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 196
+    END
+
+    IDD_MOD_DATA_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 229
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
+    END
+
+    IDD_DEMOD_DATA_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 225
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 150
+    END
+
+    IDD_MOD_BUC_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 173
+    END
+
+    IDD_DEMOD_LNB_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 219
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 173
+    END
+
+    IDD_UINT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_INT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_DOUBLE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_MODULATION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_ONOFF_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 120
+    END
+
+    IDD_SPECTRUM_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_CODERATE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 120
+    END
+
+    IDD_SCRAMBLER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 123
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "Опрос SDMS\n\nQueryS\n\n\nQuerySDMS.Document\nQueryS Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "QuerySDMS"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Отобразить информацию о программе\nО программе"
+    ID_APP_EXIT             "Закрыть программу\nЗакрыть"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    ID_INDICATOR_TIME       " "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_PARAMS          "Параметры опроса\nПараметры"
+    ID_VIEW_MODIFTABLE      "Модулятор: IF Table\nMod IF Table"
+    ID_VIEW_DEMODIFTABLE    "Демодулятор: IF Table\nDem IF Table"
+    ID_VIEW_DEMODSTATUS     "Статус демодулятора\nСтатус демодулятора"
+    ID_VIEW_MODDATATABLE    "Модулятор: Data Table\nMod Data Table"
+    ID_VIEW_DEMODDATATABLE  "Демодулятор: Data Table\nDem Data Table"
+    ID_VIEW_MOD_BUC_FORM    "Модулятор: BUC Table\nMod BUC Table"
+    ID_VIEW_DEMOD_LNB_FORM  "Демодулятор: LNB Table\nDem LNBTable"
+END
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\QuerySDMS.ico"
+IDR_QUERYSTYPE          ICON    DISCARDABLE     "res\\QuerySDMSDoc.ico"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\QuerySDMS.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

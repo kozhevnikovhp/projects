@@ -1,0 +1,3056 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\HardwareTest.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_TREE         BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABSTRACT_FORM DIALOG DISCARDABLE  0, 0, 156, 66
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_CONNECTION_FORM DIALOG DISCARDABLE  0, 0, 266, 161
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",IDC_STATIC,8,15,87,45
+    PUSHBUTTON      "Connect",IDC_APPLY_BUTTON,51,117,44,14
+    CTEXT           "Specify monitor and control properties here",IDC_STATIC,
+                    26,0,162,8
+    LTEXT           "",IDC_STATUS_STATIC,18,142,179,8
+    COMBOBOX        IDC_PORT_COMBOBOX,14,33,75,60,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_STATIC,103,15,117,45
+    EDITTEXT        IDC_TELNET_IP_ADDRESS_EDIT,112,33,70,14,ES_AUTOHSCROLL
+    CONTROL         "Serial Port :",IDC_SERIAL_PORT_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,17,16,52,8
+    CONTROL         "Telnet:",IDC_TELNET_RADIO,"Button",BS_AUTORADIOBUTTON,
+                    107,16,38,8
+    PUSHBUTTON      "Disonnect",IDC_DISCONNECT_BUTTON,105,117,44,14
+    EDITTEXT        IDC_BUS_ADDRESS_EDIT,15,80,30,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_BUS_ADDRESS_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,35,75,11,14
+    CONTROL         "GPIB",IDC_GPIB_RADIO,"Button",BS_AUTORADIOBUTTON,228,15,
+                    33,10
+    GROUPBOX        "Bus address :",IDC_STATIC,8,65,122,35
+    PUSHBUTTON      "Set",IDC_SET_BUS_ADDRESS_BUTTON,55,80,25,12
+    PUSHBUTTON      "Scan",IDC_SCAN_BUTTON,90,80,25,12
+    CONTROL         "SNMP :",IDC_SNMP_RADIO,"Button",BS_AUTORADIOBUTTON,160,
+                    16,38,8
+END
+
+IDD_DEMODULATOR_CARRIER_FORM DIALOG DISCARDABLE  0, 0, 256, 222
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Specify demodulator properties here",IDC_STATIC,10,5,
+                    190,8
+    LTEXT           "Demodulator frequency, KHz :",IDC_STATIC,10,25,96,8
+    EDITTEXT        IDC_RECEIVER_FREQUENCY_EDIT,108,22,48,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_RECEIVER_FREQUENCY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,141,25,11,14
+    PUSHBUTTON      "Set",IDC_SET_FREQUENCY_BUTTON,160,23,20,11
+    LTEXT           "Search range, Hz :",IDC_STATIC,20,42,60,8
+    EDITTEXT        IDC_SEARCH_RANGE_EDIT,97,40,43,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SEARCH_RANGE_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,134,44,11,14
+    PUSHBUTTON      "Set",IDC_SET_RANGE_BUTTON,149,40,20,11
+    RTEXT           "CXR Lock :",IDC_CXR_LOCK_STATIC,15,74,65,8
+    LTEXT           "",IDC_CARRIER_STATIC,90,74,59,8
+    LTEXT           "",IDC_OFFSET_STATIC,15,110,64,8
+    PUSHBUTTON      "Set",IDC_SET_SHIFT_BUTTON,138,108,20,11
+    GROUPBOX        "Modulation type:",IDC_STATIC,5,125,235,30
+    CONTROL         "Spectral Inversion",IDC_SPECTRAL_INV_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,154,137,73,10
+    PUSHBUTTON      "Time",IDC_MEASURE_BUTTON,186,23,40,11
+    LTEXT           "",IDC_INPUT_LEVEL_STATIC,15,60,115,8
+    CONTROL         "10 MHz ref. supplier",IDC_10MHZ_SUPPLIER_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,158,173,82,10
+    GROUPBOX        "DC supply :",IDC_STATIC,5,163,145,52
+    EDITTEXT        IDC_SHIFT_EDIT,92,107,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SHIFT_SPIN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,120,105,
+                    10,14
+    GROUPBOX        "Fine tune :",IDC_STATIC,165,85,75,35
+    PUSHBUTTON      "Set",IDC_SET_FINE_TUNE_BUTTON,215,100,20,11
+    EDITTEXT        IDC_FINE_TUNE_EDIT,170,100,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_FINE_TUNE_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,205,100,10,14
+    RTEXT           "Demodulator Lock :",IDC_DEM_LOCK_STATIC,15,90,65,8
+    LTEXT           "",IDC_DEMODULATOR_LOCK_STATIC,90,90,60,8
+    COMBOBOX        IDC_MODULATION_TYPE_COMBO,22,136,69,53,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,17,173,75,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Current :",IDC_STATIC,16,191,30,8
+    EDITTEXT        IDC_CURRENT_EDIT,46,189,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,89,191,8,8
+END
+
+IDD_DATA_FORM DIALOG DISCARDABLE  0, 0, 216, 242
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_DATA_RATE_EDIT,15,33,47,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_DATA_RATE_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,55,35,11,14
+    PUSHBUTTON      "Set",IDC_SET_DATA_RATE_BUTTON,75,34,20,16
+    GROUPBOX        "FEC :",IDC_STATIC,10,70,195,35
+    GROUPBOX        "Data clock :",IDC_STATIC,104,21,86,45
+    GROUPBOX        "Data Rate, baud :",IDC_STATIC,10,21,90,45
+    CONTROL         "Data Inversion",IDC_DATA_INVERSION_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,191,62,10
+    CONTROL         "Clock inversion",IDC_DATA_CLOCK_INV_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,110,53,64,10
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,165,8
+    COMBOBOX        IDC_DATA_CLOCK_SOURCE_COMBO,109,34,55,64,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FEC_MODE_COMBO,20,85,180,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Scrambler/descrambler :",IDC_STATIC,10,109,195,35
+    COMBOBOX        IDC_SCRAMBLER_MODE_COMBO,20,124,180,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Differential en/de-coding :",
+                    IDC_DIFFERENTIAL_CODING_STATIC,10,150,195,35
+    COMBOBOX        IDC_DIFFERENTIAL_MODE_COMBO,20,165,180,110,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Doppler buffer :",IDC_STATIC,10,205,195,25
+    LTEXT           "Size :",IDC_STATIC,20,216,17,8
+    EDITTEXT        IDC_DOPPLER_BUFFER_SIZE_EDIT,41,214,40,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_DOPPLER_BUFFER_SIZE_BUTTON,85,213,20,14
+END
+
+IDD_DEVICE_FORM DIALOG DISCARDABLE  0, 0, 316, 255
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Warm Reset",IDC_WARM_RESET_BUTTON,255,115,50,14
+    PUSHBUTTON      "Total Reset",IDC_TOTAL_RESET_BUTTON,255,130,50,14
+    CONTROL         "Save when power off",IDC_NVRAM_ENABLED_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,101,119,83,10
+    GROUPBOX        "Storing device settings in NVRAM:",IDC_STATIC,95,105,
+                    155,45
+    PUSHBUTTON      "Save now",IDC_SAVE_SETTINGS_BUTTON,195,115,50,14
+    EDITTEXT        IDC_STATE_EDIT,11,154,294,100,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    EDITTEXT        IDC_VERSION_EDIT,11,7,294,93,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Factory preset",IDC_FACTORY_PRESET_BUTTON,195,130,50,14
+    CONTROL         "Save right after setting",IDC_SAVE_ON_THE_FLY_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,101,131,87,10
+    GROUPBOX        "Unit name :",IDC_STATIC,10,105,80,45
+    EDITTEXT        IDC_UNIT_NAME_EDIT,15,115,70,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_UNIT_NAME_BUTTON,15,130,70,14
+END
+
+IDD_MODULATOR_CARRIER_FORM DIALOG DISCARDABLE  0, 0, 241, 212
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Specify modulator properties here",IDC_STATIC,10,5,188,
+                    8
+    LTEXT           "Frequency, KHz :",IDC_STATIC,8,29,53,8
+    EDITTEXT        IDC_TRANSMITTER_FREQUENCY_EDIT,65,25,60,12,
+                    ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_TRANSMITTER_FREQUENCY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,119,29,11,14
+    PUSHBUTTON      "Set",IDC_SET_FREQUENCY_BUTTON,130,25,20,15
+    GROUPBOX        "Signal output power :",IDC_STATIC,5,73,230,30
+    CONTROL         "On/Off",IDC_ONOFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,87,38,10
+    LTEXT           "Level, dB :",IDC_STATIC,64,88,35,8
+    EDITTEXT        IDC_OUTPUT_LEVEL_EDIT,99,85,46,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OUTPUT_LEVEL_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,120,78,11,14
+    PUSHBUTTON      "Set",IDC_SET_OUTPUT_LEVEL_BUTTON,150,84,20,15
+    GROUPBOX        "Modulation type :",IDC_STATIC,5,108,230,46
+    CONTROL         "Spectral Inversion",IDC_SPECTRAL_INV_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,119,73,10
+    CONTROL         "10 MHz ref. supplier",IDC_10MHZ_SUPPLIER_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,168,82,10
+    CONTROL         "Continious wave",IDC_CW_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,130,135,68,10
+    GROUPBOX        "DC supply :",IDC_STATIC,5,159,100,46
+    PUSHBUTTON      "Set",IDC_SET_SHIFT_BUTTON,130,47,20,15
+    EDITTEXT        IDC_SHIFT_EDIT,65,48,51,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SHIFT_SPIN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,108,46,
+                    10,14
+    LTEXT           "Offset, Hz :",IDC_STATIC,10,50,36,8
+    GROUPBOX        "Fine tune :",IDC_STATIC,157,20,78,41
+    PUSHBUTTON      "Set",IDC_SET_FINE_TUNE_BUTTON,207,37,20,15
+    EDITTEXT        IDC_FINE_TUNE_EDIT,162,38,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_FINE_TUNE_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,197,38,10,14
+    COMBOBOX        IDC_MODULATION_TYPE_COMBO,22,126,69,63,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,15,173,85,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Current :",IDC_STATIC,16,190,23,8
+    EDITTEXT        IDC_CURRENT_EDIT,44,188,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,87,190,8,8
+END
+
+IDD_TERMINAL_FORM DIALOG DISCARDABLE  0, 0, 281, 171
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_COMMAND_EDIT,10,16,134,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_REPLY_EDIT,7,56,261,101,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | WS_VSCROLL | WS_HSCROLL
+    DEFPUSHBUTTON   "Send",IDC_SEND_BUTTON,147,16,30,14
+    PUSHBUTTON      "CRLF",IDC_SENDCRLF_BUTTON,177,16,31,14
+    PUSHBUTTON      "Esc",IDC_SENDESC_BUTTON,209,16,31,14
+    PUSHBUTTON      "File...",IDC_SENDFILE_BUTTON,241,16,31,14
+    CONTROL         "Repeat every",IDC_REPEAT_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,15,40,59,10
+    EDITTEXT        IDC_REPEAT_EDIT,75,37,21,12,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "sec.",IDC_STATIC,100,40,14,8,WS_DISABLED
+END
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 338, 226
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About HardwareTest"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "HardwareTest Version 4.00",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "April 2005",IDC_STATIC,40,23,121,13
+    DEFPUSHBUTTON   "OK",IDOK,281,7,50,14,WS_GROUP
+    LTEXT           "Evgeny Kozhevnikov",IDC_EMAIL_HYPERLINK_STATIC,227,135,
+                    68,8
+    LTEXT           "Please send your feedback (remarks, wishes, bug reports etc.) to",
+                    IDC_STATIC,19,135,204,8
+    LTEXT           "Внимание! Данная программа является исключительно технологической.",
+                    IDC_STATIC,18,52,289,14
+    LTEXT           "Любое другое использование программы запрещено.\nРазработчик данной программы не несет ответственности за возможные последствия, связанные с ее использованием.",
+                    IDC_STATIC,18,97,289,32
+    LTEXT           "Она предназначена для использования квалифицированным, прошедшим специальную подготовку персоналом при проведении настроечных, регламентных работ, а также в процессе тестирования аппаратуры.",
+                    IDC_STATIC,18,70,289,24
+    CONTROL         "Never show this message at startup",
+                    IDC_DONT_SHOW_AT_STARTUP_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,22,197,128,10
+END
+
+IDD_NSG_SCRIPT_FORM DIALOG DISCARDABLE  0, 0, 286, 121
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_SCRIPT_EDIT,10,5,240,95,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Save As...",IDC_SAVE_AS_BUTTON,70,105,50,14
+    PUSHBUTTON      "Load...",IDC_LOAD_BUTTON,125,105,50,14
+    PUSHBUTTON      "Make",IDC_MAKE_SCRIPT_BUTTON,15,105,50,14
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,180,105,50,14
+END
+
+IDD_PHYSICAL_PORTS_FORM DIALOG DISCARDABLE  0, 0, 286, 291
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_PORT_NUMBER_COMBO,40,45,30,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Port No :",IDC_STATIC,5,48,32,8
+    EDITTEXT        IDC_PORT_CONFIG_EDIT,5,65,275,62,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Apply",IDC_SET_PORT_CONFIG_BUTTON,190,45,30,15
+    LTEXT           "Select desired physical port and edit properties you need.",
+                    IDC_STATIC,70,11,180,8
+    LTEXT           "To apply settings press Apply button.",IDC_STATIC,102,
+                    23,116,8
+    PUSHBUTTON      "Warm start",IDC_WARM_BUTTON,225,44,50,15
+    EDITTEXT        IDC_STATE_EDIT,5,130,275,154,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+END
+
+IDD_STATIONS_FORM DIALOG DISCARDABLE  0, 0, 313, 216
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_STATION_NUMBER_COMBO,56,39,30,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Station No :",IDC_STATIC,12,42,40,8
+    EDITTEXT        IDC_STATION_CONFIG_EDIT,18,57,275,47,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Apply",IDC_SET_STATION_CONFIG_BUTTON,196,39,30,15
+    LTEXT           "Select station and edit properties you need.",
+                    IDC_STATIC,92,13,137,8
+    LTEXT           "To apply settings press Apply button.",IDC_STATIC,102,
+                    24,116,8
+    EDITTEXT        IDC_STATE_EDIT,18,109,275,100,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Warm start",IDC_WARM_BUTTON,226,39,50,15
+END
+
+IDD_IP_INTERFACES_FORM DIALOG DISCARDABLE  0, 0, 286, 215
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_NUMBER_COMBO,52,37,30,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Interface No :",IDC_STATIC,5,40,43,8
+    EDITTEXT        IDC_CONFIG_EDIT,7,57,275,43,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Apply",IDC_SET_CONFIG_BUTTON,190,35,30,15
+    LTEXT           "Select desired IP-interface and edit properties you need.",
+                    IDC_STATIC,52,7,177,8
+    LTEXT           "To apply settings press Apply button.",IDC_STATIC,84,19,
+                    116,8
+    PUSHBUTTON      "Warm start",IDC_WARM_BUTTON,225,35,50,15
+    LTEXT           "NUM=",IDC_STATIC,90,40,22,8
+    EDITTEXT        IDC_NUM_EDIT,114,37,15,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Can RIP",IDC_CAN_RIP_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,38,43,10
+    EDITTEXT        IDC_STATE_EDIT,7,105,275,107,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+END
+
+IDD_IP_ROUTING_TABLE_FORM DIALOG DISCARDABLE  0, 0, 271, 181
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_TABLE_EDIT,5,57,258,118,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL | WS_HSCROLL
+    LTEXT           "This is a IP-routing table",IDC_STATIC,97,40,76,8
+    PUSHBUTTON      "Apply",IDC_SET_DEFAUL_GATEWAY_BUTTON,175,11,30,15
+    LTEXT           "Default Gateway :",IDC_STATIC,5,14,58,8
+    PUSHBUTTON      "Warm start",IDC_WARM_BUTTON,210,11,50,15
+    EDITTEXT        IDC_DEFAULT_GW_EDIT,67,12,82,14,ES_AUTOHSCROLL
+END
+
+IDD_IP_STATIC_ROUTES_FORM DIALOG DISCARDABLE  0, 0, 266, 131
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_STATIC_ROUTES_LIST,"SysListView32",
+                    LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,29,
+                    250,70
+    LTEXT           "Manage IP Static Routes here",IDC_STATIC,95,10,96,8
+    PUSHBUTTON      "Delete",IDC_DELETE_BUTTON,107,110,50,14
+    PUSHBUTTON      "Modify",IDC_MODIFY_BUTTON,169,110,50,14
+    PUSHBUTTON      "Add",IDC_ADD_BUTTON,45,110,50,14
+END
+
+IDD_STATIC_ROUTE_PROPERTIES_DIALOG DIALOG DISCARDABLE  0, 0, 186, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Properties of static route"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,37,88,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,98,88,50,14
+    LTEXT           "Net :",IDC_STATIC,11,10,16,8
+    LTEXT           "Mask :",IDC_STATIC,10,29,22,8
+    LTEXT           "Gateway :",IDC_STATIC,10,48,33,8
+    LTEXT           "Metric :",IDC_STATIC,10,67,24,8
+    EDITTEXT        IDC_METRIC_EDIT,49,65,21,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NET_EDIT,50,7,75,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MASK_EDIT,50,25,75,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GW_EDIT,50,45,75,12,ES_AUTOHSCROLL
+END
+
+IDD_PVC_FORM DIALOG DISCARDABLE  0, 0, 308, 152
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Manage Permanent Virtual Circuits here",IDC_STATIC,85,
+                    10,125,8
+    PUSHBUTTON      "Delete",IDC_DELETE_BUTTON,122,127,50,14
+    PUSHBUTTON      "Modify",IDC_MODIFY_BUTTON,184,127,50,14
+    PUSHBUTTON      "Add",IDC_ADD_BUTTON,60,127,50,14
+    LTEXT           "Note that all changes become actual only after warm start of both ports",
+                    IDC_STATIC,42,22,223,8
+    EDITTEXT        IDC_PVC_EDIT,10,40,275,80,ES_MULTILINE | ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+IDD_PVC_PROPERTIES_DIALOG DIALOG DISCARDABLE  0, 0, 222, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "PVC properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,51,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,119,74,50,14
+    LTEXT           "Port :",IDC_STATIC,20,16,18,8
+    EDITTEXT        IDC_PORT1_EDIT,46,15,17,12,ES_AUTOHSCROLL
+    LTEXT           "Channel :",IDC_STATIC,10,39,31,8
+    EDITTEXT        IDC_CHANNEL1_EDIT,46,36,17,12,ES_AUTOHSCROLL
+    LTEXT           "Connected to :",IDC_STATIC,85,28,48,8
+    LTEXT           "Port :",IDC_STATIC,155,16,18,8
+    EDITTEXT        IDC_PORT2_EDIT,181,16,17,12,ES_AUTOHSCROLL
+    LTEXT           "Channel :",IDC_STATIC,145,40,31,8
+    EDITTEXT        IDC_CHANNEL2_EDIT,181,37,17,12,ES_AUTOHSCROLL
+END
+
+IDD_DEVICES_PROPPAGE DIALOG DISCARDABLE  0, 0, 277, 135
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Devices"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_TRANSMITTER_COMBO,17,27,233,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Modulator N",IDC_STATIC,25,46,40,8
+    EDITTEXT        IDC_MODULATOR_NO_EDIT,69,43,25,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_MODULATOR_NO_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,90,44,11,14
+    COMBOBOX        IDC_RECEIVER_COMBO,17,93,233,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Demodulator N",IDC_STATIC,20,112,48,8
+    EDITTEXT        IDC_DEMODULATOR_NO_EDIT,69,109,25,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_DEMODULATOR_NO_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,90,109,11,14
+    CONTROL         "Tab1",IDC_TRANSMITTER_TAB,"SysTabControl32",0x0,5,5,260,
+                    60
+    CONTROL         "Tab1",IDC_RECEIVER_TAB,"SysTabControl32",0x0,5,70,260,
+                    60
+    COMBOBOX        IDC_TRANSMITTER_COMBO2,17,27,233,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PROPPAGE3 DIALOG DISCARDABLE  0, 0, 192, 106
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Data"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "From ",IDC_STATIC,15,34,18,8
+    LTEXT           "baud to ",IDC_STATIC,86,34,27,8
+    LTEXT           "baud",IDC_STATIC,166,34,17,8
+    LTEXT           "Specify data rates range here",IDC_STATIC,56,8,94,8
+    COMBOBOX        IDC_START_DATERATE_COMBO,35,30,48,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_END_DATERATE_COMBO,115,30,48,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PROPPAGE4 DIALOG DISCARDABLE  0, 0, 183, 94
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Level"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Specify signal level range and changing step here",
+                    IDC_STATIC,14,8,158,8
+    LTEXT           "From ",IDC_STATIC,25,34,18,8
+    EDITTEXT        IDC_START_LEVEL_EDIT,50,31,33,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_START_LEVEL_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,77,29,10,14
+    LTEXT           "dB to ",IDC_STATIC,87,34,20,8
+    EDITTEXT        IDC_END_LEVEL_EDIT,111,31,28,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_END_LEVEL_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,131,28,11,14
+    LTEXT           "dB",IDC_STATIC,147,34,10,8
+    LTEXT           "step",IDC_STATIC,55,55,14,8
+    EDITTEXT        IDC_STEP_LEVEL_EDIT,75,52,33,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_STEP_LEVEL_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,97,50,11,14
+    LTEXT           "dB",IDC_STATIC,114,55,10,8
+END
+
+IDD_PROPPAGE5 DIALOG DISCARDABLE  0, 0, 237, 95
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Other"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "tests at each parameter set",IDC_STATIC,82,15,86,8
+    LTEXT           "Perform",IDC_STATIC,15,15,25,8
+    EDITTEXT        IDC_NUM_TESTS_EDIT,45,12,30,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_NUM_TESTS_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,60,5,11,14
+    EDITTEXT        IDC_FILE_PATH_EDIT,25,69,165,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE_BUTTON,195,69,35,14
+    LTEXT           "File:",IDC_STATIC,6,72,14,8
+    CONTROL         "Turn transmitter off/on every test",
+                    IDC_TURN_TRANSMITTER_OFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,50,119,10
+END
+
+CG_IDD_PROGRESS DIALOG DISCARDABLE  0, 0, 324, 61
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,139,40,50,14
+    CONTROL         "Progress1",CG_IDC_PROGDLG_PROGRESS,"msctls_progress32",
+                    WS_BORDER,7,19,310,13
+    CTEXT           "",CG_IDC_PROGDLG_STATUS,7,7,310,8
+END
+
+IDD_COMMON_TESTS_DIRECTIONS_PROPPAGE DIALOG DISCARDABLE  0, 0, 282, 210
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Before started: connections"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "",IDC_DRAWING_STATIC,"Static",SS_ENHMETAFILE,5,61,270,
+                    141
+    EDITTEXT        IDC_DIRECTIONS_TEXT_EDIT,5,5,270,55,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_MODEM_BATCH_TESTS_PORT_PROPPAGE DIALOG DISCARDABLE  0, 0, 286, 215
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Modem Monitor & Control"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_CONNECTION_STATUS_STATIC,52,3,227,8
+    LTEXT           "M&&C status:",IDC_STATIC,5,3,38,8
+    PUSHBUTTON      "Run test",IDC_REPEAT_BUTTON,100,195,80,14
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,5,25,275,165,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+END
+
+IDD_TRANCEIVER_FORM DIALOG DISCARDABLE  0, 0, 207, 146
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Outdoor tranceiver",IDC_STATIC,71,7,60,8
+    LTEXT           "",IDC_TEMPERATURE_STATIC,10,25,112,8
+    GROUPBOX        "Output :",IDC_STATIC,5,38,90,50
+    CONTROL         "On/Off",IDC_ONOFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,55,38,10
+    LTEXT           "",IDC_POWER_STATIC,15,72,70,8
+    GROUPBOX        "Frequency :",IDC_STATIC,104,38,86,50
+    EDITTEXT        IDC_FREQUENCY_EDIT,110,55,35,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_BUTTON,155,55,30,12
+    LTEXT           "ALARM !",IDC_TEMPERATURE_ALARM_STATIC,155,26,30,8
+    EDITTEXT        IDC_GAIN_EDIT,40,105,35,14,ES_AUTOHSCROLL
+    LTEXT           "dBm",IDC_STATIC,80,108,15,8
+    PUSHBUTTON      "Set",IDC_SET_GAIN_BUTTON,102,105,30,12
+    GROUPBOX        "Gain :",IDC_STATIC,5,90,185,45
+END
+
+IDD_MODEM_BATCH_TESTS_DIRECTIONS_PROPPAGE DIALOG DISCARDABLE  0, 0, 275, 159
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Connections"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "1. Turn device to be tested off\n2. Connect it by console cable via Com1: serial port\n3. Turn device on\n4. Press the Next button ",
+                    IDC_STATIC,17,7,215,43
+    CONTROL         "",IDC_DRAWING_STATIC,"Static",SS_ENHMETAFILE,7,45,236,
+                    93
+END
+
+IDD_MODEM_BATCH_TESTS_DEVICE_PROPPAGE DIALOG DISCARDABLE  0, 0, 246, 178
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Device choosing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_DEVICE_COMBO,10,13,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_FILE_PATH_EDIT,10,149,185,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE_BUTTON,200,149,35,14
+    GROUPBOX        "Modem to be tested :",IDC_STATIC,5,3,235,30
+    COMBOBOX        IDC_ETALON_MODEM_COMBO,10,46,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Etalon modem :",IDC_STATIC,5,34,235,31
+    COMBOBOX        IDC_POWER_METER_COMBO,10,81,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Power meter :",IDC_STATIC,5,69,235,31
+    GROUPBOX        "Report file :",IDC_STATIC,5,139,235,30
+    COMBOBOX        IDC_FREQUENCY_COUNTER_COMBO,10,117,220,59,
+                    CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Frequency counter :",IDC_STATIC,5,104,235,31
+END
+
+IDD_MODEM_BATCH_TESTS_WIDE_FREQ_RANGE_PROPPAGE DIALOG DISCARDABLE  0, 0, 312, 186
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Frequency range test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Please tune spectrum analyzer as specified below:",
+                    IDC_STATIC,145,5,159,8,NOT WS_VISIBLE
+    LTEXT           "Center =",IDC_STATIC,147,18,28,8,NOT WS_VISIBLE
+    LTEXT           "Span =",IDC_STATIC,233,18,24,8,NOT WS_VISIBLE
+    LTEXT           "RBW =",IDC_STATIC,148,33,24,8,NOT WS_VISIBLE
+    LTEXT           "VBW =",IDC_STATIC,234,33,24,8,NOT WS_VISIBLE
+    LTEXT           "Ref. level =",IDC_STATIC,148,53,37,8,NOT WS_VISIBLE
+    LTEXT           "Press",IDC_STATIC,106,154,18,8
+    PUSHBUTTON      "Run",IDC_RUN_BUTTON,127,151,40,14
+    LTEXT           "to start test",IDC_STATIC,169,154,36,8
+    GROUPBOX        "Problem frequencies :",IDC_STATIC,7,5,298,70
+    LISTBOX         IDC_PROBLEM_FREQUENCIES_LISTBOX,15,15,280,55,
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CENTER_EDIT,178,16,30,13,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_VISIBLE
+    LTEXT           "MHz",IDC_STATIC,210,19,16,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_SPAN_EDIT,258,16,30,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_VISIBLE
+    LTEXT           "KHz",IDC_STATIC,290,18,14,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_RBW_EDIT,178,31,30,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_VISIBLE
+    LTEXT           "KHz",IDC_STATIC,210,34,14,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_VBW_EDIT,258,31,30,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_VISIBLE
+    LTEXT           "Hz",IDC_STATIC,289,33,10,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_REF_LEVEL_EDIT,187,51,22,13,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_VISIBLE
+    LTEXT           "dBm",IDC_STATIC,210,53,15,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_WAIT_TIME_EDIT,103,128,21,12,ES_AUTOHSCROLL
+    LTEXT           "milliseconds",IDC_STATIC,129,130,38,8
+    CONTROL         "hold output turned on",IDC_WAIT_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,130,85,10
+    CONTROL         "Mute output during frequency changing",
+                    IDC_MUTE_OUTPUT_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,115,140,10
+    EDITTEXT        IDC_MUTE_TIME_EDIT,157,113,21,12,ES_AUTOHSCROLL
+    LTEXT           "milliseconds, then",IDC_STATIC,181,115,56,8
+    LTEXT           "From",IDC_STATIC,15,96,16,8
+    EDITTEXT        IDC_START_FREQ_EDIT,35,93,35,12,ES_AUTOHSCROLL
+    LTEXT           "MHz to",IDC_STATIC,72,96,24,8
+    EDITTEXT        IDC_END_FREQ_EDIT,98,93,35,12,ES_AUTOHSCROLL
+    LTEXT           "MHz, step",IDC_STATIC,134,96,33,8
+    EDITTEXT        IDC_STEP_EDIT,170,93,35,12,ES_AUTOHSCROLL
+    LTEXT           "KHz",IDC_STATIC,208,96,14,8
+    GROUPBOX        "Test parameters :",IDC_STATIC,7,80,298,65
+    PUSHBUTTON      "Restore defaults",IDC_RESTORE_DEFAULTS_BUTTON,228,91,70,
+                    14
+END
+
+IDD_MODEM_BATCH_TESTS_VARIOUS_OUTPUT_PROPPAGE DIALOG DISCARDABLE  0, 0, 294, 208
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Various output"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_TRANSMITTER_FREQUENCY_EDIT,10,15,60,12,
+                    ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_TRANSMITTER_FREQUENCY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,60,12,11,14
+    PUSHBUTTON      "Set",IDC_SET_FREQUENCY_BUTTON,75,15,20,15
+    GROUPBOX        "Signal output power :",IDC_STATIC,5,36,170,30
+    CONTROL         "On/Off",IDC_ONOFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,50,38,10
+    LTEXT           "Level, dB :",IDC_STATIC,59,51,35,8
+    EDITTEXT        IDC_OUTPUT_LEVEL_EDIT,95,48,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OUTPUT_LEVEL_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,120,41,11,14
+    PUSHBUTTON      "Set",IDC_SET_OUTPUT_LEVEL_BUTTON,141,46,20,15
+    COMBOBOX        IDC_MODULATION_TYPE_COMBO,110,15,55,63,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_DATA_RATE_EDIT,185,15,65,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_DATA_RATE_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,250,15,11,14
+    PUSHBUTTON      "Set",IDC_SET_DATA_RATE_BUTTON,264,15,20,15
+    GROUPBOX        "FEC :",IDC_STATIC,180,36,110,30
+    GROUPBOX        "Data Rate, baud :",IDC_STATIC,180,5,110,30
+    COMBOBOX        IDC_FEC_MODE_COMBO,185,48,95,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Frequency, KHz :",IDC_STATIC,5,5,95,30
+    EDITTEXT        IDC_REPORT_EDIT,5,100,285,100,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Test OK",IDC_TEST_OK_BUTTON,5,76,50,14
+    PUSHBUTTON      "Test FAILED",IDC_TEST_FAILED_BUTTON,65,76,50,14
+    PUSHBUTTON      "Clear report",IDC_CLEAR_REPORT_BUTTON,125,76,50,14
+    GROUPBOX        "Modulation type :",IDC_STATIC,105,5,70,30
+    GROUPBOX        "DC supply :",IDC_STATIC,180,68,110,26
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,190,77,45,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CURRENT_EDIT,240,76,36,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,279,78,8,8
+END
+
+IDD_HUMAN_POWER_METER_DIALOG DIALOG DISCARDABLE  0, 0, 186, 41
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Power meter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_POWER_EDIT,114,3,40,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,67,20,50,15
+    LTEXT           "Please type the value of power :",IDC_STATIC,10,5,102,8
+    LTEXT           "dBm",IDC_STATIC,156,6,15,8
+END
+
+IDD_MODEM_BATCH_TESTS_OUTPUT_LEVEL_PROPPAGE DIALOG DISCARDABLE  0, 0, 241, 203
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Output level test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Run",IDC_RUN_BUTTON,15,179,165,11
+    GROUPBOX        "Signal parameters :",IDC_STATIC,7,20,183,175
+    LISTBOX         IDC_SIGNAL_PARAMETERS_LIST,15,35,165,80,
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Modulator output level tests will be performed here at different frequencies.",
+                    IDC_STATIC,7,6,234,8
+    CONTROL         "Automatic flow (frequency)",IDC_AUTOMATIC_FLOW_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,80,165,100,10
+    GROUPBOX        "Level range:",IDC_STATIC,15,120,165,40
+    LTEXT           "From ",IDC_STATIC,21,132,18,8
+    EDITTEXT        IDC_FROM_LEVEL,39,129,24,12,ES_AUTOHSCROLL
+    LTEXT           "dB, step",IDC_STATIC,112,132,26,8
+    EDITTEXT        IDC_TO_LEVEL,85,130,24,12,ES_AUTOHSCROLL
+    LTEXT           "dB to",IDC_STATIC,66,132,17,8
+    EDITTEXT        IDC_STEP_LEVEL,139,130,24,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,167,132,10,8
+    LTEXT           "Wait",IDC_STATIC,20,146,15,8
+    EDITTEXT        IDC_WAIT_TIME,39,143,24,12,ES_AUTOHSCROLL
+    LTEXT           "seconds at every level",IDC_STATIC,66,145,69,8
+    CONTROL         "Integral check",IDC_INTEGRAL_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,165,58,10
+END
+
+IDD_MODEM_BATCH_TESTS_OUTPUT_TURN_ON_OFF_PROPPAGE DIALOG DISCARDABLE  0, 0, 221, 148
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Output turn on/off test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Modulator output level tests will be turned on/off manually here.",
+                    IDC_STATIC,10,6,200,8
+    PUSHBUTTON      "",IDC_TURN_ON_OFF_BUTTON,65,91,90,14
+END
+
+IDD_MODEM_BATCH_TESTS_CARRIER_ACQUISITION_PROPPAGE DIALOG DISCARDABLE  0, 0, 324, 248
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Demodulator carrier acquisition time investigation"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Run tests",IDC_RUN_BUTTON,6,70,239,23
+    EDITTEXT        IDC_FREQUENCY_EDIT,12,14,60,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_FREQUENCY_BUTTON,80,14,34,15
+    COMBOBOX        IDC_MODULATION_TYPE_COMBO,10,46,55,63,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "FEC :",IDC_STATIC,75,36,100,30
+    COMBOBOX        IDC_FEC_MODE_COMBO,80,46,90,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Frequency, KHz :",IDC_STATIC,5,4,115,30
+    GROUPBOX        "Modulation type :",IDC_STATIC,5,36,64,30
+    GROUPBOX        "DC supply :",IDC_STATIC,125,4,120,30
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,131,14,58,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CURRENT_EDIT,196,13,28,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,226,15,8,8
+    GROUPBOX        "Data rates :",IDC_STATIC,249,4,71,110
+    LISTBOX         IDC_DATA_RATES_LIST,255,16,58,90,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | 
+                    WS_TABSTOP
+    GROUPBOX        "N of tests :",IDC_STATIC,181,36,64,30
+    EDITTEXT        IDC_NTESTS_EDIT,185,46,55,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_NTESTS_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,225,41,
+                    11,14
+    EDITTEXT        IDC_TEST_PROTOCOL_EDIT,7,120,313,120,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    LTEXT           "",IDC_STATUS_STATIC,5,101,240,8
+END
+
+IDD_COMMON_TESTS_CONGRATULATIONS_PROPPAGE DIALOG DISCARDABLE  0, 0, 231, 74
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Congratulations !"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Tests completed. Congratulations !!!",IDC_STATIC,7,46,
+                    217,8
+END
+
+IDD_MODEM_BATCH_TESTS_SECONDARY_SIGNALS_PROPPAGE DIALOG DISCARDABLE  0, 0, 249, 161
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Spurious level test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Run",IDC_RUN_BUTTON,90,136,33,11
+    PUSHBUTTON      "Next",IDC_NEXT_BUTTON,52,136,33,11
+    PUSHBUTTON      "Restart tests",IDC_RESTART_TESTS_BUTTON,132,136,63,11
+    GROUPBOX        "Signal parameters :",IDC_STATIC,40,30,170,120
+    LISTBOX         IDC_SIGNAL_PARAMETERS_LIST,50,42,145,90,
+                    LBS_NOINTEGRALHEIGHT | WS_DISABLED | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Modulator spurious level tests will be performed here at different frequencies.",
+                    IDC_STATIC,10,10,230,12
+END
+
+IDD_MODEM_SDMS_BATCH_TESTS_DEVICE_PROPPAGE DIALOG DISCARDABLE  0, 0, 246, 236
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Device choosing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_FILE_PATH_EDIT,10,211,185,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE_BUTTON,200,211,35,14
+    COMBOBOX        IDC_SDMS_COMBO,10,15,220,59,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "SDMS to be tested :",IDC_STATIC,5,3,235,31
+    COMBOBOX        IDC_POWER_METER_COMBO,10,146,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Power meter :",IDC_STATIC,5,134,235,31
+    GROUPBOX        "Report file :",IDC_STATIC,5,201,235,30
+    COMBOBOX        IDC_MODEM_COMBO,10,46,220,59,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Modem to be tested :",IDC_STATIC,5,36,235,30
+    COMBOBOX        IDC_FREQUENCY_COUNTER_COMBO,10,181,220,59,
+                    CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Frequency counter :",IDC_STATIC,5,168,235,31
+    COMBOBOX        IDC_ETALON_STELAM_COMBO,10,82,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Etalon SDMS :",IDC_STATIC,5,70,235,31
+    COMBOBOX        IDC_ETALON_MODEM_COMBO,10,113,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Etalon modem :",IDC_STATIC,5,103,235,30
+END
+
+IDD_SDMS_BATCH_TESTS_PORTS_PROPPAGE DIALOG DISCARDABLE  0, 0, 274, 173
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "SDMS ports test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,5,25,260,104,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Run test",IDC_REPEAT_BUTTON,96,137,80,14
+END
+
+IDD_SDMS_BATCH_TESTS_ETHERNET_PROPPAGE DIALOG DISCARDABLE  0, 0, 332, 261
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Ethernet port"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "This computer has IP-addresses/subnet masks :",
+                    IDC_STATIC,10,62,152,8
+    LTEXT           "Please enter correct IP-address and subnet mask to be able to test Ethernet port.",
+                    IDC_STATIC,10,4,255,8
+    EDITTEXT        IDC_DESIRED_IP_ADDRESS_EDIT,55,30,65,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_IP_ADDRESS_BUTTON,270,30,45,12
+    PUSHBUTTON      "Run test",IDC_RUN_TEST_BUTTON,135,235,50,14
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,15,135,300,97,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    LTEXT           "IP-address:",IDC_STATIC,15,34,36,8
+    EDITTEXT        IDC_DESIRED_SUBNET_MASK,190,30,65,14,ES_AUTOHSCROLL
+    LTEXT           "Subnet mask :",IDC_STATIC,141,34,46,8
+    COMBOBOX        IDC_LOCAL_HOST_COMBO,11,72,280,70,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Copy",IDC_COPY_BUTTON,296,73,20,13
+    GROUPBOX        "Helper :",IDC_STATIC,5,50,320,40
+    GROUPBOX        "IP address and mask :",IDC_STATIC,5,15,320,35
+    GROUPBOX        "Test :",IDC_STATIC,5,125,320,130
+    PUSHBUTTON      "Set",IDC_SET_MAC_ADDRESS_BUTTON,275,102,45,12
+    EDITTEXT        IDC_DESIRED_MAC_ADDRESS_EDIT,15,102,65,14,ES_AUTOHSCROLL
+    GROUPBOX        "MAC - address :",IDC_STATIC,5,92,320,30
+    LTEXT           "(for example, 00:23:FF:52:01:5A)",IDC_STATIC,90,105,104,
+                    8
+END
+
+IDD_SDMS_BATCH_TESTS_STARTUP_CONFIG_PROPPAGE DIALOG DISCARDABLE  0, 0, 322, 209
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Startup config"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_STARTUP_CONFIG_EDIT,5,10,310,170,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Get Current Config",IDC_GET_CURRENT_CONFIG_BUTTON,20,
+                    184,70,14
+    PUSHBUTTON      "Load from file...",IDC_LOAD_FROM_FILE_BUTTON,91,184,70,
+                    14
+    PUSHBUTTON      "Save Config to file...",IDC_SAVE_CONFIG_TO_FILE_BUTTON,
+                    162,184,70,14
+    PUSHBUTTON      "Set Startup Config",IDC_SET_STARTUP_CONFIG_BUTTON,233,
+                    184,70,14
+END
+
+IDD_VPPU_BATCH_TESTS_RADIO_PROPPAGE DIALOG DISCARDABLE  0, 0, 246, 141
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Radio test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,7,7,232,104,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Run test",IDC_REPEAT_BUTTON,82,117,80,14
+END
+
+IDD_UP_CONVERTER_FORM DIALOG DISCARDABLE  0, 0, 221, 165
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Specify Up converter properties here",IDC_STATIC,10,5,
+                    188,8
+    LTEXT           "Output frequency, MHz :",IDC_STATIC,10,25,78,8
+    EDITTEXT        IDC_FREQUENCY_EDIT,100,22,50,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_FREQUENCY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,140,15,11,14
+    PUSHBUTTON      "Set",IDC_SET_FREQUENCY_BUTTON,156,23,20,10
+    CONTROL         "On/Off",IDC_ONOFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,50,38,10
+    CONTROL         "Spectral Inversion",IDC_SPECTRAL_INV_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,50,73,10
+    EDITTEXT        IDC_INPUT_ATTENUATOR_EDIT,20,80,35,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,58,83,10,8
+    PUSHBUTTON      "Set",IDC_INPUT_ATT_SET_BUTTON,76,81,20,11
+    GROUPBOX        "Input attenuator :",IDC_STATIC,10,65,95,35
+    EDITTEXT        IDC_OUTPUT_ATTENUATOR_EDIT,125,80,35,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,163,83,10,8
+    PUSHBUTTON      "Set",IDC_OUTPUT_ATT_SET_BUTTON,181,81,20,11
+    GROUPBOX        "Output attenuator :",IDC_STATIC,115,65,95,35
+    EDITTEXT        IDC_GAIN_LOSS_EDIT,20,121,35,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,58,124,10,8
+    PUSHBUTTON      "Set",IDC_SET_GAIN_LOSS_BUTTON,76,122,20,11
+    GROUPBOX        "Gain/loss :",IDC_STATIC,10,106,95,35
+    LTEXT           "",IDC_TEMPERATURE_STATIC,10,150,200,8
+END
+
+IDD_MODEM_BATCH_TESTS_10MHZ_PROPPAGE DIALOG DISCARDABLE  0, 0, 227, 172
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "10 Mhz reference signal output is tested here",
+                    IDC_STATIC,78,7,142,8
+    LTEXT           "Measured 10 MHz level :",IDC_STATIC,48,62,80,8
+    EDITTEXT        IDC_10MHZ_EDIT,132,60,40,13,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        IDC_CORRECTION_EDIT,45,102,26,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm",IDC_STATIC,176,60,15,8
+    LTEXT           "dBm",IDC_STATIC,76,104,15,8
+    LTEXT           "(this value will be added to measured value)",
+                    IDC_STATIC,48,118,138,8
+    PUSHBUTTON      "Change",IDC_CHANGE_SHIFT_BUTTON,115,102,37,13
+    GROUPBOX        "Correction :",IDC_STATIC,28,85,170,45
+    LTEXT           "Measured signal frequency :",
+                    IDC_MEASURED_FREQUENCY_STATIC,36,47,90,8
+    EDITTEXT        IDC_MEASURED_FREQUENCY_EDIT,132,45,40,13,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    LTEXT           "Hz",IDC_MEASURED_FREQUENCY_HZ_STATIC,176,46,10,8
+    PUSHBUTTON      "Measure...",IDC_MEASURE_BUTTON,76,20,75,14
+    RTEXT           "",IDC_DEVICE_STATIC,11,6,62,8
+END
+
+IDD_FREQUENCY_DEPENDENT_CORRECTION_DIALOG DIALOG DISCARDABLE  0, 0, 232, 86
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Frequency-dependent correction dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_CORRECTION1_EDIT,10,20,30,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,54,60,50,15
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,114,60,50,15
+    LTEXT           "Please input the correction values at two DIFFERENT frequencies :",
+                    IDC_STATIC,8,5,214,8
+    LTEXT           "dBm at",IDC_STATIC,45,23,23,8
+    EDITTEXT        IDC_FREQUENCY1_EDIT,75,20,30,12,ES_AUTOHSCROLL
+    LTEXT           "MHz",IDC_STATIC,110,23,16,8
+    EDITTEXT        IDC_CORRECTION2_EDIT,10,35,30,12,ES_AUTOHSCROLL
+    LTEXT           "dBm at",IDC_STATIC,45,38,23,8
+    EDITTEXT        IDC_FREQUENCY2_EDIT,75,35,30,12,ES_AUTOHSCROLL
+    LTEXT           "MHz",IDC_STATIC,110,38,16,8
+END
+
+IDD_MODEM_BATCH_TESTS_POWER_SUPPLY_PROPPAGE DIALOG DISCARDABLE  0, 0, 267, 127
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_VOLTAGE_DESCRIPTION_STATIC,150,30,35,8
+    LTEXT           "Static",IDC_DEVICE_DESCRIPTION_STATIC,135,15,40,8
+    LTEXT           "Measured value :",IDC_STATIC,60,63,56,8
+    EDITTEXT        IDC_MEASURED_VALUE_EDIT,120,60,40,12,ES_AUTOHSCROLL
+    LTEXT           "Volts",IDC_STATIC,165,63,16,8
+    LTEXT           "Please switch your voltage meter to ",IDC_STATIC,15,15,
+                    114,8
+    LTEXT           "jack and measure",IDC_STATIC,188,15,57,8
+    LTEXT           "direct voltage, which should be equal to ",IDC_STATIC,
+                    15,30,128,8
+    LTEXT           "Current :",IDC_STATIC,86,83,30,8
+    EDITTEXT        IDC_CURRENT_VALUE_EDIT,120,80,40,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,165,83,8,8
+END
+
+IDD_SCAN_MC_BUS_ADDRESS_DIALOG DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Scan M&C bus addresses"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Scan",IDOK,48,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,109,74,50,14
+    LTEXT           "Scan from",IDC_STATIC,25,33,33,8
+    EDITTEXT        IDC_START_SCANNING_EDIT,65,31,30,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_START_SCANNING_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,85,20,11,14
+    LTEXT           "to",IDC_STATIC,99,33,8,8
+    EDITTEXT        IDC_STOP_SCANNING_EDIT,112,31,30,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_STOP_SCANNING_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,135,25,11,14
+END
+
+IDD_DOWN_CONVERTER_FORM DIALOG DISCARDABLE  0, 0, 221, 165
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Specify Down converter properties here",IDC_STATIC,10,5,
+                    188,8
+    LTEXT           "Input frequency, MHz :",IDC_STATIC,10,25,73,8
+    EDITTEXT        IDC_FREQUENCY_EDIT,100,22,50,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_FREQUENCY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,140,15,11,14
+    PUSHBUTTON      "Set",IDC_SET_FREQUENCY_BUTTON,156,23,20,10
+    CONTROL         "On/Off",IDC_ONOFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,50,38,10
+    CONTROL         "Spectral Inversion",IDC_SPECTRAL_INV_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,50,73,10
+    EDITTEXT        IDC_INPUT_ATTENUATOR_EDIT,20,80,35,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,58,83,10,8
+    PUSHBUTTON      "Set",IDC_INPUT_ATT_SET_BUTTON,76,81,20,11
+    GROUPBOX        "Input attenuator :",IDC_STATIC,10,65,95,35
+    EDITTEXT        IDC_OUTPUT_ATTENUATOR_EDIT,125,80,35,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,163,83,10,8
+    PUSHBUTTON      "Set",IDC_OUTPUT_ATT_SET_BUTTON,181,81,20,11
+    GROUPBOX        "Output attenuator :",IDC_STATIC,115,65,95,35
+    EDITTEXT        IDC_GAIN_LOSS_EDIT,20,121,35,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,58,124,10,8
+    PUSHBUTTON      "Set",IDC_SET_GAIN_LOSS_BUTTON,76,122,20,11
+    GROUPBOX        "Gain/loss :",IDC_STATIC,10,106,95,35
+    LTEXT           "",IDC_TEMPERATURE_STATIC,10,150,200,8
+END
+
+IDD_SDMS_SOFTWARE_VERSION_FORM DIALOG DISCARDABLE  0, 0, 332, 176
+STYLE WS_CHILD | WS_BORDER
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_SOFTWARE_VERSION_EDIT,19,21,285,110,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    GROUPBOX        "Current software version :",IDC_STATIC,9,9,305,130
+    PUSHBUTTON      "Setup new version",IDC_SETUP_NEW_VERSION_BUTTON,211,145,
+                    85,14
+END
+
+IDD_SDMS_BATCH_TESTS_SHELL_PROPPAGE DIALOG DISCARDABLE  0, 0, 313, 177
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,7,7,299,138,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Run test",IDC_RUN_BUTTON,116,154,80,14
+END
+
+IDD_MODULATOR_BERTEST_FORM DIALOG DISCARDABLE  0, 0, 256, 86
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,165,8
+    GROUPBOX        "Pattern Length :",IDC_STATIC,10,30,230,30
+    CONTROL         "BER-Test disabled",IDC_DISABLED_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,20,45,75,10
+    CONTROL         "2^11 - 1 = 2047",IDC_11_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,105,45,66,10
+    CONTROL         "2^23 - 1",IDC_23_RADIO,"Button",BS_AUTORADIOBUTTON,185,
+                    45,42,10
+    PUSHBUTTON      "Insert 1 error",IDC_INSERT_1ERROR_BUTTON,10,65,80,14
+END
+
+IDD_DEMODULATOR_BERTEST_FORM DIALOG DISCARDABLE  0, 0, 260, 216
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,165,8
+    GROUPBOX        "Pattern Length :",IDC_STATIC,10,30,230,30
+    CONTROL         "BER-Test disabled",IDC_DISABLED_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,20,45,75,10
+    CONTROL         "2^11 - 1 = 2047",IDC_11_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,105,45,66,10
+    CONTROL         "2^23 - 1",IDC_23_RADIO,"Button",BS_AUTORADIOBUTTON,185,
+                    45,42,10
+    GROUPBOX        "BER-Test status :",IDC_STATIC,10,70,230,105
+    LTEXT           "Test duration :",IDC_STATIC,20,90,46,8
+    LTEXT           "sec.",IDC_STATIC,105,89,14,8
+    LTEXT           "sync. losses",IDC_STATIC,49,108,39,8
+    EDITTEXT        IDC_SYNC_LOSSES_EDIT,20,106,25,12,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_TOTAL_BITS_EDIT,135,87,35,12,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Mbits received",IDC_STATIC,174,89,47,8
+    PUSHBUTTON      "Restart statistics",IDC_RESTART_BUTTON,150,182,89,14
+    EDITTEXT        IDC_DURATION_EDIT,69,87,34,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_ERRORED_BITS_EDIT,20,120,25,12,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "errors",IDC_STATIC,49,123,18,8
+    EDITTEXT        IDC_ERRORED_SECONDS_EDIT,20,135,25,12,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "errored seconds",IDC_STATIC,49,138,52,8
+    LTEXT           "BER = ",IDC_STATIC,137,122,24,8
+    EDITTEXT        IDC_BER_EDIT,163,119,51,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "% of error-free secs",IDC_STATIC,49,153,61,8
+    EDITTEXT        IDC_ERROR_FREE_PERCENTAGE_EDIT,20,150,25,12,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Insert 1 error",IDC_INSERT_1ERROR_BUTTON,10,182,100,14
+END
+
+IDD_MODEM_BATCH_TESTS_BERTEST_PROPPAGE DIALOG DISCARDABLE  0, 0, 284, 221
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "BER-Test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Frequency :",IDC_STATIC,10,11,38,8
+    EDITTEXT        IDC_FREQUENCY_EDIT,56,8,50,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_FREQUENCY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,85,14,10,14
+    LTEXT           "KHz",IDC_STATIC,111,11,14,8
+    GROUPBOX        "Modulation type :",IDC_STATIC,167,5,108,30
+    LTEXT           "Data rate :",IDC_STATIC,10,43,34,8
+    COMBOBOX        IDC_DATA_RATE_COMBO,58,40,57,76,CBS_DROPDOWNLIST | 
+                    WS_TABSTOP
+    LTEXT           "baud",IDC_STATIC,117,42,17,8
+    GROUPBOX        "FEC mode :",IDC_STATIC,168,37,108,25
+    LTEXT           "Modulator level :",IDC_STATIC,10,70,53,8
+    EDITTEXT        IDC_OUTPUT_LEVEL_EDIT,65,65,41,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OUTPUT_LEVEL_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,90,70,11,14
+    GROUPBOX        "DC supply :",IDC_STATIC,167,64,108,26
+    LTEXT           "S/N",IDC_SN_INPUT_LEVEL_STATIC,5,115,180,8
+    PUSHBUTTON      "Run test",IDC_REPEAT_BUTTON,195,100,80,24
+    EDITTEXT        IDC_TEST_PROTOCOL_EDIT,5,135,270,80,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    LTEXT           "dBm",IDC_STATIC,110,70,15,8
+    COMBOBOX        IDC_MODULATION_TYPE_COMBO,177,16,88,62,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FEC_MODE_COMBO,177,46,88,62,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,177,73,43,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Set",IDC_FREQ_BUTTON,130,9,20,14
+    PUSHBUTTON      "Set",IDC_LEVEL_BUTTON,130,65,20,14
+    EDITTEXT        IDC_CURRENT_EDIT,224,72,36,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,263,74,8,8
+END
+
+IDD_SUBSTITUTOR_FORM DIALOG DISCARDABLE  0, 0, 137, 81
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Enabled",IDC_ENABLE_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,25,42,10
+END
+
+IDD_ETHERNET_PORT_FORM DIALOG DISCARDABLE  0, 0, 333, 251
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "This computer has IP-addresses/subnet masks :",
+                    IDC_STATIC,12,55,152,8
+    EDITTEXT        IDC_DESIRED_IP_ADDRESS_EDIT,50,25,65,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_IP_ADDRESS_BUTTON,274,25,45,12
+    PUSHBUTTON      "Run test",IDC_RUN_TEST_BUTTON,135,224,50,14
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,15,135,300,81,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    LTEXT           "IP-address:",IDC_STATIC,10,28,36,8
+    EDITTEXT        IDC_DESIRED_SUBNET_MASK,184,25,65,14,ES_AUTOHSCROLL
+    LTEXT           "Subnet mask :",IDC_STATIC,135,28,46,8
+    COMBOBOX        IDC_LOCAL_HOST_COMBO,11,66,280,70,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Copy",IDC_COPY_BUTTON,296,65,20,13
+    GROUPBOX        "Helper :",IDC_STATIC,5,45,320,40
+    PUSHBUTTON      "Set",IDC_SET_MAC_ADDRESS_BUTTON,275,100,45,12
+    EDITTEXT        IDC_DESIRED_MAC_ADDRESS_EDIT,15,100,65,14,ES_AUTOHSCROLL
+    GROUPBOX        "IP address and mask:",IDC_STATIC,5,15,320,30
+    GROUPBOX        "MAC - address :",IDC_STATIC,5,90,320,30
+    LTEXT           "(for example, 00:23:FF:52:01:5A)",IDC_STATIC,90,103,104,
+                    8
+    GROUPBOX        "Test :",IDC_STATIC,5,125,320,120
+END
+
+IDD_POWER_METER_FORM DIALOG DISCARDABLE  0, 0, 307, 118
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,275,8
+    LTEXT           "Power :",IDC_STATIC,78,43,25,8
+    EDITTEXT        IDC_MEASUREMENT_EDIT,109,40,54,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm",IDC_UNITS_STATIC,165,43,15,8
+END
+
+IDD_SDMS_BATCH_TESTS_DEVICE_PROPPAGE DIALOG DISCARDABLE  0, 0, 257, 95
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Device choosing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_FILE_PATH_EDIT,12,65,185,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE_BUTTON,202,65,35,14
+    COMBOBOX        IDC_SDMS_COMBO,12,15,220,59,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "SDMS to be tested :",-1,5,3,240,31
+    GROUPBOX        "Report file :",-1,5,55,240,30
+END
+
+IDD_HUMAN_FREQUENCY_COUNTER_DIALOG DIALOG DISCARDABLE  0, 0, 201, 42
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Frequency counter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_FREQUENCY_EDIT,126,3,47,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,75,20,50,15
+    LTEXT           "Please type the value of frequency :",IDC_STATIC,10,5,
+                    114,8
+    LTEXT           "Hz",IDC_STATIC,175,6,10,8
+END
+
+IDD_SDMS_BATCH_TESTS_SOFTWARE_VERSION_PROPPAGE DIALOG DISCARDABLE  0, 0, 322, 177
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Software version"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_SOFTWARE_VERSION_EDIT,19,21,285,110,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    GROUPBOX        "Current software version :",IDC_STATIC,9,9,305,130
+    PUSHBUTTON      "Setup new version",IDC_SETUP_NEW_VERSION_BUTTON,211,145,
+                    85,14
+END
+
+IDD_MODEM_SDMS_BATCH_TESTS_DATA_THROUGH_PROPPAGE DIALOG DISCARDABLE  0, 0, 345, 218
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION 
+"Data full loopback test (SDMS->modem->another modem->another SDMS and back)"
+
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_PORT_TEST_PROTOCOL_EDIT,7,52,323,138,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Run test",IDC_RUN_BUTTON,132,196,80,14
+    EDITTEXT        IDC_LOCAL_HOST_IP_EDIT,8,30,57,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    EDITTEXT        IDC_TEST_ETHERNET_IP_EDIT,74,30,57,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    EDITTEXT        IDC_TEST_SERIAL_IP_EDIT,140,30,57,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ETALON_SERIAL_IP_EDIT,206,30,57,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ETALON_ETHERNET_IP_EDIT,272,30,57,14,ES_AUTOHSCROLL
+    LTEXT           "Your machine",IDC_STATIC,15,20,44,8
+    LTEXT           "Test ethernet",IDC_STATIC,84,20,43,8
+    LTEXT           "Test serial",IDC_STATIC,152,20,33,8
+    LTEXT           "Etalon serial",IDC_STATIC,210,20,39,8
+    LTEXT           "Etalon ethernet",IDC_STATIC,274,20,49,8
+END
+
+IDD_SDMS_STARTUP_CONFIG_FORM DIALOG DISCARDABLE  0, 0, 358, 210
+STYLE WS_CHILD | WS_BORDER
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_STARTUP_CONFIG_EDIT,15,9,310,170,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Get Current Config",IDC_GET_CURRENT_CONFIG_BUTTON,29,
+                    183,70,14
+    PUSHBUTTON      "Load from file...",IDC_LOAD_FROM_FILE_BUTTON,101,183,70,
+                    14
+    PUSHBUTTON      "Save Config to file...",IDC_SAVE_CONFIG_TO_FILE_BUTTON,
+                    171,183,70,14
+    PUSHBUTTON      "Set Startup Config",IDC_SET_STARTUP_CONFIG_BUTTON,243,
+                    183,70,14
+END
+
+IDD_ETHERNET_STATUS_FORM DIALOG DISCARDABLE  0, 0, 278, 246
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Input status :",IDC_STATIC,5,5,115,85
+    LTEXT           "input packets",IDC_STATIC,75,21,44,8
+    LTEXT           "input bytes",IDC_STATIC,75,36,35,8
+    LTEXT           "input errors",IDC_STATIC,75,52,36,8
+    LTEXT           "output drops",IDC_STATIC,200,66,40,8
+    LTEXT           "output packets",IDC_STATIC,200,22,48,8
+    LTEXT           "output bytes",IDC_STATIC,200,37,40,8
+    LTEXT           "output errors",IDC_STATIC,200,53,40,8
+    LTEXT           "input drops",IDC_STATIC,75,67,36,8
+    EDITTEXT        IDC_INPUT_PACKETS_EDIT,15,20,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INPUT_BYTES_EDIT,15,36,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INPUT_ERRORS_EDIT,15,51,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INPUT_DROPS_EDIT,15,66,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_PACKETS_EDIT,140,21,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_BYTES_EDIT,140,37,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_ERRORS_EDIT,140,51,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_DROPS_EDIT,140,66,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    GROUPBOX        "Receive errors :",IDC_STATIC,5,95,115,130
+    LTEXT           "short",IDC_STATIC,74,110,16,8
+    LTEXT           "giant",IDC_STATIC,74,125,16,8
+    LTEXT           "non-octet",IDC_STATIC,74,141,31,8
+    LTEXT           "bad CRC",IDC_STATIC,74,156,30,8
+    LTEXT           "overrun",IDC_STATIC,74,172,25,8
+    LTEXT           "collision",IDC_STATIC,74,187,26,8
+    LTEXT           "discarded",IDC_STATIC,74,203,32,8
+    EDITTEXT        IDC_RECEIVE_SHORT_EDIT,16,109,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_GIANT_EDIT,16,125,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_NON_OCTET_EDIT,16,140,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_BAD_CRC_EDIT,16,155,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_OVERRUN_EDIT,16,171,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_COLLISION_EDIT,16,186,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_DISCARDED_EDIT,16,201,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    GROUPBOX        "Send errors :",IDC_STATIC,130,95,125,130
+    LTEXT           "underrun",IDC_STATIC,199,110,29,8
+    LTEXT           "late collisions",IDC_STATIC,199,125,42,8
+    LTEXT           "deffered",IDC_STATIC,199,141,27,8
+    LTEXT           "lost carrier",IDC_STATIC,199,157,33,8
+    LTEXT           "heart beat",IDC_STATIC,199,172,33,8
+    LTEXT           "retries",IDC_STATIC,199,187,20,8
+    LTEXT           "retransmit limits",IDC_STATIC,199,203,48,8
+    EDITTEXT        IDC_SEND_UNDERRUN_EDIT,140,109,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_SEND_LATE_COLLISIONS_EDIT,140,125,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_SEND_DEFFERED_EDIT,140,140,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_SEND_LOST_CARRIER_EDIT,140,155,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_SEND_HEARTBEAT_EDIT,140,171,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_SEND_RETRIES_EDIT,140,186,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_SEND_RETRANSMIT_LIMITS_EDIT,140,201,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    GROUPBOX        "Output status :",IDC_STATIC,130,5,125,85
+END
+
+IDD_SERIAL_PORT_FORM DIALOG DISCARDABLE  0, 0, 333, 223
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Please specify IP-address and subnet mask of serial port.",
+                    -1,10,4,180,8
+    LTEXT           "This address must be accessible from this computer over LAN.",
+                    -1,10,19,196,8
+    EDITTEXT        IDC_DESIRED_IP_ADDRESS_EDIT,55,30,65,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET_IP_ADDRESS_BUTTON,280,30,45,12
+    LTEXT           "IP-address:",-1,15,34,36,8
+    EDITTEXT        IDC_DESIRED_SUBNET_MASK,190,30,65,14,ES_AUTOHSCROLL
+    LTEXT           "Subnet mask :",-1,141,34,46,8
+END
+
+IDD_SERIAL_STATUS_FORM DIALOG DISCARDABLE  0, 0, 296, 246
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Input status :",-1,5,5,120,85
+    LTEXT           "input packets",-1,75,21,44,8
+    LTEXT           "input bytes",-1,75,36,35,8
+    LTEXT           "input errors",-1,75,52,36,8
+    LTEXT           "output drops",-1,200,66,40,8
+    LTEXT           "output packets",-1,200,22,48,8
+    LTEXT           "output bytes",-1,200,37,40,8
+    LTEXT           "output errors",-1,200,53,40,8
+    LTEXT           "input drops",-1,75,67,36,8
+    EDITTEXT        IDC_INPUT_PACKETS_EDIT,15,20,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INPUT_BYTES_EDIT,15,36,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INPUT_ERRORS_EDIT,15,51,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INPUT_DROPS_EDIT,15,66,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_PACKETS_EDIT,140,21,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_BYTES_EDIT,140,37,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_ERRORS_EDIT,140,51,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_DROPS_EDIT,140,66,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    GROUPBOX        "Receive info :",-1,5,95,120,130
+    GROUPBOX        "Send info :",-1,130,95,125,130
+    GROUPBOX        "Output status :",-1,130,5,125,85
+    EDITTEXT        IDC_RECEIVE_CRC_EDIT,15,110,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_OVERRUN_EDIT,15,125,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_LOST_CARRIER_EDIT,15,140,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_FRAME_VIOLATIONS_EDIT,15,155,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_NON_OCTET_EDIT,15,170,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_ABORT_SEQ_EDIT,15,185,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_RECEIVE_DPLL_EDIT,15,200,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "bad CRC",-1,75,112,30,8
+    LTEXT           "overrun",-1,75,126,25,8
+    LTEXT           "lost carrier",-1,75,142,33,8
+    LTEXT           "frame violation",-1,75,156,46,8
+    LTEXT           "non-octet",-1,75,171,31,8
+    LTEXT           "abort seq.",-1,75,187,32,8
+    LTEXT           "dpll",-1,75,201,12,8
+    EDITTEXT        IDC_SEND_UNDERRUN_EDIT,140,110,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "underrun",-1,200,112,29,8
+    EDITTEXT        IDC_SEND_LOST_CTS_EDIT,140,125,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "lost CTS",-1,200,126,28,8
+    EDITTEXT        IDC_SEND_KEEPALIVE_EDIT,140,140,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "keepalive state",-1,200,142,49,8
+    EDITTEXT        IDC_SEND_RX_SEQ_EDIT,140,155,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "RX seq.",-1,200,156,26,8
+    EDITTEXT        IDC_SEND_TX_SEQ_EDIT,140,170,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "TX seq.",-1,200,171,26,8
+    EDITTEXT        IDC_SEND_LAST_POLL_EDIT,140,185,55,12,ES_RIGHT | 
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    LTEXT           "last poll",-1,200,187,24,8
+END
+
+IDD_VPPU_BATCH_TESTS_DEVICE_PROPPAGE DIALOG DISCARDABLE  0, 0, 246, 191
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Device choosing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_FILE_PATH_EDIT,10,152,185,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE_BUTTON,200,152,35,14
+    COMBOBOX        IDC_SDMS_COMBO,10,15,220,59,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "SDMS to be tested :",IDC_STATIC,5,3,235,31
+    COMBOBOX        IDC_POWER_METER_COMBO,10,87,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Power meter :",IDC_STATIC,5,75,235,31
+    GROUPBOX        "Report file :",IDC_STATIC,5,142,235,30
+    COMBOBOX        IDC_MODEM_COMBO,10,46,220,59,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Modem to be tested :",IDC_STATIC,5,36,235,30
+    COMBOBOX        IDC_FREQUENCY_COUNTER_COMBO,10,122,220,59,
+                    CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Frequency counter :",IDC_STATIC,5,109,235,31
+END
+
+IDD_MODULATOR_BUC_STATUS_FORM DIALOG DISCARDABLE  0, 0, 242, 132
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,165,8
+    GROUPBOX        "DC Supply :",IDC_STATIC,5,25,230,40
+    GROUPBOX        "Current :",IDC_STATIC,5,69,230,55
+    LTEXT           "Measured Value :",IDC_STATIC,93,44,57,8
+    EDITTEXT        IDC_VOLTAGE_EDIT,152,42,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "V",IDC_STATIC,195,44,8,8
+    LTEXT           "Value :",IDC_STATIC,25,86,23,8
+    EDITTEXT        IDC_CURRENT_EDIT,53,84,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,96,86,8,8
+    LTEXT           "From",IDC_STATIC,45,105,16,8
+    EDITTEXT        IDC_MIN_CURRENT_EDIT,68,102,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "to",IDC_STATIC,112,105,8,8
+    EDITTEXT        IDC_MAX_CURRENT_EDIT,123,102,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,168,105,8,8
+    LTEXT           "Limits :",IDC_STATIC,15,105,22,8
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,13,40,68,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_DEMODULATOR_LNB_STATUS_FORM DIALOG DISCARDABLE  0, 0, 192, 127
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,165,8
+    GROUPBOX        "Current :",IDC_STATIC,8,64,178,55
+    LTEXT           "Value :",IDC_STATIC,25,81,23,8
+    EDITTEXT        IDC_CURRENT_EDIT,53,79,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,96,81,8,8
+    LTEXT           "From",IDC_STATIC,45,100,16,8
+    EDITTEXT        IDC_MIN_CURRENT_EDIT,68,97,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "to",IDC_STATIC,112,100,8,8
+    EDITTEXT        IDC_MAX_CURRENT_EDIT,123,97,40,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,168,100,8,8
+    LTEXT           "Limits :",IDC_STATIC,15,100,22,8
+    GROUPBOX        "DC supply :",IDC_STATIC,8,28,178,27
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,25,38,68,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_FREQUENCY_COUNTER_FORM DIALOG DISCARDABLE  0, 0, 307, 118
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_HEADER_STATIC,15,9,275,8
+    LTEXT           "Frequency :",IDC_STATIC,66,43,38,8
+    EDITTEXT        IDC_MEASUREMENT_EDIT,109,40,51,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "KHz",IDC_UNITS_STATIC,164,43,14,8
+END
+
+IDD_TRANCEIVER_BATCH_TESTS_DEVICE_PROPPAGE DIALOG DISCARDABLE  0, 0, 246, 213
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Device choosing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_FILE_PATH_EDIT,10,182,185,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE_BUTTON,200,182,35,14
+    COMBOBOX        IDC_TRANCEIVER_COMBO,10,15,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Tranceiver to be tested :",IDC_STATIC,5,3,235,31
+    COMBOBOX        IDC_POWER_METER_COMBO,10,117,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Power meter :",IDC_STATIC,5,105,235,31
+    GROUPBOX        "Report file :",IDC_STATIC,5,172,235,30
+    COMBOBOX        IDC_MODEM_COMBO,10,46,220,59,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Primary modem (used in all tests) :",IDC_STATIC,5,36,
+                    235,30
+    COMBOBOX        IDC_FREQUENCY_COUNTER_COMBO,10,152,220,59,
+                    CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Frequency counter :",IDC_STATIC,5,139,235,31
+    COMBOBOX        IDC_MODEM2_COMBO,10,80,220,59,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Secondary modem (used in intermodulation test only) :",
+                    IDC_STATIC,5,70,235,30
+END
+
+IDD_TRANCEIVER_BATCH_TESTS_REMOTE_CONTROL_PROPPAGE DIALOGEX 0, 0, 347, 261
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Remote control tests"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Frequencies :",IDC_STATIC,5,17,80,70
+    GROUPBOX        "Input amplitudes :",IDC_STATIC,90,17,81,70
+    EDITTEXT        IDC_AMPLITUDE_FREQ__PROTOCOL_EDIT,7,130,333,105,
+                    ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | 
+                    ES_READONLY | WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Run test",IDC_RUN_TEST_BUTTON,133,240,80,14
+    LTEXT           "From :",IDC_STATIC,94,32,20,8
+    LTEXT           "To :",IDC_STATIC,100,47,14,8
+    LTEXT           "Step :",IDC_STATIC,94,62,20,8
+    EDITTEXT        IDC_FROM_EDIT,117,30,27,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TO_EDIT,117,45,27,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_STEP_EDIT,117,60,27,12,ES_AUTOHSCROLL
+    LTEXT           "dBm",IDC_STATIC,148,32,15,8
+    LTEXT           "dBm",IDC_STATIC,148,47,15,8
+    LTEXT           "dBm",IDC_STATIC,148,62,15,8
+    EDITTEXT        IDC_CORRECTION1_EDIT,179,27,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm at",IDC_STATIC,206,29,23,8
+    PUSHBUTTON      "Change",IDC_CHANGE_AMENDMENT_BUTTON,295,35,35,14
+    GROUPBOX        "Input correction :",IDC_STATIC,175,15,165,45
+    LTEXT           "From :",IDC_STATIC,12,31,20,8
+    LTEXT           "To :",IDC_STATIC,18,46,14,8
+    LTEXT           "Step :",IDC_STATIC,12,61,20,8
+    EDITTEXT        IDC_FREQ_FROM_EDIT,35,29,25,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    EDITTEXT        IDC_FREQ_TO_EDIT,35,44,25,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_FREQ_STEP_EDIT,35,59,25,12,ES_AUTOHSCROLL
+    LTEXT           "MHz",IDC_STATIC,64,31,16,8
+    LTEXT           "MHz",IDC_STATIC,64,46,16,8
+    LTEXT           "MHz",IDC_STATIC,64,61,16,8
+    EDITTEXT        IDC_FREQUENCY1_EDIT,230,27,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "MHz",IDC_STATIC,260,29,23,8
+    EDITTEXT        IDC_CORRECTION2_EDIT,179,42,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm at",IDC_STATIC,206,45,23,8
+    EDITTEXT        IDC_FREQUENCY2_EDIT,230,42,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "MHz",IDC_STATIC,260,45,23,8
+    LTEXT           "Please note that PRIMARY modem is used in this test.",
+                    IDC_STATIC,15,5,171,8
+    GROUPBOX        "DC supply :",IDC_STATIC,5,88,166,35
+    LTEXT           "U = ",IDC_U_STATIC,70,104,43,11,0,WS_EX_STATICEDGE
+    LTEXT           "I = ",IDC_I_STATIC,120,104,43,11,0,WS_EX_STATICEDGE
+    GROUPBOX        "10 MHz :",IDC_STATIC,175,88,165,35
+    CONTROL         "Enable",IDC_10MHZ_ENABLED_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,187,103,38,10
+    LTEXT           "Level :",IDC_10MHZ_LEVEL_STATIC,246,104,22,8
+    EDITTEXT        IDC_10MHZ_LEVEL_EDIT,273,101,28,12,ES_AUTOHSCROLL
+    LTEXT           "dBm",IDC_DBM_STATIC,305,103,15,8
+    GROUPBOX        "Output correction :",IDC_STATIC,175,60,165,27
+    EDITTEXT        IDC_OUTPUT_CORRECTION_EDIT,180,70,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm",IDC_STATIC,207,72,15,8
+    PUSHBUTTON      "Change",IDC_CHANGE_OUTPUT_CORRECTION_BUTTON,295,68,35,
+                    14
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,13,104,47,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_TRANCEIVER_BATCH_TESTS_AMPLITUDE_FREQUENCY_PROPPAGE DIALOGEX 0, 0, 347, 239
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Amplitude-frequency tests"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Frequencies :",IDC_STATIC,90,13,81,72
+    GROUPBOX        "Input amplitudes :",IDC_STATIC,5,13,79,72
+    EDITTEXT        IDC_AMPLITUDE_FREQ__PROTOCOL_EDIT,5,125,335,85,
+                    ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | 
+                    ES_READONLY | WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Run test",IDC_RUN_TEST_BUTTON,95,215,80,14
+    LTEXT           "From :",IDC_STATIC,9,28,20,8
+    LTEXT           "To :",IDC_STATIC,15,43,14,8
+    LTEXT           "Step :",IDC_STATIC,9,58,20,8
+    EDITTEXT        IDC_FROM_EDIT,33,26,27,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TO_EDIT,33,41,27,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_STEP_EDIT,33,56,27,12,ES_AUTOHSCROLL
+    LTEXT           "dBm",IDC_STATIC,63,28,15,8
+    LTEXT           "dBm",IDC_STATIC,63,43,15,8
+    LTEXT           "dBm",IDC_STATIC,63,58,15,8
+    LTEXT           "From :",IDC_STATIC,96,27,20,8
+    LTEXT           "To :",IDC_STATIC,102,42,14,8
+    LTEXT           "Step :",IDC_STATIC,96,57,20,8
+    EDITTEXT        IDC_FREQ_FROM_EDIT,119,25,25,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    EDITTEXT        IDC_FREQ_TO_EDIT,119,40,25,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_FREQ_STEP_EDIT,119,55,25,12,ES_AUTOHSCROLL
+    LTEXT           "MHz",IDC_STATIC,148,27,16,8
+    LTEXT           "MHz",IDC_STATIC,148,42,16,8
+    LTEXT           "MHz",IDC_STATIC,148,57,16,8
+    LTEXT           "Please note that PRIMARY modem is used in this test.",
+                    IDC_STATIC,15,3,171,8
+    EDITTEXT        IDC_CORRECTION1_EDIT,179,25,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm at",IDC_STATIC,206,27,23,8
+    PUSHBUTTON      "Change",IDC_CHANGE_AMENDMENT_BUTTON,295,33,35,14
+    GROUPBOX        "Input correction :",IDC_STATIC,175,13,165,45
+    EDITTEXT        IDC_FREQUENCY1_EDIT,230,25,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "MHz",IDC_STATIC,260,27,23,8
+    EDITTEXT        IDC_CORRECTION2_EDIT,179,40,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm at",IDC_STATIC,206,43,23,8
+    EDITTEXT        IDC_FREQUENCY2_EDIT,230,40,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "MHz",IDC_STATIC,260,43,23,8
+    GROUPBOX        "DC supply :",IDC_STATIC,5,85,166,35
+    GROUPBOX        "10 MHz :",IDC_STATIC,175,85,165,35
+    CONTROL         "Enable",IDC_10MHZ_ENABLED_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,187,100,38,10
+    LTEXT           "Level :",IDC_10MHZ_LEVEL_STATIC,246,101,22,8
+    EDITTEXT        IDC_10MHZ_LEVEL_EDIT,273,98,28,12,ES_AUTOHSCROLL
+    LTEXT           "dBm",IDC_DBM_STATIC,305,100,15,8
+    GROUPBOX        "Output correction :",IDC_STATIC,175,58,165,27
+    EDITTEXT        IDC_OUTPUT_CORRECTION_EDIT,180,68,24,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "dBm",IDC_STATIC,207,70,15,8
+    PUSHBUTTON      "Change",IDC_CHANGE_OUTPUT_CORRECTION_BUTTON,295,66,35,
+                    14
+    LTEXT           "U = ",IDC_U_STATIC,70,100,43,11,0,WS_EX_STATICEDGE
+    LTEXT           "I = ",IDC_I_STATIC,120,99,43,11,0,WS_EX_STATICEDGE
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,13,100,47,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_CORRECTION_DIALOG DIALOG DISCARDABLE  0, 0, 197, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Correction dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_CORRECTION_EDIT,119,12,30,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,45,40,50,15
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,105,40,50,15
+    LTEXT           "Please input the correction value :",-1,5,15,108,8
+    LTEXT           "dBm",-1,154,15,15,8
+END
+
+IDD_TRANCEIVER_BATCH_TESTS_SPURIOUS_LEVEL_PROPPAGE DIALOGEX 0, 0, 317, 242
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Spurious level tests"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Frequencies and amplitudes :",IDC_STATIC,5,21,300,45
+    EDITTEXT        IDC_AMPLITUDE_FREQ__PROTOCOL_EDIT,5,135,300,100,
+                    ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | 
+                    ES_READONLY | WS_VSCROLL | WS_HSCROLL
+    LTEXT           "Input amplitude :",IDC_STATIC,128,36,53,8
+    LTEXT           "Output amplitude :",IDC_STATIC,123,51,58,8
+    EDITTEXT        IDC_INPUT_LEVEL_EDIT,184,34,36,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_OUTPUT_LEVEL_EDIT,184,49,36,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "dBm",IDC_STATIC,223,36,15,8
+    LTEXT           "dBm",IDC_STATIC,223,51,15,8
+    LTEXT           "Input frequency :",IDC_STATIC,15,35,54,8
+    LTEXT           "Output frequency :",IDC_STATIC,9,51,60,8
+    EDITTEXT        IDC_INPUT_FREQ_EDIT,71,33,25,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    EDITTEXT        IDC_OUTPUT_FREQ_EDIT,71,48,25,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "MHz",IDC_STATIC,100,35,16,8
+    LTEXT           "MHz",IDC_STATIC,100,50,16,8
+    PUSHBUTTON      "Set",IDC_SET_BUTTON,250,36,40,14
+    GROUPBOX        "Spurious level :",IDC_STATIC,5,101,300,30
+    EDITTEXT        IDC_SPURIOUS_LEVEL_EDIT,75,111,25,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "Write to protocol",IDC_WRITE__BUTTON,210,111,80,14
+    LTEXT           "Measured value :",IDC_STATIC,15,114,56,8
+    CONTROL         "Spin1",IDC_INPUT_LEVEL_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS,205,29,11,14
+    LTEXT           "dBm",IDC_STATIC,104,114,15,8
+    LTEXT           "Please note that PRIMARY modem is used in this test.",
+                    IDC_STATIC,15,5,171,8
+    GROUPBOX        "DC supply :",IDC_STATIC,5,67,165,32
+    GROUPBOX        "10 MHz :",IDC_STATIC,175,67,130,32
+    CONTROL         "Enable",IDC_10MHZ_ENABLED_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,185,78,38,10
+    LTEXT           "Level :",IDC_10MHZ_LEVEL_STATIC,244,79,22,8
+    EDITTEXT        IDC_10MHZ_LEVEL_EDIT,270,76,28,12,ES_AUTOHSCROLL
+    LTEXT           "U = ",IDC_U_STATIC,70,79,43,11,0,WS_EX_STATICEDGE
+    LTEXT           "I = ",IDC_I_STATIC,120,79,43,11,0,WS_EX_STATICEDGE
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,13,79,47,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_TRANCEIVER_BATCH_TESTS_INTERMODULATION_LEVEL_PROPPAGE DIALOGEX 0, 0, 342, 287
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Intermodulation level tests"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Input frequency :",IDC_STATIC,15,13,54,8
+    EDITTEXT        IDC_INPUT_FREQ_EDIT,71,11,25,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "MHz",IDC_STATIC,100,13,16,8
+    LTEXT           "Output frequency :",IDC_STATIC,9,27,60,8
+    EDITTEXT        IDC_OUTPUT_FREQ_EDIT,71,24,25,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "MHz",IDC_STATIC,100,25,16,8
+    CONTROL         "On/Off",IDC_ONOFF_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,13,38,10
+    LTEXT           "Amplitude :",IDC_STATIC,141,25,36,8
+    EDITTEXT        IDC_INPUT_LEVEL_EDIT,184,23,36,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_INPUT_LEVEL_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS,210,23,11,14
+    LTEXT           "dBm",IDC_STATIC,222,25,15,8
+    PUSHBUTTON      "Set",IDC_SET_BUTTON,250,17,40,14
+    GROUPBOX        "DC supply :",IDC_STATIC,10,39,190,28
+    GROUPBOX        "10 MHz :",IDC_STATIC,205,39,125,28
+    CONTROL         "Enable",IDC_10MHZ_ENABLED_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,214,50,38,10
+    LTEXT           "Level :",IDC_10MHZ_LEVEL_STATIC,268,51,22,8
+    EDITTEXT        IDC_10MHZ_LEVEL_EDIT,294,48,28,12,ES_AUTOHSCROLL
+    LTEXT           "Center output frequency :",IDC_STATIC,10,146,85,8
+    EDITTEXT        IDC_CENTER_OTPUT_FREQ_EDIT,100,143,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER | WS_DISABLED
+    LTEXT           "MHz",IDC_STATIC,138,146,16,8
+    LTEXT           "Output level :",IDC_STATIC,170,145,43,8
+    EDITTEXT        IDC_OUTPUT_LEVEL_EDIT,218,143,29,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "dBm",IDC_STATIC,253,146,15,8
+    GROUPBOX        "Intermodulation level :",IDC_STATIC,5,157,330,28
+    LTEXT           "Measured value :",IDC_STATIC,15,169,56,8
+    EDITTEXT        IDC_INTERMODULATION_LEVEL_EDIT,77,166,29,13,
+                    ES_AUTOHSCROLL
+    LTEXT           "dBm",IDC_STATIC,111,169,15,8
+    PUSHBUTTON      "Write to protocol",IDC_WRITE__BUTTON,240,165,85,14
+    EDITTEXT        IDC_PROTOCOL_EDIT,5,190,330,95,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    GROUPBOX        "Primary modem :",IDC_STATIC,5,2,330,70
+    LTEXT           "Input frequency :",IDC_STATIC,15,85,54,8
+    EDITTEXT        IDC_INPUT_FREQ_EDIT2,71,83,25,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "MHz",IDC_STATIC,100,85,16,8
+    LTEXT           "Output frequency :",IDC_STATIC,9,99,60,8
+    EDITTEXT        IDC_OUTPUT_FREQ_EDIT2,71,96,25,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "MHz",IDC_STATIC,100,98,16,8
+    CONTROL         "On/Off",IDC_ONOFF_CHECK2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,85,38,10
+    LTEXT           "Amplitude :",IDC_STATIC,141,97,36,8
+    EDITTEXT        IDC_INPUT_LEVEL_EDIT2,184,95,36,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_INPUT_LEVEL_SPIN2,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_ARROWKEYS,210,95,11,14
+    LTEXT           "dBm",IDC_STATIC,222,97,15,8
+    PUSHBUTTON      "Set",IDC_SET_BUTTON2,250,89,40,14
+    GROUPBOX        "DC supply :",IDC_STATIC,10,109,190,27
+    GROUPBOX        "10 MHz :",IDC_STATIC,205,109,125,27
+    CONTROL         "Enable",IDC_10MHZ_ENABLED_CHECK2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,214,120,38,10
+    GROUPBOX        "Secondary modem :",IDC_STATIC,5,74,330,67
+    LTEXT           "U = ",IDC_U_STATIC,81,49,43,11,0,WS_EX_STATICEDGE
+    LTEXT           "I = ",IDC_I_STATIC,131,49,43,11,0,WS_EX_STATICEDGE
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,24,49,47,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "U = ",IDC_U_STATIC2,80,119,43,11,0,WS_EX_STATICEDGE
+    LTEXT           "I = ",IDC_I_STATIC2,130,119,43,11,0,WS_EX_STATICEDGE
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO2,23,119,47,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PROPPAGE2 DIALOG DISCARDABLE  0, 0, 183, 130
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Carrier"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Transmitter :",IDC_STATIC,7,7,155,30
+    GROUPBOX        "Receiver :",IDC_STATIC,10,40,155,50
+    LTEXT           "Frequency, KHz",IDC_STATIC,20,20,52,8
+    EDITTEXT        IDC_TRANSMITTER_FREQ_EDIT,75,15,50,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_TRANSMITTER_FREQ_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,118,14,11,14
+    LTEXT           "Frequency, KHz",IDC_STATIC,20,56,52,8
+    EDITTEXT        IDC_RECEIVER_FREQ_EDIT,75,51,50,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_RECEIVER_FREQ_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,119,50,11,14
+    LTEXT           "Second frequency, KHz",IDC_STATIC,20,76,76,8
+    EDITTEXT        IDC_RECEIVER_FREQ_EDIT2,104,70,50,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_RECEIVER_FREQ_SPIN2,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,150,70,11,14
+    GROUPBOX        "Modulation :",IDC_STATIC,10,92,155,30
+    COMBOBOX        1606,47,103,85,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | 
+                    WS_TABSTOP
+END
+
+IDD_MODEM_BATCH_TESTS_SEARCH_RANGE_PROPPAGE DIALOG DISCARDABLE  0, 0, 289, 156
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Demodulator search range test"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Run",IDC_RUN_BUTTON,147,135,25,11
+    GROUPBOX        "Signal parameters :",IDC_STATIC,127,30,153,120
+    LISTBOX         IDC_SIGNAL_PARAMETERS_LIST,137,45,135,85,
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Demodulator search range tests will be performed here at different frequencies\nand bit rates.",
+                    IDC_STATIC,7,2,248,19
+    LTEXT           "Status",IDC_STATUS_STATIC,7,20,277,8
+    CONTROL         "Automatic flow",IDC_AUTOMATIC_FLOW_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,207,135,62,10
+    GROUPBOX        "DC supply :",IDC_STATIC,9,32,108,26
+    COMBOBOX        IDC_POWER_SUPPLY_COMBO,19,41,43,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CURRENT_EDIT2,66,40,36,13,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A",IDC_STATIC,105,42,8,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABSTRACT_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 149
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+
+    IDD_CONNECTION_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 259
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_DEMODULATOR_CARRIER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 249
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 215
+    END
+
+    IDD_DATA_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 209
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 235
+    END
+
+    IDD_DEVICE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 248
+    END
+
+    IDD_MODULATOR_CARRIER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 234
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 205
+    END
+
+    IDD_TERMINAL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 274
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 164
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 331
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 219
+    END
+
+    IDD_NSG_SCRIPT_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 279
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_PHYSICAL_PORTS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 279
+        TOPMARGIN, 7
+    END
+
+    IDD_STATIONS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 209
+    END
+
+    IDD_IP_INTERFACES_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+    END
+
+    IDD_IP_ROUTING_TABLE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 264
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 174
+    END
+
+    IDD_IP_STATIC_ROUTES_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 259
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 124
+    END
+
+    IDD_STATIC_ROUTE_PROPERTIES_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_PVC_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 301
+        TOPMARGIN, 7
+    END
+
+    IDD_PVC_PROPERTIES_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_DEVICES_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 270
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 127
+    END
+
+    IDD_PROPPAGE3, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 98
+    END
+
+    IDD_PROPPAGE4, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 176
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+
+    IDD_PROPPAGE5, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+
+    CG_IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 317
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 54
+    END
+
+    IDD_COMMON_TESTS_DIRECTIONS_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 275
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 202
+    END
+
+    IDD_MODEM_BATCH_TESTS_PORT_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 279
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 207
+    END
+
+    IDD_TRANCEIVER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 200
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 139
+    END
+
+    IDD_MODEM_BATCH_TESTS_DIRECTIONS_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 151
+    END
+
+    IDD_MODEM_BATCH_TESTS_DEVICE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
+    END
+
+    IDD_MODEM_BATCH_TESTS_WIDE_FREQ_RANGE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+    END
+
+    IDD_MODEM_BATCH_TESTS_VARIOUS_OUTPUT_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 287
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 200
+    END
+
+    IDD_HUMAN_POWER_METER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 34
+    END
+
+    IDD_MODEM_BATCH_TESTS_OUTPUT_LEVEL_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 234
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 195
+    END
+
+    IDD_MODEM_BATCH_TESTS_OUTPUT_TURN_ON_OFF_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 140
+    END
+
+    IDD_MODEM_BATCH_TESTS_CARRIER_ACQUISITION_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 317
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 240
+    END
+
+    IDD_COMMON_TESTS_CONGRATULATIONS_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
+    END
+
+    IDD_MODEM_BATCH_TESTS_SECONDARY_SIGNALS_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 242
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 153
+    END
+
+    IDD_MODEM_SDMS_BATCH_TESTS_DEVICE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 228
+    END
+
+    IDD_SDMS_BATCH_TESTS_PORTS_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 267
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 165
+    END
+
+    IDD_SDMS_BATCH_TESTS_ETHERNET_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 325
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 253
+    END
+
+    IDD_SDMS_BATCH_TESTS_STARTUP_CONFIG_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 315
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 201
+    END
+
+    IDD_VPPU_BATCH_TESTS_RADIO_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 133
+    END
+
+    IDD_UP_CONVERTER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 158
+    END
+
+    IDD_MODEM_BATCH_TESTS_10MHZ_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 164
+    END
+
+    IDD_FREQUENCY_DEPENDENT_CORRECTION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 225
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
+    END
+
+    IDD_MODEM_BATCH_TESTS_POWER_SUPPLY_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 260
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_SCAN_MC_BUS_ADDRESS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_DOWN_CONVERTER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 158
+    END
+
+    IDD_SDMS_SOFTWARE_VERSION_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 325
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 169
+    END
+
+    IDD_SDMS_BATCH_TESTS_SHELL_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 169
+    END
+
+    IDD_MODULATOR_BERTEST_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 249
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
+    END
+
+    IDD_DEMODULATOR_BERTEST_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 253
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 209
+    END
+
+    IDD_MODEM_BATCH_TESTS_BERTEST_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 277
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 213
+    END
+
+    IDD_SUBSTITUTOR_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 130
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 74
+    END
+
+    IDD_ETHERNET_PORT_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 326
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 244
+    END
+
+    IDD_POWER_METER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 300
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+    END
+
+    IDD_SDMS_BATCH_TESTS_DEVICE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 250
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+
+    IDD_HUMAN_FREQUENCY_COUNTER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 194
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 35
+    END
+
+    IDD_SDMS_BATCH_TESTS_SOFTWARE_VERSION_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 315
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 169
+    END
+
+    IDD_MODEM_SDMS_BATCH_TESTS_DATA_THROUGH_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 338
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 210
+    END
+
+    IDD_SDMS_STARTUP_CONFIG_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 351
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_ETHERNET_STATUS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 271
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 239
+    END
+
+    IDD_SERIAL_PORT_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 326
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 216
+    END
+
+    IDD_SERIAL_STATUS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 289
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 239
+    END
+
+    IDD_VPPU_BATCH_TESTS_DEVICE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_MODULATOR_BUC_STATUS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 125
+    END
+
+    IDD_DEMODULATOR_LNB_STATUS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 120
+    END
+
+    IDD_FREQUENCY_COUNTER_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 300
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+    END
+
+    IDD_TRANCEIVER_BATCH_TESTS_DEVICE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 205
+    END
+
+    IDD_TRANCEIVER_BATCH_TESTS_REMOTE_CONTROL_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 340
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 253
+    END
+
+    IDD_TRANCEIVER_BATCH_TESTS_AMPLITUDE_FREQUENCY_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 340
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 231
+    END
+
+    IDD_CORRECTION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 190
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+
+    IDD_TRANCEIVER_BATCH_TESTS_SPURIOUS_LEVEL_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 234
+    END
+
+    IDD_TRANCEIVER_BATCH_TESTS_INTERMODULATION_LEVEL_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 335
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 279
+    END
+
+    IDD_PROPPAGE2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 176
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 122
+    END
+
+    IDD_MODEM_BATCH_TESTS_SEARCH_RANGE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 282
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SECOND_SIGNAL_FORM DIALOG DISCARDABLE  0, 0, 272, 127
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Second signal"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Frequency :",IDC_STATIC,10,5,235,35
+    LTEXT           "From",IDC_STATIC,15,20,16,8
+    EDITTEXT        IDC_START_FREQ_EDIT,35,17,45,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_START_FREQ_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,71,19,11,14
+    LTEXT           "KHz to",IDC_STATIC,85,20,22,8
+    EDITTEXT        IDC_END_FREQ_EDIT,110,17,45,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_END_FREQ_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,146,19,11,14
+    LTEXT           "KHz step",IDC_STATIC,160,20,30,8
+    EDITTEXT        IDC_STEP_FREQ_EDIT,190,17,33,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_STEP_FREQ_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,212,18,11,14
+    LTEXT           "KHz",IDC_STATIC,227,20,14,8
+    GROUPBOX        "Modulation :",IDC_STATIC,10,45,235,30
+    GROUPBOX        "Data rates range :",IDC_STATIC,10,78,235,40
+    LTEXT           "From ",IDC_STATIC,15,96,18,8
+    COMBOBOX        IDC_START_DATERATE_COMBO,35,93,48,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "baud to ",IDC_STATIC,87,96,27,8
+    COMBOBOX        IDC_END_DATERATE_COMBO,115,93,48,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "baud",IDC_STATIC,167,96,17,8
+    COMBOBOX        IDC_MODULATION_TYPE_COMBO,58,56,99,30,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_SECOND_SIGNAL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 265
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 120
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\HardwareTest.ico"
+IDR_HARDWATYPE          ICON    DISCARDABLE     "res\\HardwareTestDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "Device"
+    BEGIN
+        POPUP "Add"
+        BEGIN
+            POPUP "Modem"
+            BEGIN
+                POPUP "Datum"
+                BEGIN
+                    POPUP "PSM-4900"
+                    BEGIN
+                        MENUITEM "70 MHz",                      ID_DEVICE_ADD_MODEM_DATUM_PSM4900_70MHZ
+
+                        MENUITEM "140 MHz",                     ID_DEVICE_ADD_MODEM_DATUM_PSM4900_140MHZ
+
+                        MENUITEM "Hybrid (70 MHz/L-band)",      ID_DEVICE_ADD_MODEM_DATUM_PSM4900_HYBRID70MHZLBAND
+
+                        MENUITEM "L-band",                      ID_DEVICE_ADD_MODEM_DATUM_PSM4900_LBAND
+
+                    END
+                    POPUP "PSM-500"
+                    BEGIN
+                        MENUITEM "L-band",                      ID_DEVICE_ADD_MODEM_DATUM_PSM500_LBAND
+
+                    END
+                    POPUP "M7"
+                    BEGIN
+                        MENUITEM "L-Band",                      ID_DEVICE_ADD_MODEM_DATUM_M7_LBAND
+
+                    END
+                END
+                POPUP "Radyne"
+                BEGIN
+                    MENUITEM "DMD-2401",                    ID_DEVICE_ADD_MODEM_RADYNE_DMD2401
+
+                END
+            END
+            POPUP "Tranceiver"
+            BEGIN
+                POPUP "WaveSat"
+                BEGIN
+                    MENUITEM "WTR-70",                      ID_DEVICE_ADD_TRANCEIVER_WAVESAT_WTR70
+
+                    MENUITEM "WaveSat Substitutor",         ID_DEVICE_ADD_TRANCEIVER_WAVESAT_WAVESATSUBSTITUTOR
+
+                END
+                POPUP "Advantech"
+                BEGIN
+                    MENUITEM "WTY-1",                       ID_DEVICE_ADD_TRANCEIVER_ADVANTECH_WTY1
+
+                END
+                POPUP "Vertex"
+                BEGIN
+                    MENUITEM "50 Watt",                     ID_DEVICE_ADD_TRANCEIVER_VERTEX_50WATT
+
+                    MENUITEM "Vertex substitutor",          ID_DEVICE_ADD_TRANCEIVER_VERTEX_VERTEX_SUBSTITUTOR
+
+                END
+            END
+            POPUP "Up/Down converter"
+            BEGIN
+                POPUP "Up Converter KVV-140"
+                BEGIN
+                    MENUITEM "ver. 2002",                   ID_DEVICE_ADD_UPDOWNCONVERTER_UPCONVERTERKVV140_VER2002
+
+                    MENUITEM "ver. 2004",                   ID_DEVICE_ADD_UPDOWNCONVERTER_UPCONVERTERKVV140_VER2004
+
+                    MENUITEM "ver. 2011",                   ID_DEVICE_ADD_UPDOWNCONVERTER_UPCONVERTERKVV140_VER2011
+
+                END
+                POPUP "Down Converter KVN-140"
+                BEGIN
+                    MENUITEM "ver. 2002",                   ID_DEVICE_ADD_UPDOWNCONVERTER_DOWNCONVERTERKVN140_VER2002
+
+                    MENUITEM "ver. 2004",                   ID_DEVICE_ADD_UPDOWNCONVERTER_DOWNCONVERTERKVN140_VER2004
+
+                    MENUITEM "ver. 2011",                   ID_DEVICE_ADD_UPDOWNCONVERTER_DOWNCONVERTERKVN140_VER2011
+
+                END
+            END
+            POPUP "SDMS"
+            BEGIN
+                POPUP "SDMS-VSAT"
+                BEGIN
+                    MENUITEM "4900L",                       ID_DEVICE_ADD_SDMS_SDMSVSAT_4900L
+
+                    MENUITEM "M500L",                       ID_DEVICE_ADD_SDMS_SDMSVSAT_M500L
+
+                END
+            END
+            POPUP "Power Meter"
+            BEGIN
+                POPUP "Agilent"
+                BEGIN
+                    MENUITEM "E4418B",                      ID_DEVICE_ADD_POWERMETER_AGILENT_E4418B
+
+                END
+            END
+            POPUP "Frequency Counter"
+            BEGIN
+                POPUP "Agilent"
+                BEGIN
+                    MENUITEM "53150A",                      ID_DEVICE_ADD_FREQUENCYCOUNTER_AGILENT_53150F
+
+                END
+            END
+            POPUP "Access Device"
+            BEGIN
+                POPUP "NSG"
+                BEGIN
+                    MENUITEM "Nps3e",                       ID_DEVICE_ADD_ACCESSDEVICE_NSG_NPS3E
+
+                    MENUITEM "NX-300",                      ID_DEVICE_ADD_ACCESSDEVICE_NSG_NX300
+
+                END
+            END
+        END
+        MENUITEM "Delete",                      ID_DEVICE_DELETE
+        MENUITEM "Carrier capture autotest...", ID_DEVICE_CARRIERCAPTUREAUTOTEST
+
+    END
+    POPUP "Tests"
+    BEGIN
+        MENUITEM "Modem only tests...",         ID_TESTS_MODEM_TESTS
+        MENUITEM "SDMS only tests...",          ID_TESTS_SDMSTESTS
+        MENUITEM "Modem + SDMS tests...",       ID_TESTS_MODEMSDMSTESTS
+        MENUITEM "VPPU tests...",               ID_TESTS_STELAM_TESTS
+        MENUITEM "Tranceiver tests...",         ID_TESTS_TRANCEIVER_TESTS
+    END
+    POPUP "Options"
+    BEGIN
+        MENUITEM "Log file",                    ID_OPTIONS_LOGFILE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About HardwareTest...",      ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "HardwareTest MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "HardwareTest\0"
+            VALUE "LegalCopyright", "Copyright (C) 2000\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "HardwareTest.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "HardwareTest Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_HAND_FOR_HYPERLINK  CURSOR  DISCARDABLE     "res\\hand.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "HardwareTest\n\nHardwa\n\n\nHardwareTest.Document\nHardwa Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "HardwareTest"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_DEVICE_ADD           "Add new device"
+    ID_DEVICE_CARRIERCAPTUREAUTOTEST 
+                            "Automatic test of carrier capturing (for modems only)"
+    ID_DEVICE_INTERVALTEST  "Automatic test of intervals between signals (for modems only)"
+    ID_DEVICE_MODULATORCARRIERTEST 
+                            "Check if modulator is able to set carrier frequency"
+    ID_DEVICE_DELETE        "Delete selected device"
+    ID_DEVICE_ADD_MODEM     "Add modem of any type"
+    ID_DEVICE_ADD_MODEM_SPLACT "Any modem of SPL family"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    CG_IDS_PROGRESS_CAPTION "Carrier capture"
+    IDS_PROPSHT_CAPTION     "Carrier Capture Autotest Wizard"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROPSHT_CAPTION1    "Wizard"
+    IDS_PROPSHT_CAPTION2    "Wizard"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TESTS_MODULATORTESTS "Modem automated test"
+    ID_DEVICE_ADD_STELAM_100 "AZS"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TESTS_STELAMTESTS    "VSAT Stela-m 100/200 testing and configuring"
+    ID_DEVICE_ADD_SDMS_SDMS_VSAT "Add SDMS-VSAT"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_DEVICE_ADD_FREQUENCYCOUNTER_AGILENT_53150F 
+                            "Add Agilent 53150A Frequency Counter"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\HardwareTest.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

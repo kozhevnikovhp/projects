@@ -1,0 +1,106 @@
+SDMS-VSAT-M500L investigation
+
+Date/Time: 23-09-2014 13:16:54
+SDMS console port testing...
+show version
+--------------------------------------------------------------------------------
+Communication software version 1.2.2-pre1 beta (build 470)
+Developed 2007-2013 by telecom-soft.com, llc
+Compiled Apr 23 2013 11:36:24, build host: belinus@ivanov
+Hardware: Zelos, Visat-Tel SDMS-VSAT, CPU:PowerPC 860, revA
+50MHz system clock, 32Mb onboard memory, 4Mb flash
+Device serial number: (00000001), "technical support id" (3ea:7d6:1:1:2:A)
+
+Modules:  SNMP, Frame Relay, RIP, Datum, Amplifier-WaveSat, 
+
+Online technical support: "" , ""
+Do not forget to report the device "tech support id" mentioned above
+
+--------------------------------------------------------------------------------
+sdms-vsat-test>
+Startup config....
+show startup-config
+% Startup configuration script, 875 bytes
+% ----------------------------
+no dns use-cache
+
+dns order hosts-then-bind
+
+ip domain-lookup
+
+ip domain-name localdomain
+
+hostname sdms-vsat-test
+
+ip host localhost 127.0.0.1 
+
+!
+
+no service timestamps debug
+
+no service timestamps log
+
+! 
+
+ip route 192.168.31.0/0 10.0.0.1
+
+!
+
+!
+
+interface Ethernet0
+
+        ip address 192.168.32.216 255.255.255.0
+
+        mac-address 00:80:7F:22:07:51
+
+        no shutdown
+
+!
+
+interface Serial0
+
+        no ip redirects
+
+        no ip unreachables
+
+        no ip forward-to-the-same-net
+
+        ip address 10.0.0.3 255.0.0.0
+
+        no keepalive
+
+        no shutdown
+
+!
+
+device modem PSM-500L 0
+
+!
+
+snmp-server group public v2c
+
+snmp-server group public v1
+
+snmp-server group private v2c read v1default write v1default
+
+snmp-server group private v1 read v1default write v1default
+
+snmp-server user public public v1
+
+snmp-server user private private v1
+
+snmp-server user public public v2c
+
+snmp-server user private private v2c
+
+!% ----------------------------
+sdms-vsat-test#
+System up 23 minutes 31 seconds
+sdms-vsat-test#Test passed
+
+Ethernet port testing...
+
+
+Ethernet port testing...
+

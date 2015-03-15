@@ -1,0 +1,1103 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\NetObserver.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#include ""afxdb.rc""          // Database resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_TREE         BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_NET_OBJECT_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "Object"
+    BEGIN
+        POPUP "Host"
+        BEGIN
+            MENUITEM "Configure",                   ID_HOST_CONFIGURE
+            MENUITEM "Delete",                      ID_HOST_DELETE
+            MENUITEM "LOOK_TRAFFIC",                ID_HOST_LOOK_TRAFFIC
+            MENUITEM "Hide",                        ID_HOST_HIDE
+        END
+        POPUP "Subnet"
+        BEGIN
+            MENUITEM "Configure",                   ID_SUBNET_CONFIGURE
+            MENUITEM "Delete",                      ID_SUBNET_DELETE
+        END
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "Show Ignored Objects",        ID_VIEW_SHOW_IGNORED_OBJECTS
+        MENUITEM "Show Hidden Objects",         ID_VIEW_SHOW_HIDDEN_OBJECTS
+        POPUP "Sort items"
+        BEGIN
+            MENUITEM "by name",                     ID_VIEW_SORTITEMS_BYNAME
+            MENUITEM "by IP-address",               ID_VIEW_SORTITEMS_BYIPADDRESS
+
+        END
+    END
+END
+
+IDR_HOST_TRAFFIC MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Zoom In Time",                ID_VIEW_ZOOM_IN
+        MENUITEM "Zoom Out Time",               ID_VIEW_ZOOM_OUT
+        MENUITEM "Zoom In Traffic",             ID_VIEW_ZOOM_IN_TRAFFIC
+        MENUITEM "Zoom Out Traffic",            ID_VIEW_ZOOM_OUT_TRAFFIC
+        MENUITEM "Initial View (1:1)",          ID_VIEW_INITIALVIEW
+        MENUITEM "Zoom rectangle",              ID_VIEW_ZOOM_RECTANGLE
+        MENUITEM "Drag scroll",                 ID_VIEW_DRAG_SCROLL
+    END
+    POPUP "Tools"
+    BEGIN
+        MENUITEM "Group Editor",                ID_TOOLS_GROUP_EDITOR
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+END
+
+IDR_HOST_CONFIG MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Zoom In Time",                ID_VIEW_ZOOM_IN
+        MENUITEM "Zoom Out Time",               ID_VIEW_ZOOM_OUT
+        MENUITEM "Zoom In Traffic",             ID_VIEW_ZOOM_IN_TRAFFIC
+        MENUITEM "Zoom Out Traffic",            ID_VIEW_ZOOM_OUT_TRAFFIC
+        MENUITEM "Initial View (1:1)",          ID_VIEW_INITIALVIEW
+        MENUITEM "Zoom rectangle",              ID_VIEW_ZOOM_RECTANGLE
+        MENUITEM "Drag scroll",                 ID_VIEW_DRAG_SCROLL
+    END
+    POPUP "Tools"
+    BEGIN
+        MENUITEM "Group Editor",                ID_TOOLS_GROUP_EDITOR
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+END
+
+IDR_GROUP_EDITOR MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        POPUP "Create"
+        BEGIN
+            MENUITEM "ping group",                  ID_EDIT_CREATE_PINGGROUP
+            MENUITEM "SNMP group",                  ID_EDIT_CREATE_SNMPGROUP
+            MENUITEM "Appearance group",            ID_EDIT_CREATE_APPEARANCEGROUP
+
+        END
+        MENUITEM "Delete group",                ID_EDIT_DELETE_GROUP
+    END
+    POPUP "Tools"
+    BEGIN
+        MENUITEM "Group Editor",                32820
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DISPLAY_HOST_TRAFFIC_CTRLS DIALOG DISCARDABLE  0, 0, 166, 276
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Units :",IDC_UNITS_STATIC,10,5,150,25
+    CONTROL         "Packets",IDC_PACKETS_RADIO,"Button",BS_AUTORADIOBUTTON,
+                    20,15,42,10
+    CONTROL         "Octets",IDC_OCTETS_RADIO,"Button",BS_AUTORADIOBUTTON,75,
+                    15,37,10
+    GROUPBOX        "TCP :",IDC_STATIC,10,34,150,25
+    CONTROL         "From",IDC_TCP_FROM_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,44,31,10
+    CONTROL         "To",IDC_TCP_TO_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,100,44,25,10
+    GROUPBOX        "UDP :",IDC_STATIC,10,60,150,25
+    CONTROL         "From",IDC_UDP_FROM_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,70,31,10
+    CONTROL         "To",IDC_UDP_TO_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,100,70,25,10
+    GROUPBOX        "ICMP :",IDC_STATIC,10,87,150,25
+    CONTROL         "From",IDC_ICMP_FROM_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,97,31,10
+    CONTROL         "To",IDC_ICMP_TO_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,100,97,25,10
+    GROUPBOX        "IGMP :",IDC_STATIC,10,114,150,25
+    CONTROL         "From",IDC_IGMP_FROM_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,124,31,10
+    GROUPBOX        "Total sum :",IDC_STATIC,10,143,150,25
+    CONTROL         "From",IDC_TOTAL_FROM_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,153,31,10
+    CONTROL         "To",IDC_TOTAL_TO_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,100,153,25,10
+    PUSHBUTTON      "Refresh",IDC_REFRESH_BUTTON,45,255,50,14
+    GROUPBOX        "Time range :",IDC_TIME_RANGE_STATIC,10,175,150,45
+    LTEXT           "From",IDC_TIME_FROM_STATIC,17,186,16,8
+    EDITTEXT        IDC_FROM_TIME_EDIT,40,185,110,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "to",IDC_TIME_TO_STATIC,16,201,19,8
+    EDITTEXT        IDC_TO_TIME_EDIT,40,200,110,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+IDD_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 191, 31
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_HOST_NAMES_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 177, 107
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Name :",IDC_GIVEN_NAME_STATIC,42,13,24,8
+    EDITTEXT        IDC_GIVEN_NAME_EDIT,72,10,82,12,ES_AUTOHSCROLL
+    LTEXT           "NETBIOS name :",IDC_NETBIOS_NAME_STATIC,10,29,56,8
+    EDITTEXT        IDC_NETBIOS_NAME_EDIT,72,26,82,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,20,86,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,90,86,50,14
+    LTEXT           "Domain name :",IDC_NETBIOS_DOMAIN_NAME_STATIC,18,46,48,
+                    8
+    EDITTEXT        IDC_NETBIOS_DOMAIN_NAME_EDIT,72,44,82,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "User name :",IDC_NETBIOS_USER_NAME_STATIC,27,62,39,8
+    EDITTEXT        IDC_NETBIOS_USER_NAME_EDIT,72,60,82,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+IDD_SUBNET_NAMES_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 151, 76
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Name :",IDC_GIVEN_NAME_STATIC,15,21,24,8
+    EDITTEXT        IDC_GIVEN_NAME_EDIT,45,20,82,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,10,50,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,80,50,50,14
+END
+
+IDD_SUBNET_ADDRESS_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 126, 46
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "IP-address",IDC_IPADDRESS_STATIC,10,9,34,8
+    EDITTEXT        IDC_IPADDRESS_EDIT,57,6,61,14,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Subnet mask ",IDC_SUBNET_MASK_STATIC,10,29,44,8
+    EDITTEXT        IDC_SUBNET_MASK_EDIT,57,26,61,14,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_HOST_ADDRESSES_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 141, 71
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "IP-address",IDC_IPADDRESS_STATIC,10,12,34,8
+    EDITTEXT        IDC_IPADDRESS_EDIT,59,9,75,14,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Subnet mask ",IDC_SUBNET_MASK_STATIC,10,32,44,8
+    EDITTEXT        IDC_SUBNET_MASK_EDIT,59,29,75,14,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "MAC-address",IDC_MACADDRESS_STATIC,10,52,43,8
+    EDITTEXT        IDC_MACADDRESS_EDIT,59,49,75,14,ES_CENTER | 
+                    ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_HOST_PING_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 247, 209
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Group :",IDC_GROUP_STATIC,15,10,225,85
+    COMBOBOX        IDC_GROUP_COMBO,25,20,95,75,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_GROUP_PARAMS_EDIT,135,20,100,70,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "State :",IDC_STATE_STATIC,15,100,225,75
+    EDITTEXT        IDC_KEEPALIVE_STATUS_EDIT,20,110,215,60,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,65,185,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,135,185,50,14
+END
+
+IDD_GROUP_EDITOR_FORM DIALOG DISCARDABLE  0, 0, 191, 31
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_NETWORK_FORM DIALOG DISCARDABLE  0, 0, 191, 31
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_PING_GROUP_EDITOR_FORM DIALOG DISCARDABLE  0, 0, 351, 105
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Group name :",IDC_GROUP_STATIC,10,10,44,8
+    EDITTEXT        IDC_GROUP_NAME_EDIT,55,7,125,14,ES_AUTOHSCROLL
+    GROUPBOX        "Keep-alive ping :",IDC_KEEPALIVE_STATIC,5,30,180,30
+    CONTROL         "Enabled every",IDC_ENABLED_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,44,61,10
+    EDITTEXT        IDC_PERIOD_EDIT,75,41,40,14,ES_AUTOHSCROLL
+    LTEXT           "seconds",IDC_SECONDS_STATIC,120,43,28,8
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,37,76,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,107,76,50,14
+END
+
+IDD_APPEARANCE_GROUP_EDITOR_FORM DIALOG DISCARDABLE  0, 0, 351, 155
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Group name :",IDC_GROUP_STATIC,10,10,44,8
+    EDITTEXT        IDC_GROUP_NAME_EDIT,55,7,125,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,29,121,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,119,123,50,14
+    GROUPBOX        "Color scheme :",IDC_COLORS_PANEL,10,30,175,80
+    LTEXT           "Ordinary color :",IDC_ORDINARY_COLOR_STATIC,20,45,48,8
+    LTEXT           "Warning color :",IDC_WARNING_COLOR_STATIC,20,59,48,8
+    LTEXT           "Alarm color :",IDC_ALARM_COLOR_STATIC,20,73,48,8
+    CONTROL         "Change",IDC_ORDINARY_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,75,42,35,14
+    CONTROL         "Change",IDC_WARNING_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,75,56,35,14
+    CONTROL         "Change",IDC_ALARM_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,75,70,35,14
+    LTEXT           "Text color :",IDC_TEXT_COLOR_STATIC,20,87,48,8
+    CONTROL         "Change",IDC_TEXT_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,75,84,35,14
+END
+
+IDD_HOST_APPEARANCE_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 276, 126
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Group :",IDC_GROUP_STATIC,15,10,255,85
+    COMBOBOX        IDC_GROUP_COMBO,25,20,95,75,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_GROUP_PARAMS_EDIT,135,20,130,70,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,80,105,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,140,105,50,14
+END
+
+IDD_SUBNET_APPEARANCE_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 141, 96
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,12,70,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,73,70,50,14
+    GROUPBOX        "Color scheme :",IDC_COLORS_PANEL,9,9,116,51
+    LTEXT           "Color :",IDC_ORDINARY_COLOR_STATIC,19,23,21,8
+    CONTROL         "Change",IDC_ORDINARY_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,75,20,35,14
+    LTEXT           "Text color :",IDC_TEXT_COLOR_STATIC,19,42,48,8
+    CONTROL         "Change",IDC_TEXT_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,75,40,35,14
+END
+
+IDD_SNMP_GROUP_EDITOR_FORM DIALOG DISCARDABLE  0, 0, 351, 193
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Group name :",IDC_GROUP_STATIC,10,10,44,8
+    EDITTEXT        IDC_GROUP_NAME_EDIT,55,7,125,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,50,150,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,110,150,50,14
+    LTEXT           "Community :",IDC_COMMUNITY_NAME_STATIC,30,45,39,8
+    EDITTEXT        IDC_COMMUNITY_NAME_EDIT,75,42,85,14,ES_AUTOHSCROLL
+    LTEXT           "Password :",IDC_PASSWORD_STATIC,30,65,36,8
+    EDITTEXT        IDC_PASSWORD_EDIT,75,62,85,14,ES_AUTOHSCROLL
+    CONTROL         "Enabled",IDC_ENABLED_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,30,42,10
+    LTEXT           "Retries :",IDC_RETRIES_STATIC,30,83,27,8
+    EDITTEXT        IDC_RETRIES_EDIT,75,80,50,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_RETRIES_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,115,83,
+                    10,14
+END
+
+IDD_HOST_SNMP_CONTROL_FORM DIALOG DISCARDABLE  0, 0, 276, 126
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Group :",IDC_GROUP_STATIC,15,10,255,85
+    COMBOBOX        IDC_GROUP_COMBO,25,20,95,75,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_GROUP_PARAMS_EDIT,135,20,130,70,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,80,105,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,140,105,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DISPLAY_HOST_TRAFFIC_CTRLS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 159
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 269
+    END
+
+    IDD_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 24
+    END
+
+    IDD_HOST_NAMES_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 170
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 100
+    END
+
+    IDD_SUBNET_NAMES_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 144
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 69
+    END
+
+    IDD_SUBNET_ADDRESS_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 119
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_HOST_ADDRESSES_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 134
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_HOST_PING_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 240
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 202
+    END
+
+    IDD_GROUP_EDITOR_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 24
+    END
+
+    IDD_NETWORK_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 24
+    END
+
+    IDD_PING_GROUP_EDITOR_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 344
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 98
+    END
+
+    IDD_APPEARANCE_GROUP_EDITOR_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 344
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+
+    IDD_HOST_APPEARANCE_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 269
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_SUBNET_APPEARANCE_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 134
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+    END
+
+    IDD_SNMP_GROUP_EDITOR_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 344
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 186
+    END
+
+    IDD_HOST_SNMP_CONTROL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 269
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_INITIALVIEW     "Initial View\n1:1 View"
+    ID_VIEW_ZOOM_IN         "Increment zoom\nZoom in"
+    ID_VIEW_ZOOM_RECTANGLE  "Draw the rectangle by mouse and release it to zoom\nRectangle zoom"
+    ID_VIEW_DRAG_SCROLL     "Drag image by mouse and pull it to scroll\nDrag-and-pull scrolling"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_ZOOM_OUT        "Decrement zoom\nZoom out"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+END
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+IDR_WORLD_PLANE_VIEW_TOOLBAR BITMAP  MOVEABLE PURE   "res\\world_plane_view_toolbar.bmp"
+IDR_HOST_TRAFFIC_TOOLBAR BITMAP  MOVEABLE PURE   "res\\world_pl.bmp"
+IDR_WORLD_TREE_VIEW_TOOLBAR BITMAP  MOVEABLE PURE   "res\\bmp00001.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About NetObserver...",       ID_APP_ABOUT
+    END
+END
+
+IDR_NETOBSTYPE MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "Zoom++",                      ID_VIEW_ZOOM_IN
+        MENUITEM "Zoom--",                      ID_VIEW_ZOOM_OUT
+        MENUITEM "Initial View (1:1)",          ID_VIEW_INITIALVIEW
+        MENUITEM "Select",                      ID_VIEW_SELECT
+        MENUITEM "Zoom rectangle",              ID_VIEW_ZOOM_RECTANGLE
+        MENUITEM "Drag scroll",                 ID_VIEW_DRAG_SCROLL
+        MENUITEM SEPARATOR
+        MENUITEM "TreeView Select",             ID_TREE_VIEW_SELECT
+        MENUITEM "TreeView DragScroll",         ID_TREE_VIEW_DRAG_SCROLL
+        MENUITEM "Initial View",                ID_TREE_VIEW_INITIALVIEW
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "Tools"
+    BEGIN
+        MENUITEM "Group Editor",                ID_TOOLS_GROUP_EDITOR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About NetObserver...",       ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About NetObserver"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "NetObserver Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2007",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\NetObserver.ico"
+IDR_NETOBSTYPE          ICON    DISCARDABLE     "res\\WholeNetDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+IDR_WORLD_PLANE_VIEW_TOOLBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_BUTTON32782
+    BUTTON      ID_BUTTON32777
+    BUTTON      ID_BUTTON32778
+    BUTTON      ID_FILE_PRINT
+END
+
+IDR_HOST_TRAFFIC_TOOLBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_BUTTON32775
+    BUTTON      ID_BUTTON32776
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_BUTTON32777
+    BUTTON      ID_BUTTON32778
+END
+
+IDR_WORLD_TREE_VIEW_TOOLBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_BUTTON32782
+    BUTTON      ID_BUTTON32778
+    SEPARATOR
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_BUTTON32777
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_BUTTON32787
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "NetObserver MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "NetObserver\0"
+            VALUE "LegalCopyright", "Copyright (C) 2007\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "NetObserver.EXE\0"
+            VALUE "ProductName", "NetObserver Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "NetObserver"
+    IDR_NETOBSTYPE          "\nWholeNet\nWholeNet\n\n\n\n"
+    IDR_HOST_TRAFFIC        "\nHostTraffic\nHostTraffic\n\n\n\n"
+    IDR_HOST_CONFIG         "\nHostConfig\nHostConfig\n\n\n\n"
+    IDR_SUBNET_CONFIG       "\nSubnetConfig\nSubnetConfig\n\n\n\n"
+    IDR_GROUP_EDITOR        "\nGroupEditor\nGroupEditor\n\n\n\n"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "NetObserver"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+    ID_INDICATOR_OBJECT     "."
+    ID_INDICATOR_DATETIME   " "
+    ID_INDICATOR_TRAFFIC    " "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_INITIALVIEW     "Initial View\n1:1 View"
+    ID_VIEW_ZOOM_IN         "Increment zoom\nZoom in"
+    ID_VIEW_ZOOM_RECTANGLE  "Draw the rectangle by mouse and release it to zoom\nRectangle zoom"
+    ID_VIEW_DRAG_SCROLL     "Drag image by mouse and pull it to scroll\nDrag-and-pull scrolling"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_ZOOM_OUT        "Decrement zoom\nZoom out"
+    ID_VIEW_SELECT          "Select\nSelect"
+    ID_TREE_VIEW_SELECT     "Select\nSelect"
+    ID_TREE_VIEW_INITIALVIEW "Initial View\n1:1 View"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\NetObserver.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#include "afxdb.rc"          // Database resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

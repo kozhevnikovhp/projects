@@ -29,6 +29,7 @@ Makefile*
 # Other files
 *.ncb
 *.plg
+*.mdb
 # Compiled Dynamic libraries
 *.so
 *.dylib

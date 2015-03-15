@@ -1,0 +1,6 @@
+DESCRIPTION  'SkyFrameNet'
+
+EXPORTS
+CreateControlTarget			@1
+DeleteControlTarget			@2
+GetControlTargetDescription	@3

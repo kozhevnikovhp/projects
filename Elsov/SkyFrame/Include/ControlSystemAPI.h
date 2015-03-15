@@ -1,0 +1,25 @@
+#ifndef __CONTROL_SYSTEM_API_H_INCLUDED__
+#define __CONTROL_SYSTEM_API_H_INCLUDED__
+
+// Constants for tree-view images
+const int PICTURE_ID_DELETED		= 4;
+const int PICTURE_ID_GLOBE			= 5;
+const int PICTURE_ID_GEAR			= PICTURE_ID_GLOBE + 1;
+const int PICTURE_ID_NETWORK		= PICTURE_ID_GLOBE + 2;
+const int PICTURE_ID_CALENDAR		= PICTURE_ID_GLOBE + 3;
+const int PICTURE_ID_SATELLITE_DISH	= PICTURE_ID_GLOBE + 4;
+const int PICTURE_ID_CALCULATOR		= PICTURE_ID_GLOBE + 5;
+const int PICTURE_ID_SUN			= PICTURE_ID_GLOBE + 6;
+const int PICTURE_ID_CLOCK			= PICTURE_ID_GLOBE + 7;
+const int PICTURE_ID_HAND			= PICTURE_ID_GLOBE + 8;
+const int PICTURE_ID_TOOLS			= PICTURE_ID_GLOBE + 9;
+const int PICTURE_ID_EMERGENCY		= PICTURE_ID_GLOBE + 10;
+const int PICTURE_ID_BOOK_AND_HAND	= PICTURE_ID_GLOBE + 11;
+const int PICTURE_ID_ENVELOPE		= PICTURE_ID_GLOBE + 12;
+
+// Interface to all control systems
+class IControlSystemAPI
+{
+};
+
+#endif //__CONTROL_SYSTEM_API_H_INCLUDED__

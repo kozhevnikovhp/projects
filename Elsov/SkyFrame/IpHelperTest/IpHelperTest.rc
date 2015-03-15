@@ -1,0 +1,273 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\IpHelperTest.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\IpHelperTest.ico"
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About IpHelperTest"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "IpHelperTest Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2003",IDC_STATIC,40,34,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+    LTEXT           "Author: Evgeny Kozhevnikov",IDC_STATIC,40,22,119,8
+END
+
+IDD_IPHELPERTEST_DIALOG DIALOGEX 0, 0, 363, 236
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "IpHelperTest"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Exit",IDOK,151,215,50,14
+    PUSHBUTTON      "(Re)initialize",IDC_INITIALIZE_BUTTON,37,215,50,14
+    COMBOBOX        IDC_IP_ADDRESS_INDEX_COMBO,24,29,30,76,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "IP :",IDC_STATIC,10,15,180,80
+    LTEXT           "IP-address :",IDC_STATIC,22,50,38,8
+    CONTROL         "IPAddress1",IDC_IPADDRESS_ADDRESS,"SysIPAddress32",
+                    WS_DISABLED | WS_TABSTOP,74,47,100,13
+    LTEXT           "Subnet mask :",IDC_STATIC,22,70,46,8
+    CONTROL         "IPAddress1",IDC_IPADDRESS_SUBNET_MASK,"SysIPAddress32",
+                    WS_DISABLED | WS_TABSTOP,74,67,100,13
+    CONTROL         "Address is local",IDC_LOCAL_ADDRESS_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,75,30,65,10
+    GROUPBOX        "Interface :",IDC_STATIC,10,99,300,50
+    LTEXT           "Description :",IDC_STATIC,20,114,40,8
+    LTEXT           "Physical address :",IDC_STATIC,20,131,58,8
+    EDITTEXT        IDC_INTERFACE_DESC_EDIT,79,111,220,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_MAC_ADDRESS_EDIT,79,128,220,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    GROUPBOX        "Ping :",IDC_STATIC,194,15,165,80
+    CONTROL         "IPAddress1",IDC_PING_IPADDRESS,"SysIPAddress32",
+                    WS_TABSTOP,250,31,100,15
+    LTEXT           "Destination :",IDC_STATIC,205,35,40,8
+    PUSHBUTTON      "Ping it !",IDC_RUN_PING_BUTTON,205,60,50,14
+    PUSHBUTTON      "Add IP",IDC_ADD_IPADDRESS_BUTTON,311,166,35,14
+    GROUPBOX        "Adapters :",IDC_STATIC,10,155,350,55
+    COMBOBOX        IDC_ADAPTERS_INDEX_COMBO,79,168,220,76,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Description :",IDC_STATIC,20,171,40,8
+    LTEXT           "Name :",IDC_STATIC,20,189,24,8
+    EDITTEXT        IDC_ADAPTER_NAME_EDIT,80,185,220,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "About",IDC_ABOUT_BUTTON,279,215,50,14
+END
+
+IDD_ADD_IPADDRESS_DIALOG DIALOG DISCARDABLE  0, 0, 172, 81
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Adding new IP address"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,30,55,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,95,55,50,14
+    LTEXT           "IP-address :",IDC_STATIC,10,13,38,8
+    CONTROL         "IPAddress1",IDC_IPADDRESS_ADDRESS,"SysIPAddress32",
+                    WS_TABSTOP,62,10,100,13
+    LTEXT           "Subnet mask :",IDC_STATIC,10,33,46,8
+    CONTROL         "IPAddress1",IDC_IPADDRESS_SUBNET_MASK,"SysIPAddress32",
+                    WS_TABSTOP,62,30,100,13
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "IpHelperTest MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "IpHelperTest\0"
+            VALUE "LegalCopyright", "Copyright (C) 2003\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "IpHelperTest.EXE\0"
+            VALUE "ProductName", "IpHelperTest Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_IPHELPERTEST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 356
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 229
+    END
+
+    IDD_ADD_IPADDRESS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 165
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 74
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About IpHelperTest..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\IpHelperTest.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
