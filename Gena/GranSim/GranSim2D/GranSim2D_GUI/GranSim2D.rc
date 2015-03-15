@@ -1,0 +1,850 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\GranSim2D.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_TREE         BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABSTRACT_FORM DIALOG DISCARDABLE  0, 0, 191, 31
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_LINE_GEOMETRY_FORM DIALOG DISCARDABLE  0, 0, 181, 146
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "X =",IDC_STATIC,15,18,12,8
+    EDITTEXT        IDC_X1_EDIT,29,15,51,14,ES_AUTOHSCROLL
+    LTEXT           "Y =",IDC_STATIC,15,37,12,8
+    EDITTEXT        IDC_Y1_EDIT,29,34,51,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,35,120,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,95,120,50,14
+    GROUPBOX        "Point 1 :",IDC_STATIC,5,5,80,50
+    LTEXT           "X =",IDC_STATIC,99,18,12,8
+    EDITTEXT        IDC_X2_EDIT,115,15,49,14,ES_AUTOHSCROLL
+    LTEXT           "Y =",IDC_STATIC,99,37,12,8
+    EDITTEXT        IDC_Y2_EDIT,115,34,49,14,ES_AUTOHSCROLL
+    GROUPBOX        "Point 2 :",IDC_STATIC,90,5,80,50
+    LTEXT           "X =",IDC_STATIC,15,74,12,8
+    EDITTEXT        IDC_XCENTER_EDIT,29,70,40,14,ES_AUTOHSCROLL
+    LTEXT           "Y =",IDC_STATIC,15,92,12,8
+    EDITTEXT        IDC_YCENTER_EDIT,29,89,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Center :",IDC_STATIC,5,60,70,50
+    LTEXT           "Length =",IDC_STATIC,90,74,29,8
+    EDITTEXT        IDC_LENGTH_EDIT,122,70,40,14,ES_AUTOHSCROLL
+    LTEXT           "Angle =",IDC_STATIC,94,92,25,8
+    EDITTEXT        IDC_ANGLE_EDIT,122,89,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,80,60,90,50
+END
+
+IDD_GEOMETRY_OBJECT_COMMON_FORM DIALOG DISCARDABLE  0, 0, 221, 94
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Name :",IDC_STATIC,15,11,24,8
+    EDITTEXT        IDC_GIVEN_NAME_EDIT,45,7,145,14,ES_AUTOHSCROLL
+    LTEXT           "Color :",IDC_STATIC,15,35,21,8
+    CONTROL         "Button1",IDC_COLOR_BUTTON,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,44,33,50,14
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,45,65,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,111,65,50,14
+END
+
+IDD_PARTICLE_SIZE_FORM DIALOG DISCARDABLE  0, 0, 156, 246
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_SIZE_STATIC,5,134,145,70
+    GROUPBOX        "",IDC_STATIC,5,5,145,35
+    GROUPBOX        "",IDC_STATIC,5,41,145,35
+    GROUPBOX        "",IDC_STATIC,5,77,145,35
+    CONTROL         "Fixed size",IDC_FIXED_SIZE_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,15,5,47,10
+    CONTROL         "Uniform size distribution",IDC_UNIFORM_SIZE_RADIO,
+                    "Button",BS_AUTORADIOBUTTON,15,41,89,10
+    CONTROL         "Normal size distribution",IDC_NORMAL_SIZE_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,15,77,87,10
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,24,219,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,84,219,50,14
+    EDITTEXT        IDC_FIXED_SIZE_EDIT,15,19,40,14,ES_AUTOHSCROLL
+    LTEXT           "From",IDC_STATIC,10,58,16,8
+    EDITTEXT        IDC_UNIFORM_FROM_EDIT,30,56,40,14,ES_AUTOHSCROLL
+    LTEXT           "to",IDC_STATIC,75,58,8,8
+    EDITTEXT        IDC_UNIFORM_TO_EDIT,85,56,40,14,ES_AUTOHSCROLL
+    LTEXT           "Static",IDC_STATIC,10,94,19,8
+    EDITTEXT        IDC_NORMAL_MEDIAN_EDIT,35,91,40,14,ES_AUTOHSCROLL
+    LTEXT           "Sigma",IDC_STATIC,82,93,20,8
+    EDITTEXT        IDC_NORMAL_SIGMA_EDIT,105,91,40,14,ES_AUTOHSCROLL
+    LTEXT           "(all sizes are in millimeters)",IDC_STATIC,35,115,85,8
+END
+
+IDD_OBJECT_COMMON_FORM DIALOG DISCARDABLE  0, 0, 221, 94
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Name :",-1,15,11,24,8
+    EDITTEXT        IDC_GIVEN_NAME_EDIT,45,7,145,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,45,65,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,111,65,50,14
+END
+
+IDD_PARTICLE_MATERIAL_FORM DIALOG DISCARDABLE  0, 0, 186, 96
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Material :",IDC_STATIC,15,15,30,8
+    COMBOBOX        IDC_MATERIAL_COMBO,54,12,110,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,45,70,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,105,70,50,14
+END
+
+IDD_POINT_GEOMETRY_FORM DIALOG DISCARDABLE  0, 0, 141, 94
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "X =",IDC_STATIC,15,20,12,8
+    EDITTEXT        IDC_X_EDIT,29,15,40,14,ES_AUTOHSCROLL
+    LTEXT           "Y =",IDC_STATIC,15,39,12,8
+    EDITTEXT        IDC_Y_EDIT,29,34,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,15,65,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,75,65,50,14
+END
+
+IDD_PARTICLE_SHAPE_FORM DIALOG DISCARDABLE  0, 0, 156, 196
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_SHAPE_STATIC,5,50,145,120
+    LTEXT           "Squareness :",IDC_STATIC,10,10,42,8
+    EDITTEXT        IDC_SQUARENESS_EDIT,56,7,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SQUARENESS_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,91,9,10,14
+    LTEXT           "Aspect ratio :",IDC_STATIC,10,30,42,8
+    EDITTEXT        IDC_ASPECT_RATIO_EDIT,55,27,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,20,175,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,80,175,50,14
+END
+
+IDD_MATERIAL_CONSTANTS_FORM DIALOG DISCARDABLE  0, 0, 146, 142
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Poisson's ratio :",IDC_STATIC,20,25,50,8
+    EDITTEXT        IDC_NU_EDIT,83,20,27,14,ES_AUTOHSCROLL
+    LTEXT           "Young's module :",IDC_STATIC,20,43,55,8
+    EDITTEXT        IDC_E_EDIT,83,40,27,14,ES_AUTOHSCROLL
+    GROUPBOX        "Elastic constants :",IDC_STATIC,10,10,125,60
+    LTEXT           "Density =",IDC_STATIC,17,85,30,8
+    EDITTEXT        IDC_RO_EDIT,52,80,33,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,25,110,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,80,110,50,14
+    LTEXT           "kg/m**3",IDC_STATIC,89,83,27,8
+    LTEXT           "MPa",IDC_STATIC,115,43,16,8
+END
+
+IDD_PARTICLE_SOURCE_INTENSITY_FORM DIALOG DISCARDABLE  0, 0, 176, 126
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,35,105,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,95,105,50,14
+    LTEXT           "Intensity =",IDC_STATIC,10,15,33,8
+    EDITTEXT        IDC_INTENSITY_EDIT,46,12,39,14,ES_AUTOHSCROLL
+    LTEXT           "particles/sec",IDC_STATIC,90,15,42,8
+    GROUPBOX        "Flow :",IDC_STATIC,5,35,165,50
+    CONTROL         "Uniform (1 particle after equal period of time)",
+                    IDC_UNIFORM_FLOW_RADIO,"Button",BS_AUTORADIOBUTTON,15,50,
+                    154,10
+    CONTROL         "Poisson flow",IDC_POISSON_FLOW_RADIO,"Button",
+                    BS_AUTORADIOBUTTON,15,65,55,10
+END
+
+IDD_PARTICLE_SOURCE_TYPE_FORM DIALOG DISCARDABLE  0, 0, 186, 96
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Particle type:",IDC_STATIC,15,15,42,8
+    COMBOBOX        IDC_PARTICLE_TYPE_COMBO,62,12,110,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,45,70,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,105,70,50,14
+END
+
+IDD_REFLECTING_OBJECT_MATERIAL_FORM DIALOG DISCARDABLE  0, 0, 186, 96
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Material :",IDC_STATIC,15,15,30,8
+    COMBOBOX        IDC_MATERIAL_COMBO,54,12,110,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,45,70,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,105,70,50,14
+END
+
+IDD_RECTANGLE_GEOMETRY_FORM DIALOG DISCARDABLE  0, 0, 181, 146
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,35,120,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,95,120,50,14
+    LTEXT           "X =",IDC_STATIC,20,23,12,8
+    EDITTEXT        IDC_XCENTER_EDIT,34,20,40,14,ES_AUTOHSCROLL
+    LTEXT           "Y =",IDC_STATIC,20,42,12,8
+    EDITTEXT        IDC_YCENTER_EDIT,34,39,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Center :",IDC_STATIC,10,10,70,50
+    GROUPBOX        "Size :",IDC_STATIC,90,10,85,50
+    LTEXT           "Width :",IDC_STATIC,95,24,24,8
+    LTEXT           "Height :",IDC_STATIC,95,40,26,8
+    EDITTEXT        IDC_WIDTH_EDIT,125,20,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_HEIGHT_EDIT,125,39,40,14,ES_AUTOHSCROLL
+END
+
+IDD_SIM_SETTINGS_FORM DIALOG DISCARDABLE  0, 0, 221, 216
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Apply",IDC_APPLY_BUTTON,45,140,50,14
+    PUSHBUTTON      "Cancel",IDC_CANCEL_BUTTON,115,140,50,14
+    EDITTEXT        IDC_TIME_EDIT,61,35,40,14,ES_AUTOHSCROLL
+    LTEXT           "seconds",IDC_STATIC,108,38,28,8
+    GROUPBOX        "Time integration method :",IDC_STATIC,15,70,195,55
+    CONTROL         "Implicit Euler",IDC_IMPLICIT_EULER_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_GROUP | WS_TABSTOP,
+                    25,85,55,10
+    CONTROL         "Velocity Verlet",IDC_VERLET_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,25,97,61,10
+    CONTROL         "Predictor-corrector",IDC_PREDICTOR_CORRECTOR_RADIO,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,25,110,74,10
+    CONTROL         "Trapezoid",IDC_TRAPEZOID_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_TABSTOP,125,85,47,
+                    10
+    CONTROL         "Runge-Kutta II",IDC_RUNGE_KUTTA2_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_TABSTOP,125,97,62,
+                    10
+    CONTROL         "Runge-Kutta IV",IDC_RUNGE_KUTTA4_RADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_TABSTOP,125,110,65,
+                    10
+    LTEXT           "Simulate",IDC_STATIC,25,38,28,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABSTRACT_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 24
+    END
+
+    IDD_LINE_GEOMETRY_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 174
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 139
+    END
+
+    IDD_GEOMETRY_OBJECT_COMMON_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+
+    IDD_PARTICLE_SIZE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 149
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 239
+    END
+
+    IDD_OBJECT_COMMON_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+
+    IDD_PARTICLE_MATERIAL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+    END
+
+    IDD_POINT_GEOMETRY_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 134
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+
+    IDD_PARTICLE_SHAPE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 149
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 189
+    END
+
+    IDD_MATERIAL_CONSTANTS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 139
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 135
+    END
+
+    IDD_PARTICLE_SOURCE_INTENSITY_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 169
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_PARTICLE_SOURCE_TYPE_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+    END
+
+    IDD_REFLECTING_OBJECT_MATERIAL_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+    END
+
+    IDD_RECTANGLE_GEOMETRY_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 174
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 139
+    END
+
+    IDD_SIM_SETTINGS_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+IDR_DESIGN_2D_VIEW_TOOLBAR BITMAP  MOVEABLE PURE   "res\\design_2d_view_toolbar.bmp"
+IDR_EDITOR_TOOLBAR      BITMAP  MOVEABLE PURE   "res\\design_2.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About GranSim2D"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "GranSim2D Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2007",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\GranSim2D.ico"
+IDR_GRANSITYPE          ICON    DISCARDABLE     "res\\GranSim2DDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    BUTTON      ID_BUTTON32790
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+IDR_DESIGN_2D_VIEW_TOOLBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_VIEW_ZOOM_IN
+    BUTTON      ID_VIEW_ZOOM_OUT
+    BUTTON      ID_VIEW_INITIALVIEW
+    BUTTON      ID_VIEW_SELECT
+    BUTTON      ID_VIEW_ZOOM_RECTANGLE
+    BUTTON      ID_VIEW_DRAG_SCROLL
+    SEPARATOR
+    BUTTON      ID_VIEW_EDITMODE
+END
+
+IDR_EDITOR_TOOLBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_VIEW_ZOOM_IN
+    BUTTON      ID_BUTTON32787
+    BUTTON      ID_VIEW_ZOOM_OUT
+    BUTTON      ID_VIEW_INITIALVIEW
+    BUTTON      ID_VIEW_SELECT
+    BUTTON      ID_VIEW_ZOOM_RECTANGLE
+    BUTTON      ID_VIEW_DRAG_SCROLL
+    SEPARATOR
+    BUTTON      ID_VIEW_EDITMODE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Create new material",         ID_EDIT_CREATENEWMATERIAL
+        MENUITEM "Create new particle type",    ID_EDIT_CREATENEWPARTICLETYPE
+
+        MENUITEM "Create reflecting wall",      ID_EDIT_CREATEREFLECTINGWALL
+        MENUITEM "Create Reflecting Rectangle", ID_EDIT_CREATEREFLECTINGRECTANGLE
+
+        POPUP "Create Particle Source"
+        BEGIN
+            MENUITEM "Linear",                      ID_EDIT_CREATEPARTICLESOURCE_LINEAR
+
+            MENUITEM "Point",                       ID_EDIT_CREATEPARTICLESOURCE_POINT
+
+        END
+        MENUITEM "Delete object",               ID_EDIT_DELETE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "Zoom++",                      ID_VIEW_ZOOM_IN
+        MENUITEM "Zoom--",                      ID_VIEW_ZOOM_OUT
+        MENUITEM "Initial View (1:1)",          ID_VIEW_INITIALVIEW
+        MENUITEM "Select",                      ID_VIEW_SELECT
+        MENUITEM "Zoom rectangle",              ID_VIEW_ZOOM_RECTANGLE
+        MENUITEM "Drag scroll",                 ID_VIEW_DRAG_SCROLL
+        MENUITEM "Edit mode",                   ID_VIEW_EDITMODE
+    END
+    POPUP "Simulation"
+    BEGIN
+        MENUITEM "Start",                       ID_SIMULATION_START
+        MENUITEM "Stop",                        ID_SIMULATION_STOP
+        MENUITEM "Pause",                       ID_SIMULATION_PAUSE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About GranSim2D...",         ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "GranSim2D MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "GranSim2D\0"
+            VALUE "LegalCopyright", "Copyright (C) 2007\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "GranSim2D.EXE\0"
+            VALUE "ProductName", "GranSim2D Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "GranSim2D\n\nGranSi\nGranSim2D Files (*.grn)\n.grn\nGranSim2D.Document\nGranSi Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "GranSim2D"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+    ID_INDICATOR_OBJECT     "."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_EDITMODE        "Set edit mode\nEdit mode"
+    ID_EDIT_CREATEREFLECTINGWALL 
+                            "Create flat reflecting wall\nReflecting wall"
+    ID_EDIT_CREATEPARTICLESOURCE_LINEAR 
+                            "Create particle sourse of linear shape\nParticle Source (linear)"
+    ID_VIEW_INITIALVIEW     "Initial View\n1:1 View"
+    ID_EDIT_CREATEPARTICLESOURCE_POINT 
+                            "Create particle source of 0-Dimension\nParticle Source (0-Dimensional)"
+    ID_EDIT_CREATENEWPARTICLETYPE "Create new particle type"
+    ID_VIEW_ZOOM_IN         "Increment zoom\nZoom in"
+    ID_VIEW_ZOOM_RECTANGLE  "Draw the rectangle by mouse and release it to zoom\nRectangle zoom"
+    ID_VIEW_DRAG_SCROLL     "Drag image by mouse and pull it to scroll\nDrag-and-pull scrolling"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_ZOOM_OUT        "Decrement zoom\nZoom out"
+    ID_VIEW_SELECT          "Select\nSelect"
+    ID_EDIT_DELETE          "Delete selected object\nDelete"
+    ID_TREE_VIEW_SELECT     "Select\nSelect"
+    ID_TREE_VIEW_INITIALVIEW "Initial View\n1:1 View"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\GranSim2D.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

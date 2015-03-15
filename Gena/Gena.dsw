@@ -1,0 +1,133 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "Antenna"=.\Antenna\Antenna.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\antenna
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "GranSim2D_Console"=.\GRANSIM\GRANSIM2D\GranSim2D_Console\GranSim2D_Console.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\gransim\gransim2d\gransim2d_console
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "GranSim2D_GUI"=.\GranSim\GranSim2D\GranSim2D_GUI\GranSim2D_GUI.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\gransim\gransim2d\gransim2d_gui
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "GranSim2D_Test"=.\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_Test.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\gransim2d_test
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Litho"=.\Litho\Litho.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\litho
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ParticlesInBox"=.\ParticlesInBox\ParticlesInBox.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\particlesinbox
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Titov"=.\Titov\Titov.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .\titov
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+    begin source code control
+    Gena
+    .
+    end source code control
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

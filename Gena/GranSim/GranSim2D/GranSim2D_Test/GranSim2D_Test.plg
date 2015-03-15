@@ -1,0 +1,84 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: GranSim2D_Test - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\Evgeny\LOCALS~1\Temp\RSP14.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Debug/GranSim2D_Test.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\my\Projects\CommonObjects\Calculations.cpp"
+"C:\my\Projects\CommonObjects\Geometry2D.cpp"
+"C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp"
+"C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2DDesign.cpp"
+"C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_GUI\GranSim2DRenderer.cpp"
+"C:\my\Projects\CommonObjects\OpenGLEditor.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Evgeny\LOCALS~1\Temp\RSP14.tmp" 
+Creating temporary file "C:\DOCUME~1\Evgeny\LOCALS~1\Temp\RSP15.tmp" with contents
+[
+glu32.lib Ws2_32.lib OpenGL32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/GranSim2D_Test.pdb" /debug /machine:I386 /out:"Debug/GranSim2D_Test.exe" /pdbtype:sept 
+.\Debug\3DRenderer.obj
+.\Debug\3DView.obj
+.\Debug\Calculations.obj
+.\Debug\Geometry2D.obj
+.\Debug\GranSim2D_Test.obj
+.\Debug\GranSim2D_TestDoc.obj
+.\Debug\GranSim2D_TestView.obj
+.\Debug\GranSim2DDesign.obj
+.\Debug\GranSim2DRenderer.obj
+.\Debug\MainFrm.obj
+.\Debug\OpenGLEditor.obj
+.\Debug\OpenGLRenderer.obj
+.\Debug\OpenGLView.obj
+.\Debug\ParticlePosDialog.obj
+.\Debug\Portable.obj
+.\Debug\RandomGen.obj
+.\Debug\StdAfx.obj
+.\Debug\GranSim2D_Test.res
+]
+Creating command line "link.exe @C:\DOCUME~1\Evgeny\LOCALS~1\Temp\RSP15.tmp"
+<h3>Output Window</h3>
+Compiling...
+Calculations.cpp
+Geometry2D.cpp
+GranSim2D_TestView.cpp
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(24) : error C2039: 'm_Size' : is not a member of 'CParticle2D'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(125) : see declaration of 'CParticle2D'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(34) : error C2039: 'm_Size' : is not a member of 'CParticle2D'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(125) : see declaration of 'CParticle2D'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(63) : error C2039: 'm_Size' : is not a member of 'CParticle2D'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(125) : see declaration of 'CParticle2D'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(63) : error C2039: 'm_Size' : is not a member of 'CParticle2D'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(125) : see declaration of 'CParticle2D'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(71) : error C2039: 'm_Size' : is not a member of 'CParticle2D'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(125) : see declaration of 'CParticle2D'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(71) : error C2039: 'm_Size' : is not a member of 'CParticle2D'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(125) : see declaration of 'CParticle2D'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(88) : error C2039: 'TangentForceDirection' : is not a member of 'SContact'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(52) : see declaration of 'SContact'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(88) : error C2228: left of '.X' must have class/struct/union type
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(88) : error C2039: 'TangentForceDirection' : is not a member of 'SContact'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(52) : see declaration of 'SContact'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(88) : error C2228: left of '.Y' must have class/struct/union type
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(99) : error C2039: 'TangentForceDirection' : is not a member of 'SContact'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(52) : see declaration of 'SContact'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(99) : error C2228: left of '.X' must have class/struct/union type
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(99) : error C2039: 'TangentForceDirection' : is not a member of 'SContact'
+        c:\my\projects\gena\gransim\gransim2d\gransim2ddesign.h(52) : see declaration of 'SContact'
+C:\my\Projects\Gena\GRANSIM\GRANSIM2D\GranSim2D_Test\GranSim2D_TestView.cpp(99) : error C2228: left of '.Y' must have class/struct/union type
+GranSim2DDesign.cpp
+GranSim2DRenderer.cpp
+OpenGLEditor.cpp
+Generating Code...
+Error executing cl.exe.
+
+
+
+<h3>Results</h3>
+GranSim2D_Test.exe - 14 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
