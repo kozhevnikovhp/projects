@@ -23,7 +23,7 @@ const char *pszSectionName = "Values";
 CWorld::CWorld()
 {
 	nFluxFromLeft = nFluxFromRight = 0;
-	m_pRenderer = NULL;
+	pRenderer_ = NULL;
 }
 
 CWorld::~CWorld()
@@ -363,7 +363,7 @@ BOOL CWorld::InitialDistribution()
 		fprintf(fd, "\nTime\tnLeft\t<V>left\t<flux>left\t\tnRight\t<V>right\t<flux>right\n");
 		fclose(fd);
 	}
-	m_pRenderer->SetDefaultView();
+	pRenderer_->SetDefaultView();
 
 	return TRUE;
 }
@@ -383,7 +383,7 @@ void CWorld::OnIdle()
 	}
 	if ((nTimeSteps % 5) == 0)
 	{
-		m_pRenderer->Redraw();
+		pRenderer_->Redraw();
 	}
 }
 

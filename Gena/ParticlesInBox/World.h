@@ -61,7 +61,7 @@ public:
 	int GetParticleCount() { return nParticles; }
 	SParticle *GetParticle(int iParticle) { return particle + iParticle; }
 	SGeometry *GetGeometry() { return &Geometry; }
-	void SetRenderer(CWorldRenderer *pRenderer) { m_pRenderer = pRenderer; }
+	void SetRenderer(CWorldRenderer *pRenderer) { pRenderer_ = pRenderer; }
 
 // Public members
 public:
@@ -122,7 +122,7 @@ protected:
 	double			LastTimeWritten;	// Время, которое было записано в файл последний раз
 	int				nFluxFromLeft;
 	int				nFluxFromRight;
-	CWorldRenderer *m_pRenderer;
+	CWorldRenderer *pRenderer_;
 
 // Private members
 private:
