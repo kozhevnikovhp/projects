@@ -28,6 +28,7 @@ Makefile*
 *.qmlproject.user.*
 # Other files
 *.ncb
+*.opt
 *.plg
 *.mdb
 # Compiled Dynamic libraries
@@ -43,6 +44,8 @@ Makefile*
 *.exe
 *.out
 *.app
+#Log files
+LogFile_*.txt
 # Debug-release dirs
 Debug/
 Release/

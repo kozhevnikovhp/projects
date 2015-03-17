@@ -472,29 +472,6 @@ int OneObject(int argc, char* argv[], const char *pszCityName)
 			bAutomaticSN = TRUE;
 			sscanf(argv[i]+2, "%lf,%lf,%lf,%lf", &MinSN, &MaxSN, &MinLevel, &MaxLevel);
 			break;
-		case 'R':
-		case 'r': // Radyne modem
-			pDevice = new CRadyneDMD2401();
-			pDevices[nDevice] = pDevice;
-			sscanf(argv[i]+2, "%d", &nPort);
-			pDevice->Connect(nPort);
-			if (strlen(argv[i])>2)
-			{
-				sscanf(argv[i]+3, "%s", &c);
-				if (c == 'B' || c == 'b')
-				{
-					bBerTest[nDevice] = TRUE;
-				}
-			}
-			BusAddress = 0;
-			while (BusAddress < 32 || BusAddress > 255)
-			{
-				printf("Please enter remote address for Radyne DMD-2401 (32...255) :");
-				scanf("%d", &BusAddress);
-			}
-			pDevice->SetMCBusAddress(BusAddress);
-			nDevice++;
-			break;
 		case 'T':
 		case 't': // time delay
 			sscanf(argv[i]+2, "%d", &desired_delay);
