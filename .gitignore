@@ -27,6 +27,7 @@ Makefile*
 *.qmlproject.user
 *.qmlproject.user.*
 # Other files
+*.aps
 *.ncb
 *.opt
 *.plg

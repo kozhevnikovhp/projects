@@ -105,6 +105,22 @@ SOURCE=..\..\HardwareTest\Datum.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\HardwareTest\Datum_500.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\HardwareTest\Datum_M7.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\HardwareTest\Datum_PSM_4900.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\HardwareTest\DatumConventionalModem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\HardwareTest\Device.cpp
 # End Source File
 # Begin Source File

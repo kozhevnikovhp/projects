@@ -63,7 +63,7 @@ BEGIN_MESSAGE_MAP(CHardwareTestDoc, CDocument)
 	ON_COMMAND(ID_DEVICE_ADD_UPDOWNCONVERTER_UPCONVERTERKVV140_VER2011, OnDeviceAddUpConverterKvv140Ver2011)
 	ON_COMMAND(ID_DEVICE_ADD_SDMS_SDMSVSAT_4900L, OnDeviceAddSdmsSdmsVsat4900l)
 	ON_COMMAND(ID_DEVICE_ADD_SDMS_SDMSVSAT_M500L, OnDeviceAddSdmsSdmsVsatM500l)
-	ON_COMMAND(ID_DEVICE_ADD_MODEM_DATUM_M7_LBAND, OnDeviceAddModemDatumM7LBand)
+	ON_COMMAND(ID_DEVICE_ADD_MODEM_DATUM_M7_LMOD_LDEM, OnDeviceAddModemDatumM7LModLDem)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -242,7 +242,7 @@ int CHardwareTestDoc::AddDevice(CDevice *pDevice)
 		!strcmp(pDevice->GetName(), CDatumPsm4900_Hybrid::m_pszName) ||
 		!strcmp(pDevice->GetName(), CDatumPsm4900_LBand::m_pszName) ||
 		!strcmp(pDevice->GetName(), CDatumPsm500_LBand::m_pszName) ||
-		!strcmp(pDevice->GetName(), CDatum_M7_LBand::m_pszName))
+		!strcmp(pDevice->GetName(), CDatum_M7_LMod_LDem::m_pszName))
 		m_pTreeView->AddModem(pDevice);
 
 	if (!strcmp(pDevice->GetName(), CRadyneDMD2401::m_pszName))
@@ -423,9 +423,9 @@ void CHardwareTestDoc::OnDeviceAddModemDatumPSM500Lband()
 	AddDevice(new CDatumPsm500_LBand());
 }
 
-void CHardwareTestDoc::OnDeviceAddModemDatumM7LBand() 
+void CHardwareTestDoc::OnDeviceAddModemDatumM7LModLDem() 
 {
-	AddDevice(new CDatum_M7_LBand());	
+	AddDevice(new CDatum_M7_LMod_LDem());	
 }
 
 void CHardwareTestDoc::OnDeviceAddAccessDeviceNsgNps3e() 

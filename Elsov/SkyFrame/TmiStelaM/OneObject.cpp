@@ -3,7 +3,9 @@
 //
 
 #include "stdafx.h"
-#include "../HardwareTest/Datum.h"
+#include "../HardwareTest/Datum_PSM_4900.h"
+#include "../HardwareTest/Datum_M500.h"
+#include "../HardwareTest/Datum_M7.h"
 #include "../HardwareTest/Radyne.h"
 #include "../HardwareTest/WaveSat.h"
 #include "../HardwareTest/Vertex.h"

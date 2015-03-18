@@ -2,7 +2,9 @@
 #define __DEVICE_FROM_NAME_H_INCLUDED__
 
 // Devices
-#include "Datum.h"
+#include "Datum_PSM_4900.h"
+#include "Datum_M500.h"
+#include "Datum_M7.h"
 #include "Radyne.h"
 #include "StelaM.h"
 #include "WaveSat.h"

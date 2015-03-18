@@ -139,6 +139,22 @@ SOURCE=.\Datum.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Datum_500.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Datum_M7.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Datum_PSM_4900.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DatumConventionalModem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DemodulatorBerTestForm.cpp
 # End Source File
 # Begin Source File
@@ -536,6 +552,22 @@ SOURCE=.\DataForm.h
 # Begin Source File
 
 SOURCE=.\Datum.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Datum_M500.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Datum_M7.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Datum_PSM_4900.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DatumConventionalModem.h
 # End Source File
 # Begin Source File
 

@@ -142,7 +142,7 @@ protected:
 	afx_msg void OnDeviceAddUpConverterKvv140Ver2011();
 	afx_msg void OnDeviceAddSdmsSdmsVsat4900l();
 	afx_msg void OnDeviceAddSdmsSdmsVsatM500l();
-	afx_msg void OnDeviceAddModemDatumM7LBand();
+	afx_msg void OnDeviceAddModemDatumM7LModLDem();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

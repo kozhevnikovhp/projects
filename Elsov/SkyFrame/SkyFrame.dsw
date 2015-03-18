@@ -102,22 +102,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Date1"=.\SnmpAgent\Date1\Date1.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    SkyFrame
-    .\date1
-    end source code control
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "Datum2SdmsTest"=.\Datum2SdmsTest\Datum2SdmsTest.dsp - Package Owner=<4>
 
 Package=<5>
