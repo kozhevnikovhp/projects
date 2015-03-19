@@ -18,6 +18,7 @@ const unsigned char CLOSE_FLAG = 0x96; // close flag for bot command and respons
 class CDatumConventionalModem : public CDatumModem
 {
 public:
+	CDatumConventionalModem();
 
 	virtual int GetModulatorsNumber() { return 1; }
 	virtual int GetDemodulatorsNumber() { return 1; }
@@ -25,11 +26,19 @@ public:
 	virtual MC_ErrorCode ReadReplyUntilPrompt();
 	virtual unsigned char GetModeField(unsigned char Mode) = 0; // pure virtual - must be overriden
 
-// Protected methods
 protected:
 	int FillCommandBuffer(unsigned char CommandCode, unsigned char Mode, unsigned char *pcDataBytes, unsigned char nDataBytes);
 	unsigned char CheckSum(int Start, int Stop);
 	unsigned char CheckSum(unsigned char *pcData, int Start, int Stop);
+
+	unsigned int RawDataToInt(unsigned char *pszRawData);
+	short RawDataToSignedShort(unsigned char *pszRawData);
+	void IntToRawData(unsigned int IntValue, unsigned char *pszRawData);
+	void SignedShortToRawData(short ShortValue, unsigned char *pszRawData);
+
+	unsigned char m_cStatusByte;
+	unsigned char m_cErrorByte;
+	unsigned char m_cDataBytes;
 };
 
 

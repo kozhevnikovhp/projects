@@ -106,7 +106,118 @@ unsigned short CRC_CCITT(unsigned char *pBuffer, size_t len)
 //virtual
 MC_ErrorCode CDatum_M7::ReadReplyUntilPrompt()
 {
+	unsigned char byte;
+	bool bPad = false;
+	m_ReturnedDataLength = 0;
+	m_RawReplyLength = 0;
+
+	while (!bPad)
+	{
+		byte = 0x00;
+		if (!GetTerminal()->Read((char *)&byte, 1))
+			return MC_DEVICE_NOT_RESPONDING;
+		if (byte == 0x5A)
+		{
+			m_pRawReply[m_RawReplyLength++] = byte;
+			bPad = true;
+			break;
+		}
+	}
+	if (!bPad)
+		return MC_DEVICE_NOT_RESPONDING;
+
+	// Addresses
+	LOGICAL b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, 3);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	if (m_pRawReply[m_RawReplyLength] != m_ControllerAddress)
+		return MC_GENERIC_ERROR;
+	if (m_pRawReply[m_RawReplyLength+1] != m_ModemAddress)
+		return MC_GENERIC_ERROR;
+	if (m_pRawReply[m_RawReplyLength+2] != 0)
+		return MC_GENERIC_ERROR;
+	m_RawReplyLength += 3;
+
+	// total byte count
+	b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, 3);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	m_RawReplyLength += 3;
+
+	// Slot
+	b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, 1);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	m_RawReplyLength += 1;
+
+	// Command number
+	b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, 1);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	m_RawReplyLength += 1;
+
+	// Error code
+	b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, 1);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	m_RawReplyLength += 1;
+
+	// Byte counter
+	b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, 1);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	int nDataBytes = m_pRawReply[m_RawReplyLength];
+	m_RawReplyLength += 1;
+
+	// Data bytes
+	b = GetTerminal()->Read(m_pRawReply+m_RawReplyLength, nDataBytes);
+	if (!b)
+		return MC_DEVICE_NOT_RESPONDING;
+	m_RawReplyLength += nDataBytes;
+
+	unsigned short CRC_received; 
+	if (!GetTerminal()->Read(&CRC_received, 2))
+		return MC_DEVICE_NOT_RESPONDING;
+
+	unsigned short CRC_calculated = CRC_CCITT(m_pRawReply, m_RawReplyLength);
+	if (CRC_calculated != CRC_received)
+		return MC_BAD_CRC;
+
 	return MC_OK;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetRFrequency(unsigned int &Frequency, int Demodulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::SetRFrequency(unsigned int &Frequency, int Demodulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetTFrequency(unsigned int &Frequency, int Modulator)
+{
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = ReadParam(32, getModulatorSlotNumber(Modulator));
+	if (EC != MC_OK)
+		return EC;
+	Frequency = m_pRawReply[11];
+	Frequency |= m_pRawReply[12] << 8;
+	Frequency |= m_pRawReply[13] << 16;
+	Frequency |= m_pRawReply[14] << 24;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::SetTFrequency(unsigned int &Frequency, int Modulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
 }
 
 // Modulation type
@@ -126,16 +237,7 @@ const char *CDatum_M7::GetRModulationTypeName(int Type)
 //virtual
 MC_ErrorCode CDatum_M7::GetRModulationType(int &Type, int Demodulator)
 {
-	Type = 0;
-	//if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-	MC_ErrorCode EC = MC_DEVICE_NOT_RESPONDING;
-
-	unsigned char bb[] = { 0xA5, 0x64, 0xCC, 0x00, 0x00, 0x03, 0x00, 0x01, 0x20, 0x00, 0xBB, 0xCC };
-	int len = 10;
-	unsigned short crc = CRC_CCITT(bb, len);
-	memcpy(bb+len, &crc, 2);
-
-	return EC;
+	return MC_COMMAND_NOT_SUPPORTED;
 }
 
 //virtual
@@ -164,6 +266,11 @@ const char *CDatum_M7::GetTModulationTypeName(int Type)
 //virtual
 MC_ErrorCode CDatum_M7::GetTModulationType(int &Type, int Modulator)
 {
+	Type = 0;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = ReadParam(32, getModulatorSlotNumber(Modulator));
+
 	return MC_COMMAND_NOT_SUPPORTED;
 }
 
@@ -360,6 +467,32 @@ MC_ErrorCode CDatum_M7::SetDescramblerMode(int &mode, int Demodulator)
 	return MC_COMMAND_NOT_SUPPORTED;
 }
 
+MC_ErrorCode CDatum_M7::ReadParam(unsigned char param, unsigned char slot)
+{
+
+//000: A5 64 CC 00 00 03 00 01 20 00 92 D1 
+	int CommandLength=0;
+	m_pszCommand[CommandLength++] = 0xA5; // opening pad byte
+	m_pszCommand[CommandLength++] = m_ModemAddress; // 
+	m_pszCommand[CommandLength++] = m_ControllerAddress; // 
+	m_pszCommand[CommandLength++] = 0x00; // remote address
+
+	m_pszCommand[CommandLength++] = 0x00; // control and payload byte count
+	m_pszCommand[CommandLength++] = 0x03; // control and payload byte count
+	m_pszCommand[CommandLength++] = 0x00; // control and payload byte count
+
+	// payload
+	m_pszCommand[CommandLength++] = slot; // slot number
+	m_pszCommand[CommandLength++] = param; // command number
+	m_pszCommand[CommandLength++] = 0x00; // "get" (0 bytes)
+
+	unsigned short crc = CRC_CCITT(m_pszCommand, CommandLength);
+	memcpy(m_pszCommand+CommandLength, &crc, 2);
+	CommandLength += 2;
+
+	MC_ErrorCode EC = Command(CommandLength);
+	return EC;
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -369,12 +502,26 @@ char *CDatum_M7_LMod_LDem::m_pszName="Datum M7 (L-band mod + L-band dem)";
 
 CDatum_M7_LMod_LDem::CDatum_M7_LMod_LDem()
 {
-	unsigned char bb[] = { 0xA5, 0x00, 0x00, 0x03, 0x00, 0x02, 0x11, 0x00 };
-	unsigned short crc = CRC_CCITT(bb, sizeof(bb));
 }
 
 //virtual
 CDatum_M7_LMod_LDem::~CDatum_M7_LMod_LDem()
 {
+}
+
+//virtual
+unsigned char CDatum_M7_LMod_LDem::getModulatorSlotNumber(int nModulator) const
+{
+	if (nModulator == 1)
+		return 1;
+	return 0;
+}
+
+//virtual
+unsigned char CDatum_M7_LMod_LDem::getDemodulatorSlotNumber(int nDemodulator) const
+{
+	if (nDemodulator == 1)
+		return 2;
+	return 0;
 }
 

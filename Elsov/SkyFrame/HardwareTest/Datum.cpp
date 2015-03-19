@@ -11,10 +11,7 @@ CDatumModem::CDatumModem()
 {
 	m_bParamSavingInNvRamRightAfterSettingEnabled = FALSE;
 	m_ModemAddress = 12;
-	m_ControllerAddress = 0x01;
-	m_cStatusByte = 0;
-	m_cErrorByte = 0;
-	m_cDataBytes = 0;
+	m_ControllerAddress = 0xCC;
 	m_ReturnedDataLength = 0;
 }
 
@@ -56,6 +53,8 @@ MC_ErrorCode CDatumModem::Command(int CommandLength, BOOL bWaitForReply/* = TRUE
 	if (!bWaitForReply)
 		return MC_OK;
 
+	memset(m_pDataBytes, 0, sizeof(m_pDataBytes));
+	memset(m_pRawReply, 0, sizeof(m_pRawReply));
 	MC_ErrorCode EC = ReadReplyUntilPrompt();
 	GetTerminal()->ClearAllBuffers();
 
@@ -85,35 +84,6 @@ BOOL CDatumModem::CheckMCBusAddress(unsigned int Address)
 		bMyAddress = TRUE;
 	SetMCBusAddress(StoredAddress);
 	return bMyAddress;
-}
-
-unsigned int CDatumModem::RawDataToInt(unsigned char *pszRawData)
-{
-	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
-	unsigned int IntValue = *((unsigned int *)pszRawData);
-	return IntValue;
-}
-
-short CDatumModem::RawDataToSignedShort(unsigned char *pszRawData)
-{
-	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
-	short ShortValue = *((short *)pszRawData);
-	return ShortValue;
-}
-
-void CDatumModem::IntToRawData(unsigned int IntValue, unsigned char *pszRawData)
-{
-	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
-	pszRawData[0] = (unsigned char)((IntValue & 0x000000FF) >> 0);
-	pszRawData[1] = (unsigned char)((IntValue & 0x0000FF00) >> 8);
-	pszRawData[2] = (unsigned char)((IntValue & 0x00FF0000) >> 16);
-	pszRawData[3] = (unsigned char)((IntValue & 0xFF000000) >> 24);
-}
-
-void CDatumModem::SignedShortToRawData(short ShortValue, unsigned char *pszRawData)
-{
-	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
-	memcpy(pszRawData, &ShortValue, sizeof(ShortValue));
 }
 
 // Common device commands

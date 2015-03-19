@@ -113,19 +113,12 @@ public:
 	
 // Protected methods
 protected:
-	unsigned int RawDataToInt(unsigned char *pszRawData);
-	short RawDataToSignedShort(unsigned char *pszRawData);
-	void IntToRawData(unsigned int IntValue, unsigned char *pszRawData);
-	void SignedShortToRawData(short ShortValue, unsigned char *pszRawData);
 
 // Protected members
 	CSerialPort_Datum m_SerialPort;
 	CDatumClientSocket m_TcpIpSocket;
 	unsigned char m_ModemAddress; // address of modem on control line. 255 - broadcast 
 	unsigned char m_ControllerAddress; // address of controller (computer) on control line (0...254) 
-	unsigned char m_cStatusByte;
-	unsigned char m_cErrorByte;
-	unsigned char m_cDataBytes;
 	unsigned int m_ReturnedDataLength;
 	unsigned int m_RawReplyLength;
 	char m_szVersion[128];

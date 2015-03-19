@@ -33,22 +33,20 @@ public:
 	virtual MC_ErrorCode EnableT10MHzSupplier(BOOL &bEnable, int Modulator);
 */
 // IF params and status
-	virtual unsigned char getModulator1SlotNumber() const = 0;
-	virtual unsigned char getModulator2SlotNumber() const = 0;
-	virtual unsigned char getDemodulator1SlotNumber() const = 0;
-	virtual unsigned char getDemodulator2SlotNumber() const = 0;
+	virtual unsigned char getModulatorSlotNumber(int nModulator) const = 0;
+	virtual unsigned char getDemodulatorSlotNumber(int nDemodulator) const = 0;
 
 /*	virtual MC_ErrorCode GetRIfParams(CDemIfParams &Params, int Demodulator);
 	virtual MC_ErrorCode GetRIfStatus(CDemIfStatus &Status, int Demodulator);
 	virtual MC_ErrorCode GetTIfParams(CModIfParams &Params, int Modulator);
 */
 // Frequency (carrier)
-/*	virtual MC_ErrorCode GetRFrequency(unsigned int &Frequency, int Demodulator);
+	virtual MC_ErrorCode GetRFrequency(unsigned int &Frequency, int Demodulator);
 	virtual MC_ErrorCode SetRFrequency(unsigned int &Frequency, int Demodulator);
 	virtual MC_ErrorCode GetTFrequency(unsigned int &Frequency, int Modulator);
 	virtual MC_ErrorCode SetTFrequency(unsigned int &Frequency, int Modulator);
 
-	virtual MC_ErrorCode GetSearchRange(unsigned int &SearchRange, int Demodulator);
+/*	virtual MC_ErrorCode GetSearchRange(unsigned int &SearchRange, int Demodulator);
 	virtual MC_ErrorCode SetSearchRange(unsigned int &SearchRange, int Demodulator);
 
 	virtual int GetRSweepModesCount();
@@ -215,6 +213,7 @@ public:
 //	virtual MC_ErrorCode GetBucStatus(CBucStatus &Status, int Modulator);
 
 protected:
+	MC_ErrorCode ReadParam(unsigned char param, unsigned char slot);
 
 // Protected methods
 protected:
@@ -233,10 +232,8 @@ public:
 	virtual int GetModulatorsNumber() { return 1; }
 	virtual int GetDemodulatorsNumber() { return 1; }
 
-	virtual unsigned char getModulator1SlotNumber() const { return 1; }
-	virtual unsigned char getModulator2SlotNumber() const { return 0; }
-	virtual unsigned char getDemodulator1SlotNumber() const { return 2; }
-	virtual unsigned char getDemodulator2SlotNumber() const { return 0; }
+	virtual unsigned char getModulatorSlotNumber(int nModulator) const;
+	virtual unsigned char getDemodulatorSlotNumber(int nDemodulator) const;
 
 	// Common device commands
 	virtual char *GetName() { return m_pszName; }

@@ -3,7 +3,6 @@
 
 CRadioDevice::CRadioDevice()
 {
-	m_bControllable=FALSE;
 }
 
 CRadioDevice::~CRadioDevice()

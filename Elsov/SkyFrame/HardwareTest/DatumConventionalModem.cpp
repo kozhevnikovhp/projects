@@ -1,11 +1,16 @@
 #include "stdafx.h"
 #include "DatumConventionalModem.h"
 
+CDatumConventionalModem::CDatumConventionalModem()
+{
+	m_cStatusByte = 0;
+	m_cErrorByte = 0;
+	m_cDataBytes = 0;
+}
+
 //virtual
 MC_ErrorCode CDatumConventionalModem::ReadReplyUntilPrompt()
 {
-	memset(m_pDataBytes, 0, sizeof(m_pDataBytes));
-	memset(m_pRawReply, 0, sizeof(m_pRawReply));
 	unsigned char byte;
 	BOOL bPad = TRUE;
 	BOOL bOpened = FALSE;
@@ -163,6 +168,35 @@ unsigned char CDatumConventionalModem::CheckSum(unsigned char *pcData, int Start
 	sum = sum % 256;
 	unsigned char ret = (unsigned char)sum;
 	return ret;
+}
+
+unsigned int CDatumConventionalModem::RawDataToInt(unsigned char *pszRawData)
+{
+	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
+	unsigned int IntValue = *((unsigned int *)pszRawData);
+	return IntValue;
+}
+
+short CDatumConventionalModem::RawDataToSignedShort(unsigned char *pszRawData)
+{
+	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
+	short ShortValue = *((short *)pszRawData);
+	return ShortValue;
+}
+
+void CDatumConventionalModem::IntToRawData(unsigned int IntValue, unsigned char *pszRawData)
+{
+	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
+	pszRawData[0] = (unsigned char)((IntValue & 0x000000FF) >> 0);
+	pszRawData[1] = (unsigned char)((IntValue & 0x0000FF00) >> 8);
+	pszRawData[2] = (unsigned char)((IntValue & 0x00FF0000) >> 16);
+	pszRawData[3] = (unsigned char)((IntValue & 0xFF000000) >> 24);
+}
+
+void CDatumConventionalModem::SignedShortToRawData(short ShortValue, unsigned char *pszRawData)
+{
+	// Intel byte order!!! I do not know what byte order is on Motorola processor. Faik, please care about it! Zhenya
+	memcpy(pszRawData, &ShortValue, sizeof(ShortValue));
 }
 
 
