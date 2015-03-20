@@ -46,9 +46,9 @@ public:
 	virtual MC_ErrorCode GetTFrequency(unsigned int &Frequency, int Modulator);
 	virtual MC_ErrorCode SetTFrequency(unsigned int &Frequency, int Modulator);
 
-/*	virtual MC_ErrorCode GetSearchRange(unsigned int &SearchRange, int Demodulator);
+	virtual MC_ErrorCode GetSearchRange(unsigned int &SearchRange, int Demodulator);
 	virtual MC_ErrorCode SetSearchRange(unsigned int &SearchRange, int Demodulator);
-
+/*
 	virtual int GetRSweepModesCount();
 	virtual const char *GetRSweepModeName(int Mode);
 	virtual MC_ErrorCode GetRSweepMode(int &Mode, int Demodulator);
@@ -156,11 +156,11 @@ public:
 	virtual int GetMinDataRateBPSK() { return 9600; }
 	virtual int GetMaxDataRateQPSK() { return 3850000; }
 	virtual int GetMinDataRateQPSK() { return 19200; }
-/*	virtual MC_ErrorCode GetRDataRate(unsigned int &DataRate, int Demodulator);
+	virtual MC_ErrorCode GetRDataRate(unsigned int &DataRate, int Demodulator);
 	virtual MC_ErrorCode SetRDataRate(unsigned int &DataRate, int Demodulator);
 	virtual MC_ErrorCode GetTDataRate(unsigned int &DataRate, int Modulator);
 	virtual MC_ErrorCode SetTDataRate(unsigned int &DataRate, int Modulator);
-*/
+
 // BER
 //	virtual MC_ErrorCode GetBER(double &BER, int Demodulator);
 //	virtual MC_ErrorCode GetSER(double &BER, int Demodulator);
@@ -213,7 +213,19 @@ public:
 //	virtual MC_ErrorCode GetBucStatus(CBucStatus &Status, int Modulator);
 
 protected:
-	MC_ErrorCode ReadParam(unsigned char param, unsigned char slot);
+	MC_ErrorCode getUnsignedInt32Param(unsigned char slot, unsigned char param, unsigned int &value);
+	MC_ErrorCode setUnsignedInt32Param(unsigned char slot, unsigned char param, unsigned int value);
+	MC_ErrorCode getSignedInt32Param(unsigned char slot, unsigned char param, int &value);
+	MC_ErrorCode setSignedInt32Param(unsigned char slot, unsigned char param, int value);
+
+	MC_ErrorCode getUnsignedInt8Param(unsigned char slot, unsigned char param, unsigned int &value);
+	MC_ErrorCode setUnsignedInt8Param(unsigned char slot, unsigned char param, unsigned int value);
+	MC_ErrorCode getSignedInt8Param(unsigned char slot, unsigned char param, int &value);
+	MC_ErrorCode setSignedInt8Param(unsigned char slot, unsigned char param, int value);
+
+	unsigned int ModemDataToUnsignedInt(const unsigned char *pModemData);
+	unsigned short ModemDataToUnsignedShort(const unsigned char *pModemData);
+	unsigned char ModemDataToUnsignedChar(const unsigned char *pModemData);
 
 // Protected methods
 protected:
