@@ -15,14 +15,15 @@ public:
 // Overridable methods
 public:
 	virtual MC_ErrorCode ReadReplyUntilPrompt();
-/*	virtual MC_ErrorCode GetDeviceVersionString(char *&pszString);
-	virtual MC_ErrorCode GetModulatorVersionString(char *&pszString, int Modulator) { return GetDeviceVersionString(pszString); }
-	virtual MC_ErrorCode GetDemodulatorVersionString(char *&pszString, int Demodulator) { return GetDeviceVersionString(pszString); }
+
+	virtual MC_ErrorCode GetDeviceVersionString(char *&pszString);
+//	virtual MC_ErrorCode GetModulatorVersionString(char *&pszString, int Modulator) { return GetDeviceVersionString(pszString); }
+//	virtual MC_ErrorCode GetDemodulatorVersionString(char *&pszString, int Demodulator) { return GetDeviceVersionString(pszString); }
 	virtual MC_ErrorCode GetUnitName(char *&pszString);
 	virtual MC_ErrorCode SetUnitName(char *pszString);
 	virtual MC_ErrorCode GetModelName(std::string &strModel);
 	virtual MC_ErrorCode GetSerialNo(unsigned int &serialNo);
-	virtual MC_ErrorCode GetSoftwareVersion(std::string &strVersion);*/
+	virtual MC_ErrorCode GetSoftwareVersion(std::string &strVersion);
 
 // Non Volatile RAM
 
@@ -52,17 +53,17 @@ public:
 	virtual int GetRSweepModesCount();
 	virtual const char *GetRSweepModeName(int Mode);
 	virtual MC_ErrorCode GetRSweepMode(int &Mode, int Demodulator);
-	virtual MC_ErrorCode SetRSweepMode(int &Mode, int Demodulator);
+	virtual MC_ErrorCode SetRSweepMode(int &Mode, int Demodulator);*/
 
 	virtual MC_ErrorCode GetInputLevel(double &InputLevel, int Demodulator);
 	virtual MC_ErrorCode GetEbNo(double &EbNo, int Demodulator);
 	virtual MC_ErrorCode IsRCarrier(BOOL &bValid, int Demodulator);
 	virtual MC_ErrorCode GetDemodulatorOffset(int &Offset, int Demodulator);
-	virtual MC_ErrorCode GetModulatorShift(int &Shift, int Modulator);
-	virtual MC_ErrorCode SetModulatorShift(int &Shift, int Modulator);
-	virtual MC_ErrorCode IsContiniousWaveOn(BOOL &bOn, int Modulator);
-	virtual MC_ErrorCode TurnContiniousWaveOn(BOOL &bOn, int Modulator);
-*/
+//	virtual MC_ErrorCode GetModulatorShift(int &Shift, int Modulator);
+//	virtual MC_ErrorCode SetModulatorShift(int &Shift, int Modulator);
+//	virtual MC_ErrorCode IsContiniousWaveOn(BOOL &bOn, int Modulator);
+//	virtual MC_ErrorCode TurnContiniousWaveOn(BOOL &bOn, int Modulator);
+
 
 // Demodulator reference generator fine tune
 /*	virtual BOOL CanDemodulatorRefFineTune() { return TRUE; }
@@ -98,11 +99,11 @@ public:
 	virtual MC_ErrorCode SetTModulationType(int &Type, int Modulator);
 	
 // Spectral inversion
-/*	virtual MC_ErrorCode IsRSpectralInvEnabled(BOOL &bEnabled, int Demodulator);
+	virtual MC_ErrorCode IsRSpectralInvEnabled(BOOL &bEnabled, int Demodulator);
 	virtual MC_ErrorCode EnableRSpectralInv(BOOL &bEnabled, int Demodulator);
 	virtual MC_ErrorCode IsTSpectralInvEnabled(BOOL &bEnabled, int Modulator);
 	virtual MC_ErrorCode EnableTSpectralInv(BOOL &bEnabled, int Modulator);
-*/
+
 // FEC
 	virtual int GetRFecModesCount();
 	virtual const char *GetRFecModeName(int Mode);
@@ -178,14 +179,15 @@ public:
 	virtual MC_ErrorCode SetRDataClockSource(int &Source, int Modulator);
 	virtual BOOL CanRDataClockInv() { return FALSE; }
 */
+
 // Output
 	virtual double GetMinOutputLevel() { return -35.; }
 	virtual double GetMaxOutputLevel() { return +5.; }
-/*	virtual MC_ErrorCode IsOutputOn(BOOL &bOn, int Modulator);
+	virtual MC_ErrorCode IsOutputOn(BOOL &bOn, int Modulator);
 	virtual MC_ErrorCode TurnOutputOn(BOOL &bOn, int Modulator);
 	virtual MC_ErrorCode GetOutputLevel(double &Level, int Modulator);
 	virtual MC_ErrorCode SetOutputLevel(double &Level, int Modulator);
-*/
+
 // BER-test
 /*	virtual BOOL CanBerTest(int Power);
 	virtual MC_ErrorCode SetTBerTest(int &Power, int Modulator);
@@ -214,18 +216,31 @@ public:
 
 protected:
 	MC_ErrorCode getUnsignedInt32Param(unsigned char slot, unsigned char param, unsigned int &value);
-	MC_ErrorCode setUnsignedInt32Param(unsigned char slot, unsigned char param, unsigned int value);
 	MC_ErrorCode getSignedInt32Param(unsigned char slot, unsigned char param, int &value);
+	MC_ErrorCode setUnsignedInt32Param(unsigned char slot, unsigned char param, unsigned int value);
 	MC_ErrorCode setSignedInt32Param(unsigned char slot, unsigned char param, int value);
 
+	MC_ErrorCode getUnsignedInt16Param(unsigned char slot, unsigned char param, unsigned int &value);
+	MC_ErrorCode getSignedInt16Param(unsigned char slot, unsigned char param, int &value);
+	MC_ErrorCode setUnsignedInt16Param(unsigned char slot, unsigned char param, unsigned int value);
+	MC_ErrorCode setSignedInt16Param(unsigned char slot, unsigned char param, int value);
+
 	MC_ErrorCode getUnsignedInt8Param(unsigned char slot, unsigned char param, unsigned int &value);
-	MC_ErrorCode setUnsignedInt8Param(unsigned char slot, unsigned char param, unsigned int value);
 	MC_ErrorCode getSignedInt8Param(unsigned char slot, unsigned char param, int &value);
+	MC_ErrorCode setUnsignedInt8Param(unsigned char slot, unsigned char param, unsigned int value);
 	MC_ErrorCode setSignedInt8Param(unsigned char slot, unsigned char param, int value);
 
-	unsigned int ModemDataToUnsignedInt(const unsigned char *pModemData);
-	unsigned short ModemDataToUnsignedShort(const unsigned char *pModemData);
-	unsigned char ModemDataToUnsignedChar(const unsigned char *pModemData);
+	MC_ErrorCode getStringParam(unsigned char slot, unsigned char param, std::string &value);
+	MC_ErrorCode setStringParam(unsigned char slot, unsigned char param, const std::string &value);
+
+	MC_ErrorCode getBooleanParam(unsigned char slot, unsigned char param, BOOL &value);
+	MC_ErrorCode setBooleanParam(unsigned char slot, unsigned char param, BOOL value);
+
+	unsigned int ModemDataToUnsignedInt32(const unsigned char *pModemData);
+	int ModemDataToSignedInt32(const unsigned char *pModemData);
+	unsigned short ModemDataToUnsignedInt16(const unsigned char *pModemData);
+	short ModemDataToSignedInt16(const unsigned char *pModemData);
+	unsigned char ModemDataToUnsignedInt8(const unsigned char *pModemData);
 
 // Protected methods
 protected:
