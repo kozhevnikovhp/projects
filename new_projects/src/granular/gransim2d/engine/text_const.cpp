@@ -1,0 +1,51 @@
+#include "text_const.h"
+
+ const char *PSZ_EMPTY = "";
+ const char *PSZ_NONAME = "noname";
+ const char *PSZ_GEOMETRY = "Geometry";
+ const char *PSZ_MATERIAL = "Material";
+ const char *PSZ_PARTICLE_TYPE = "Particle Type";
+ const char *PSZ_INTENSITY = "Intensity";
+
+ const char *PSZ_DESIGN_KEYWORD = "DESIGN";
+ const char *PSZ_SIMULATION_KEYWORD = "SIMULATION";
+ const char *PSZ_SIMULATE_UNTIL_KEYWORD = "SIMULATE_UNTIL";
+ const char *PSZ_TIME_INTEGRATION_METHOD_KEYWORD = "TIME_INTEGRATION_METHOD";
+ const char *PSZ_IMPLICIT_EULER = "IMPLICIT_EULER";
+ const char *PSZ_VERLET = "VERLET";
+ const char *PSZ_PREDICTOR_CORRECTOR = "PREDICTOR_CORRECTOR";
+ const char *PSZ_TRAPEZOID = "TRAPEZOID";
+ const char *PSZ_RUNGE_KUTTA_2 = "RUNGE_KUTTA_2";
+ const char *PSZ_RUNGE_KUTTA_4 = "RUNGE_KUTTA_4";
+ const char *PSZ_MATERIAL_KEYWORD = "MATERIAL";
+ const char *PSZ_PARTICLE_TYPE_KEYWORD = "PARTICLE_TYPE";
+ const char *PSZ_LINEAR_PARTICLE_SOURCE_KEYWORD = "LINEAR_PARTICLE_SOURCE";
+ const char *PSZ_POINT_PARTICLE_SOURCE_KEYWORD = "POINT_PARTICLE_SOURCE";
+ const char *PSZ_NAME_KEYWORD = "NAME";
+ const char *PSZ_COLOR_KEYWORD = "COLOR";
+ const char *PSZ_GEOMETRY_KEYWORD = "GEOMETRY";
+ const char *PSZ_POISSON_RATIO_KEYWORD = "POISSON_RATIO";
+ const char *PSZ_YOUNG_MODULE_KEYWORD = "YOUNG_MODULE";
+ const char *PSZ_DENSITY_KEYWORD = "DENSITY";
+ const char *PSZ_SQUARENESS_KEYWORD = "SQUARENESS";
+ const char *PSZ_ASPECT_RATIO_KEYWORD = "ASPECT_RATIO";
+ const char *PSZ_SIZE_TYPE_KEYWORD = "SIZE_TYPE";
+ const char *PSZ_FIXED_KEYWORD = "FIXED";
+ const char *PSZ_UNIFORM_KEYWORD = "UNIFORM";
+ const char *PSZ_GAUSS_KEYWORD = "GAUSS";
+ const char *PSZ_FIXED_SIZE_KEYWORD = "FIXED_SIZE";
+ const char *PSZ_FROM_SIZE_KEYWORD = "FROM_SIZE";
+ const char *PSZ_TO_SIZE_KEYWORD = "TO_SIZE";
+ const char *PSZ_MEDIAN_KEYWORD = "MEDIAN";
+ const char *PSZ_SIGMA_KEYWORD = "SIGMA";
+ const char *PSZ_FLOW_TYPE_KEYWORD = "FLOW_TYPE";
+ const char *PSZ_POISSON_FLOW_KEYWORD = "POISSON_FLOW";
+ const char *PSZ_UNIFORM_FLOW_KEYWORD = "UNIFORM_FLOW";
+ const char *PSZ_FLOW_INTENSITY_KEYWORD = "FLOW_INTENSITY";
+ const char *PSZ_WALL_KEYWORD = "WALL";
+ const char *PSZ_RECTANGLE_KEYWORD = "RECTANGLE";
+
+ const char *PSZ_END_KEYWORD = "END";
+
+ const char *PSZ_RGBA_FORMAT_STRING = "%d, %d, %d, %d";
+

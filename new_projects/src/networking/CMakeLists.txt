@@ -1,0 +1,19 @@
+## \file networking/CMakeLists.txt
+#
+
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}) # for auto-generated headers
+
+IF (WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSOCKETS_WSA")
+ENDIF(WIN32)
+
+IF (UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSOCKETS_BSD")
+ENDIF(UNIX)
+
+ADD_SUBDIRECTORY(smartping)
+ADD_SUBDIRECTORY(udpgen)
+ADD_SUBDIRECTORY(udplistener)
+
+
+# EOF CMakeLists.txt

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/1724/invarian/trunk/licensing/maint/cmake
+END
+build_types.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1725/invarian/trunk/licensing/maint/cmake/build_types.cmake
+END
+version.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/1725/invarian/trunk/licensing/maint/cmake/version.cmake
+END
