@@ -1,0 +1,53 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "Mesh"=.\Mesh\Mesh.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Guy
+    .\mesh
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Poly2RT"=.\Poly2rt\Poly2RT.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Guy
+    .\poly2rt
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+    begin source code control
+    Guy
+    .
+    end source code control
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
