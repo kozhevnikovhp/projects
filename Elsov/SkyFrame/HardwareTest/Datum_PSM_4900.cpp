@@ -1307,7 +1307,7 @@ const char *CDatumPsm4900::GetDiffDecoderModeName(int Mode)
 //virtual
 MC_ErrorCode CDatumPsm4900::GetDiffDecoderMode(int &Mode, int Demodulator)
 {
-	Mode = 0;
+	Mode = -1;
 	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);

@@ -131,7 +131,7 @@ public:
 	virtual BOOL CanGetRDataCarrierStatus()  { return TRUE; }
 */
 // Differential encoding/decoding
-/*	virtual int GetDiffDecoderModeCount();
+	virtual int GetDiffDecoderModeCount();
 	virtual const char *GetDiffDecoderModeName(int Mode);
 	virtual MC_ErrorCode GetDiffDecoderMode(int &Mode, int Demodulator);
 	virtual MC_ErrorCode SetDiffDecoderMode(int &Mode, int Demodulator);
@@ -140,7 +140,7 @@ public:
 	virtual const char *GetDiffEncoderModeName(int Mode);
 	virtual MC_ErrorCode GetDiffEncoderMode(int &Mode, int Modulator);
 	virtual MC_ErrorCode SetDiffEncoderMode(int &Mode, int Modulator);
-*/
+
 // Scrambling/Descrambling
 	virtual int GetScramblerModesCount();
 	virtual const char *GetScramblerModeName(int Mode);

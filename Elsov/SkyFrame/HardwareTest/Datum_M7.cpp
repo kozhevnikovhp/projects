@@ -590,11 +590,11 @@ const char *CDatum_M7::GetRPowerSupplyModeName(int Mode)
 //virtual
 MC_ErrorCode CDatum_M7::GetRPowerSupplyMode(int &Mode, int Demodulator)
 {
-	Mode = 0;
+	Mode = -1;
 	if (!IsControllable())
 		return MC_DEVICE_NOT_CONTROLLABLE;
 
-	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 192, Mode); // 192?
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 176, Mode); // 192?
 
 	return EC;
 }
@@ -607,7 +607,7 @@ MC_ErrorCode CDatum_M7::SetRPowerSupplyMode(int &Mode, int Demodulator)
 	if (!NeedToUpdateRPowerSupplyMode(Mode, Demodulator))
 		return MC_OK; // already set
 
-	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 192, Mode);
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 176, Mode);
 
 	GetRPowerSupplyMode(Mode, Demodulator);
 	return EC;
@@ -628,11 +628,11 @@ const char *CDatum_M7::GetTPowerSupplyModeName(int Mode)
 //virtual
 MC_ErrorCode CDatum_M7::GetTPowerSupplyMode(int &Mode, int Modulator)
 {
-	Mode = 0;
+	Mode = -1;
 	if (!IsControllable())
 		return MC_DEVICE_NOT_CONTROLLABLE;
 
-	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(Modulator), 192, Mode); // 192?
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(Modulator), 176, Mode); // 192?
 
 	return EC;
 }
@@ -645,7 +645,7 @@ MC_ErrorCode CDatum_M7::SetTPowerSupplyMode(int &Mode, int Modulator)
 	if (!NeedToUpdateTPowerSupplyMode(Mode, Modulator))
 		return MC_OK; // already set
 
-	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(Modulator), 192, Mode);
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(Modulator), 176, Mode);
 
 	GetTPowerSupplyMode(Mode, Modulator);
 	return EC;
@@ -869,6 +869,77 @@ MC_ErrorCode CDatum_M7::GetTReedSolomonMode(int &Mode, int Modulator)
 MC_ErrorCode CDatum_M7::SetTReedSolomonMode(int &Mode, int Modulator)
 {
 	return MC_COMMAND_NOT_SUPPORTED;
+}
+
+// Differential encoding/decoding
+//virtual
+int CDatum_M7::GetDiffDecoderModeCount()
+{
+	return sizeof(DATUM_M7_DIFF_CODING_MODES)/sizeof(DATUM_M7_DIFF_CODING_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::GetDiffDecoderModeName(int Mode)
+{
+	return DATUM_M7_DIFF_CODING_MODES[Mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetDiffDecoderMode(int &Mode, int Demodulator)
+{
+	Mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 43, Mode);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::SetDiffDecoderMode(int &Mode, int Demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateDiffDecoderMode(Mode, Demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 43, Mode);
+
+	GetDiffDecoderMode(Mode, Demodulator);
+	return EC;
+}
+
+//virtual
+int CDatum_M7::GetDiffEncoderModeCount()
+{
+	return sizeof(DATUM_M7_DIFF_CODING_MODES)/sizeof(DATUM_M7_DIFF_CODING_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::GetDiffEncoderModeName(int Mode)
+{
+	return DATUM_M7_DIFF_CODING_MODES[Mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetDiffEncoderMode(int &Mode, int Modulator)
+{
+	Mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(Modulator), 43, Mode);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::SetDiffEncoderMode(int &Mode, int Modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateDiffEncoderMode(Mode, Modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(Modulator), 43, Mode);
+
+	GetDiffEncoderMode(Mode, Modulator);
+	return EC;
 }
 
 // Scrambling/Descrambling
