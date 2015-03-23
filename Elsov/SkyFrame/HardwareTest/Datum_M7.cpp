@@ -393,11 +393,11 @@ MC_ErrorCode CDatum_M7::GetInputLevel(double &InputLevel, int Demodulator)
 	InputLevel = 0.;
 	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 
-	int value = 0;
-	MC_ErrorCode EC = getSignedInt32Param(getDemodulatorSlotNumber(Demodulator), 3, value);
+	int iLevel = 0;
+	MC_ErrorCode EC = getSignedInt16Param(getDemodulatorSlotNumber(Demodulator), 4, iLevel);
 	if (EC != MC_OK)
 		return EC;
-	InputLevel = value/100.;
+	InputLevel = iLevel/100.;
 	
 	
 	return EC;
@@ -426,7 +426,7 @@ MC_ErrorCode CDatum_M7::IsRCarrier(BOOL &bValid, int Demodulator)
 
 	unsigned int value = 0;
 	MC_ErrorCode EC = getUnsignedInt8Param(getDemodulatorSlotNumber(Demodulator), 0, value);
-	bValid = (value != 1);
+	bValid = (value != 0);
 	
 	return EC;
 }
@@ -437,7 +437,7 @@ MC_ErrorCode CDatum_M7::GetDemodulatorOffset(int &Offset, int Demodulator)
 	Offset = 0;
 	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 
-	MC_ErrorCode EC = getSignedInt32Param(getDemodulatorSlotNumber(Demodulator), 2, Offset);
+	MC_ErrorCode EC = getSignedInt32Param(getDemodulatorSlotNumber(Demodulator), 3, Offset);
 	
 	return EC;
 }
@@ -575,6 +575,82 @@ MC_ErrorCode CDatum_M7::EnableTSpectralInv(BOOL &bEnabled, int Modulator)
 	return EC;
 }
 
+//virtual
+int CDatum_M7::GetRPowerSupplyModesCount()
+{
+	return sizeof(DATUM_M7_R_POWER_SUPPLY_MODES)/sizeof(DATUM_M7_R_POWER_SUPPLY_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::GetRPowerSupplyModeName(int Mode)
+{
+	return DATUM_M7_R_POWER_SUPPLY_MODES[Mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetRPowerSupplyMode(int &Mode, int Demodulator)
+{
+	Mode = 0;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 192, Mode); // 192?
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::SetRPowerSupplyMode(int &Mode, int Demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateRPowerSupplyMode(Mode, Demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(Demodulator), 192, Mode);
+
+	GetRPowerSupplyMode(Mode, Demodulator);
+	return EC;
+}
+
+//virtual
+int CDatum_M7::GetTPowerSupplyModesCount()
+{
+	return sizeof(DATUM_M7_T_POWER_SUPPLY_MODES)/sizeof(DATUM_M7_T_POWER_SUPPLY_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::GetTPowerSupplyModeName(int Mode)
+{
+	return DATUM_M7_T_POWER_SUPPLY_MODES[Mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetTPowerSupplyMode(int &Mode, int Modulator)
+{
+	Mode = 0;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(Modulator), 192, Mode); // 192?
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::SetTPowerSupplyMode(int &Mode, int Modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTPowerSupplyMode(Mode, Modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(Modulator), 192, Mode);
+
+	GetTPowerSupplyMode(Mode, Modulator);
+	return EC;
+}
+
 // Data rate
 //virtual
 MC_ErrorCode CDatum_M7::GetRDataRate(unsigned int &DataRate, int Demodulator)
@@ -673,7 +749,16 @@ MC_ErrorCode CDatum_M7::GetOutputLevel(double &Level, int Modulator)
 //virtual
 MC_ErrorCode CDatum_M7::SetOutputLevel(double &Level, int Modulator)
 {
-	return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateOutputLevel(Level, Modulator))
+		return MC_OK; // already set
+
+	int iLevel = (int)(Level*100);
+	MC_ErrorCode EC = setSignedInt16Param(getModulatorSlotNumber(Modulator), 19, iLevel);
+
+	GetOutputLevel(Level, Modulator);
+	return EC;
 }
 
 // FEC
@@ -994,7 +1079,31 @@ MC_ErrorCode CDatum_M7::setUnsignedInt16Param(unsigned char slot, unsigned char 
 
 MC_ErrorCode CDatum_M7::setSignedInt16Param(unsigned char slot, unsigned char param, int value)
 {
-	return MC_COMMAND_NOT_SUPPORTED;
+	int CommandLength = 0;
+	m_pszCommand[CommandLength++] = 0xA5; // opening pad byte
+	m_pszCommand[CommandLength++] = m_ModemAddress; // 
+	m_pszCommand[CommandLength++] = m_ControllerAddress; // 
+	m_pszCommand[CommandLength++] = 0x00; // remote address
+
+	m_pszCommand[CommandLength++] = 0x00; // control and payload byte count
+	m_pszCommand[CommandLength++] = 0x05; // control and payload byte count
+	m_pszCommand[CommandLength++] = 0x10; // control and payload byte count
+
+	// payload
+	m_pszCommand[CommandLength++] = slot; // slot number
+	m_pszCommand[CommandLength++] = param; // command number
+	m_pszCommand[CommandLength++] = 0x02; // "set" integer (2 bytes)
+
+	// data itself
+	m_pszCommand[CommandLength++] = (unsigned char)((value & (0xFF << 0)) >> 0);
+	m_pszCommand[CommandLength++] = (unsigned char)((value & (0xFF << 8)) >> 8);
+	
+	unsigned short crc = CRC_CCITT(m_pszCommand, CommandLength);
+	memcpy(m_pszCommand+CommandLength, &crc, 2);
+	CommandLength += 2;
+
+	MC_ErrorCode EC = Command(CommandLength);
+	return EC;
 }
 
 MC_ErrorCode CDatum_M7::getUnsignedInt8Param(unsigned char slot, unsigned char param, unsigned int &value)

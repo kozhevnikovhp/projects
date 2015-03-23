@@ -202,7 +202,7 @@ void CDemodulatorCarrierForm::UpdateEbNoAndOffset()
 		GetDescendantWindow(IDC_INPUT_LEVEL_STATIC)->SetWindowText("");
 	else
 	{
-		str.Format("Input level = %5.1f dB·mW", status.m_InputLevel);
+		str.Format("Input level = %6.2f dBm", status.m_InputLevel);
 		GetDescendantWindow(IDC_INPUT_LEVEL_STATIC)->SetWindowText(str);
 	}
 

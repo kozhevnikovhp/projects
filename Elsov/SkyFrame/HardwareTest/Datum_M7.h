@@ -77,7 +77,7 @@ public:
 //	virtual MC_ErrorCode SetDemodulatorDopplerBufferSize(unsigned int &BufferSize, int Demodulator);
 
 // DC Power Supply
-/*	virtual int GetRPowerSupplyModesCount();
+	virtual int GetRPowerSupplyModesCount();
 	virtual const char *GetRPowerSupplyModeName(int Mode);
 	virtual MC_ErrorCode GetRPowerSupplyMode(int &Mode, int Demodulator);
 	virtual MC_ErrorCode SetRPowerSupplyMode(int &Mode, int Demodulator);
@@ -86,7 +86,7 @@ public:
 	virtual const char *GetTPowerSupplyModeName(int Mode);
 	virtual MC_ErrorCode GetTPowerSupplyMode(int &Mode, int Modulator);
 	virtual MC_ErrorCode SetTPowerSupplyMode(int &Mode, int Modulator);
-*/
+
 // Modulation type
 	virtual int GetRModulationTypeCount();
 	virtual const char *GetRModulationTypeName(int Type);
