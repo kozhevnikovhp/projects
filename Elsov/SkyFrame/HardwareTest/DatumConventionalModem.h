@@ -13,7 +13,7 @@ const unsigned char modeExecuteAndWrite = 0xFF;
 const unsigned char PAD = 0xFF; // pad byte
 const unsigned char COMMAND_OPEN_FLAG = 0xA5; // open flag for command
 const unsigned char REPLY_OPEN_FLAG = 0x5A; // open flag for response
-const unsigned char CLOSE_FLAG = 0x96; // close flag for bot command and response
+const unsigned char CLOSE_FLAG = 0x96; // close flag for both command and response
 
 class CDatumConventionalModem : public CDatumModem
 {

@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /c
 # ADD BASE RSC /l 0x419 /d "NDEBUG"
 # ADD RSC /l 0x419 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
 # ADD BASE RSC /l 0x419 /d "_DEBUG"
 # ADD RSC /l 0x419 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -91,6 +91,22 @@ SOURCE=..\HardwareTest\Datum.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\HardwareTest\Datum_500.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\HardwareTest\Datum_M7.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\HardwareTest\Datum_PSM_4900.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\HardwareTest\DatumConventionalModem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DatumModem.cpp
 # End Source File
 # Begin Source File
@@ -108,6 +124,10 @@ SOURCE=..\HardwareTest\Modem.cpp
 # Begin Source File
 
 SOURCE=..\..\..\CommonObjects\Port.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\CommonObjects\Portable.cpp
 # End Source File
 # Begin Source File
 
@@ -149,6 +169,14 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=..\..\..\CommonObjects\Terminal.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\CommonObjects\Thread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\CommonObjects\ThreadObject.cpp
 # End Source File
 # Begin Source File
 

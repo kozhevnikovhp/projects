@@ -1183,7 +1183,7 @@ MC_ErrorCode processDatumRequest(CDatumModem *pModem, cSnmpVariable &var, bool b
 	}
 	else if (EC == MC_COMMAND_NOT_SUPPORTED)
 	{
-		printf("COMMANd IS NOT SUPPORTED BY MODEM");
+		printf("COMMAND IS NOT SUPPORTED BY MODEM");
 	}
 
 	printf("\n");
