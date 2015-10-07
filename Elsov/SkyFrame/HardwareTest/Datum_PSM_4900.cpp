@@ -1393,18 +1393,14 @@ int CDatumPsm4900::GetScramblerModesCount()
 }
 
 //virtual
-const char *CDatumPsm4900::GetScramblerModeName(int Mode)
+const char *CDatumPsm4900::doGetScramblerModeName(int Mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
 	return DATUM_PSM4900_SCRAMBLER_MODES[Mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::GetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CDatumPsm4900::doGetScramblerMode(int &mode, int modulator)
 {
-	mode = FALSE;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	unsigned char ScramblerField = m_pDataBytes[6];
@@ -1414,13 +1410,8 @@ MC_ErrorCode CDatumPsm4900::GetScramblerMode(int &mode, int Modulator)
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::SetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CDatumPsm4900::doSetScramblerMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateScramblerMode(mode, Modulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<5;	// Scrambling flag set
 	m_WriteData[6] = (char)mode;
@@ -1428,7 +1419,6 @@ MC_ErrorCode CDatumPsm4900::SetScramblerMode(int &mode, int Modulator)
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 20);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	GetScramblerMode(mode, Modulator);
 	return EC;
 }
 
@@ -1439,18 +1429,14 @@ int CDatumPsm4900::GetDescramblerModesCount()
 }
 
 //virtual
-const char *CDatumPsm4900::GetDescramblerModeName(int Mode)
+const char *CDatumPsm4900::doGetDescramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return DATUM_PSM4900_SCRAMBLER_MODES[Mode];
+	return DATUM_PSM4900_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::GetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doGetDescramblerMode(int &mode, int demodulator)
 {
-	mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	unsigned char ScramblerField = m_pDataBytes[6];
@@ -1460,13 +1446,8 @@ MC_ErrorCode CDatumPsm4900::GetDescramblerMode(int &mode, int Demodulator)
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::SetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doSetDescramblerMode(int &mode, int demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateDescramblerMode(mode, Demodulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<5;	// Descrambling flag set
 	m_WriteData[6] = (char)mode;
@@ -1474,7 +1455,6 @@ MC_ErrorCode CDatumPsm4900::SetDescramblerMode(int &mode, int Demodulator)
 	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 30);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	GetDescramblerMode(mode, Demodulator);
 	return EC;
 }
 

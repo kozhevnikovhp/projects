@@ -14,7 +14,7 @@ class CModem;
 /////////////////////////////////////////////////////////////////////////////
 // cModulationTypeComboBox window
 
-class cModulationTypeCombo : public cHardwareComboBox
+class cModulationTypeCombo : public HardwareComboBox
 {
 // Construction
 public:
@@ -47,7 +47,7 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // cFecModeCombo window
 
-class cFecModeCombo : public cHardwareComboBox
+class cFecModeCombo : public HardwareComboBox
 {
 // Construction
 public:
@@ -80,7 +80,7 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // cDifferentialModeCombo window
 
-class cDifferentialModeCombo : public cHardwareComboBox
+class cDifferentialModeCombo : public HardwareComboBox
 {
 // Construction
 public:
@@ -113,7 +113,7 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // cModulationTypeCombox window
 
-class cClockSourceComboBox : public cHardwareComboBox
+class cClockSourceComboBox : public HardwareComboBox
 {
 // Construction
 public:
@@ -145,7 +145,7 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // cPowerSupplyCombo window
 
-class cPowerSupplyCombo : public cHardwareComboBox
+class cPowerSupplyCombo : public HardwareComboBox
 {
 // Construction
 public:
@@ -177,7 +177,7 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // cScramblerCombo window
 
-class cScramblerCombo : public cHardwareComboBox
+class cScramblerCombo : public HardwareComboBox
 {
 // Construction
 public:

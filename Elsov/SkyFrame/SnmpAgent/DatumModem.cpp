@@ -12,25 +12,25 @@ MC_ErrorCode processDatumUnitAlarmRequest(CDatumModem *pModem, cSnmpVariable &va
 	if (var.m_OID.isPartOfOID(OidDatumModemUnitReferenceAlarm, OidDatumModemUnitReferenceAlarmLen))
 	{
 		EC = pModem->GetUnitAlarms(pAlarms);
-		index = DATUM500_UNIT_REFERENCE_ALARM;
+		index = DATUM_UNIT_REFERENCE_ALARM;
 		printf("\t\t reference alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemUnitTestActiveAlarm, OidDatumModemUnitTestActiveAlarmLen))
 	{
 		EC = pModem->GetUnitAlarms(pAlarms);
-		index = DATUM500_UNIT_TEST_ACTIVE_ALARM;
+		index = DATUM_UNIT_TEST_ACTIVE_ALARM;
 		printf("\t\t test active alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemUnitHardwareAlarm, OidDatumModemUnitHardwareAlarmLen))
 	{
 		EC = pModem->GetUnitAlarms(pAlarms);
-		index = DATUM500_UNIT_HARDWARE_ALARM;
+		index = DATUM_UNIT_HARDWARE_ALARM;
 		printf("\t\t hardware alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemUnitOcxoOvenAlarm, OidDatumModemUnitOcxoOvenAlarmLen))
 	{
 		EC = pModem->GetUnitAlarms(pAlarms);
-		index = DATUM500_UNIT_OCXO_OVEN_ALARM;
+		index = DATUM_UNIT_OCXO_OVEN_ALARM;
 		printf("\t\t ocxo oven alarm");
 	}
 
@@ -1024,43 +1024,43 @@ MC_ErrorCode processDatumDemodulatorAlarmRequest(CDatumModem *pModem, cSnmpVaria
 	if (var.m_OID.isPartOfOID(OidDemodulatorCxrAlarm, OidDemodulatorCxrAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_CXR_ALARM;
+		index = DATUM_DEMODULATOR_CXR_ALARM;
 		printf("\t\tCXR Alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorLvlAlarm, OidDemodulatorLvlAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_LVL_ALARM;
+		index = DATUM_DEMODULATOR_LVL_ALARM;
 		printf("\t\tLVL Alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorEbnoAlarm, OidDemodulatorEbnoAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_EBNO_ALARM;
+		index = DATUM_DEMODULATOR_EBNO_ALARM;
 		printf("\t\tEb/No alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorTstActAlarm, OidDemodulatorTstActAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_TSTACT_ALARM;
+		index = DATUM_DEMODULATOR_TSTACT_ALARM;
 		printf("\t\tTest act. alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorHdwAlarm, OidDemodulatorHdwAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_HARD_ALARM;
+		index = DATUM_DEMODULATOR_HARD_ALARM;
 		printf("\t\tHardware alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorBckAlarm, OidDemodulatorBckAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_BCK_ALARM;
+		index = DATUM_DEMODULATOR_BCK_ALARM;
 		printf("\t\tBCK alarm");
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorLnbPowerAlarm, OidDemodulatorLnbPowerAlarmLen))
 	{
 		EC = pModem->GetDemodulatorAlarms(pAlarms);
-		index = DATUM500_DEMODULATOR_LNB_ALARM;
+		index = DATUM_DEMODULATOR_LNB_ALARM;
 		printf("\t\tLNB POWER alarm");
 	}
 	if (EC == MC_OK && pAlarms != NULL && index < pModem->GetDemodulatorAlarmCount())
@@ -1179,11 +1179,11 @@ MC_ErrorCode processDatumRequest(CDatumModem *pModem, cSnmpVariable &var, bool b
 
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 	{
-		printf("NO REPLY FROM MODEM");
+		printf(" NO REPLY FROM MODEM");
 	}
 	else if (EC == MC_COMMAND_NOT_SUPPORTED)
 	{
-		printf("COMMAND IS NOT SUPPORTED BY MODEM");
+		printf(" COMMAND IS NOT SUPPORTED BY MODEM");
 	}
 
 	printf("\n");

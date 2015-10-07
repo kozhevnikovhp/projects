@@ -443,10 +443,10 @@ public:
 
 // Scrambling/Descrambling
 	virtual int GetScramblerModesCount() { return 0; }
-	virtual const char *GetScramblerModeName(int Mode) { return ""; }
+	virtual const char *doGetScramblerModeName(int mode) { return ""; }
 
 	virtual int GetDescramblerModesCount() { return 0; }
-	virtual const char *GetDescramblerModeName(int Mode) { return ""; }
+	virtual const char *doGetDescramblerModeName(int Mode) { return ""; }
 
 // BUC status
 	virtual BOOL CanGetBucStatus() { return TRUE; }

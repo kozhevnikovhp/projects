@@ -38,6 +38,34 @@ protected:
 protected:
 };
 
+enum {
+	DATUM_UNIT_REFERENCE_ALARM,
+	DATUM_UNIT_OCXO_OVEN_ALARM,
+	DATUM_UNIT_TEST_ACTIVE_ALARM,
+	DATUM_UNIT_HARDWARE_ALARM,
+	DATUM_UNIT_BEEPER_ALARM,
+	DATUM_UNIT_ALARM_COUNT
+};
+
+enum {
+	DATUM_INTERFACE_TEST_ALARM,
+	DATUM_INTERFACE_SDMS_ALARM,
+	DATUM_INTERFACE_BER_ALARM,
+	DATUM_INTERFACE_ALARM_COUNT
+};
+enum {
+	DATUM_MODULATOR_ALARM_COUNT
+};
+enum {
+	DATUM_DEMODULATOR_CXR_ALARM,
+	DATUM_DEMODULATOR_LVL_ALARM,
+	DATUM_DEMODULATOR_EBNO_ALARM,
+	DATUM_DEMODULATOR_TSTACT_ALARM,
+	DATUM_DEMODULATOR_HARD_ALARM,
+	DATUM_DEMODULATOR_BCK_ALARM,
+	DATUM_DEMODULATOR_LNB_ALARM,
+	DATUM_DEMODULATOR_ALARM_COUNT
+};
 
 class CDatumModem : public CModem
 {
@@ -110,6 +138,10 @@ public:
 // Data inversion
 
 // Alarms
+	virtual int GetIUnitAlarmCount() const { return DATUM_UNIT_ALARM_COUNT; }
+	virtual int GetInterfaceAlarmCount() const { return DATUM_INTERFACE_ALARM_COUNT; }
+	virtual int GetModulatorAlarmCount() const { return DATUM_MODULATOR_ALARM_COUNT; }
+	virtual int GetDemodulatorAlarmCount() const { return DATUM_DEMODULATOR_ALARM_COUNT; }
 	
 // Protected methods
 protected:
@@ -117,6 +149,7 @@ protected:
 // Protected members
 	CSerialPort_Datum m_SerialPort;
 	CDatumClientSocket m_TcpIpSocket;
+
 	unsigned char m_ModemAddress; // address of modem on control line. 255 - broadcast 
 	unsigned char m_ControllerAddress; // address of controller (computer) on control line (0...254) 
 	unsigned int m_ReturnedDataLength;
@@ -127,6 +160,11 @@ protected:
 	unsigned char m_pRawReply[256];
 	unsigned char m_pszCommand[256];
 	unsigned char m_pszIntValue[4];
+
+	unsigned int m_UnitAlarms[DATUM_UNIT_ALARM_COUNT];
+	unsigned int m_InterfaceAlarms[DATUM_INTERFACE_ALARM_COUNT];
+	unsigned int m_DemodulatorAlarms[DATUM_DEMODULATOR_ALARM_COUNT];
+
 };
 
 #endif //__DATUM_H_INCLUDED__

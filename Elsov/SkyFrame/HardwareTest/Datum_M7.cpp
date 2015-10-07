@@ -22,19 +22,24 @@ static const char *DATUM_M7_MODULATION_TYPES[] = {
 
 static const char *DATUM_M7_FEC_MODES[] = {
 	"Viterbi 1/2",
+	"Viterbi 2/3",
 	"Viterbi 3/4",
-	"Viterbi 7/8"
+	"Viterbi 7/8",
+	"Viterbi 14/17",
+	"Viterbi 10/11",
+	"Viterbi 16/17"
 };
 
 static const char *DATUM_M7_SCRAMBLER_MODES[] = {
-	"Disable",		// 0
-	"IESS-308",		// 1
-	"IESS-309",		// 2
-	"V.35",			// 3
-	"Alt V.35",		// 4
-	"Intelsat",		// 5
+	"Disabled",		// 0
+	"Auto",			// 1
+	"V.35",			// 2
+	"Intelsat",		// 3
+	"EFD",			// 4
+	"Alt V.35",		// 5
 	"Alt Intelsat",	// 6
-	"TPC Synchro"	// 7
+	"",				// 7
+	"FEC Sync"		// 8
 };
 
 static const char *DATUM_M7_DIFF_CODING_MODES[] = { "Disabled", "Enabled" };
@@ -951,31 +956,23 @@ int CDatum_M7::GetScramblerModesCount()
 }
 
 //virtual
-const char *CDatum_M7::GetScramblerModeName(int Mode)
+const char *CDatum_M7::doGetScramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return DATUM_M7_SCRAMBLER_MODES[Mode];
+	return DATUM_M7_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::GetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CDatum_M7::doGetScramblerMode(int &mode, int modulator)
 {
-	mode = FALSE;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 44, mode);
+	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::SetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CDatum_M7::doSetScramblerMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateScramblerMode(mode, Modulator))
-		return MC_OK; // already set
-
-	GetScramblerMode(mode, Modulator);
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 44, mode);
+	return EC;
 }
 
 //virtual
@@ -985,32 +982,69 @@ int CDatum_M7::GetDescramblerModesCount()
 }
 
 //virtual
-const char *CDatum_M7::GetDescramblerModeName(int Mode)
+const char *CDatum_M7::doGetDescramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return DATUM_M7_SCRAMBLER_MODES[Mode];
+	return DATUM_M7_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::GetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CDatum_M7::doGetDescramblerMode(int &mode, int demodulator)
 {
-	mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 44, mode);
+	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::SetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CDatum_M7::doSetDescramblerMode(int &mode, int demodulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 44, mode);
+	return EC;
+}
+
+// Alarms
+
+//virtual
+MC_ErrorCode CDatum_M7::GetUnitAlarms(unsigned int *&pAlarms)
+{
+	pAlarms = m_UnitAlarms;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = MC_DEVICE_NOT_RESPONDING; // TODO: implement it
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetInterfaceAlarms(unsigned int *&pAlarms)
+{
+	pAlarms = m_InterfaceAlarms;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = MC_DEVICE_NOT_RESPONDING; // TODO: implement it
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::GetModulatorAlarms(unsigned int *&pAlarms)
 {
 	if (!IsControllable())
 		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateDescramblerMode(mode, Demodulator))
-		return MC_OK; // already set
 
+	MC_ErrorCode EC = MC_DEVICE_NOT_RESPONDING; // TODO: implement it
+	return EC;
+}
 
-	GetDescramblerMode(mode, Demodulator);
-	return MC_COMMAND_NOT_SUPPORTED;
+//virtual
+MC_ErrorCode CDatum_M7::GetDemodulatorAlarms(unsigned int *&pAlarms)
+{
+	pAlarms = m_DemodulatorAlarms;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+
+	MC_ErrorCode EC = MC_DEVICE_NOT_RESPONDING; // TODO: implement it
+
+	return EC;
 }
 
 MC_ErrorCode CDatum_M7::getUnsignedInt32Param(unsigned char slot, unsigned char param, unsigned int &value)

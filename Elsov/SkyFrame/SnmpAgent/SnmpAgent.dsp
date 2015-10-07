@@ -200,6 +200,18 @@ SOURCE=..\HardwareTest\Datum.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\HardwareTest\Datum_M500.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\HardwareTest\Datum_M7.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\HardwareTest\Datum_PSM_4900.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DatumModem.h
 # End Source File
 # Begin Source File

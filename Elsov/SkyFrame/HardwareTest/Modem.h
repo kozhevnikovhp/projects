@@ -415,19 +415,25 @@ public:
 	virtual BOOL NeedToUpdateDiffEncoderMode(int Mode, int Modulator);
 
 // Scrambling/Descrambling
+	const char *GetDescramblerModeName(int mode);
+	MC_ErrorCode GetDescramblerMode(int &mode, int demodulator);
+	MC_ErrorCode SetDescramblerMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateDescramblerMode(int mode, int demodulator);
 	virtual BOOL CanDescramble() { return FALSE; }
 	virtual int GetDescramblerModesCount() = 0;
-	virtual const char *GetDescramblerModeName(int Mode) = 0;
-	virtual MC_ErrorCode GetDescramblerMode(int &mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode SetDescramblerMode(int &mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateDescramblerMode(int mode, int Demodulator);
+	virtual const char *doGetDescramblerModeName(int Mode) = 0;
+	virtual MC_ErrorCode doGetDescramblerMode(int &mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetDescramblerMode(int &mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	
+	const char *GetScramblerModeName(int mode);
+	MC_ErrorCode GetScramblerMode(int &mode, int modulator);
+	MC_ErrorCode SetScramblerMode(int &mode, int Modulator);
+	virtual BOOL NeedToUpdateScramblerMode(int mode, int Modulator);
 	virtual BOOL CanScramble() { return FALSE; }
 	virtual int GetScramblerModesCount() = 0;
-	virtual const char *GetScramblerModeName(int Mode) = 0;
-	virtual MC_ErrorCode GetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode SetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateScramblerMode(int mode, int Modulator);
+	virtual const char *doGetScramblerModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Spectral inversion
 	virtual BOOL CanRSpectralInv() { return FALSE; }

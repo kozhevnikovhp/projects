@@ -8,35 +8,26 @@
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// cHardwareComboBox window
+// HardwareComboBox window
 
-class cHardwareComboBox : public CComboBox
+class HardwareComboBox : public CComboBox
 {
 // Construction
 public:
-	cHardwareComboBox();
+	HardwareComboBox();
+	virtual ~HardwareComboBox();
 
-// Attributes
 public:
+	void addMode(const char *pszModeName, int iData);
 	void SelectByDataValue(int iDataValue);
-
-// Operations
-public:
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(cHardwareComboBox)
-	//}}AFX_VIRTUAL
-
-// Implementation
-public:
-	virtual ~cHardwareComboBox();
-
 	int getSelectedMode() const;
 
-	// Generated message map functions
+// Overrides
+	//{{AFX_VIRTUAL(HardwareComboBox)
+	//}}AFX_VIRTUAL
+
 protected:
-	//{{AFX_MSG(cHardwareComboBox)
+	//{{AFX_MSG(HardwareComboBox)
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()

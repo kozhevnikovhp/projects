@@ -143,14 +143,14 @@ public:
 
 // Scrambling/Descrambling
 	virtual int GetScramblerModesCount();
-	virtual const char *GetScramblerModeName(int Mode);
-	virtual MC_ErrorCode GetScramblerMode(int &mode, int Modulator);
-	virtual MC_ErrorCode SetScramblerMode(int &mode, int Modulator);
+	virtual const char *doGetScramblerModeName(int mode);
+	virtual MC_ErrorCode doGetScramblerMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetScramblerMode(int &mode, int modulator);
 
 	virtual int GetDescramblerModesCount();
-	virtual const char *GetDescramblerModeName(int Mode);
-	virtual MC_ErrorCode GetDescramblerMode(int &mode, int Demodulator);
-	virtual MC_ErrorCode SetDescramblerMode(int &mode, int Demodulator);
+	virtual const char *doGetDescramblerModeName(int mode);
+	virtual MC_ErrorCode doGetDescramblerMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetDescramblerMode(int &mode, int demodulator);
 
 // Data Rate
 	virtual int GetMaxDataRateBPSK() { return 1650000; }
@@ -199,16 +199,13 @@ public:
 	virtual BOOL CanInsert1ErrorForBerTest() { return TRUE; }
 	virtual BOOL Insert1ErrorForBerTest();
 */
+
 // Alarms
-/*	virtual MC_ErrorCode GetUnitAlarms(unsigned int *&pAlarms);
-	virtual int GetUnitAlarmCount() const { return DATUM500_UNIT_ALARM_COUNT; }
+	virtual MC_ErrorCode GetUnitAlarms(unsigned int *&pAlarms);
 	virtual MC_ErrorCode GetInterfaceAlarms(unsigned int *&pAlarms);
-	virtual int GetInterfaceAlarmCount() const { return DATUM500_INTERFACE_ALARM_COUNT; }
 	virtual MC_ErrorCode GetModulatorAlarms(unsigned int *&pAlarms);
-	virtual int GetModulatorAlarmCount() const { return DATUM500_MODULATOR_ALARM_COUNT; }
 	virtual MC_ErrorCode GetDemodulatorAlarms(unsigned int *&pAlarms);
-	virtual int GetDemodulatorAlarmCount() const { return DATUM500_DEMODULATOR_ALARM_COUNT; }
-*/
+
 // LNB status
 //	virtual MC_ErrorCode GetLnbStatus(CLnbStatus &Status, int Demodulator);
 // BUC status

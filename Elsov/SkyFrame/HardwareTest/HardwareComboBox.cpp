@@ -12,17 +12,25 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// cHardwareComboBox
+// HardwareComboBox
 
-cHardwareComboBox::cHardwareComboBox()
+HardwareComboBox::HardwareComboBox()
 {
 }
 
-cHardwareComboBox::~cHardwareComboBox()
+HardwareComboBox::~HardwareComboBox()
 {
 }
 
-void cHardwareComboBox::SelectByDataValue(int iDataValue)
+void HardwareComboBox::addMode(const char *pszModeName, int iData)
+{
+	if (!strlen(pszModeName))
+		return;
+	int index = AddString(pszModeName);
+	SetItemData(index, iData);
+}
+
+void HardwareComboBox::SelectByDataValue(int iDataValue)
 {
 	for (int i = 0; i < GetCount(); i++)
 	{
@@ -34,7 +42,7 @@ void cHardwareComboBox::SelectByDataValue(int iDataValue)
 	}
 }
 
-int cHardwareComboBox::getSelectedMode() const
+int HardwareComboBox::getSelectedMode() const
 {
 	int index = GetCurSel();
 	if (index == CB_ERR)
@@ -42,10 +50,10 @@ int cHardwareComboBox::getSelectedMode() const
 	return GetItemData(index);
 }
 
-BEGIN_MESSAGE_MAP(cHardwareComboBox, CComboBox)
-	//{{AFX_MSG_MAP(cHardwareComboBox)
+BEGIN_MESSAGE_MAP(HardwareComboBox, CComboBox)
+	//{{AFX_MSG_MAP(HardwareComboBox)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// cHardwareComboBox message handlers
+// HardwareComboBox message handlers

@@ -269,14 +269,14 @@ public:
 
 // Scrambling/Descrambling
 	virtual int GetScramblerModesCount();
-	virtual const char *GetScramblerModeName(int Mode);
-	virtual MC_ErrorCode GetScramblerMode(int &mode, int Modulator);
-	virtual MC_ErrorCode SetScramblerMode(int &mode, int Modulator);
+	virtual const char *doGetScramblerModeName(int mode);
+	virtual MC_ErrorCode doGetScramblerMode(int &mode, int Modulator);
+	virtual MC_ErrorCode doSetScramblerMode(int &mode, int Modulator);
 
 	virtual int GetDescramblerModesCount();
-	virtual const char *GetDescramblerModeName(int Mode);
-	virtual MC_ErrorCode GetDescramblerMode(int &mode, int Demodulator);
-	virtual MC_ErrorCode SetDescramblerMode(int &mode, int Demodulator);
+	virtual const char *doGetDescramblerModeName(int mode);
+	virtual MC_ErrorCode doGetDescramblerMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetDescramblerMode(int &mode, int demodulator);
 
 // Spectral inversion
 	virtual BOOL CanRSpectralInv() { return TRUE; }

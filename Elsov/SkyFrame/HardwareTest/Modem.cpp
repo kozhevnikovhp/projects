@@ -549,12 +549,68 @@ BOOL CModem::NeedToUpdateDiffEncoderMode(int Mode, int Modulator)
 
 // Scrambling/descrambling
 
+const char *CModem::GetDescramblerModeName(int mode)
+{
+	if (mode < 0 || mode >= GetDescramblerModesCount())
+		return "";
+	return doGetDescramblerModeName(mode);
+}
+
+MC_ErrorCode CModem::GetDescramblerMode(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetDescramblerMode(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetDescramblerMode(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateDescramblerMode(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetDescramblerMode(mode, demodulator);
+	GetDescramblerMode(mode, demodulator);
+
+	return EC;
+}
+
 //virtual
 BOOL CModem::NeedToUpdateDescramblerMode(int mode, int Demodulator)
 {
 	int current_mode = 0;
 	GetDescramblerMode(current_mode, Demodulator);
 	return (current_mode != mode);
+}
+
+const char *CModem::GetScramblerModeName(int mode)
+{
+	if (mode < 0 || mode >= GetScramblerModesCount())
+		return "";
+	return doGetScramblerModeName(mode);
+}
+
+MC_ErrorCode CModem::GetScramblerMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetScramblerMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetScramblerMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateScramblerMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetScramblerMode(mode, modulator);
+	GetScramblerMode(mode, modulator);
+
+	return EC;
 }
 
 //virtual

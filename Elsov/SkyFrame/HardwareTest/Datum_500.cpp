@@ -1001,18 +1001,14 @@ int CDatumPsm500::GetScramblerModesCount()
 }
 
 //virtual
-const char *CDatumPsm500::GetScramblerModeName(int Mode)
+const char *CDatumPsm500::doGetScramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return DATUM_PSM500_SCRAMBLER_MODES[Mode];
+	return DATUM_PSM500_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::GetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CDatumPsm500::doGetScramblerMode(int &mode, int modulator)
 {
-	mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	unsigned char ScramblerField = m_pDataBytes[5];
@@ -1022,13 +1018,8 @@ MC_ErrorCode CDatumPsm500::GetScramblerMode(int &mode, int Modulator)
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::SetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CDatumPsm500::doSetScramblerMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateScramblerMode(mode, Modulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[1] = 1<<2;	// Scrambling flag set
 	m_WriteData[5] = (char)mode << 4;
@@ -1036,7 +1027,6 @@ MC_ErrorCode CDatumPsm500::SetScramblerMode(int &mode, int Modulator)
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 32);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	GetScramblerMode(mode, Modulator);
 	return EC;
 }
 
@@ -1047,18 +1037,14 @@ int CDatumPsm500::GetDescramblerModesCount()
 }
 
 //virtual
-const char *CDatumPsm500::GetDescramblerModeName(int Mode)
+const char *CDatumPsm500::doGetDescramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return DATUM_PSM500_SCRAMBLER_MODES[Mode];
+	return DATUM_PSM500_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::GetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CDatumPsm500::doGetDescramblerMode(int &mode, int Demodulator)
 {
-	mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	unsigned char ScramblerField = m_pDataBytes[5];
@@ -1068,13 +1054,8 @@ MC_ErrorCode CDatumPsm500::GetDescramblerMode(int &mode, int Demodulator)
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::SetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CDatumPsm500::doSetDescramblerMode(int &mode, int Demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateDescramblerMode(mode, Demodulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[1] = 1<<2;	// Descrambling flag set
 	m_WriteData[5] = (char)mode << 4;
@@ -1082,7 +1063,6 @@ MC_ErrorCode CDatumPsm500::SetDescramblerMode(int &mode, int Demodulator)
 	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 42);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	GetDescramblerMode(mode, Demodulator);
 	return EC;
 }
 
@@ -2373,11 +2353,11 @@ MC_ErrorCode CDatumPsm500::GetUnitAlarms(unsigned int *&pAlarms)
 	int CommandLength = FillCommandBuffer(0x08, modeRead, m_WriteData, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	m_UnitAlarms[DATUM500_UNIT_REFERENCE_ALARM] = m_pDataBytes[4] & 0x0F; // Bits 0,1,2,3
-	m_UnitAlarms[DATUM500_UNIT_OCXO_OVEN_ALARM] = (m_pDataBytes[4] & 0xF0) >> 4; // Bits 4,5,6,7
-	m_UnitAlarms[DATUM500_UNIT_TEST_ACTIVE_ALARM] = m_pDataBytes[5] & 0x03; // Bits 0,1
-	m_UnitAlarms[DATUM500_UNIT_HARDWARE_ALARM] = (m_pDataBytes[5] & 0x0C) >> 2; // Bits 2, 3
-	m_UnitAlarms[DATUM500_UNIT_BEEPER_ALARM] = (m_pDataBytes[5] & 0x30) >> 4; // Bits 4, 5
+	m_UnitAlarms[DATUM_UNIT_REFERENCE_ALARM] = m_pDataBytes[4] & 0x0F; // Bits 0,1,2,3
+	m_UnitAlarms[DATUM_UNIT_OCXO_OVEN_ALARM] = (m_pDataBytes[4] & 0xF0) >> 4; // Bits 4,5,6,7
+	m_UnitAlarms[DATUM_UNIT_TEST_ACTIVE_ALARM] = m_pDataBytes[5] & 0x03; // Bits 0,1
+	m_UnitAlarms[DATUM_UNIT_HARDWARE_ALARM] = (m_pDataBytes[5] & 0x0C) >> 2; // Bits 2, 3
+	m_UnitAlarms[DATUM_UNIT_BEEPER_ALARM] = (m_pDataBytes[5] & 0x30) >> 4; // Bits 4, 5
 
 	return EC;
 }
@@ -2392,9 +2372,9 @@ MC_ErrorCode CDatumPsm500::GetInterfaceAlarms(unsigned int *&pAlarms)
 	int CommandLength = FillCommandBuffer(0xC2, modeRead, m_WriteData, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	m_InterfaceAlarms[DATUM500_INTERFACE_TEST_ALARM] = m_pDataBytes[4] & 0x03; // Bits 0,1
-	m_InterfaceAlarms[DATUM500_INTERFACE_SDMS_ALARM] = (m_pDataBytes[4] & 0x30) >> 4; // Bits 4,5
-	m_InterfaceAlarms[DATUM500_INTERFACE_BER_ALARM] = (m_pDataBytes[4] & 0x03) >> 2; // Bits 2,3
+	m_InterfaceAlarms[DATUM_INTERFACE_TEST_ALARM] = m_pDataBytes[4] & 0x03; // Bits 0,1
+	m_InterfaceAlarms[DATUM_INTERFACE_SDMS_ALARM] = (m_pDataBytes[4] & 0x30) >> 4; // Bits 4,5
+	m_InterfaceAlarms[DATUM_INTERFACE_BER_ALARM] = (m_pDataBytes[4] & 0x03) >> 2; // Bits 2,3
 
 	return EC;
 }
@@ -2421,13 +2401,13 @@ MC_ErrorCode CDatumPsm500::GetDemodulatorAlarms(unsigned int *&pAlarms)
 	int CommandLength = FillCommandBuffer(0x83, modeRead, m_WriteData, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_CXR_ALARM] = m_pDataBytes[4] & 0x07; // Bits 0,1,2
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_LVL_ALARM] = ((m_pDataBytes[4] & 0x80) >> 7) | ((m_pDataBytes[4] & 0x01) << 1); // [4] Bit 7 and [5] bit 0
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_EBNO_ALARM] = (m_pDataBytes[4] & 0x60) >> 5; // Bits 5, 6
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_TSTACT_ALARM] = (m_pDataBytes[5] & 0x06) >> 1; // Bits 1, 2
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_HARD_ALARM] = (m_pDataBytes[5] & 0x18) >> 3; // Bits 3,4
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_BCK_ALARM] = (m_pDataBytes[5] & 0x60) >> 5; // Bits 5, 6
-	m_DemodulatorAlarms[DATUM500_DEMODULATOR_LNB_ALARM] = ((m_pDataBytes[5] & 0x80) >> 7) | ((m_pDataBytes[6] & 0x01) << 1); // [5] Bit 7 and [6] bit 0
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_CXR_ALARM] = m_pDataBytes[4] & 0x07; // Bits 0,1,2
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_LVL_ALARM] = ((m_pDataBytes[4] & 0x80) >> 7) | ((m_pDataBytes[4] & 0x01) << 1); // [4] Bit 7 and [5] bit 0
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_EBNO_ALARM] = (m_pDataBytes[4] & 0x60) >> 5; // Bits 5, 6
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_TSTACT_ALARM] = (m_pDataBytes[5] & 0x06) >> 1; // Bits 1, 2
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_HARD_ALARM] = (m_pDataBytes[5] & 0x18) >> 3; // Bits 3,4
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_BCK_ALARM] = (m_pDataBytes[5] & 0x60) >> 5; // Bits 5, 6
+	m_DemodulatorAlarms[DATUM_DEMODULATOR_LNB_ALARM] = ((m_pDataBytes[5] & 0x80) >> 7) | ((m_pDataBytes[6] & 0x01) << 1); // [5] Bit 7 and [6] bit 0
 
 	return EC;
 }

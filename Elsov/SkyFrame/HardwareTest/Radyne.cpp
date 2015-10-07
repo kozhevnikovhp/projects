@@ -1413,18 +1413,14 @@ int CRadyneDMD2401::GetScramblerModesCount()
 }
 
 //virtual
-const char *CRadyneDMD2401::GetScramblerModeName(int Mode)
+const char *CRadyneDMD2401::doGetScramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return RADYNE_MODEM_SCRAMBLER_MODES[Mode];
+	return RADYNE_MODEM_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CRadyneDMD2401::GetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CRadyneDMD2401::doGetScramblerMode(int &mode, int modulator)
 {
-	mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x2400, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	if (EC != MC_OK)
@@ -1439,19 +1435,14 @@ MC_ErrorCode CRadyneDMD2401::GetScramblerMode(int &mode, int Modulator)
 }
 
 //virtual
-MC_ErrorCode CRadyneDMD2401::SetScramblerMode(int &mode, int Modulator)
+MC_ErrorCode CRadyneDMD2401::doSetScramblerMode(int &mode, int modulator)
 {
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateScramblerMode(mode, Modulator))
-		return MC_OK; // already set
-
 	unsigned char cData = 0; // off
 	if (mode == 1)
 		cData = 1;  // on
 
 	int CommandLength = FillCommandBuffer(0x2613, &cData, 1);
 	MC_ErrorCode EC = Command(CommandLength);
-	GetScramblerMode(mode, Modulator);
 	return EC;
 }
 
@@ -1462,18 +1453,14 @@ int CRadyneDMD2401::GetDescramblerModesCount()
 }
 
 //virtual
-const char *CRadyneDMD2401::GetDescramblerModeName(int Mode)
+const char *CRadyneDMD2401::doGetDescramblerModeName(int mode)
 {
-	if (Mode < 0 || Mode >= GetDescramblerModesCount())
-		return "";
-	return RADYNE_MODEM_SCRAMBLER_MODES[Mode];
+	return RADYNE_MODEM_SCRAMBLER_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CRadyneDMD2401::GetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CRadyneDMD2401::doGetDescramblerMode(int &mode, int demodulator)
 {
-	mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x2401, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	if (EC != MC_OK)
@@ -1488,19 +1475,14 @@ MC_ErrorCode CRadyneDMD2401::GetDescramblerMode(int &mode, int Demodulator)
 }
 
 //virtual
-MC_ErrorCode CRadyneDMD2401::SetDescramblerMode(int &mode, int Demodulator)
+MC_ErrorCode CRadyneDMD2401::doSetDescramblerMode(int &mode, int demodulator)
 {
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateDescramblerMode(mode, Demodulator))
-		return MC_OK; // already set
-
 	unsigned char cData = 0; // off
 	if (mode == 1)
 		cData = 1;  // on
 
 	int CommandLength = FillCommandBuffer(0x2A0D, &cData, 1);
 	MC_ErrorCode EC = Command(CommandLength);
-	GetDescramblerMode(mode, Demodulator);
 	return EC;
 }
 

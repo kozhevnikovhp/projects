@@ -50,7 +50,7 @@ void cModulationTypeCombo::initT(CModem *pModem, int DeviceNumber)
 }
 
 
-BEGIN_MESSAGE_MAP(cModulationTypeCombo, cHardwareComboBox)
+BEGIN_MESSAGE_MAP(cModulationTypeCombo, HardwareComboBox)
 	//{{AFX_MSG_MAP(cModulationTypeCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -97,7 +97,7 @@ void cFecModeCombo::initT(CModem *pModem, int DeviceNumber)
 	SelectByDataValue(FecMode);
 }
 
-BEGIN_MESSAGE_MAP(cFecModeCombo, cHardwareComboBox)
+BEGIN_MESSAGE_MAP(cFecModeCombo, HardwareComboBox)
 	//{{AFX_MSG_MAP(cFecModeCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -145,7 +145,7 @@ void cDifferentialModeCombo::initT(CModem *pModem, int DeviceNumber)
 }
 
 
-BEGIN_MESSAGE_MAP(cDifferentialModeCombo, cHardwareComboBox)
+BEGIN_MESSAGE_MAP(cDifferentialModeCombo, HardwareComboBox)
 	//{{AFX_MSG_MAP(cDifferentialModeCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -191,7 +191,7 @@ void cClockSourceComboBox::initT(CModem *pModem, int DeviceNumber)
 	SelectByDataValue(ClockSource);
 }
 
-BEGIN_MESSAGE_MAP(cClockSourceComboBox, cHardwareComboBox)
+BEGIN_MESSAGE_MAP(cClockSourceComboBox, HardwareComboBox)
 	//{{AFX_MSG_MAP(cClockSourceComboBox)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -237,13 +237,14 @@ void cPowerSupplyCombo::initT(CModem *pModem, int DeviceNumber)
 	SelectByDataValue(PowerSupplyMode);
 }
 
-BEGIN_MESSAGE_MAP(cPowerSupplyCombo, cHardwareComboBox)
+BEGIN_MESSAGE_MAP(cPowerSupplyCombo, HardwareComboBox)
 	//{{AFX_MSG_MAP(cPowerSupplyCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // cPowerSupplyCombo message handlers
+
 
 /////////////////////////////////////////////////////////////////////////////
 // cScramblerCombo
@@ -261,9 +262,9 @@ void cScramblerCombo::initR(CModem *pModem, int DeviceNumber)
 	ResetContent();
 	for (int i = 0; i < pModem->GetDescramblerModesCount(); i++)
 	{
-		int index = AddString(pModem->GetDescramblerModeName(i));
-		SetItemData(index, i);
+		addMode(pModem->GetDescramblerModeName(i), i);
 	}
+
 	int mode;
 	pModem->GetDescramblerMode(mode, DeviceNumber);
 	SelectByDataValue(mode);
@@ -274,15 +275,14 @@ void cScramblerCombo::initT(CModem *pModem, int DeviceNumber)
 	ResetContent();
 	for (int i = 0; i < pModem->GetScramblerModesCount(); i++)
 	{
-		int index = AddString(pModem->GetScramblerModeName(i));
-		SetItemData(index, i);
+		addMode(pModem->GetScramblerModeName(i), i);
 	}
 	int mode;
 	pModem->GetScramblerMode(mode, DeviceNumber);
 	SelectByDataValue(mode);
 }
 
-BEGIN_MESSAGE_MAP(cScramblerCombo, cHardwareComboBox)
+BEGIN_MESSAGE_MAP(cScramblerCombo, HardwareComboBox)
 	//{{AFX_MSG_MAP(cScramblerCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
