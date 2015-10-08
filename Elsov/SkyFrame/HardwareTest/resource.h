@@ -486,7 +486,9 @@
 #define IDC_SET_PARAMS_BUTTON           1501
 #define IDC_SN_INPUT_LEVEL_STATIC       1503
 #define IDC_MODULATION_TYPE_COMBO       1607
+#define IDC_LNB_10MHZ_COMBO             1608
 #define IDC_FEC_MODE_COMBO              1609
+#define IDC_BUC_10MHZ_COMBO             1609
 #define IDC_POWER_SUPPLY_COMBO          1610
 #define IDC_SCRAMBLER_MODE_COMBO        1610
 #define IDC_POWER_SUPPLY_COMBO2         1611

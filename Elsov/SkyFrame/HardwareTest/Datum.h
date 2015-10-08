@@ -99,10 +99,10 @@ public:
 // Non Volatile RAM
 
 // 10 MHz reference type
+
 // Frequency (carrier)
 	virtual BOOL CanSetRFrequency() { return TRUE; }
 	virtual BOOL CanSetTFrequency() { return TRUE; }
-	virtual BOOL CanSetModulatorShift() { return TRUE; }
 	virtual BOOL CanSetSearchRange() { return TRUE; }
 	virtual BOOL CanGetInputLevel() { return TRUE; }
 	virtual BOOL CanContiniousWave() { return TRUE; }

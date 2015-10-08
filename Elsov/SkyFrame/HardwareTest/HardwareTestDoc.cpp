@@ -455,12 +455,12 @@ void CHardwareTestDoc::OnDeviceAddTranceiverAdvantechWty1()
 
 void CHardwareTestDoc::OnDeviceAddSdmsSdmsVsat4900l() 
 {
-	AddDevice(new CSdmsVsat4900L());
+//	AddDevice(new CSdmsVsat4900L());
 }
 
 void CHardwareTestDoc::OnDeviceAddSdmsSdmsVsatM500l() 
 {
-	AddDevice(new CSdmsVsatM500L());
+//	AddDevice(new CSdmsVsatM500L());
 }
 
 void CHardwareTestDoc::OnTestsModemTest() 

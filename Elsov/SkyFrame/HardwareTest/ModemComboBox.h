@@ -206,6 +206,39 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
+
+/////////////////////////////////////////////////////////////////////////////
+// c10MHzCombo window
+
+class c10MHzCombo : public HardwareComboBox
+{
+// Construction
+public:
+	c10MHzCombo();
+
+// Attributes
+public:
+
+// Operations
+public:
+	void initR(CModem *pModem, int DeviceNumber);
+	void initT(CModem *pModem, int DeviceNumber);
+
+// Overrides
+	//{{AFX_VIRTUAL(c10MHzCombo)
+	//}}AFX_VIRTUAL
+
+// Implementation
+public:
+	virtual ~c10MHzCombo();
+
+protected:
+	//{{AFX_MSG(c10MHzCombo)
+	//}}AFX_MSG
+
+	DECLARE_MESSAGE_MAP()
+};
+
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}

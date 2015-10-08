@@ -42,6 +42,8 @@ static const char *DATUM_M7_SCRAMBLER_MODES[] = {
 	"FEC Sync"		// 8
 };
 
+static const char *DATUM_M7_10MHZ_MODES[] = { "Disabled", "Enabled" };
+
 static const char *DATUM_M7_DIFF_CODING_MODES[] = { "Disabled", "Enabled" };
 
 static const char *DATUM_M7_R_CLOCK_SOURCES[] = {"RCV_Clock", "Internal", "External", "Mod_Clock"};
@@ -656,7 +658,62 @@ MC_ErrorCode CDatum_M7::SetTPowerSupplyMode(int &Mode, int Modulator)
 	return EC;
 }
 
+// 10 MHz reference 
+
+//virtual
+int CDatum_M7::GetR10MHzModesCount()
+{
+	return sizeof(DATUM_M7_10MHZ_MODES)/sizeof(DATUM_M7_10MHZ_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetR10MHzModeName(int mode)
+{
+	return DATUM_M7_10MHZ_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetR10MHzMode(int &mode, int demodulator)
+{
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 195, mode);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetR10MHzMode(int &mode, int demodulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 195, mode);
+	return EC;
+}
+
+//virtual
+int CDatum_M7::GetT10MHzModesCount()
+{
+	return sizeof(DATUM_M7_10MHZ_MODES)/sizeof(DATUM_M7_10MHZ_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetT10MHzModeName(int mode)
+{
+	return DATUM_M7_10MHZ_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetT10MHzMode(int &mode, int modulator)
+{
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 195, mode);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetT10MHzMode(int &mode, int modulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 195, mode);
+	return EC;
+}
+
 // Data rate
+
 //virtual
 MC_ErrorCode CDatum_M7::GetRDataRate(unsigned int &DataRate, int Demodulator)
 {

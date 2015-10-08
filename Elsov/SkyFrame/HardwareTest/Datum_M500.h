@@ -26,10 +26,15 @@ public:
 // Non Volatile RAM
 
 // 10 MHz reference type
-	virtual MC_ErrorCode IsR10MHzSupplierEnabled(BOOL &bEnable, int Demodulator);
-	virtual MC_ErrorCode EnableR10MHzSupplier(BOOL &bEnable, int Demodulator);
-	virtual MC_ErrorCode IsT10MHzSupplierEnabled(BOOL &bEnable, int Modulator);
-	virtual MC_ErrorCode EnableT10MHzSupplier(BOOL &bEnable, int Modulator);
+	virtual int GetR10MHzModesCount();
+	virtual const char *doGetR10MHzModeName(int mode);
+	virtual MC_ErrorCode doGetR10MHzMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetR10MHzMode(int &mode, int demodulator);
+
+	virtual int GetT10MHzModesCount();
+	virtual const char *doGetT10MHzModeName(int mode);
+	virtual MC_ErrorCode doGetT10MHzMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetT10MHzMode(int &mode, int modulator);
 
 // IF params and status
 	virtual MC_ErrorCode GetRIfParams(CDemIfParams &Params, int Demodulator);
@@ -37,6 +42,8 @@ public:
 	virtual MC_ErrorCode GetTIfParams(CModIfParams &Params, int Modulator);
 
 // Frequency (carrier)
+	virtual BOOL CanSetModulatorShift() { return TRUE; }
+
 	virtual MC_ErrorCode GetRFrequency(unsigned int &Frequency, int Demodulator);
 	virtual MC_ErrorCode SetRFrequency(unsigned int &Frequency, int Demodulator);
 	virtual MC_ErrorCode GetTFrequency(unsigned int &Frequency, int Modulator);

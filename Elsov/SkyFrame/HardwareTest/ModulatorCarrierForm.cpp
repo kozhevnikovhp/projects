@@ -23,7 +23,6 @@ CModulatorCarrierForm::CModulatorCarrierForm()
 	m_Frequency = 0;
 	m_bOutputOn = FALSE;
 	m_bSpectralInvEnabled = FALSE;
-	m_b10MHzSupplierEnabled = FALSE;
 	m_bContiniousWaveOn = FALSE;
 	m_OutputLevel = 0.0;
 	m_Shift = 0;
@@ -40,6 +39,7 @@ void CModulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 {
 	CAbstractForm::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CModulatorCarrierForm)
+	DDX_Control(pDX, IDC_BUC_10MHZ_COMBO, m_Buc10MHzCombo);
 	DDX_Control(pDX, IDC_OUTPUT_LEVEL_EDIT, m_OutputLevelEdit);
 	DDX_Control(pDX, IDC_POWER_SUPPLY_COMBO, m_PowerSupplyCombo);
 	DDX_Control(pDX, IDC_MODULATION_TYPE_COMBO, m_ModulationTypeCombo);
@@ -52,7 +52,6 @@ void CModulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 	DDX_Control(pDX, IDC_SET_FREQUENCY_BUTTON, m_SetFrequencyButton);
 	DDX_Control(pDX, IDC_TRANSMITTER_FREQUENCY_EDIT, m_FrequencyCtrl);
 	DDX_Control(pDX, IDC_CW_CHECK, m_ContiniousWaveCtrl);
-	DDX_Control(pDX, IDC_10MHZ_SUPPLIER_CHECK, m_10MHzSupplierCheck);
 	DDX_Control(pDX, IDC_ONOFF_CHECK, m_OutputOnOffCheck);
 	DDX_Control(pDX, IDC_SPECTRAL_INV_CHECK, m_SpectralInvCheck);
 	DDX_Control(pDX, IDC_OUTPUT_LEVEL_SPIN, m_OutputLevelSpin);
@@ -60,7 +59,6 @@ void CModulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 	DDX_Text(pDX, IDC_TRANSMITTER_FREQUENCY_EDIT, m_Frequency);
 	DDX_Check(pDX, IDC_ONOFF_CHECK, m_bOutputOn);
 	DDX_Check(pDX, IDC_SPECTRAL_INV_CHECK, m_bSpectralInvEnabled);
-	DDX_Check(pDX, IDC_10MHZ_SUPPLIER_CHECK, m_b10MHzSupplierEnabled);
 	DDX_Check(pDX, IDC_CW_CHECK, m_bContiniousWaveOn);
 	DDX_Text(pDX, IDC_OUTPUT_LEVEL_EDIT, m_OutputLevel);
 	DDX_Text(pDX, IDC_SHIFT_EDIT, m_Shift);
@@ -76,13 +74,13 @@ BEGIN_MESSAGE_MAP(CModulatorCarrierForm, CAbstractForm)
 	ON_BN_CLICKED(IDC_SET_OUTPUT_LEVEL_BUTTON, OnSetOutputLevelButton)
 	ON_BN_CLICKED(IDC_ONOFF_CHECK, OnOutputOnOffCheck)
 	ON_BN_CLICKED(IDC_SPECTRAL_INV_CHECK, OnSpectralInvCheck)
-	ON_BN_CLICKED(IDC_10MHZ_SUPPLIER_CHECK, On10MHzSupplierCheck)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_OUTPUT_LEVEL_SPIN, OnDeltaPosOutputLevelSpin)
 	ON_BN_CLICKED(IDC_CW_CHECK, OnCwCheck)
 	ON_BN_CLICKED(IDC_SET_SHIFT_BUTTON, OnSetShiftButton)
 	ON_BN_CLICKED(IDC_SET_FINE_TUNE_BUTTON, OnSetFineTuneButton)
 	ON_CBN_SELCHANGE(IDC_MODULATION_TYPE_COMBO, OnSelChangeModulationTypeCombo)
 	ON_CBN_SELCHANGE(IDC_POWER_SUPPLY_COMBO, OnSelChangePowerSupplyCombo)
+	ON_CBN_SELCHANGE(IDC_BUC_10MHZ_COMBO, OnSelChangeBuc10MHzCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -156,8 +154,8 @@ BOOL CModulatorCarrierForm::SetupControls()
 	UpdateBucStatus();
 	
 	// 10 MHz Reference (internal/external)
-	m_10MHzSupplierCheck.EnableWindow(m_pModem->CanT10MHzSupply());
-	m_b10MHzSupplierEnabled = Params.m_b10MHzSupplyEnabled;
+	m_Buc10MHzCombo.initT(m_pModem, m_DeviceNumber);
+	m_Buc10MHzCombo.EnableWindow(m_pModem->CanT10MHzSupply());
 
 	// Modulation type
 	m_ModulationTypeCombo.initT(m_pModem, m_DeviceNumber);
@@ -231,14 +229,6 @@ void CModulatorCarrierForm::OnSpectralInvCheck()
 	UpdateData(FALSE);
 }
 
-void CModulatorCarrierForm::On10MHzSupplierCheck() 
-{
-	CWaitCursor cursor;
-	UpdateData();
-	m_pModem->EnableT10MHzSupplier(m_b10MHzSupplierEnabled, m_DeviceNumber);
-	UpdateData(FALSE);
-}
-
 void CModulatorCarrierForm::OnDeltaPosOutputLevelSpin(NMHDR* pNMHDR, LRESULT* pResult) 
 {
 	NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
@@ -295,5 +285,13 @@ void CModulatorCarrierForm::OnSelChangePowerSupplyCombo()
 	int PowerSupplyMode = m_PowerSupplyCombo.getSelectedMode();
 	m_pModem->SetTPowerSupplyMode(PowerSupplyMode, m_DeviceNumber);
 	m_PowerSupplyCombo.SelectByDataValue(PowerSupplyMode);
+	UpdateBucStatus();
+}
+
+void CModulatorCarrierForm::OnSelChangeBuc10MHzCombo() 
+{
+	int mode = m_Buc10MHzCombo.getSelectedMode();
+	m_pModem->SetR10MHzMode(mode, m_DeviceNumber);
+	m_Buc10MHzCombo.SelectByDataValue(mode);
 	UpdateBucStatus();
 }

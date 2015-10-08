@@ -34,6 +34,8 @@ static const char *DATUM_PSM4900_SCRAMBLER_MODES[] = {
 	"TPC Synchro"	// 7
 };
 
+static const char *DATUM_PSM4900_10MHZ_MODES[] = { "Disabled", "Enabled" };
+
 static const char *DATUM_PSM4900_DIFF_CODING_MODES[] = { "Disabled", "Enabled" };
 
 static const char *DATUM_PSM4900_R_CLOCK_SOURCES[] = {"RCV_Clock", "Internal", "External", "Mod_Clock"};
@@ -257,7 +259,7 @@ MC_ErrorCode CDatumPsm4900::GetRIfParams(CDemIfParams &Params, int Demodulator)
 
 	Params.m_bSpectrumInversion = ((m_pDataBytes[4] & 1<<5) != 0);
 
-	EC = IsR10MHzSupplierEnabled(Params.m_b10MHzSupplyEnabled, Demodulator);
+	EC = GetR10MHzMode(Params.m_10MHzSupplyMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 
@@ -321,7 +323,7 @@ MC_ErrorCode CDatumPsm4900::GetTIfParams(CModIfParams &Params, int Modulator)
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 
-	EC = IsT10MHzSupplierEnabled(Params.m_b10MHzSupplyEnabled, Modulator);
+	EC = GetT10MHzMode(Params.m_10MHzSupplyMode, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 
@@ -1055,33 +1057,37 @@ MC_ErrorCode CDatumPsm4900::SetTDataRate(unsigned int &DataRate, int Modulator)
 // 10 MHz reference 
 
 //virtual
-MC_ErrorCode CDatumPsm4900::IsR10MHzSupplierEnabled(BOOL &bEnable, int Demodulator)
+int CDatumPsm4900::GetR10MHzModesCount()
 {
-	bEnable = FALSE;
-	if (!CanR10MHzSupply())
-		return MC_COMMAND_NOT_SUPPORTED;
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
+	return sizeof(DATUM_PSM4900_10MHZ_MODES)/sizeof(DATUM_PSM4900_10MHZ_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm4900::doGetR10MHzModeName(int mode)
+{
+	return DATUM_PSM4900_10MHZ_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm4900::doGetR10MHzMode(int &mode, int demodulator)
+{
 	int CommandLength = FillCommandBuffer(0x87, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	unsigned int bits = m_pDataBytes[4];
 	bits >>= 3;
 	bits = bits & 0x07;
-	bEnable = (bits != 0);
+	mode = 0;
+	if (bits != 0)
+		mode = 1;
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::EnableR10MHzSupplier(BOOL &bEnable, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doSetR10MHzMode(int &mode, int demodulator)
 {
-	if (!CanR10MHzSupply())
-		return MC_COMMAND_NOT_SUPPORTED;
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1 << 6;	// Output flag set for enable/disable
-	if (bEnable)
+	if (mode == 1)
 		m_WriteData[4] = 1 << 3;	// Enabled
 	else
 		m_WriteData[4] = 0;			// Disabled
@@ -1089,46 +1095,47 @@ MC_ErrorCode CDatumPsm4900::EnableR10MHzSupplier(BOOL &bEnable, int Demodulator)
 	int CommandLength = FillCommandBuffer(0x87, modeExecute, m_WriteData, 34);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	IsR10MHzSupplierEnabled(bEnable, Demodulator);
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::IsT10MHzSupplierEnabled(BOOL &bEnable, int Modulator)
+int CDatumPsm4900::GetT10MHzModesCount()
 {
-	bEnable = FALSE;
-	if (!CanT10MHzSupply())
-		return MC_COMMAND_NOT_SUPPORTED;
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
+	return sizeof(DATUM_PSM4900_10MHZ_MODES)/sizeof(DATUM_PSM4900_10MHZ_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm4900::doGetT10MHzModeName(int mode)
+{
+	return DATUM_PSM4900_10MHZ_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm4900::doGetT10MHzMode(int &mode, int modulator)
+{
 	int CommandLength = FillCommandBuffer(0x47, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	unsigned int bits = m_pDataBytes[4];
 	bits >>= 3;
 	bits = bits & 0x07;
-	bEnable = (bits != 0);
+	mode = 0;
+	if (bits != 0)
+		mode = 1;
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::EnableT10MHzSupplier(BOOL &bEnable, int Modulator)
+MC_ErrorCode CDatumPsm4900::doSetT10MHzMode(int &mode, int modulator)
 {
-	if (!CanT10MHzSupply())
-		return MC_COMMAND_NOT_SUPPORTED;
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1 << 6;	// Output flag set for enable/disable
-	if (bEnable)
+	if (mode == 1)
 		m_WriteData[4] = 1 << 3;	// Enabled
 	else
 		m_WriteData[4] = 0;			// Disabled
 
 	int CommandLength = FillCommandBuffer(0x47, modeExecute, m_WriteData, 34);
 	MC_ErrorCode EC = Command(CommandLength);
-
-	IsT10MHzSupplierEnabled(bEnable, Modulator);
 	return EC;
 }
 
@@ -1989,7 +1996,7 @@ MC_ErrorCode CDatumPsm4900_LBand::GetRIfParams(CDemIfParams &Params, int Demodul
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 
-	EC = IsR10MHzSupplierEnabled(Params.m_b10MHzSupplyEnabled, Demodulator);
+	EC = GetR10MHzMode(Params.m_10MHzSupplyMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 

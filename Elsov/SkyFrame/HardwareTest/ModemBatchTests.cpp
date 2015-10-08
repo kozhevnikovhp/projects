@@ -255,14 +255,14 @@ LRESULT CModemBatchTestsDevicePage::OnWizardNext()
 	}
 
 	// Turn all 10 MHz suppliers OFF
-	BOOL bOn = FALSE;
-	pModem->EnableR10MHzSupplier(bOn, 1);
-	bOn = FALSE;
-	pModem->EnableT10MHzSupplier(bOn, 1);
-	bOn = FALSE;
-	pEtalonModem->EnableR10MHzSupplier(bOn, 1);
-	bOn = FALSE;
-	pEtalonModem->EnableT10MHzSupplier(bOn, 1);
+	int mode = 0;
+	pModem->SetR10MHzMode(mode, 1);
+	mode = 0;
+	pModem->SetT10MHzMode(mode, 1);
+	mode = 0;
+	pEtalonModem->SetR10MHzMode(mode, 1);
+	mode = 0;
+	pEtalonModem->SetT10MHzMode(mode, 1);
 
 	// Turn all power suppliers off
 	int PowerSupplyMode = 0;
@@ -795,10 +795,10 @@ BOOL CModemBatchTests10MHzPage::OnSetActive()
 	int iValue = ReadRegistryInt(pszCorrection, 0*10);
 	m_Correction = iValue/10.;
 
-	bOn = NeedT10MHz();
-	pModem->EnableT10MHzSupplier(bOn, 1);
-	bOn = NeedR10MHz();
-	pModem->EnableR10MHzSupplier(bOn, 1);
+	int mode = NeedT10MHzMode();
+	pModem->SetT10MHzMode(mode, 1);
+	mode = NeedR10MHzMode();
+	pModem->SetR10MHzMode(mode, 1);
 
 	CString Caption = GetDeviceDescription();
 	m_DeviceName = Caption;
@@ -836,10 +836,10 @@ BOOL CModemBatchTests10MHzPage::OnKillActive()
 	CWaitCursor cursor;
 	CModem *pModem = m_pAutoTestConfig->m_pTestModem;
 	// Turn all 10 MHz supplyers off	
-	BOOL bOn = FALSE;
-	pModem->EnableT10MHzSupplier(bOn, 1);
-	bOn = FALSE;
-	pModem->EnableR10MHzSupplier(bOn, 1);
+	int mode = 0;
+	pModem->SetR10MHzMode(mode, 1);
+	mode = 0;
+	pModem->SetT10MHzMode(mode, 1);
 
 	return CModemBatchTestsPage::OnKillActive();
 }

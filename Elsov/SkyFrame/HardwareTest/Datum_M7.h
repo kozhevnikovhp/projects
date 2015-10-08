@@ -28,11 +28,18 @@ public:
 // Non Volatile RAM
 
 // 10 MHz reference type
-/*	virtual MC_ErrorCode IsR10MHzSupplierEnabled(BOOL &bEnable, int Demodulator);
-	virtual MC_ErrorCode EnableR10MHzSupplier(BOOL &bEnable, int Demodulator);
-	virtual MC_ErrorCode IsT10MHzSupplierEnabled(BOOL &bEnable, int Modulator);
-	virtual MC_ErrorCode EnableT10MHzSupplier(BOOL &bEnable, int Modulator);
-*/
+	virtual BOOL CanR10MHzSupply() { return TRUE; }
+	virtual int GetR10MHzModesCount();
+	virtual const char *doGetR10MHzModeName(int mode);
+	virtual MC_ErrorCode doGetR10MHzMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetR10MHzMode(int &mode, int demodulator);
+
+	virtual BOOL CanT10MHzSupply() { return TRUE; }
+	virtual int GetT10MHzModesCount();
+	virtual const char *doGetT10MHzModeName(int mode);
+	virtual MC_ErrorCode doGetT10MHzMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetT10MHzMode(int &mode, int modulator);
+
 // IF params and status
 	virtual unsigned char getModulatorSlotNumber(int nModulator) const = 0;
 	virtual unsigned char getDemodulatorSlotNumber(int nDemodulator) const = 0;
@@ -262,10 +269,6 @@ public:
 	// Common device commands
 	virtual char *GetName() { return m_pszName; }
 
-// 10 MHz reference suppliers
-	virtual BOOL CanR10MHzSupply() { return TRUE; }
-	virtual BOOL CanT10MHzSupply() { return TRUE; }
-
 // Frequency (carrier)
 	virtual unsigned int GetMinRFrequency() { return 950000; } //  L-band
 	virtual unsigned int GetMaxRFrequency() { return 1900000; } //  L-band
@@ -273,6 +276,9 @@ public:
 	virtual unsigned int GetMaxTFrequency() { return 1750000; } //  L-band
 	virtual double GetMinComfortLevel() { return -80; }
 	virtual double GetMaxComfortLevel() { return -30; }
+
+	virtual BOOL CanR10MHzSupply() { return TRUE; }
+	virtual BOOL CanT10MHzSupply() { return TRUE; }
 
 // LNB status
 	virtual BOOL CanGetLnbStatus() { return TRUE; }

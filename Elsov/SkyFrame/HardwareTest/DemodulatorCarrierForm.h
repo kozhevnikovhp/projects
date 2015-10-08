@@ -24,6 +24,7 @@ protected:
 public:
 	//{{AFX_DATA(CDemodulatorCarrierForm)
 	enum { IDD = IDD_DEMODULATOR_CARRIER_FORM };
+	c10MHzCombo	m_Lnb10MHzCombo;
 	cPowerSupplyCombo	m_PowerSupplyCombo;
 	cModulationTypeCombo	m_ModulationTypeCombo;
 	CButton	m_SetFineTuneButton;
@@ -37,14 +38,12 @@ public:
 	CButton	m_MeasureTimeButton;
 	CButton	m_SetFrequencyButton;
 	CEdit	m_FrequencyCtrl;
-	CButton	m_10MHzSupplierCheck;
 	CButton	m_SpectralInvCheck;
 	CSpinButtonCtrl	m_SearchRangeSpin;
 	CSpinButtonCtrl	m_ReceiverFrequencySpin;
 	UINT	m_Frequency;
 	UINT	m_SearchRange;
 	BOOL	m_bSpectralInvEnabled;
-	BOOL	m_b10MHzSupplierEnabled;
 	int		m_Shift;
 	int		m_FineTune;
 	//}}AFX_DATA
@@ -93,10 +92,10 @@ protected:
 	afx_msg void OnSetRangeButton();
 	afx_msg void OnSpectralInvCheck();
 	afx_msg void OnMeasureButton();
-	afx_msg void On10MHzSupplierCheck();
 	afx_msg void OnSetFineTuneButton();
 	afx_msg void OnSelChangeModulationTypeCombo();
 	afx_msg void OnSelChangePowerSupplyCombo();
+	afx_msg void OnSelChangeLnb10MHzCombo();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

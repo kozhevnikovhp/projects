@@ -223,8 +223,8 @@ public:
 	~CModemBatchTests10MHzPage();
 	virtual char *GetDeviceDescription() { return ""; }
 	virtual char *GetRegimeDescription() { return ""; }
-	virtual BOOL NeedT10MHz() { return FALSE; }
-	virtual BOOL NeedR10MHz() { return FALSE; }
+	virtual int NeedT10MHzMode() { return 0; }
+	virtual int NeedR10MHzMode() { return 0; }
 	virtual char *GetRegistrySectionName() { return "";	}
 
 // Dialog Data
@@ -264,8 +264,8 @@ class CModemBatchTestsModulator10MHzOnPage : public CModemBatchTests10MHzPage
 public:
 	virtual char *GetDeviceDescription() { return "Modulator"; }
 	virtual char *GetRegimeDescription() { return "ON"; }
-	virtual BOOL NeedT10MHz() { return TRUE; }
-	virtual BOOL NeedR10MHz() { return FALSE; }
+	virtual int NeedT10MHzMode() { return 1; }
+	virtual int NeedR10MHzMode() { return 0; }
 	virtual char *GetRegistrySectionName() { return "Modulator10MHzShift";	}
 };
 
@@ -278,8 +278,8 @@ class CModemBatchTestsModulator10MHzOffPage : public CModemBatchTests10MHzPage
 public:
 	virtual char *GetDeviceDescription() { return "Modulator"; }
 	virtual char *GetRegimeDescription() { return "OFF"; }
-	virtual BOOL NeedT10MHz() { return FALSE; }
-	virtual BOOL NeedR10MHz() { return FALSE; }
+	virtual int NeedT10MHzMode() { return 0; }
+	virtual int NeedR10MHzMode() { return 0; }
 	virtual char *GetRegistrySectionName() { return "Modulator10MHzShift";	}
 };
 
@@ -292,8 +292,8 @@ class CModemBatchTestsDemodulator10MHzOnPage : public CModemBatchTests10MHzPage
 public:
 	virtual char *GetDeviceDescription() { return "Demodulator"; }
 	virtual char *GetRegimeDescription() { return "ON"; }
-	virtual BOOL NeedT10MHz() { return FALSE; }
-	virtual BOOL NeedR10MHz() { return TRUE; }
+	virtual int NeedT10MHzMode() { return 0; }
+	virtual int NeedR10MHzMode() { return 1; }
 	virtual char *GetRegistrySectionName() { return "Demodulator10MHzShift";	}
 };
 
@@ -306,8 +306,8 @@ class CModemBatchTestsDemodulator10MHzOffPage : public CModemBatchTests10MHzPage
 public:
 	virtual char *GetDeviceDescription() { return "Demodulator"; }
 	virtual char *GetRegimeDescription() { return "OFF"; }
-	virtual BOOL NeedT10MHz() { return FALSE; }
-	virtual BOOL NeedR10MHz() { return FALSE; }
+	virtual int NeedT10MHzMode() { return 0; }
+	virtual int NeedR10MHzMode() { return 0; }
 	virtual char *GetRegistrySectionName() { return "Demodulator10MHzShift";	}
 };
 

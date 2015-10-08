@@ -528,7 +528,8 @@ void CModemSdmsBatchTestsDataThroughPage::DoTest()
 	dlg.StepIt();
 
 	// 4. Connecting to remote etalon SDMS
-	dlg.SetStatus("Connecting to etalon SDMS...");
+	// UNCOMMENT THIS!!!!!
+/*	dlg.SetStatus("Connecting to etalon SDMS...");
 	CSdmsVsat4900L TelnetEtalonSDMS;
 	TelnetEtalonSDMS.SetControlType(MC_TELNET);
 	if (!TelnetEtalonSDMS.Connect(m_EtalonEthernetIP))
@@ -541,7 +542,7 @@ void CModemSdmsBatchTestsDataThroughPage::DoTest()
 	CDemIfStatus status;
 	TelnetEtalonSDMS.GetRIfStatus(status, 1);
 	m_Protocol += TelnetEtalonSDMS.GetMCReply();
-	UpdateData(FALSE);
+	UpdateData(FALSE);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

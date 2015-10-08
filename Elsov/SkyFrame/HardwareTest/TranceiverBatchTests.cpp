@@ -91,7 +91,10 @@ BOOL CTranceiverBatchTestsPage::TurnPureCarrier(CModem *pModem, BOOL bOnOff)
 
 BOOL CTranceiverBatchTestsPage::Set10MHz(CModem *pModem, BOOL bOnOff)
 {
-	if (pModem->EnableT10MHzSupplier(bOnOff, 1) != MC_OK)
+	int mode = 0;
+	if (bOnOff)
+		mode = 1;
+	if (pModem->SetT10MHzMode(mode, 1) != MC_OK)
 	{
 		CString str = "Cannot set 10 MHz for ";
 		str += GetDeviceFullName(pModem);
@@ -103,13 +106,15 @@ BOOL CTranceiverBatchTestsPage::Set10MHz(CModem *pModem, BOOL bOnOff)
 
 BOOL CTranceiverBatchTestsPage::Get10MHz(CModem *pModem, BOOL &bOnOff)
 {
-	if (pModem->IsT10MHzSupplierEnabled(bOnOff, 1) != MC_OK)
+	int mode = -1;
+	if (pModem->SetT10MHzMode(mode, 1) != MC_OK)
 	{
 		CString str = "Cannot get 10 MHz for ";
 		str += GetDeviceFullName(pModem);
 		MessageBox(str, pszError, MB_ICONSTOP);
 		return FALSE;
 	}
+	bOnOff = (mode == 1);
 	return TRUE;
 }
 

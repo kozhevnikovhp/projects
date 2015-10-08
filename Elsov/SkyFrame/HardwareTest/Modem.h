@@ -18,7 +18,7 @@ public:
 	int m_ModulationType;
 	int m_PowerSupplyMode;
 	BOOL m_bSpectrumInversion;
-	BOOL m_b10MHzSupplyEnabled;
+	int m_10MHzSupplyMode;
 };
 
 
@@ -192,19 +192,31 @@ public:
 
 // 10 MHz reference suppliers
 	virtual BOOL CanR10MHzSupply() { return FALSE; }
-	virtual MC_ErrorCode IsR10MHzSupplierEnabled(BOOL &bEnabled, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode EnableR10MHzSupplier(BOOL &bEnabled, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	const char *GetR10MHzModeName(int mode);
+	MC_ErrorCode GetR10MHzMode(int &mode, int demodulator);
+	MC_ErrorCode SetR10MHzMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateR10MHzMode(int mode, int demodulator);
+	virtual int GetR10MHzModesCount() = 0;
+	virtual const char *doGetR10MHzModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetR10MHzMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetR10MHzMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 	virtual BOOL CanT10MHzSupply() { return FALSE; }
-	virtual MC_ErrorCode IsT10MHzSupplierEnabled(BOOL &bEnabled, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode EnableT10MHzSupplier(BOOL &bEnabled, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	const char *GetT10MHzModeName(int mode);
+	MC_ErrorCode GetT10MHzMode(int &mode, int modulator);
+	MC_ErrorCode SetT10MHzMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateT10MHzMode(int mode, int modulator);
+	virtual int GetT10MHzModesCount() = 0;
+	virtual const char *doGetT10MHzModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetT10MHzMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetT10MHzMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // DC suppliers
+	virtual BOOL NeedToUpdateRPowerSupplyMode(int Mode, int Demodulator);
 	virtual int GetRPowerSupplyModesCount()  { return 1; }
 	virtual const char *GetRPowerSupplyModeName(int Mode) { return "None"; }
 	virtual MC_ErrorCode GetRPowerSupplyMode(int &Mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	virtual MC_ErrorCode SetRPowerSupplyMode(int &Mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateRPowerSupplyMode(int Mode, int Demodulator);
 
 	virtual int GetTPowerSupplyModesCount()  { return 1; }
 	virtual const char *GetTPowerSupplyModeName(int Mode) { return "None"; }

@@ -17,10 +17,10 @@ CDevice *DeviceFromName(CString &DeviceName)
 		pDevice = new CDatumPsm500_LBand;
 	else if (!DeviceName.Compare(CDatum_M7_LMod_LDem::m_pszName))
 		pDevice = new CDatum_M7_LMod_LDem;
-	else if (!DeviceName.Compare(CSdmsVsat4900L::m_pszName))
-		pDevice = new CSdmsVsat4900L;
-	else if (!DeviceName.Compare(CSdmsVsatM500L::m_pszName))
-		pDevice = new CSdmsVsatM500L;
+	//else if (!DeviceName.Compare(CSdmsVsat4900L::m_pszName))
+	//	pDevice = new CSdmsVsat4900L;
+	//else if (!DeviceName.Compare(CSdmsVsatM500L::m_pszName))
+	//	pDevice = new CSdmsVsatM500L;
 	else if (!DeviceName.Compare(CNps3e::m_pszName))
 		pDevice = new CNps3e;
 	else if (!DeviceName.Compare(CWaveSatWtr70::m_pszName))

@@ -10,7 +10,7 @@ CIfParams::CIfParams()
 	m_ModulationType = 0;
 	m_bSpectrumInversion = FALSE;
 	m_PowerSupplyMode = 0;
-	m_b10MHzSupplyEnabled = FALSE;
+	m_10MHzSupplyMode = -1;
 }
 
 //virtual
@@ -144,7 +144,7 @@ MC_ErrorCode CModem::GetRIfParams(CDemIfParams &Params, int Demodulator)
 	MC_ErrorCode EC = GetRFrequency(Params.m_Frequency, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
-	EC = IsR10MHzSupplierEnabled(Params.m_b10MHzSupplyEnabled, Demodulator);
+	EC = GetR10MHzMode(Params.m_10MHzSupplyMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetRModulationType(Params.m_ModulationType, Demodulator);
@@ -193,7 +193,7 @@ MC_ErrorCode CModem::GetTIfParams(CModIfParams &Params, int Modulator)
 	EC = GetModulatorShift(Params.m_Offset, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
-	EC = IsT10MHzSupplierEnabled(Params.m_b10MHzSupplyEnabled, Modulator);
+	EC = GetT10MHzMode(Params.m_10MHzSupplyMode, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetTModulationType(Params.m_ModulationType, Modulator);
@@ -367,6 +367,91 @@ BOOL CModem::NeedToUpdateTPowerSupplyMode(int Mode, int Modulator)
 	GetTPowerSupplyMode(CurrentValue, Modulator);
 	return (CurrentValue != Mode);
 }
+
+// 10 MHz Supply
+
+const char *CModem::GetR10MHzModeName(int mode)
+{
+	if (mode < 0 || mode >= GetR10MHzModesCount())
+		return "";
+	return doGetR10MHzModeName(mode);
+}
+
+MC_ErrorCode CModem::GetR10MHzMode(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanR10MHzSupply())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetR10MHzMode(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetR10MHzMode(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanR10MHzSupply())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateR10MHzMode(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetR10MHzMode(mode, demodulator);
+	GetR10MHzMode(mode, demodulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateR10MHzMode(int mode, int demodulator)
+{
+	int current_mode = 0;
+	GetR10MHzMode(current_mode, demodulator);
+	return (current_mode != mode);
+}
+
+const char *CModem::GetT10MHzModeName(int mode)
+{
+	if (mode < 0 || mode >= GetT10MHzModesCount())
+		return "";
+	return doGetT10MHzModeName(mode);
+}
+
+MC_ErrorCode CModem::GetT10MHzMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanT10MHzSupply())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetT10MHzMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetT10MHzMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanT10MHzSupply())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateT10MHzMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetT10MHzMode(mode, modulator);
+	GetT10MHzMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateT10MHzMode(int mode, int modulator)
+{
+	int current_mode = 0;
+	GetT10MHzMode(current_mode, modulator);
+	return (current_mode != mode);
+}
+
 
 // Modulation type
 

@@ -25,7 +25,6 @@ CDemodulatorCarrierForm::CDemodulatorCarrierForm()
 	m_Frequency = 0;
 	m_SearchRange = 0;
 	m_bSpectralInvEnabled = FALSE;
-	m_b10MHzSupplierEnabled = FALSE;
 	m_Shift = 0;
 	m_FineTune = 0;
 	//}}AFX_DATA_INIT
@@ -41,6 +40,7 @@ void CDemodulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 {
 	CAbstractForm::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDemodulatorCarrierForm)
+	DDX_Control(pDX, IDC_LNB_10MHZ_COMBO, m_Lnb10MHzCombo);
 	DDX_Control(pDX, IDC_POWER_SUPPLY_COMBO, m_PowerSupplyCombo);
 	DDX_Control(pDX, IDC_MODULATION_TYPE_COMBO, m_ModulationTypeCombo);
 	DDX_Control(pDX, IDC_SET_FINE_TUNE_BUTTON, m_SetFineTuneButton);
@@ -54,7 +54,6 @@ void CDemodulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 	DDX_Control(pDX, IDC_MEASURE_BUTTON, m_MeasureTimeButton);
 	DDX_Control(pDX, IDC_SET_FREQUENCY_BUTTON, m_SetFrequencyButton);
 	DDX_Control(pDX, IDC_RECEIVER_FREQUENCY_EDIT, m_FrequencyCtrl);
-	DDX_Control(pDX, IDC_10MHZ_SUPPLIER_CHECK, m_10MHzSupplierCheck);
 	DDX_Control(pDX, IDC_SPECTRAL_INV_CHECK, m_SpectralInvCheck);
 	DDX_Control(pDX, IDC_SEARCH_RANGE_SPIN, m_SearchRangeSpin);
 	DDX_Control(pDX, IDC_RECEIVER_FREQUENCY_SPIN, m_ReceiverFrequencySpin);
@@ -62,7 +61,6 @@ void CDemodulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 	DDV_MinMaxUInt(pDX, m_Frequency, 0, 2000000);
 	DDX_Text(pDX, IDC_SEARCH_RANGE_EDIT, m_SearchRange);
 	DDX_Check(pDX, IDC_SPECTRAL_INV_CHECK, m_bSpectralInvEnabled);
-	DDX_Check(pDX, IDC_10MHZ_SUPPLIER_CHECK, m_b10MHzSupplierEnabled);
 	DDX_Text(pDX, IDC_SHIFT_EDIT, m_Shift);
 	DDX_Text(pDX, IDC_FINE_TUNE_EDIT, m_FineTune);
 	//}}AFX_DATA_MAP
@@ -75,10 +73,10 @@ BEGIN_MESSAGE_MAP(CDemodulatorCarrierForm, CAbstractForm)
 	ON_BN_CLICKED(IDC_SET_RANGE_BUTTON, OnSetRangeButton)
 	ON_BN_CLICKED(IDC_SPECTRAL_INV_CHECK, OnSpectralInvCheck)
 	ON_BN_CLICKED(IDC_MEASURE_BUTTON, OnMeasureButton)
-	ON_BN_CLICKED(IDC_10MHZ_SUPPLIER_CHECK, On10MHzSupplierCheck)
 	ON_BN_CLICKED(IDC_SET_FINE_TUNE_BUTTON, OnSetFineTuneButton)
 	ON_CBN_SELCHANGE(IDC_MODULATION_TYPE_COMBO, OnSelChangeModulationTypeCombo)
 	ON_CBN_SELCHANGE(IDC_POWER_SUPPLY_COMBO, OnSelChangePowerSupplyCombo)
+	ON_CBN_SELCHANGE(IDC_LNB_10MHZ_COMBO, OnSelChangeLnb10MHzCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -149,8 +147,8 @@ BOOL CDemodulatorCarrierForm::SetupControls()
 	UpdateLnbStatus();
 
 	// 10 MHz Reference (internal/external)
-	m_10MHzSupplierCheck.EnableWindow(m_pModem->CanR10MHzSupply());
-	m_b10MHzSupplierEnabled = Params.m_b10MHzSupplyEnabled;
+	m_Lnb10MHzCombo.initR(m_pModem, m_DeviceNumber);
+	m_Lnb10MHzCombo.EnableWindow(m_pModem->CanR10MHzSupply());
 
 	// Power supplier
 	m_PowerSupplyCombo.initR(m_pModem, m_DeviceNumber);
@@ -291,14 +289,6 @@ void CDemodulatorCarrierForm::OnMeasureButton()
 	m_bTimerEnabled = bTimerEnabled;
 }
 
-void CDemodulatorCarrierForm::On10MHzSupplierCheck() 
-{
-	CWaitCursor cursor;
-	UpdateData();
-	m_pModem->EnableR10MHzSupplier(m_b10MHzSupplierEnabled, m_DeviceNumber);
-	UpdateData(FALSE);
-}
-
 void CDemodulatorCarrierForm::OnSetFineTuneButton() 
 {
 	CWaitCursor cursor;
@@ -325,5 +315,13 @@ void CDemodulatorCarrierForm::OnSelChangePowerSupplyCombo()
 	int PowerSupplyMode = m_PowerSupplyCombo.getSelectedMode();
 	m_pModem->SetRPowerSupplyMode(PowerSupplyMode, m_DeviceNumber);
 	m_PowerSupplyCombo.SelectByDataValue(PowerSupplyMode);
+	UpdateLnbStatus();
+}
+
+void CDemodulatorCarrierForm::OnSelChangeLnb10MHzCombo() 
+{
+	int mode = m_Lnb10MHzCombo.getSelectedMode();
+	m_pModem->SetR10MHzMode(mode, m_DeviceNumber);
+	m_Lnb10MHzCombo.SelectByDataValue(mode);
 	UpdateLnbStatus();
 }

@@ -291,3 +291,48 @@ END_MESSAGE_MAP()
 // cScramblerCombo message handlers
 
 
+/////////////////////////////////////////////////////////////////////////////
+// c10MHzCombo
+
+c10MHzCombo::c10MHzCombo()
+{
+}
+
+c10MHzCombo::~c10MHzCombo()
+{
+}
+
+void c10MHzCombo::initR(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetR10MHzModesCount(); i++)
+	{
+		addMode(pModem->GetR10MHzModeName(i), i);
+	}
+
+	int mode;
+	pModem->GetR10MHzMode(mode, DeviceNumber);
+	SelectByDataValue(mode);
+}
+
+void c10MHzCombo::initT(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetT10MHzModesCount(); i++)
+	{
+		addMode(pModem->GetT10MHzModeName(i), i);
+	}
+	int mode;
+	pModem->GetT10MHzMode(mode, DeviceNumber);
+	SelectByDataValue(mode);
+}
+
+BEGIN_MESSAGE_MAP(c10MHzCombo, HardwareComboBox)
+	//{{AFX_MSG_MAP(c10MHzCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// c10MHzCombo message handlers
+
+
