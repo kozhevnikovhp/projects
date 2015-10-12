@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Datum_M7.h"
 
-
 static char CR = 0x0D;
 static char LF = 0x0A;
 static char szCRLF[] = {CR, LF};
@@ -675,14 +674,14 @@ const char *CDatum_M7::doGetR10MHzModeName(int mode)
 //virtual
 MC_ErrorCode CDatum_M7::doGetR10MHzMode(int &mode, int demodulator)
 {
-	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 195, mode);
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 179, mode);
 	return EC;
 }
 
 //virtual
 MC_ErrorCode CDatum_M7::doSetR10MHzMode(int &mode, int demodulator)
 {
-	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 195, mode);
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 179, mode);
 	return EC;
 }
 
@@ -701,14 +700,14 @@ const char *CDatum_M7::doGetT10MHzModeName(int mode)
 //virtual
 MC_ErrorCode CDatum_M7::doGetT10MHzMode(int &mode, int modulator)
 {
-	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 195, mode);
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 179, mode);
 	return EC;
 }
 
 //virtual
 MC_ErrorCode CDatum_M7::doSetT10MHzMode(int &mode, int modulator)
 {
-	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 195, mode);
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 179, mode);
 	return EC;
 }
 

@@ -291,7 +291,7 @@ void CModulatorCarrierForm::OnSelChangePowerSupplyCombo()
 void CModulatorCarrierForm::OnSelChangeBuc10MHzCombo() 
 {
 	int mode = m_Buc10MHzCombo.getSelectedMode();
-	m_pModem->SetR10MHzMode(mode, m_DeviceNumber);
+	m_pModem->SetT10MHzMode(mode, m_DeviceNumber);
 	m_Buc10MHzCombo.SelectByDataValue(mode);
 	UpdateBucStatus();
 }
