@@ -1300,93 +1300,76 @@ const char *CDatumPsm4900::GetReedSolomonModeName(int Mode)
 // Differential encoding/decoding
 
 //virtual
-int CDatumPsm4900::GetDiffDecoderModeCount()
+int CDatumPsm4900::GetDiffDecoderModesCount()
 {
 	return sizeof(DATUM_PSM4900_DIFF_CODING_MODES)/sizeof(DATUM_PSM4900_DIFF_CODING_MODES[0]);
 }
 
 //virtual
-const char *CDatumPsm4900::GetDiffDecoderModeName(int Mode)
+const char *CDatumPsm4900::doGetDiffDecoderModeName(int mode)
 {
-	return DATUM_PSM4900_DIFF_CODING_MODES[Mode];
+	return DATUM_PSM4900_DIFF_CODING_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::GetDiffDecoderMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doGetDiffDecoderMode(int &mode, int demodulator)
 {
-	Mode = -1;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
+	mode = 0;
 	if ((m_pDataBytes[5] & (1<<6)) != 0)
-		Mode = 1; // enable
+		mode = 1; // enable
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::SetDiffDecoderMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doSetDiffDecoderMode(int &mode, int demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateDiffDecoderMode(Mode, Demodulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<4;	// Differential decoding enabling flag set
-	if (Mode == 0)
+	if (mode == 0)
 		m_WriteData[5] = 1<<6;	// Enable
 	else
 		m_WriteData[5] = 0;		// Disable
 	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 30);
 	MC_ErrorCode EC = Command(CommandLength);
-
-	GetDiffDecoderMode(Mode, Demodulator);
 	return EC;
 }
 
 //virtual
-//virtual
-int CDatumPsm4900::GetDiffEncoderModeCount()
+int CDatumPsm4900::GetDiffEncoderModesCount()
 {
 	return sizeof(DATUM_PSM4900_DIFF_CODING_MODES)/sizeof(DATUM_PSM4900_DIFF_CODING_MODES[0]);
 }
 
 //virtual
-const char *CDatumPsm4900::GetDiffEncoderModeName(int Mode)
+const char *CDatumPsm4900::doGetDiffEncoderModeName(int Mode)
 {
 	return DATUM_PSM4900_DIFF_CODING_MODES[Mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::GetDiffEncoderMode(int &Mode, int Modulator)
+MC_ErrorCode CDatumPsm4900::doGetDiffEncoderMode(int &mode, int modulator)
 {
-	Mode = 0;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
+	mode = 0;
 	if ((m_pDataBytes[5] & (1<<6)) != 0)
-		Mode = 1; // enable
+		mode = 1; // enable
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::SetDiffEncoderMode(int &Mode, int Modulator)
+MC_ErrorCode CDatumPsm4900::doSetDiffEncoderMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateDiffEncoderMode(Mode, Modulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<4;	// Differential decoding enabling flag set
-	if (Mode == 0)
+	if (mode == 0)
 		m_WriteData[5] = 1<<6;	// Enable
 	else
 		m_WriteData[5] = 0;		// Disable
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 30);
 	MC_ErrorCode EC = Command(CommandLength);
-
-	GetDiffEncoderMode(Mode, Modulator);
 	return EC;
 }
 

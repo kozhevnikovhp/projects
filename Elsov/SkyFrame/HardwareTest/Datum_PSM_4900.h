@@ -174,15 +174,15 @@ public:
 	virtual MC_ErrorCode SetTReedSolomonMode(int &Mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Differential encoding/decoding
-	virtual int GetDiffDecoderModeCount();
-	virtual const char *GetDiffDecoderModeName(int Mode);
-	virtual MC_ErrorCode GetDiffDecoderMode(int &Mode, int Demodulator);
-	virtual MC_ErrorCode SetDiffDecoderMode(int &Mode, int Demodulator);
+	virtual int GetDiffDecoderModesCount();
+	virtual const char *doGetDiffDecoderModeName(int mode);
+	virtual MC_ErrorCode doGetDiffDecoderMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetDiffDecoderMode(int &mode, int demodulator);
 
-	virtual int GetDiffEncoderModeCount();
-	virtual const char *GetDiffEncoderModeName(int Mode);
-	virtual MC_ErrorCode GetDiffEncoderMode(int &Mode, int Modulator);
-	virtual MC_ErrorCode SetDiffEncoderMode(int &Mode, int Modulator);
+	virtual int GetDiffEncoderModesCount();
+	virtual const char *doGetDiffEncoderModeName(int mode);
+	virtual MC_ErrorCode doGetDiffEncoderMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetDiffEncoderMode(int &mode, int modulator);
 
 // Scrambling/Descrambling
 	virtual int GetScramblerModesCount();

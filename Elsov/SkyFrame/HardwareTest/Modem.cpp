@@ -613,27 +613,85 @@ BOOL CModem::NeedToUpdateTFecMode(int Mode, int Modulator)
 }
 
 
-// Differential encoding/decoding
+// Differential decoding
 
 //virtual
-BOOL CModem::NeedToUpdateDiffDecoderMode(int Mode, int Demodulator)
+const char *CModem::GetDiffDecoderModeName(int mode)
 {
-	int CurrentMode = 0;
-	GetDiffDecoderMode(CurrentMode, Demodulator);
-	return (CurrentMode != Mode);
+	if (mode < 0 || mode >= GetDiffDecoderModesCount())
+		return "";
+	return doGetDiffDecoderModeName(mode);
+}
+
+MC_ErrorCode CModem::GetDiffDecoderMode(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetDiffDecoderMode(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetDiffDecoderMode(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateDiffDecoderMode(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetDiffDecoderMode(mode, demodulator);
+	GetDiffDecoderMode(mode, demodulator);
+
+	return EC;
 }
 
 //virtual
-BOOL CModem::NeedToUpdateDiffEncoderMode(int Mode, int Modulator)
+BOOL CModem::NeedToUpdateDiffDecoderMode(int mode, int demodulator)
 {
-	int CurrentMode = 0;
-	GetDiffEncoderMode(CurrentMode, Modulator);
-	return (CurrentMode != Mode);
+	int current_mode = 0;
+	GetDiffDecoderMode(current_mode, demodulator);
+	return (current_mode != mode);
 }
 
+// Differential deencoding
 
-// Scrambling/descrambling
+//virtual
+const char *CModem::GetDiffEncoderModeName(int mode)
+{
+	if (mode < 0 || mode >= GetDiffEncoderModesCount())
+		return "";
+	return doGetDiffEncoderModeName(mode);
+}
 
+MC_ErrorCode CModem::GetDiffEncoderMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetDiffEncoderMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetDiffEncoderMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateDiffEncoderMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetDiffEncoderMode(mode, modulator);
+	GetDiffEncoderMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateDiffEncoderMode(int mode, int modulator)
+{
+	int current_mode = 0;
+	GetDiffEncoderMode(current_mode, modulator);
+	return (current_mode != mode);
+}
+
+// Scrambler/decrambler
 const char *CModem::GetDescramblerModeName(int mode)
 {
 	if (mode < 0 || mode >= GetDescramblerModesCount())
@@ -663,10 +721,10 @@ MC_ErrorCode CModem::SetDescramblerMode(int &mode, int demodulator)
 }
 
 //virtual
-BOOL CModem::NeedToUpdateDescramblerMode(int mode, int Demodulator)
+BOOL CModem::NeedToUpdateDescramblerMode(int mode, int demodulator)
 {
 	int current_mode = 0;
-	GetDescramblerMode(current_mode, Demodulator);
+	GetDescramblerMode(current_mode, demodulator);
 	return (current_mode != mode);
 }
 

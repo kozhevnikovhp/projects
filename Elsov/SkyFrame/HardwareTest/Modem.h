@@ -412,19 +412,25 @@ public:
 	virtual BOOL NeedToUpdateTReedSolomonMode(int Mode, int Modulator);
 
 // Differential encoding/decoding
+	const char *GetDiffDecoderModeName(int mode);
+	MC_ErrorCode GetDiffDecoderMode(int &mode, int demodulator);
+	MC_ErrorCode SetDiffDecoderMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateDiffDecoderMode(int mode, int demodulator);
 	virtual BOOL CanDiffDecoder() { return FALSE; }
-	virtual int GetDiffDecoderModeCount() { return 0;}
-	virtual const char *GetDiffDecoderModeName(int Mode) { return ""; }
-	virtual MC_ErrorCode GetDiffDecoderMode(int &Mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode SetDiffDecoderMode(int &Mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateDiffDecoderMode(int Mode, int Demodulator);
+	virtual int GetDiffDecoderModesCount() = 0;
+	virtual const char *doGetDiffDecoderModeName(int Mode) = 0;
+	virtual MC_ErrorCode doGetDiffDecoderMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetDiffDecoderMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
+	const char *GetDiffEncoderModeName(int mode);
+	MC_ErrorCode GetDiffEncoderMode(int &mode, int modulator);
+	MC_ErrorCode SetDiffEncoderMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateDiffEncoderMode(int mode, int modulator);
 	virtual BOOL CanDiffEncoder() { return FALSE; }
-	virtual int GetDiffEncoderModeCount() { return 0;}
-	virtual const char *GetDiffEncoderModeName(int Mode) { return ""; }
-	virtual MC_ErrorCode GetDiffEncoderMode(int &Mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode SetDiffEncoderMode(int &Mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateDiffEncoderMode(int Mode, int Modulator);
+	virtual int GetDiffEncoderModesCount() = 0;
+	virtual const char *doGetDiffEncoderModeName(int Mode) = 0;
+	virtual MC_ErrorCode doGetDiffEncoderMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetDiffEncoderMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Scrambling/Descrambling
 	const char *GetDescramblerModeName(int mode);

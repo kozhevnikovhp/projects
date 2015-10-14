@@ -121,7 +121,7 @@ cDifferentialModeCombo::~cDifferentialModeCombo()
 void cDifferentialModeCombo::initR(CModem *pModem, int DeviceNumber)
 {
 	ResetContent();
-	for (int i = 0; i < pModem->GetDiffDecoderModeCount(); i++)
+	for (int i = 0; i < pModem->GetDiffDecoderModesCount(); i++)
 	{
 		int index = AddString(pModem->GetDiffDecoderModeName(i));
 		SetItemData(index, i);
@@ -134,7 +134,7 @@ void cDifferentialModeCombo::initR(CModem *pModem, int DeviceNumber)
 void cDifferentialModeCombo::initT(CModem *pModem, int DeviceNumber)
 {
 	ResetContent();
-	for (int i = 0; i < pModem->GetDiffEncoderModeCount(); i++)
+	for (int i = 0; i < pModem->GetDiffEncoderModesCount(); i++)
 	{
 		int index = AddString(pModem->GetDiffEncoderModeName(i));
 		SetItemData(index, i);
