@@ -43,6 +43,8 @@ BEGIN_MESSAGE_MAP(CModulatorDataForm, CDataForm)
 	ON_BN_CLICKED(IDC_DATA_INVERSION_CHECK, OnDataInversionCheck)
 	ON_BN_CLICKED(IDC_DATA_CLOCK_INV_CHECK, OnDataClockInvCheck)
 	ON_CBN_SELCHANGE(IDC_FEC_MODE_COMBO, OnSelChangeFecModeCombo)
+	ON_CBN_SELCHANGE(IDC_FEC_OPTION_COMBO, OnSelChangeFecOptionCombo)
+	ON_CBN_SELCHANGE(IDC_FEC_CODERATE_COMBO, OnSelChangeFecCodeRateCombo)
 	ON_CBN_SELCHANGE(IDC_DATA_CLOCK_SOURCE_COMBO, OnSelChangeDataClockSourceCombo)
 	ON_CBN_SELCHANGE(IDC_SCRAMBLER_MODE_COMBO, OnSelChangeScramblerModeCombo)
 	ON_CBN_SELCHANGE(IDC_DIFFERENTIAL_MODE_COMBO, OnSelChangeDifferentialModeCombo)
@@ -73,6 +75,8 @@ BOOL CModulatorDataForm::SetupControls()
 
 	// Fec
 	m_FecModeCombo.initT(m_pModem, m_DeviceNumber);
+	m_FecOptionCombo.initT(m_pModem, m_DeviceNumber);
+	m_FecCodeRateCombo.initT(m_pModem, m_DeviceNumber);
 
 	// Clock source
 	m_ClockSourceCombo.initT(m_pModem, m_DeviceNumber);
@@ -122,9 +126,23 @@ void CModulatorDataForm::OnDataClockInvCheck()
 
 void CModulatorDataForm::OnSelChangeFecModeCombo() 
 {
-	int FecMode = m_FecModeCombo.getSelectedMode();
-	m_pModem->SetTFecMode(FecMode, m_DeviceNumber);
-	m_FecModeCombo.SelectByDataValue(FecMode);
+	int mode = m_FecModeCombo.getSelectedMode();
+	m_pModem->SetTFecMode(mode, m_DeviceNumber);
+	m_FecModeCombo.SelectByDataValue(mode);
+}
+
+void CModulatorDataForm::OnSelChangeFecOptionCombo() 
+{
+	int option = m_FecOptionCombo.getSelectedMode();
+	m_pModem->SetTFecOption(option, m_DeviceNumber);
+	m_FecOptionCombo.SelectByDataValue(option);
+}
+
+void CModulatorDataForm::OnSelChangeFecCodeRateCombo() 
+{
+	int mode = m_FecCodeRateCombo.getSelectedMode();
+	m_pModem->SetTFecCodeRate(mode, m_DeviceNumber);
+	m_FecCodeRateCombo.SelectByDataValue(mode);
 }
 
 void CModulatorDataForm::OnSelChangeDataClockSourceCombo() 

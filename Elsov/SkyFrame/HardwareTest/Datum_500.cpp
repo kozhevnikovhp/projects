@@ -19,68 +19,32 @@ static const char *DATUM_PSM500_MODULATION_TYPES[] = {
 };
 
 static const char *DATUM_PSM500_FEC_MODES[] = {
-	"None",					// 0
+	"None",		// 0
+	"Viterbi",	// 1
+	"",			// 2
+	"",			// 3
+	"",			// 4
+	"LDPC"		// 5
+};
 
-	"Viterbi 1/2",			// 1
-	"Viterbi 3/4",			// 2
-	"Viterbi 5/6",			// 3
-	"Viterbi 7/8",			// 4
+static const char *DATUM_PSM500_FEC_OPTIONS[] = {
+	"256 block",					// 0
+	"512 block",
+	"1K block",
+	"2K block",
+	"4K block",
+	"8K block",
+	"16K block"
+};
 
-	"LDPC 256 block 1/2",		// 5
-	"LDPC 256 block 2/3",		// 6
-	"LDPC 256 block 3/4",		// 7
-	"LDPC 256 block 14/17",		// 8
-	"LDPC 256 block 7/8",		// 9
-	"LDPC 256 block 10/11",		// 10
-	"LDPC 256 block 16/17",		// 11
-
-	"LDPC 512 block 1/2",		// 12
-	"LDPC 512 block 2/3",		// 13
-	"LDPC 512 block 3/4",		// 14
-	"LDPC 512 block 14/17",		// 15
-	"LDPC 512 block 7/8",		// 16
-	"LDPC 512 block 10/11",		// 17
-	"LDPC 512 block 16/17",		// 18
-
-	"LDPC 1K block 1/2",		// 19
-	"LDPC 1K block 2/3",		// 20
-	"LDPC 1K block 3/4",		// 21
-	"LDPC 1K block 14/17",		// 22
-	"LDPC 1K block 7/8",		// 23
-	"LDPC 1K block 10/11",		// 24
-	"LDPC 1K block 16/17",		// 25
-
-	"LDPC 2K block 1/2",		// 26
-	"LDPC 2K block 2/3",		// 27
-	"LDPC 2K block 3/4",		// 28
-	"LDPC 2K block 14/17",		// 29
-	"LDPC 2K block 7/8",		// 30
-	"LDPC 2K block 10/11",		// 31
-	"LDPC 2K block 16/17",		// 32
-
-	"LDPC 4K block 1/2",		// 33
-	"LDPC 4K block 2/3",		// 34
-	"LDPC 4K block 3/4",		// 35
-	"LDPC 4K block 14/17",		// 36
-	"LDPC 4K block 7/8",		// 37
-	"LDPC 4K block 10/11",		// 38
-	"LDPC 4K block 16/17",		// 39
-
-	"LDPC 8K block 1/2",		// 40
-	"LDPC 8K block 2/3",		// 41
-	"LDPC 8K block 3/4",		// 42
-	"LDPC 8K block 14/17",		// 43
-	"LDPC 8K block 7/8",		// 44
-	"LDPC 8K block 10/11",		// 45
-	"LDPC 8K block 16/17",		// 46
-
-	"LDPC 16K block 1/2",		// 47
-	"LDPC 16K block 2/3",		// 48
-	"LDPC 16K block 3/4",		// 49
-	"LDPC 16K block 14/17",		// 50
-	"LDPC 16K block 7/8",		// 51
-	"LDPC 16K block 10/11",		// 52
-	"LDPC 16K block 16/17"		// 53
+static const char *DATUM_PSM500_FEC_CODE_RATES[] = {
+	"1/2",
+	"2/3",
+	"3/4",
+	"14/17",
+	"7/8",
+	"10/11",
+	"16/17"
 };
 
 static const char *DATUM_PSM500_SCRAMBLER_MODES[] = {
@@ -1261,100 +1225,231 @@ MC_ErrorCode CDatumPsm500::GetSER(double &SER, int Demodulator)
 	return EC;
 }
 
-// FEC
+// FEC mode
+
 //virtual
-int CDatumPsm500::GetRFecModesCount()
+int CDatumPsm500::GetRFecModeCount()
 {
 	return (sizeof(DATUM_PSM500_FEC_MODES)/sizeof(DATUM_PSM500_FEC_MODES[0]));
 }
 
 //virtual
-const char *CDatumPsm500::GetRFecModeName(int Mode)
+const char *CDatumPsm500::doGetRFecModeName(int mode)
 {
-	return DATUM_PSM500_FEC_MODES[Mode];
+	return DATUM_PSM500_FEC_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::GetRFecMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatumPsm500::doGetRFecMode(int &mode, int demodulator)
 {
-	Mode = 0; // None
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
-	if (EC != MC_OK)
-		return EC;
 
-	Mode = ParseReplyForFecMode();
+	mode = m_pDataBytes[12];
 
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::SetRFecMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatumPsm500::doSetRFecMode(int &mode, int demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateRFecMode(Mode, Demodulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
-	
-	FillWriteDataWithFecMode(Mode);
+	m_WriteData[0] |= 1<<2;	// FEC type flag set
+	m_WriteData[12] = (unsigned char)mode;	
 
 	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 42);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	GetRFecMode(Mode, Demodulator);
 	return EC;
 }
 
 //virtual
-int CDatumPsm500::GetTFecModesCount()
+int CDatumPsm500::GetTFecModeCount()
 {
 	return (sizeof(DATUM_PSM500_FEC_MODES)/sizeof(DATUM_PSM500_FEC_MODES[0]));
 }
 
 //virtual
-const char *CDatumPsm500::GetTFecModeName(int Mode)
+const char *CDatumPsm500::doGetTFecModeName(int mode)
 {
-	return DATUM_PSM500_FEC_MODES[Mode];
+	return DATUM_PSM500_FEC_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::GetTFecMode(int &Mode, int Modulator)
+MC_ErrorCode CDatumPsm500::doGetTFecMode(int &mode, int modulator)
 {
-	Mode = 0; // None
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
 	if (EC != MC_OK)
 		return EC;
 
-	Mode = ParseReplyForFecMode();
+	mode = m_pDataBytes[12];
 
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::SetTFecMode(int &Mode, int Modulator)
+MC_ErrorCode CDatumPsm500::doSetTFecMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateTFecMode(Mode, Modulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
-	
-	FillWriteDataWithFecMode(Mode);
+	m_WriteData[0] |= 1<<2;	// FEC type flag set
+	m_WriteData[12] = (unsigned char)mode;	
 
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 32);
 	MC_ErrorCode EC = Command(CommandLength);
-
-	GetTFecMode(Mode, Modulator);
 	return EC;
 }
+
+// FEC option
+
+//virtual
+int CDatumPsm500::GetRFecOptionCount()
+{
+	return (sizeof(DATUM_PSM500_FEC_OPTIONS)/sizeof(DATUM_PSM500_FEC_OPTIONS[0]));
+}
+
+//virtual
+const char *CDatumPsm500::doGetRFecOptionName(int option)
+{
+	return DATUM_PSM500_FEC_OPTIONS[option];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetRFecOption(int &option, int demodulator)
+{
+	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	option = m_pDataBytes[14];
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetRFecOption(int &option, int demodulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[0] |= 1<<3;	// FEC option flag set
+	m_WriteData[14] = (unsigned char)option;	
+
+	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 42);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+//virtual
+int CDatumPsm500::GetTFecOptionCount()
+{
+	return (sizeof(DATUM_PSM500_FEC_OPTIONS)/sizeof(DATUM_PSM500_FEC_OPTIONS[0]));
+}
+
+//virtual
+const char *CDatumPsm500::doGetTFecOptionName(int option)
+{
+	return DATUM_PSM500_FEC_OPTIONS[option];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTFecOption(int &option, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+
+	option = m_pDataBytes[14];
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTFecOption(int &option, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[0] |= 1<<3;	// FEC option flag set
+	m_WriteData[14] = (unsigned char)option;	
+
+	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 32);
+	MC_ErrorCode EC = Command(CommandLength);
+	return EC;
+}
+
+// FEC code rate
+
+//virtual
+int CDatumPsm500::GetRFecCodeRateCount()
+{
+	return (sizeof(DATUM_PSM500_FEC_CODE_RATES)/sizeof(DATUM_PSM500_FEC_CODE_RATES[0]));
+}
+
+//virtual
+const char *CDatumPsm500::doGetRFecCodeRateName(int mode)
+{
+	return DATUM_PSM500_FEC_CODE_RATES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetRFecCodeRate(int &mode, int demodulator)
+{
+	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	mode = m_pDataBytes[16];
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetRFecCodeRate(int &mode, int demodulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[0] |= 1<<4;	// FEC type flag set
+	m_WriteData[16] = (unsigned char)mode;	
+
+	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 42);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+//virtual
+int CDatumPsm500::GetTFecCodeRateCount()
+{
+	return (sizeof(DATUM_PSM500_FEC_CODE_RATES)/sizeof(DATUM_PSM500_FEC_CODE_RATES[0]));
+}
+
+//virtual
+const char *CDatumPsm500::doGetTFecCodeRateName(int mode)
+{
+	return DATUM_PSM500_FEC_CODE_RATES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTFecCodeRate(int &mode, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+
+	mode = m_pDataBytes[16];
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTFecCodeRate(int &mode, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[0] |= 1<<4;	// FEC type flag set
+	m_WriteData[12] = (unsigned char)mode;	
+
+	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 32);
+	MC_ErrorCode EC = Command(CommandLength);
+	return EC;
+}
+
 
 int CDatumPsm500::ParseReplyForFecMode() const
 {

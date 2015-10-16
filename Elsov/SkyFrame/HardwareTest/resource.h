@@ -494,8 +494,10 @@
 #define IDC_POWER_SUPPLY_COMBO2         1611
 #define IDC_DIFFERENTIAL_MODE_COMBO     1611
 #define IDC_TEST_OK_BUTTON              1612
+#define IDC_FEC_OPTION_COMBO            1612
 #define IDC_TEST_FAILED_BUTTON          1613
 #define IDC_FREQ_BUTTON                 1613
+#define IDC_FEC_CODERATE_COMBO          1613
 #define IDC_CLEAR_REPORT_BUTTON         1614
 #define IDC_LEVEL_BUTTON                1614
 #define IDC_DATA_RATES_LIST             1614

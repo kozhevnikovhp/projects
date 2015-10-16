@@ -105,18 +105,46 @@ public:
 	virtual MC_ErrorCode IsTSpectralInvEnabled(BOOL &bEnabled, int Modulator);
 	virtual MC_ErrorCode EnableTSpectralInv(BOOL &bEnabled, int Modulator);
 
-// FEC
-	virtual int GetRFecModesCount();
-	virtual const char *GetRFecModeName(int Mode);
-	virtual MC_ErrorCode GetRFecMode(int &Mode, int Demodulator);
-	virtual MC_ErrorCode SetRFecMode(int &Mode, int Demodulator);
+// FEC mode
+	virtual BOOL CanRFecMode() { return TRUE; }
+	virtual int GetRFecModeCount();
+	virtual const char *doGetRFecModeName(int mode);
+	virtual MC_ErrorCode doGetRFecMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetRFecMode(int &mode, int demodulator);
 
-	virtual int GetTFecModesCount();
-	virtual const char *GetTFecModeName(int Mode);
-	virtual MC_ErrorCode GetTFecMode(int &Mode, int Modulator);
-	virtual MC_ErrorCode SetTFecMode(int &Mode, int Modulator);
+	virtual BOOL CanTFecMode() { return TRUE; }
+	virtual int GetTFecModeCount();
+	virtual const char *doGetTFecModeName(int mode);
+	virtual MC_ErrorCode doGetTFecMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTFecMode(int &mode, int modulator);
 
-// Reed-Solomon
+// FEC option
+	virtual BOOL CanRFecOption() { return TRUE; }
+	virtual int GetRFecOptionCount();
+	virtual const char *doGetRFecOptionName(int option);
+	virtual MC_ErrorCode doGetRFecOption(int &option, int demodulator);
+	virtual MC_ErrorCode doSetRFecOption(int &option, int demodulator);
+
+	virtual BOOL CanTFecOption() { return TRUE; }
+	virtual int GetTFecOptionCount();
+	virtual const char *doGetTFecOptionName(int option);
+	virtual MC_ErrorCode doGetTFecOption(int &option, int modulator);
+	virtual MC_ErrorCode doSetTFecOption(int &option, int modulator);
+
+// FEC code rate
+	virtual BOOL CanRFecCodeRate() { return TRUE; }
+	virtual int GetRFecCodeRateCount();
+	virtual const char *doGetRFecCodeRateName(int mode);
+	virtual MC_ErrorCode doGetRFecCodeRate(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetRFecCodeRate(int &mode, int demodulator);
+
+	virtual BOOL CanTFecCodeRate() { return TRUE; }
+	virtual int GetTFecCodeRateCount();
+	virtual const char *doGetTFecCodeRateName(int mode);
+	virtual MC_ErrorCode doGetTFecCodeRate(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTFecCodeRate(int &mode, int modulator);
+
+	// Reed-Solomon
 	virtual const char *GetReedSolomonModeName(int Mode);
 	virtual int GetReedSolomonModesCount();
 
@@ -212,7 +240,7 @@ public:
 
 protected:
 	int ParseReplyForFecMode() const;
-	void FillWriteDataWithFecMode(int Mode);
+	void FillWriteDataWithFecMode(int mode);
 
 // Protected methods
 protected:

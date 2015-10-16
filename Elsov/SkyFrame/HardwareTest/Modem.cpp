@@ -576,14 +576,256 @@ BOOL CModem::NeedToUpdateTDataRate(unsigned int DataRate, int Modulator)
 	return CurrentValue != DataRate;
 }
 
-// FEC
+// FEC mode
+
+const char *CModem::GetRFecModeName(int mode)
+{
+	if (mode < 0 || mode >= GetRFecModeCount())
+		return "";
+	return doGetRFecModeName(mode);
+}
+
+MC_ErrorCode CModem::GetRFecMode(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanRFecMode())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetRFecMode(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetRFecMode(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanRFecMode())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateRFecMode(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetRFecMode(mode, demodulator);
+	GetRFecMode(mode, demodulator);
+
+	return EC;
+}
 
 //virtual
-BOOL CModem::NeedToUpdateRFecMode(int Mode, int Demodulator)
+BOOL CModem::NeedToUpdateRFecMode(int mode, int demodulator)
 {
-	int CurrentMode = 0;
-	GetRFecMode(CurrentMode, Demodulator);
-	return (CurrentMode != Mode);
+	int currentMode = 0;
+	GetRFecMode(currentMode, demodulator);
+	return (currentMode != mode);
+}
+
+const char *CModem::GetTFecModeName(int mode)
+{
+	if (mode < 0 || mode >= GetTFecModeCount())
+		return "";
+	return doGetTFecModeName(mode);
+}
+
+MC_ErrorCode CModem::GetTFecMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanTFecMode())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetTFecMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetTFecMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanTFecMode())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateTFecMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTFecMode(mode, modulator);
+	GetTFecMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTFecMode(int mode, int modulator)
+{
+	int currentMode = 0;
+	GetTFecMode(currentMode, modulator);
+	return (currentMode != mode);
+}
+
+// FEC option
+
+const char *CModem::GetRFecOptionName(int option)
+{
+	if (option < 0 || option >= GetRFecOptionCount())
+		return "";
+	return doGetRFecOptionName(option);
+}
+
+MC_ErrorCode CModem::GetRFecOption(int &option, int demodulator)
+{
+	option = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanRFecOption())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetRFecOption(option, demodulator);
+}
+
+MC_ErrorCode CModem::SetRFecOption(int &option, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanRFecOption())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateRFecOption(option, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetRFecOption(option, demodulator);
+	GetRFecOption(option, demodulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateRFecOption(int option, int demodulator)
+{
+	int currentOption = 0;
+	GetRFecOption(currentOption, demodulator);
+	return (currentOption != option);
+}
+
+const char *CModem::GetTFecOptionName(int option)
+{
+	if (option < 0 || option >= GetTFecOptionCount())
+		return "";
+	return doGetTFecOptionName(option);
+}
+
+MC_ErrorCode CModem::GetTFecOption(int &option, int modulator)
+{
+	option = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanTFecOption())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetTFecOption(option, modulator);
+}
+
+MC_ErrorCode CModem::SetTFecOption(int &option, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanTFecOption())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateTFecOption(option, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTFecOption(option, modulator);
+	GetTFecOption(option, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTFecOption(int option, int modulator)
+{
+	int currentOption = 0;
+	GetTFecOption(currentOption, modulator);
+	return (currentOption != option);
+}
+
+// FEC code rate
+
+const char *CModem::GetRFecCodeRateName(int mode)
+{
+	if (mode < 0 || mode >= GetRFecCodeRateCount())
+		return "";
+	return doGetRFecCodeRateName(mode);
+}
+
+MC_ErrorCode CModem::GetRFecCodeRate(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanRFecCodeRate())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetRFecCodeRate(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetRFecCodeRate(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanRFecCodeRate())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateRFecCodeRate(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetRFecCodeRate(mode, demodulator);
+	GetRFecCodeRate(mode, demodulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateRFecCodeRate(int mode, int demodulator)
+{
+	int currentMode = 0;
+	GetRFecCodeRate(currentMode, demodulator);
+	return (currentMode != mode);
+}
+
+const char *CModem::GetTFecCodeRateName(int mode)
+{
+	if (mode < 0 || mode >= GetTFecCodeRateCount())
+		return "";
+	return doGetTFecCodeRateName(mode);
+}
+
+MC_ErrorCode CModem::GetTFecCodeRate(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanTFecCodeRate())
+		return MC_COMMAND_NOT_SUPPORTED;
+
+	return doGetTFecCodeRate(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetTFecCodeRate(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!CanTFecCodeRate())
+		return MC_COMMAND_NOT_SUPPORTED;
+	if (!NeedToUpdateTFecCodeRate(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTFecCodeRate(mode, modulator);
+	GetTFecCodeRate(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTFecCodeRate(int mode, int modulator)
+{
+	int currentMode = 0;
+	GetTFecCodeRate(currentMode, modulator);
+	return (currentMode != mode);
 }
 
 // Reed-Solomon
@@ -601,14 +843,6 @@ BOOL CModem::NeedToUpdateTReedSolomonMode(int Mode, int Modulator)
 {
 	int CurrentMode = 0;
 	GetTReedSolomonMode(CurrentMode, Modulator);
-	return (CurrentMode != Mode);
-}
-
-//virtual
-BOOL CModem::NeedToUpdateTFecMode(int Mode, int Modulator)
-{
-	int CurrentMode = 0;
-	GetTFecMode(CurrentMode, Modulator);
 	return (CurrentMode != Mode);
 }
 

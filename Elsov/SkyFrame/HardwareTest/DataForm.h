@@ -22,6 +22,8 @@ protected:
 public:
 	//{{AFX_DATA(CDataForm)
 	enum { IDD = IDD_DATA_FORM };
+	cFecCodeRateCombo	m_FecCodeRateCombo;
+	cFecOptionCombo	m_FecOptionCombo;
 	cDifferentialModeCombo	m_DifferentialCombo;
 	cFecModeCombo	m_FecModeCombo;
 	cClockSourceComboBox	m_ClockSourceCombo;

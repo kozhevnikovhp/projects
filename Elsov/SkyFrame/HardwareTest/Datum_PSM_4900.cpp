@@ -17,10 +17,10 @@ static const char *DATUM_PSM4900_MODULATION_TYPES[] = {
 	"16QAM"
 };
 
-static const char *DATUM_PSM4900_FEC_MODES[] = {
-	"Viterbi 1/2",
-	"Viterbi 3/4",
-	"Viterbi 7/8"
+static const char *DATUM_PSM4900_FEC_CODE_RATES[] = {
+	"1/2",
+	"3/4",
+	"7/8"
 };
 
 static const char *DATUM_PSM4900_SCRAMBLER_MODES[] = {
@@ -1165,53 +1165,35 @@ MC_ErrorCode CDatumPsm4900::GetSER(double &SER, int Demodulator)
 	return EC;
 }
 
-// FEC
+// FEC code rates
+
 //virtual
-int CDatumPsm4900::GetRFecModesCount()
+int CDatumPsm4900::GetRFecCodeRateCount()
 {
-	return (sizeof(DATUM_PSM4900_FEC_MODES)/sizeof(DATUM_PSM4900_FEC_MODES[0]));
+	return (sizeof(DATUM_PSM4900_FEC_CODE_RATES)/sizeof(DATUM_PSM4900_FEC_CODE_RATES[0]));
 }
 
 //virtual
-const char *CDatumPsm4900::GetRFecModeName(int Mode)
+const char *CDatumPsm4900::doGetRFecCodeRateName(int mode)
 {
-	return DATUM_PSM4900_FEC_MODES[Mode];
+	return DATUM_PSM4900_FEC_CODE_RATES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::GetRFecMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doGetRFecCodeRate(int &mode, int demodulator)
 {
-	Mode = 0; // None
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x82, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
-	unsigned char CodeRateField = m_pDataBytes[5] >> 2;
-	CodeRateField = CodeRateField & 0x0F; // 4 bits
-	if (EC == MC_OK)
-	{
-		switch (CodeRateField)
-		{
-		case 0: Mode = 0; break; // Viterbi 1/2
-		case 1: Mode = 1; break; // Viterbi 3/4
-		case 2: Mode = 2; break; // Viterbi 7/8
-		default: Mode = 0; break; // 
-		}
-	}
+	mode = (m_pDataBytes[5] >> 2) & 0x0F; // 4 bits
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::SetRFecMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatumPsm4900::doSetRFecCodeRate(int &mode, int demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateRFecMode(Mode, Demodulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<3;	// FEC flag set
-	switch (Mode)
+	switch (mode)
 	{
 	case 0: m_WriteData[5] = 0; break; // Viterbi 1/2
 	case 1: m_WriteData[5] = 1<<2; break; // Viterbi 3/4
@@ -1219,57 +1201,36 @@ MC_ErrorCode CDatumPsm4900::SetRFecMode(int &Mode, int Demodulator)
 	}
 	int CommandLength = FillCommandBuffer(0x82, modeExecute, m_WriteData, 30);
 	MC_ErrorCode EC = Command(CommandLength);
-
-	GetRFecMode(Mode, Demodulator);
 	return EC;
 }
 
 //virtual
-int CDatumPsm4900::GetTFecModesCount()
+int CDatumPsm4900::GetTFecCodeRateCount()
 {
-	return (sizeof(DATUM_PSM4900_FEC_MODES)/sizeof(DATUM_PSM4900_FEC_MODES[0]));
+	return (sizeof(DATUM_PSM4900_FEC_CODE_RATES)/sizeof(DATUM_PSM4900_FEC_CODE_RATES[0]));
 }
 
 //virtual
-const char *CDatumPsm4900::GetTFecModeName(int Mode)
+const char *CDatumPsm4900::doGetTFecCodeRateName(int mode)
 {
-	return DATUM_PSM4900_FEC_MODES[Mode];
+	return DATUM_PSM4900_FEC_CODE_RATES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::GetTFecMode(int &Mode, int Modulator)
+MC_ErrorCode CDatumPsm4900::doGetTFecCodeRate(int &mode, int modulator)
 {
-	Mode = 0; // None
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
 	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
-	unsigned char CodeRateField = m_pDataBytes[5] >> 2;
-	CodeRateField = CodeRateField & 0x0F; // 4 bits
-	if (EC == MC_OK)
-	{
-		switch (CodeRateField)
-		{
-		case 0: Mode = 0; break; // Viterbi 1/2
-		case 1: Mode = 1; break; // Viterbi 3/4
-		case 2: Mode = 2; break; // Viterbi 7/8
-		default: Mode = 0; break; // None
-		}
-	}
+	mode = (m_pDataBytes[5] >> 2) & 0x0F; // 4 bits
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm4900::SetTFecMode(int &Mode, int Modulator)
+MC_ErrorCode CDatumPsm4900::doSetTFecCodeRate(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateTFecMode(Mode, Modulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<3;	// FEC mode flag set
-	switch (Mode)
+	switch (mode)
 	{
 	case 0: m_WriteData[5] = 0; break; // Viterbi 1/2
 	case 1: m_WriteData[5] = 1<<2; break; // Viterbi 3/4
@@ -1277,8 +1238,6 @@ MC_ErrorCode CDatumPsm4900::SetTFecMode(int &Mode, int Modulator)
 	}
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 20);
 	MC_ErrorCode EC = Command(CommandLength);
-
-	GetTFecMode(Mode, Modulator);
 	return EC;
 }
 

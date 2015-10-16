@@ -66,6 +66,8 @@ protected:
 	afx_msg void OnDataInversionCheck();
 	afx_msg void OnDataClockInvCheck();
 	afx_msg void OnSelChangeFecModeCombo();
+	afx_msg void OnSelChangeFecOptionCombo();
+	afx_msg void OnSelChangeFecCodeRateCombo();
 	afx_msg void OnSelChangeScramblerModeCombo();
 	afx_msg void OnSelChangeDataClockSourceCombo();
 	afx_msg void OnSelChangeDifferentialModeCombo();

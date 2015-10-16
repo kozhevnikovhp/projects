@@ -78,6 +78,72 @@ protected:
 };
 
 /////////////////////////////////////////////////////////////////////////////
+// cFecOptionCombo window
+
+class cFecOptionCombo : public HardwareComboBox
+{
+// Construction
+public:
+	cFecOptionCombo();
+
+// Attributes
+public:
+
+// Operations
+public:
+	void initR(CModem *pModem, int DeviceNumber);
+	void initT(CModem *pModem, int DeviceNumber);
+
+// Overrides
+	//{{AFX_VIRTUAL(cFecOptionCombo)
+	//}}AFX_VIRTUAL
+
+// Implementation
+public:
+	virtual ~cFecOptionCombo();
+
+	// Generated message map functions
+protected:
+	//{{AFX_MSG(cFecOptionCombo)
+	//}}AFX_MSG
+
+	DECLARE_MESSAGE_MAP()
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// cFecOptionCombo window
+
+class cFecCodeRateCombo : public HardwareComboBox
+{
+// Construction
+public:
+	cFecCodeRateCombo();
+
+// Attributes
+public:
+
+// Operations
+public:
+	void initR(CModem *pModem, int DeviceNumber);
+	void initT(CModem *pModem, int DeviceNumber);
+
+// Overrides
+	//{{AFX_VIRTUAL(cFecCodeRateCombo)
+	//}}AFX_VIRTUAL
+
+// Implementation
+public:
+	virtual ~cFecCodeRateCombo();
+
+	// Generated message map functions
+protected:
+	//{{AFX_MSG(cFecCodeRateCombo)
+	//}}AFX_MSG
+
+	DECLARE_MESSAGE_MAP()
+};
+
+/////////////////////////////////////////////////////////////////////////////
 // cDifferentialModeCombo window
 
 class cDifferentialModeCombo : public HardwareComboBox

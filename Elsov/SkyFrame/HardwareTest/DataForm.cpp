@@ -42,6 +42,8 @@ void CDataForm::DoDataExchange(CDataExchange *pDX)
 {
 	CAbstractForm::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDataForm)
+	DDX_Control(pDX, IDC_FEC_CODERATE_COMBO, m_FecCodeRateCombo);
+	DDX_Control(pDX, IDC_FEC_OPTION_COMBO, m_FecOptionCombo);
 	DDX_Control(pDX, IDC_DIFFERENTIAL_MODE_COMBO, m_DifferentialCombo);
 	DDX_Control(pDX, IDC_FEC_MODE_COMBO, m_FecModeCombo);
 	DDX_Control(pDX, IDC_DATA_CLOCK_SOURCE_COMBO, m_ClockSourceCombo);

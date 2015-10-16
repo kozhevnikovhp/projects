@@ -20,14 +20,34 @@ static const char *DATUM_M7_MODULATION_TYPES[] = {
 };
 
 static const char *DATUM_M7_FEC_MODES[] = {
-	"Viterbi 1/2",
-	"Viterbi 2/3",
-	"Viterbi 3/4",
-	"Viterbi 7/8",
-	"Viterbi 14/17",
-	"Viterbi 10/11",
-	"Viterbi 16/17"
+	"None",		// 0
+	"Viterbi",	// 1
+	"",			// 2
+	"",			// 3
+	"",			// 4
+	"LDPC"		// 5
 };
+
+static const char *DATUM_M7_FEC_OPTIONS[] = {
+	"256 block",					// 0
+	"512 block",
+	"1K block",
+	"2K block",
+	"4K block",
+	"8K block",
+	"16K block"
+};
+
+static const char *DATUM_M7_FEC_CODE_RATES[] = {
+	"1/2",					// 0
+	"2/3",
+	"3/4",
+	"14/17",
+	"7/8",
+	"10/11",
+	"16/17"
+};
+
 
 static const char *DATUM_M7_SCRAMBLER_MODES[] = {
 	"Disabled",		// 0
@@ -822,69 +842,168 @@ MC_ErrorCode CDatum_M7::SetOutputLevel(double &Level, int Modulator)
 	return EC;
 }
 
-// FEC
+// FEC mode
+
 //virtual
-int CDatum_M7::GetRFecModesCount()
+int CDatum_M7::GetRFecModeCount()
 {
 	return (sizeof(DATUM_M7_FEC_MODES)/sizeof(DATUM_M7_FEC_MODES[0]));
 }
 
 //virtual
-const char *CDatum_M7::GetRFecModeName(int Mode)
+const char *CDatum_M7::doGetRFecModeName(int mode)
 {
-	return DATUM_M7_FEC_MODES[Mode];
+	return DATUM_M7_FEC_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::GetRFecMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatum_M7::doGetRFecMode(int &mode, int demodulator)
 {
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 36, mode);
+	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::SetRFecMode(int &Mode, int Demodulator)
+MC_ErrorCode CDatum_M7::doSetRFecMode(int &mode, int demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateRFecMode(Mode, Demodulator))
-		return MC_OK; // already set
-
-	GetRFecMode(Mode, Demodulator);
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 36, mode);
+	return EC;
 }
 
 //virtual
-int CDatum_M7::GetTFecModesCount()
+int CDatum_M7::GetTFecModeCount()
 {
 	return (sizeof(DATUM_M7_FEC_MODES)/sizeof(DATUM_M7_FEC_MODES[0]));
 }
 
 //virtual
-const char *CDatum_M7::GetTFecModeName(int Mode)
+const char *CDatum_M7::doGetTFecModeName(int mode)
 {
-	return DATUM_M7_FEC_MODES[Mode];
+	return DATUM_M7_FEC_MODES[mode];
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::GetTFecMode(int &Mode, int Modulator)
+MC_ErrorCode CDatum_M7::doGetTFecMode(int &mode, int modulator)
 {
-	Mode = 0; // None
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 36, mode);
+	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::SetTFecMode(int &Mode, int Modulator)
+MC_ErrorCode CDatum_M7::doSetTFecMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateTFecMode(Mode, Modulator))
-		return MC_OK; // already set
-
-	GetTFecMode(Mode, Modulator);
-	return MC_COMMAND_NOT_SUPPORTED;
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 36, mode);
+	return EC;
 }
+
+// FEC option
+
+//virtual
+int CDatum_M7::GetRFecOptionCount()
+{
+	return (sizeof(DATUM_M7_FEC_OPTIONS)/sizeof(DATUM_M7_FEC_OPTIONS[0]));
+}
+
+//virtual
+const char *CDatum_M7::doGetRFecOptionName(int option)
+{
+	return DATUM_M7_FEC_OPTIONS[option];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetRFecOption(int &option, int demodulator)
+{
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 37, option);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetRFecOption(int &option, int demodulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 37, option);
+	return EC;
+}
+
+//virtual
+int CDatum_M7::GetTFecOptionCount()
+{
+	return (sizeof(DATUM_M7_FEC_OPTIONS)/sizeof(DATUM_M7_FEC_OPTIONS[0]));
+}
+
+//virtual
+const char *CDatum_M7::doGetTFecOptionName(int option)
+{
+	return DATUM_M7_FEC_OPTIONS[option];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTFecOption(int &option, int modulator)
+{
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 37, option);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTFecOption(int &option, int modulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 37, option);
+	return EC;
+}
+
+// FEC code rate
+
+//virtual
+int CDatum_M7::GetRFecCodeRateCount()
+{
+	return (sizeof(DATUM_M7_FEC_CODE_RATES)/sizeof(DATUM_M7_FEC_CODE_RATES[0]));
+}
+
+//virtual
+const char *CDatum_M7::doGetRFecCodeRateName(int mode)
+{
+	return DATUM_M7_FEC_CODE_RATES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetRFecCodeRate(int &mode, int demodulator)
+{
+	MC_ErrorCode EC = getSignedInt8Param(getDemodulatorSlotNumber(demodulator), 38, mode);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetRFecCodeRate(int &mode, int demodulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 38, mode);
+	return EC;
+}
+
+//virtual
+int CDatum_M7::GetTFecCodeRateCount()
+{
+	return (sizeof(DATUM_M7_FEC_CODE_RATES)/sizeof(DATUM_M7_FEC_CODE_RATES[0]));
+}
+
+//virtual
+const char *CDatum_M7::doGetTFecCodeRateName(int mode)
+{
+	return DATUM_M7_FEC_CODE_RATES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTFecCodeRate(int &mode, int modulator)
+{
+	MC_ErrorCode EC = getSignedInt8Param(getModulatorSlotNumber(modulator), 38, mode);
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTFecCodeRate(int &mode, int modulator)
+{
+	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 38, mode);
+	return EC;
+}
+
 
 // Reed-Solomon
 

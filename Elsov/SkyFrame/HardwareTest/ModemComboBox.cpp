@@ -74,27 +74,27 @@ cFecModeCombo::~cFecModeCombo()
 void cFecModeCombo::initR(CModem *pModem, int DeviceNumber)
 {
 	ResetContent();
-	for (int i = 0; i < pModem->GetRFecModesCount(); i++)
+	for (int i = 0; i < pModem->GetRFecModeCount(); i++)
 	{
-		int index = AddString(pModem->GetRFecModeName(i));
-		SetItemData(index, i);
+		addMode(pModem->GetRFecModeName(i), i);
 	}
 	int FecMode;
 	pModem->GetRFecMode(FecMode, DeviceNumber);
 	SelectByDataValue(FecMode);
+	EnableWindow(pModem->CanRFecMode());
 }
 
 void cFecModeCombo::initT(CModem *pModem, int DeviceNumber)
 {
 	ResetContent();
-	for (int i = 0; i < pModem->GetTFecModesCount(); i++)
+	for (int i = 0; i < pModem->GetTFecModeCount(); i++)
 	{
-		int index = AddString(pModem->GetTFecModeName(i));
-		SetItemData(index, i);
+		addMode(pModem->GetTFecModeName(i), i);
 	}
 	int FecMode;
 	pModem->GetTFecMode(FecMode, DeviceNumber);
 	SelectByDataValue(FecMode);
+	EnableWindow(pModem->CanTFecMode());
 }
 
 BEGIN_MESSAGE_MAP(cFecModeCombo, HardwareComboBox)
@@ -104,6 +104,98 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // cFecModeCombo message handlers
+
+
+/////////////////////////////////////////////////////////////////////////////
+// cFecOptionCombo
+
+cFecOptionCombo::cFecOptionCombo()
+{
+}
+
+cFecOptionCombo::~cFecOptionCombo()
+{
+}
+
+void cFecOptionCombo::initR(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetRFecOptionCount(); i++)
+	{
+		addMode(pModem->GetRFecOptionName(i), i);
+	}
+	int option;
+	pModem->GetRFecOption(option, DeviceNumber);
+	SelectByDataValue(option);
+	EnableWindow(pModem->CanTFecOption());
+}
+
+void cFecOptionCombo::initT(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetTFecOptionCount(); i++)
+	{
+		addMode(pModem->GetTFecOptionName(i), i);
+	}
+	int option;
+	pModem->GetTFecOption(option, DeviceNumber);
+	SelectByDataValue(option);
+	EnableWindow(pModem->CanTFecOption());
+}
+
+BEGIN_MESSAGE_MAP(cFecOptionCombo, HardwareComboBox)
+	//{{AFX_MSG_MAP(cFecOptionCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// cFecOptionCombo message handlers
+
+
+/////////////////////////////////////////////////////////////////////////////
+// cFecCodeRateCombo
+
+cFecCodeRateCombo::cFecCodeRateCombo()
+{
+}
+
+cFecCodeRateCombo::~cFecCodeRateCombo()
+{
+}
+
+void cFecCodeRateCombo::initR(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetRFecCodeRateCount(); i++)
+	{
+		addMode(pModem->GetRFecCodeRateName(i), i);
+	}
+	int mode;
+	pModem->GetRFecCodeRate(mode, DeviceNumber);
+	SelectByDataValue(mode);
+	EnableWindow(pModem->CanRFecCodeRate());
+}
+
+void cFecCodeRateCombo::initT(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetTFecCodeRateCount(); i++)
+	{
+		addMode(pModem->GetTFecCodeRateName(i), i);
+	}
+	int mode;
+	pModem->GetTFecCodeRate(mode, DeviceNumber);
+	SelectByDataValue(mode);
+	EnableWindow(pModem->CanTFecCodeRate());
+}
+
+BEGIN_MESSAGE_MAP(cFecCodeRateCombo, HardwareComboBox)
+	//{{AFX_MSG_MAP(cFecCodeRateCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// cFecCodeRateCombo message handlers
 
 
 

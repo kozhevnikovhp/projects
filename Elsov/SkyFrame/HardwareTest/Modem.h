@@ -386,18 +386,68 @@ public:
 	virtual BOOL CanInsert1ErrorForBerTest() { return FALSE; }
 	virtual BOOL Insert1ErrorForBerTest() { return MC_COMMAND_NOT_SUPPORTED; }
 	
-// FEC
-	virtual int GetRFecModesCount() = 0;
-	virtual const char *GetRFecModeName(int Mode) = 0;
-	virtual MC_ErrorCode GetRFecMode(int &Mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode SetRFecMode(int &Mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateRFecMode(int Mode, int Demodulator);
+// FEC mode
+	virtual BOOL CanRFecMode() { return FALSE; }
+	const char *GetRFecModeName(int mode);
+	MC_ErrorCode GetRFecMode(int &mode, int demodulator);
+	MC_ErrorCode SetRFecMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateRFecMode(int mode, int demodulator);
+	virtual int GetRFecModeCount() = 0;
+	virtual const char *doGetRFecModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetRFecMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetRFecMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
-	virtual int GetTFecModesCount() = 0;
-	virtual const char *GetTFecModeName(int Mode) = 0;
-	virtual MC_ErrorCode GetTFecMode(int &Mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode SetTFecMode(int &Mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateTFecMode(int Mode, int Modulator);
+	virtual BOOL CanTFecMode() { return FALSE; }
+	const char *GetTFecModeName(int mode);
+	MC_ErrorCode GetTFecMode(int &mode, int modulator);
+	MC_ErrorCode SetTFecMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateTFecMode(int mode, int modulator);
+	virtual int GetTFecModeCount() = 0;
+	virtual const char *doGetTFecModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetTFecMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTFecMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+// FEC option
+	virtual BOOL CanRFecOption() { return FALSE; }
+	const char *GetRFecOptionName(int option);
+	MC_ErrorCode GetRFecOption(int &option, int demodulator);
+	MC_ErrorCode SetRFecOption(int &option, int demodulator);
+	virtual BOOL NeedToUpdateRFecOption(int option, int demodulator);
+	virtual int GetRFecOptionCount() = 0;
+	virtual const char *doGetRFecOptionName(int option) = 0;
+	virtual MC_ErrorCode doGetRFecOption(int &option, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetRFecOption(int &option, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+	virtual BOOL CanTFecOption() { return FALSE; }
+	const char *GetTFecOptionName(int option);
+	MC_ErrorCode GetTFecOption(int &option, int modulator);
+	MC_ErrorCode SetTFecOption(int &option, int modulator);
+	virtual BOOL NeedToUpdateTFecOption(int option, int modulator);
+	virtual int GetTFecOptionCount() = 0;
+	virtual const char *doGetTFecOptionName(int option) = 0;
+	virtual MC_ErrorCode doGetTFecOption(int &option, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTFecOption(int &option, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+// FEC code rate
+	virtual BOOL CanRFecCodeRate() { return FALSE; }
+	const char *GetRFecCodeRateName(int mode);
+	MC_ErrorCode GetRFecCodeRate(int &mode, int demodulator);
+	MC_ErrorCode SetRFecCodeRate(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateRFecCodeRate(int mode, int demodulator);
+	virtual int GetRFecCodeRateCount() = 0;
+	virtual const char *doGetRFecCodeRateName(int mode) = 0;
+	virtual MC_ErrorCode doGetRFecCodeRate(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetRFecCodeRate(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+	virtual BOOL CanTFecCodeRate() { return FALSE; }
+	const char *GetTFecCodeRateName(int mode);
+	MC_ErrorCode GetTFecCodeRate(int &mode, int modulator);
+	MC_ErrorCode SetTFecCodeRate(int &mode, int modulator);
+	virtual BOOL NeedToUpdateTFecCodeRate(int mode, int modulator);
+	virtual int GetTFecCodeRateCount() = 0;
+	virtual const char *doGetTFecCodeRateName(int mode) = 0;
+	virtual MC_ErrorCode doGetTFecCodeRate(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTFecCodeRate(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Reed-Solomon
 	virtual const char *GetReedSolomonModeName(int Mode) = 0;
