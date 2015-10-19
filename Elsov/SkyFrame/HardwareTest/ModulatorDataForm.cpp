@@ -129,6 +129,8 @@ void CModulatorDataForm::OnSelChangeFecModeCombo()
 	int mode = m_FecModeCombo.getSelectedMode();
 	m_pModem->SetTFecMode(mode, m_DeviceNumber);
 	m_FecModeCombo.SelectByDataValue(mode);
+	m_FecOptionCombo.initT(m_pModem, m_DeviceNumber);
+	m_FecCodeRateCombo.initT(m_pModem, m_DeviceNumber);
 }
 
 void CModulatorDataForm::OnSelChangeFecOptionCombo() 
@@ -136,6 +138,8 @@ void CModulatorDataForm::OnSelChangeFecOptionCombo()
 	int option = m_FecOptionCombo.getSelectedMode();
 	m_pModem->SetTFecOption(option, m_DeviceNumber);
 	m_FecOptionCombo.SelectByDataValue(option);
+	m_FecModeCombo.initT(m_pModem, m_DeviceNumber);
+	m_FecCodeRateCombo.initT(m_pModem, m_DeviceNumber);
 }
 
 void CModulatorDataForm::OnSelChangeFecCodeRateCombo() 
@@ -143,6 +147,8 @@ void CModulatorDataForm::OnSelChangeFecCodeRateCombo()
 	int mode = m_FecCodeRateCombo.getSelectedMode();
 	m_pModem->SetTFecCodeRate(mode, m_DeviceNumber);
 	m_FecCodeRateCombo.SelectByDataValue(mode);
+	m_FecModeCombo.initT(m_pModem, m_DeviceNumber);
+	m_FecOptionCombo.initT(m_pModem, m_DeviceNumber);
 }
 
 void CModulatorDataForm::OnSelChangeDataClockSourceCombo() 

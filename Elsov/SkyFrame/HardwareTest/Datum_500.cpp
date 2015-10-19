@@ -10,12 +10,12 @@ static char szCRLF[]={CR, LF};
 // CDatumPsm500_LBand implementation
 
 static const char *DATUM_PSM500_MODULATION_TYPES[] = {
-	"BPSK",
-	"QPSK",
-	"OQPSK",
-	"8PSK",
-	"8QAM",
-	"16QAM"
+	"BPSK",		// 0
+	"QPSK",		// 1
+	"OQPSK",	// 2
+	"8PSK",		// 3
+	"8QAM",		// 4
+	"16QAM"		// 5
 };
 
 static const char *DATUM_PSM500_FEC_MODES[] = {
@@ -28,23 +28,23 @@ static const char *DATUM_PSM500_FEC_MODES[] = {
 };
 
 static const char *DATUM_PSM500_FEC_OPTIONS[] = {
-	"256 block",	// 0
-	"512 block",	// 1
-	"1K block",		// 2
-	"2K block",		// 3
-	"4K block",		// 4
-	"8K block",		// 5
-	"16K block"		// 6
+	"Viterbi Normal, LDPC 256 block, TPC Advanced, TCM None",	// 0
+	"Viterbi Swap C0/C1, LDPC 512 block, TPC M5 Full",			// 1
+	"LDPC 1K block, TPC M5 Short",								// 2
+	"LDPC 2K block, TPC M5 Legacy",								// 3
+	"LDPC 4K block, TPC Ct Compatible",							// 4
+	"LDPC 8K block",											// 5
+	"LDPC 16K block"											// 6
 };
 
 static const char *DATUM_PSM500_FEC_CODE_RATES[] = {
-	"1/2",
-	"2/3",
-	"3/4",
-	"14/17",
-	"7/8",
-	"10/11",
-	"16/17"
+	"Viterbi 1/2, LDPC 1/2, TCM 2/3",	// 0
+	"Viterbi 3/4, LDPC 2/3, TPC 3/4",	// 1
+	"Viterbi 5/6, LDPC 3/4, TPC 7/8",	// 2
+	"Viterbi 7/8, LDPC 14/17",			// 3
+	"LDPC 7/8",							// 4
+	"LDPC 10/11",						// 5
+	"LDPC 16/17"						// 6
 };
 
 static const char *DATUM_PSM500_SCRAMBLER_MODES[] = {
@@ -1443,7 +1443,7 @@ MC_ErrorCode CDatumPsm500::doSetTFecCodeRate(int &mode, int modulator)
 {
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] |= 1<<4;	// FEC type flag set
-	m_WriteData[12] = (unsigned char)mode;	
+	m_WriteData[16] = (unsigned char)mode;	
 
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 32);
 	MC_ErrorCode EC = Command(CommandLength);

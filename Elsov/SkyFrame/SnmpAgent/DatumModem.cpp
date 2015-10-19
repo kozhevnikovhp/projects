@@ -337,14 +337,27 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 			EC = pModem->GetTFecMode(mode, 1);
 			if (EC == MC_OK)
 			{
-				if (mode == 0)
+				switch (mode)
+				{
+				case 0:
 					var.setInteger32Value(0); // None
-				else if (1 <= mode && mode <= 4)
+					break;
+				case 1:
 					var.setInteger32Value(1); // Viterbi
-				else if (5 <= mode && mode <= 53)
+					break;
+				case 2:
+					var.setInteger32Value(5); // TCM
+					break;
+				case 4:
+					var.setInteger32Value(2); // TPC
+					break;
+				case 5:
 					var.setInteger32Value(8); // LDPC
-				else
+					break;
+				default:
 					var.setInteger32Value(4); // unknown
+					break;
+				}
  
 				printf("%s", pModem->GetTFecModeName(mode));
 			}
@@ -357,58 +370,22 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tFEC code rate ");
 		int mode;
-		EC = pModem->GetTFecMode(mode, 1);
+		EC = pModem->GetTFecCodeRate(mode, 1);
 		if (EC == MC_OK)
 		{
-			if (mode == 0)
-				var.setInteger32Value(0); // None
-			else if (mode == 1 || mode == 5 || mode == 12 || mode == 19 || mode == 26 || mode == 33 || mode == 40 || mode == 47)
-				var.setInteger32Value(1); // 1/2
-			else if (mode == 2 || mode == 7 || mode == 14 || mode == 21 || mode == 28 || mode == 35 || mode == 42 || mode == 49)
-				var.setInteger32Value(2); // 3/4
-			else if (mode == 4 || mode == 9 || mode == 16 || mode == 23 || mode == 30 || mode == 37 || mode == 44 || mode == 51)
-				var.setInteger32Value(3); // 7/8
-			else if (mode == 8 || mode == 15 || mode == 22 || mode == 29 || mode == 36 || mode == 43 || mode == 50)
-				var.setInteger32Value(4); // 14/17
-			else if (mode == 10 || mode == 17 || mode == 24 || mode == 31 || mode == 38 || mode == 45 || mode == 52)
-				var.setInteger32Value(5); // 10/11
-			else if (mode == 11 || mode == 18 || mode == 25 || mode == 32 || mode == 39 || mode == 46 || mode == 53)
-				var.setInteger32Value(6); // 16/17
-			else
-				var.setInteger32Value(0); // unknown
-
-			printf("%s", pModem->GetTFecModeName(mode));
+			var.setInteger32Value(mode+1);
+			printf("%s", pModem->GetTFecCodeRateName(mode));
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataFecOption, OidModulatorDataFecOptionLen))
 	{
 		printf("\t\tFEC code option ");
-		int mode;
-		EC = pModem->GetTFecMode(mode, 1);
+		int option = -1;
+		EC = pModem->GetTFecOption(option, 1);
 		if (EC == MC_OK)
 		{
-			if (mode == 0)
-				var.setInteger32Value(0); // None
-			else if (mode <= 5)
-				var.setInteger32Value(0); // Viterbi, no option
-			else if (mode <= 11)
-				var.setInteger32Value(1); // LDPC 256 block
-			else if (mode <= 18)
-				var.setInteger32Value(2); // LDPC 512 block
-			else if (mode <= 25)
-				var.setInteger32Value(3); // LDPC 1K block
-			else if (mode <= 32)
-				var.setInteger32Value(4); // LDPC 2K block
-			else if (mode <= 39)
-				var.setInteger32Value(5); // LDPC 4K block
-			else if (mode <= 46)
-				var.setInteger32Value(6); // LDPC 8K block
-			else if (mode <= 53)
-				var.setInteger32Value(7); // LDPC 16K block
-			else
-				var.setInteger32Value(0); // error
-
-			printf("%s", pModem->GetTFecModeName(mode));
+			var.setInteger32Value(option+1);
+			printf("%s", pModem->GetTFecOptionName(option));
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataDiffEncoder, OidModulatorDataDiffEncoderLen))
@@ -496,7 +473,7 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 	else if (var.m_OID.isPartOfOID(OidModulatorBucPower, OidModulatorBucPowerLen))
 	{
 		printf("\t\tpower ");
-		int mode = 0;
+		int mode = -1;
 		EC = pModem->GetTPowerSupplyMode(mode, 1);
 		if (EC == MC_OK)
 		{
@@ -507,22 +484,12 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 	else if (var.m_OID.isPartOfOID(OidModulatorBuc10MHz, OidModulatorBuc10MHzLen))
 	{
 		printf("\t\t10 MHz reference ");
-		BOOL b = FALSE;
-		EC = pModem->IsT10MHzSupplierEnabled(b, 1);
+		int mode = -1;
+		EC = pModem->GetT10MHzMode(mode, 1);
 		if (EC == MC_OK)
 		{
-			int value = 0;
-			if (b)
-			{
-				printf("enabled");
-				value = 1;
-			}
-			else
-			{
-				printf("disabled");
-				value = 0;
-			}
-			var.setInteger32Value(value);
+			var.setInteger32Value(mode+1);
+			printf("%s", pModem->GetTPowerSupplyModeName(mode));
 		}
 	}
 
@@ -795,17 +762,30 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tFEC type ");
 		int mode;
-		EC = pModem->GetRFecMode(mode, 1);
+		EC = pModem->GetTFecMode(mode, 1);
 		if (EC == MC_OK)
 		{
-			if (mode == 0)
+			switch (mode)
+			{
+			case 0:
 				var.setInteger32Value(0); // None
-			else if (1 <= mode && mode <= 4)
+				break;
+			case 1:
 				var.setInteger32Value(1); // Viterbi
-			else if (5 <= mode && mode <= 53)
+				break;
+			case 2:
+				var.setInteger32Value(5); // TCM
+				break;
+			case 4:
+				var.setInteger32Value(2); // TPC
+				break;
+			case 5:
 				var.setInteger32Value(8); // LDPC
-			else
+				break;
+			default:
 				var.setInteger32Value(4); // unknown
+				break;
+			}
  
 			printf("%s", pModem->GetRFecModeName(mode));
 		}
@@ -814,66 +794,23 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tFEC code rate ");
 		int mode;
-		EC = pModem->GetRFecMode(mode, 1);
+		EC = pModem->GetRFecCodeRate(mode, 1);
 		if (EC == MC_OK)
 		{
-			if (mode == 0)
-				var.setInteger32Value(0); // None
-			else if (mode == 1 || mode == 5 || mode == 12 || mode == 19 || mode == 26 || mode == 33 || mode == 40 || mode == 47)
-				var.setInteger32Value(1); // 1/2
-			else if (mode == 2 || mode == 7 || mode == 14 || mode == 21 || mode == 28 || mode == 35 || mode == 42 || mode == 49)
-				var.setInteger32Value(2); // 3/4
-			else if (mode == 4 || mode == 9 || mode == 16 || mode == 23 || mode == 30 || mode == 37 || mode == 44 || mode == 51)
-				var.setInteger32Value(3); // 7/8
-			else if (mode == 8 || mode == 15 || mode == 22 || mode == 29 || mode == 36 || mode == 43 || mode == 50)
-				var.setInteger32Value(4); // 14/17
-			else if (mode == 10 || mode == 17 || mode == 24 || mode == 31 || mode == 38 || mode == 45 || mode == 52)
-				var.setInteger32Value(5); // 10/11
-			else if (mode == 11 || mode == 18 || mode == 25 || mode == 32 || mode == 39 || mode == 46 || mode == 53)
-				var.setInteger32Value(6); // 16/17
-			else
-				var.setInteger32Value(0); // unknown
-
-			printf("%s", pModem->GetRFecModeName(mode));
+			var.setInteger32Value(mode+1);
+			printf("%s", pModem->GetRFecCodeRateName(mode));
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataFecOption, OidDemodulatorDataFecOptionLen))
 	{
 		printf("\t\tFEC code option ");
-		int mode;
-		EC = pModem->GetRFecMode(mode, 1);
+		int option = -1;
+		EC = pModem->GetRFecOption(option, 1);
 		if (EC == MC_OK)
 		{
-			if (mode == 0)
-				var.setInteger32Value(0); // None
-			else if (mode <= 5)
-				var.setInteger32Value(0); // Viterbi, no option
-			else if (mode <= 11)
-				var.setInteger32Value(1); // LDPC 256 block
-			else if (mode <= 18)
-				var.setInteger32Value(2); // LDPC 512 block
-			else if (mode <= 25)
-				var.setInteger32Value(3); // LDPC 1K block
-			else if (mode <= 32)
-				var.setInteger32Value(4); // LDPC 2K block
-			else if (mode <= 39)
-				var.setInteger32Value(5); // LDPC 4K block
-			else if (mode <= 46)
-				var.setInteger32Value(6); // LDPC 8K block
-			else if (mode <= 53)
-				var.setInteger32Value(7); // LDPC 16K block
-			else
-				var.setInteger32Value(0); // error
-
-			printf("%s", pModem->GetRFecModeName(mode));
+			var.setInteger32Value(option+1);
+			printf("%s", pModem->GetRFecOptionName(option));
 		}
-	}
-	else if (var.m_OID.isPartOfOID(OidDemodulatorDataFecC0C1Mode, OidDemodulatorDataFecC0C1ModeLen))
-	{
-		printf("\t\tC0C1 mode ");
-		printf("ATTENTION!!! TODO: IMPLEMENT THAT\n");
-		var.setInteger32Value(0); // error
-		EC = MC_OK;
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataReedSolomonMode, OidDemodulatorDataReedSolomonModeLen))
 	{
@@ -994,21 +931,12 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 	{
 		printf("\t\t10 MHz reference ");
 		BOOL b = FALSE;
-		EC = pModem->IsR10MHzSupplierEnabled(b, 1);
+		int mode = -1;
+		EC = pModem->GetR10MHzMode(mode, 1);
 		if (EC == MC_OK)
 		{
-			int value = 0;
-			if (b)
-			{
-				printf("enabled");
-				value = 1;
-			}
-			else
-			{
-				printf("disabled");
-				value = 0;
-			}
-			var.setInteger32Value(value);
+			var.setInteger32Value(mode+1);
+			printf("%s", pModem->GetTPowerSupplyModeName(mode));
 		}
 	}
 

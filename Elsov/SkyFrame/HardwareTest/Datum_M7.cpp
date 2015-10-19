@@ -22,30 +22,30 @@ static const char *DATUM_M7_MODULATION_TYPES[] = {
 static const char *DATUM_M7_FEC_MODES[] = {
 	"None",		// 0
 	"Viterbi",	// 1
-	"",			// 2
+	"TCM",		// 2
 	"",			// 3
-	"",			// 4
+	"TPC",		// 4
 	"LDPC"		// 5
 };
 
 static const char *DATUM_M7_FEC_OPTIONS[] = {
-	"256 block",					// 0
-	"512 block",
-	"1K block",
-	"2K block",
-	"4K block",
-	"8K block",
-	"16K block"
+	"Viterbi Normal, LDPC 256 block, TPC Advanced, TCM None",	// 0
+	"Viterbi Swap C0/C1, LDPC 512 block, TPC M5 Full",			// 1
+	"LDPC 1K block, TPC M5 Short",								// 2
+	"LDPC 2K block, TPC M5 Legacy",								// 3
+	"LDPC 4K block, TPC Ct Compatible",							// 4
+	"LDPC 8K block",											// 5
+	"LDPC 16K block"											// 6
 };
 
 static const char *DATUM_M7_FEC_CODE_RATES[] = {
-	"1/2",					// 0
-	"2/3",
-	"3/4",
-	"14/17",
-	"7/8",
-	"10/11",
-	"16/17"
+	"Viterbi 1/2, LDPC 1/2, TCM 2/3",	// 0
+	"Viterbi 3/4, LDPC 2/3, TPC 3/4",	// 1
+	"Viterbi 5/6, LDPC 3/4, TPC 7/8",	// 2
+	"Viterbi 7/8, LDPC 14/17",			// 3
+	"LDPC 7/8",							// 4
+	"LDPC 10/11",						// 5
+	"LDPC 16/17"						// 6
 };
 
 
