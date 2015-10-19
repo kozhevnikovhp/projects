@@ -130,6 +130,8 @@ void CDemodulatorDataForm::OnSelChangeFecModeCombo()
 	int mode = m_FecModeCombo.getSelectedMode();
 	m_pModem->SetRFecMode(mode, m_DeviceNumber);
 	m_FecModeCombo.SelectByDataValue(mode);
+	m_FecOptionCombo.initR(m_pModem, m_DeviceNumber);
+	m_FecCodeRateCombo.initR(m_pModem, m_DeviceNumber);
 }
 
 void CDemodulatorDataForm::OnSelChangeFecOptionCombo() 
@@ -137,6 +139,8 @@ void CDemodulatorDataForm::OnSelChangeFecOptionCombo()
 	int option = m_FecOptionCombo.getSelectedMode();
 	m_pModem->SetRFecOption(option, m_DeviceNumber);
 	m_FecOptionCombo.SelectByDataValue(option);
+	m_FecModeCombo.initR(m_pModem, m_DeviceNumber);
+	m_FecCodeRateCombo.initR(m_pModem, m_DeviceNumber);
 }
 
 void CDemodulatorDataForm::OnSelChangeFecCodeRateCombo() 
@@ -144,6 +148,8 @@ void CDemodulatorDataForm::OnSelChangeFecCodeRateCombo()
 	int mode = m_FecCodeRateCombo.getSelectedMode();
 	m_pModem->SetRFecCodeRate(mode, m_DeviceNumber);
 	m_FecCodeRateCombo.SelectByDataValue(mode);
+	m_FecModeCombo.initR(m_pModem, m_DeviceNumber);
+	m_FecOptionCombo.initR(m_pModem, m_DeviceNumber);
 }
 
 void CDemodulatorDataForm::OnSelChangeScramblerModeCombo() 

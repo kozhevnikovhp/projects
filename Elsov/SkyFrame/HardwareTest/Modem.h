@@ -76,6 +76,8 @@ public:
 	int m_ClockSource; // interpreted by each device type itself
 	BOOL m_bClockInverted;
 	int m_FecMode;
+	int m_FecOption;
+	int m_FecCodeRate;
 	int m_ReedSolomonMode;
 
 	BOOL m_bDataInverted;

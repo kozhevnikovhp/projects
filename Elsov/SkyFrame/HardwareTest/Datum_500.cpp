@@ -21,20 +21,20 @@ static const char *DATUM_PSM500_MODULATION_TYPES[] = {
 static const char *DATUM_PSM500_FEC_MODES[] = {
 	"None",		// 0
 	"Viterbi",	// 1
-	"",			// 2
+	"TCM",		// 2
 	"",			// 3
-	"",			// 4
+	"TPC",		// 4
 	"LDPC"		// 5
 };
 
 static const char *DATUM_PSM500_FEC_OPTIONS[] = {
-	"256 block",					// 0
-	"512 block",
-	"1K block",
-	"2K block",
-	"4K block",
-	"8K block",
-	"16K block"
+	"256 block",	// 0
+	"512 block",	// 1
+	"1K block",		// 2
+	"2K block",		// 3
+	"4K block",		// 4
+	"8K block",		// 5
+	"16K block"		// 6
 };
 
 static const char *DATUM_PSM500_FEC_CODE_RATES[] = {

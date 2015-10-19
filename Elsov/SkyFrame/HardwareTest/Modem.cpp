@@ -79,7 +79,9 @@ CModemDataParams::CModemDataParams()
 	m_DataRate = 0;
 	m_ClockSource = -1;
 	m_bClockInverted = FALSE;
-	m_FecMode = 0; // None
+	m_FecMode = -1; // Unknown
+	m_FecOption = -1; // Unknown
+	m_FecCodeRate = -1; // Unknown
 	m_ReedSolomonMode = 0;
 	m_DopplerBufferDelay = 0;
 	m_DopplerBufferSize = 0;
@@ -235,6 +237,12 @@ MC_ErrorCode CModem::GetRDataParams(CModemDataParams &Params, int Demodulator)
 	EC = GetRFecMode(Params.m_FecMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
+	EC = GetRFecOption(Params.m_FecOption, Demodulator);
+	if (EC == MC_DEVICE_NOT_RESPONDING)
+		return MC_DEVICE_NOT_RESPONDING;
+	EC = GetRFecCodeRate(Params.m_FecCodeRate, Demodulator);
+	if (EC == MC_DEVICE_NOT_RESPONDING)
+		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetDiffDecoderMode(Params.m_DifferentialCodingMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
@@ -261,6 +269,12 @@ MC_ErrorCode CModem::GetTDataParams(CModemDataParams &Params, int Modulator)
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetTFecMode(Params.m_FecMode, Modulator);
+	if (EC == MC_DEVICE_NOT_RESPONDING)
+		return MC_DEVICE_NOT_RESPONDING;
+	EC = GetTFecOption(Params.m_FecOption, Modulator);
+	if (EC == MC_DEVICE_NOT_RESPONDING)
+		return MC_DEVICE_NOT_RESPONDING;
+	EC = GetRFecCodeRate(Params.m_FecCodeRate, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetDiffEncoderMode(Params.m_DifferentialCodingMode, Modulator);
