@@ -306,6 +306,38 @@ protected:
 };
 
 /////////////////////////////////////////////////////////////////////////////
+// SpectrumCombo window
+
+class SpectrumCombo : public HardwareComboBox
+{
+// Construction
+public:
+	SpectrumCombo();
+
+// Attributes
+public:
+
+// Operations
+public:
+	void initR(CModem *pModem, int DeviceNumber);
+	void initT(CModem *pModem, int DeviceNumber);
+
+// Overrides
+	//{{AFX_VIRTUAL(SpectrumCombo)
+	//}}AFX_VIRTUAL
+
+// Implementation
+public:
+	virtual ~SpectrumCombo();
+
+protected:
+	//{{AFX_MSG(SpectrumCombo)
+	//}}AFX_MSG
+
+	DECLARE_MESSAGE_MAP()
+};
+
+/////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

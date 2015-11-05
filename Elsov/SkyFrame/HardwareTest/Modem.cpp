@@ -7,9 +7,9 @@
 CIfParams::CIfParams()
 {
 	m_Frequency = 0;
-	m_ModulationType = 0;
-	m_bSpectrumInversion = FALSE;
-	m_PowerSupplyMode = 0;
+	m_ModulationType = -1;
+	m_SpectrumMode = -1;
+	m_PowerSupplyMode = -1;
 	m_10MHzSupplyMode = -1;
 }
 
@@ -155,7 +155,7 @@ MC_ErrorCode CModem::GetRIfParams(CDemIfParams &Params, int Demodulator)
 	EC = GetRPowerSupplyMode(Params.m_PowerSupplyMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
-	EC = IsRSpectralInvEnabled(Params.m_bSpectrumInversion, Demodulator);
+	EC = GetRSpectrumMode(Params.m_SpectrumMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetSearchRange(Params.m_SearchRange, Demodulator);
@@ -207,7 +207,7 @@ MC_ErrorCode CModem::GetTIfParams(CModIfParams &Params, int Modulator)
 	EC = GetRPowerSupplyMode(Params.m_PowerSupplyMode, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
-	EC = IsTSpectralInvEnabled(Params.m_bSpectrumInversion, Modulator);
+	EC = GetTSpectrumMode(Params.m_SpectrumMode, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
 		return MC_DEVICE_NOT_RESPONDING;
 	EC = GetOutputLevel(Params.m_OutputLevel, Modulator);
@@ -1012,22 +1012,80 @@ BOOL CModem::NeedToUpdateScramblerMode(int mode, int Modulator)
 	return (current_mode != mode);
 }
 
-// Spectral inversion
+// Spectrum modes
 
 //virtual
-BOOL CModem::NeedToUpdateRSpectralInvEnabled(BOOL bEnabled, int Demodulator)
+const char *CModem::GetRSpectrumModeName(int mode)
 {
-	BOOL bCurrentValue = FALSE;
-	IsRSpectralInvEnabled(bCurrentValue, Demodulator);
-	return bCurrentValue != bEnabled;
+	if (mode < 0 || mode >= GetRSpectrumModesCount())
+		return "";
+	return doGetRSpectrumModeName(mode);
+}
+
+MC_ErrorCode CModem::GetRSpectrumMode(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetRSpectrumMode(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetRSpectrumMode(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateRSpectrumMode(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetRSpectrumMode(mode, demodulator);
+	GetRSpectrumMode(mode, demodulator);
+
+	return EC;
 }
 
 //virtual
-BOOL CModem::NeedToUpdateTSpectralInvEnabled(BOOL bEnabled, int Modulator)
+BOOL CModem::NeedToUpdateRSpectrumMode(int mode, int demodulator)
 {
-	BOOL bCurrentValue = FALSE;
-	IsTSpectralInvEnabled(bCurrentValue, Modulator);
-	return bCurrentValue != bEnabled;
+	int current_mode = 0;
+	GetRSpectrumMode(current_mode, demodulator);
+	return (current_mode != mode);
+}
+
+//virtual
+const char *CModem::GetTSpectrumModeName(int mode)
+{
+	if (mode < 0 || mode >= GetTSpectrumModesCount())
+		return "";
+	return doGetTSpectrumModeName(mode);
+}
+
+MC_ErrorCode CModem::GetTSpectrumMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetTSpectrumMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetTSpectrumMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTSpectrumMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTSpectrumMode(mode, modulator);
+	GetTSpectrumMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTSpectrumMode(int mode, int modulator)
+{
+	int current_mode = 0;
+	GetTSpectrumMode(current_mode, modulator);
+	return (current_mode != mode);
 }
 
 // Data inversion

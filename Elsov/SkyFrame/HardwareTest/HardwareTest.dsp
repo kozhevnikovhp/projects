@@ -383,10 +383,6 @@ SOURCE=.\RadioDevice.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Radyne.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\Common\SDMS_OIDs.cpp
 # End Source File
 # Begin Source File
@@ -788,10 +784,6 @@ SOURCE=.\PvcPropertiesDialog.h
 # Begin Source File
 
 SOURCE=.\RadioDevice.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Radyne.h
 # End Source File
 # Begin Source File
 

@@ -17,8 +17,8 @@ public:
 	unsigned int m_Frequency;
 	int m_ModulationType;
 	int m_PowerSupplyMode;
-	BOOL m_bSpectrumInversion;
 	int m_10MHzSupplyMode;
+	int m_SpectrumMode;
 };
 
 
@@ -506,14 +506,25 @@ public:
 	virtual MC_ErrorCode doSetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Spectral inversion
-	virtual BOOL CanRSpectralInv() { return FALSE; }
-	virtual MC_ErrorCode IsRSpectralInvEnabled(BOOL &bEnabled, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode EnableRSpectralInv(BOOL &bEnabled, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateRSpectralInvEnabled(BOOL bEnabled, int Demodulator);
-	virtual BOOL CanTSpectralInv() { return FALSE; }
-	virtual MC_ErrorCode IsTSpectralInvEnabled(BOOL &bEnabled, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual MC_ErrorCode EnableTSpectralInv(BOOL &bEnabled, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
-	virtual BOOL NeedToUpdateTSpectralInvEnabled(BOOL bEnabled, int Modulator);
+	virtual BOOL CanRSpectrumMode() { return FALSE; }
+	const char *GetRSpectrumModeName(int mode);
+	MC_ErrorCode GetRSpectrumMode(int &mode, int demodulator);
+	MC_ErrorCode SetRSpectrumMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateRSpectrumMode(int mode, int demodulator);
+	virtual int GetRSpectrumModesCount() = 0;
+	virtual const char *doGetRSpectrumModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetRSpectrumMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetRSpectrumMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+	virtual BOOL CanTSpectrumMode() { return FALSE; }
+	const char *GetTSpectrumModeName(int mode);
+	MC_ErrorCode GetTSpectrumMode(int &mode, int demodulator);
+	MC_ErrorCode SetTSpectrumMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateTSpectrumMode(int mode, int modulator);
+	virtual int GetTSpectrumModesCount() = 0;
+	virtual const char *doGetTSpectrumModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetTSpectrumMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTSpectrumMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Data inversion
 	virtual BOOL CanRDataInv() { return FALSE; }

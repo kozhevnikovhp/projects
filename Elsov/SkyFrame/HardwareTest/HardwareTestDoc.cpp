@@ -245,9 +245,6 @@ int CHardwareTestDoc::AddDevice(CDevice *pDevice)
 		!strcmp(pDevice->GetName(), CDatum_M7_LMod_LDem::m_pszName))
 		m_pTreeView->AddModem(pDevice);
 
-	if (!strcmp(pDevice->GetName(), CRadyneDMD2401::m_pszName))
-		m_pTreeView->AddModem(pDevice);
-
 	if (!strcmp(pDevice->GetName(), CSdmsVsat4900L::m_pszName) ||
 		!strcmp(pDevice->GetName(), CSdmsVsatM500L::m_pszName))
 		m_pTreeView->AddStation(pDevice);

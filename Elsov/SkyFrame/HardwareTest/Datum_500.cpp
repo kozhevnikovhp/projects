@@ -60,6 +60,8 @@ static const char *DATUM_PSM500_SCRAMBLER_MODES[] = {
 	"FEC Sync"		// 9
 };
 
+static const char *DATUM_PSM500_SPECTRUM_MODES[] = { "Normal", "Inverted" };
+
 static const char *DATUM_PSM500_10MHZ_MODES[] = { "Disabled", "Enabled" };
 
 static const char *DATUM_PSM500_DIFF_CODING_MODES[] = { "Disabled", "Enabled", "DiffCoherent" };
@@ -365,7 +367,11 @@ MC_ErrorCode CDatumPsm500::GetRIfParams(CDemIfParams &Params, int Demodulator)
 	else if (ModField == 6)
 		Params.m_ModulationType = 5; // 16QAM
 
-	Params.m_bSpectrumInversion = ((m_pDataBytes[4] & 1<<5) != 0);
+	Params.m_SpectrumMode = 0;
+	if ((m_pDataBytes[4] & 1<<5) != 0)
+	{
+		Params.m_SpectrumMode = 1;
+	}
 
 	EC = GetR10MHzMode(Params.m_10MHzSupplyMode, Demodulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
@@ -428,7 +434,11 @@ MC_ErrorCode CDatumPsm500::GetTIfParams(CModIfParams &Params, int Modulator)
 	Params.m_bOutputEnabled = (m_pDataBytes[4] & 1);
 	Params.m_OutputLevel = RawDataToSignedShort(m_pDataBytes+18)/10.;
 
-	Params.m_bSpectrumInversion = (m_pDataBytes[4] & 1<<5) != 0;
+	Params.m_SpectrumMode = 0;
+	if ((m_pDataBytes[4] & 1<<5) != 0)
+	{
+		Params.m_SpectrumMode = 1;
+	}
 
 	EC = IsContiniousWaveOn(Params.m_bContiniousWave, Modulator);
 	if (EC == MC_DEVICE_NOT_RESPONDING)
@@ -1019,69 +1029,83 @@ MC_ErrorCode CDatumPsm500::doSetDescramblerMode(int &mode, int Demodulator)
 	return EC;
 }
 
-// Spectral inversion
+// Spectrum modes
+
+int CDatumPsm500::GetRSpectrumModesCount()
+{
+	return sizeof(DATUM_PSM500_SPECTRUM_MODES)/sizeof(DATUM_PSM500_SPECTRUM_MODES[0]);
+}
 
 //virtual
-MC_ErrorCode CDatumPsm500::IsRSpectralInvEnabled(BOOL &bEnabled, int Demodulator)
+const char *CDatumPsm500::doGetRSpectrumModeName(int mode)
 {
-	bEnabled = FALSE;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+	return DATUM_PSM500_SPECTRUM_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetRSpectrumMode(int &mode, int demodulator)
+{
 	int CommandLength = FillCommandBuffer(0x81, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
-	bEnabled = (m_pDataBytes[4] & 1<<5) != 0;
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (m_pDataBytes[4] & 1<<5)
+		mode = 1;
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::EnableRSpectralInv(BOOL &bEnabled, int Demodulator)
+MC_ErrorCode CDatumPsm500::doSetRSpectrumMode(int &mode, int demodulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateRSpectralInvEnabled(bEnabled, Demodulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<5;	// Output flag set
-	if (bEnabled)
-		m_WriteData[4] = 1<<5;	// Enable
+	if (mode == 1)
+		m_WriteData[4] = 1<<5;	// inverted
 	else
-		m_WriteData[4] = 0;		// Disable
+		m_WriteData[4] = 0;		// normal
 	int CommandLength = FillCommandBuffer(0x81, modeExecute, m_WriteData, 38);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	IsRSpectralInvEnabled(bEnabled, Demodulator);
 	return EC;
 }
 
-//virtual
-MC_ErrorCode CDatumPsm500::IsTSpectralInvEnabled(BOOL &bEnabled, int Modulator)
+int CDatumPsm500::GetTSpectrumModesCount()
 {
-	bEnabled = FALSE;
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+	return sizeof(DATUM_PSM500_SPECTRUM_MODES)/sizeof(DATUM_PSM500_SPECTRUM_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm500::doGetTSpectrumModeName(int mode)
+{
+	return DATUM_PSM500_SPECTRUM_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTSpectrumMode(int &mode, int modulator)
+{
 	int CommandLength = FillCommandBuffer(0x41, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
-	bEnabled = (m_pDataBytes[4] & 1<<5) != 0;
+	if (EC != MC_OK)
+		return EC;
+	mode = 0; // normal
+	if (m_pDataBytes[4] & 1<<5)
+		mode = 1; // inverted
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatumPsm500::EnableTSpectralInv(BOOL &bEnabled, int Modulator)
+MC_ErrorCode CDatumPsm500::doSetTSpectrumMode(int &mode, int modulator)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateTSpectralInvEnabled(bEnabled, Modulator))
-		return MC_OK; // already set
-
 	memset(m_WriteData, 0, sizeof(m_WriteData));
 	m_WriteData[0] = 1<<5;	// Output flag set
-	if (bEnabled)
-		m_WriteData[4] = 1<<5;	// Enable
+	if (mode == 1)
+		m_WriteData[4] = 1<<5;	// inverted
 	else
-		m_WriteData[4] = 0;		// Disable
+		m_WriteData[4] = 0;		// normal
 	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 36);
 	MC_ErrorCode EC = Command(CommandLength);
 
-	IsTSpectralInvEnabled(bEnabled, Modulator);
 	return EC;
 }
 

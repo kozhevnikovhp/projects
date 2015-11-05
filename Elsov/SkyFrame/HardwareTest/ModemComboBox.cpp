@@ -428,3 +428,50 @@ END_MESSAGE_MAP()
 // c10MHzCombo message handlers
 
 
+/////////////////////////////////////////////////////////////////////////////
+// SpectrumCombo
+
+SpectrumCombo::SpectrumCombo()
+{
+}
+
+SpectrumCombo::~SpectrumCombo()
+{
+}
+
+void SpectrumCombo::initR(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetRSpectrumModesCount(); i++)
+	{
+		addMode(pModem->GetRSpectrumModeName(i), i);
+	}
+
+	int mode;
+	pModem->GetRSpectrumMode(mode, DeviceNumber);
+	SelectByDataValue(mode);
+	EnableWindow(pModem->CanRSpectrumMode());
+}
+
+void SpectrumCombo::initT(CModem *pModem, int DeviceNumber)
+{
+	ResetContent();
+	for (int i = 0; i < pModem->GetTSpectrumModesCount(); i++)
+	{
+		addMode(pModem->GetTSpectrumModeName(i), i);
+	}
+	int mode;
+	pModem->GetTSpectrumMode(mode, DeviceNumber);
+	SelectByDataValue(mode);
+	EnableWindow(pModem->CanTSpectrumMode());
+}
+
+BEGIN_MESSAGE_MAP(SpectrumCombo, HardwareComboBox)
+	//{{AFX_MSG_MAP(SpectrumCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// SpectrumCombo message handlers
+
+

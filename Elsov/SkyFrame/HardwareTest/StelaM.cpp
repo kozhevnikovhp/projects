@@ -408,9 +408,9 @@ MC_ErrorCode CSdmsAPI::GetRIfParams(CDemIfParams &Params, int Demodulator)
 		{
 			sscanf(pszResult, "Modulation Spectrum: %s", szDummy);
 			if (!strcmp(szDummy, "Normal"))
-				Params.m_bSpectrumInversion = FALSE;
+				Params.m_SpectrumMode = 0;
 			else
-				Params.m_bSpectrumInversion = TRUE;
+				Params.m_SpectrumMode = 1;
 		}
 		
 		// Sweep range
@@ -490,9 +490,9 @@ MC_ErrorCode CSdmsAPI::GetTIfParams(CModIfParams &Params, int Modulator)
 		{
 			sscanf(pszResult, "Modulation Spectrum: %s", szDummy);
 			if (!strcmp(szDummy, "Normal"))
-				Params.m_bSpectrumInversion = FALSE;
+				Params.m_SpectrumMode = 0;
 			else
-				Params.m_bSpectrumInversion = TRUE;
+				Params.m_SpectrumMode = 1;
 		}
 	}
 
@@ -3043,7 +3043,7 @@ MC_ErrorCode CSdmsVsat::GetTIfParams(CModIfParams &Params, int Modulator)
 				}
 				else if (reply.m_Variable.m_OID.isTheSameOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen))
 				{
-					Params.m_bSpectrumInversion = (reply.m_Variable.m_uiIntegerValue == 2);
+					Params.m_SpectrumMode = reply.m_Variable.m_uiIntegerValue -1;
 				}
 			} while (bGotReply);
 			if (bGotAnyReply)

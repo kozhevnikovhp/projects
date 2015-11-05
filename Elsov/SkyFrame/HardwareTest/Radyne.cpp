@@ -357,7 +357,9 @@ MC_ErrorCode CRadyneDMD2401::GetRIfParams(CDemIfParams &Params, int Demodulator)
 	else
 		Params.m_ModulationType = 1; // QPSK
 
-	Params.m_bSpectrumInversion = (m_pszReply[34] != 0); 
+	Params.m_SpectrumMode = 0;
+	if (m_pszReply[34] != 0)
+		Params.m_SpectrumMode = 1;
 
 	return MC_OK;
 }
@@ -400,7 +402,11 @@ MC_ErrorCode CRadyneDMD2401::GetTIfParams(CModIfParams &Params, int Modulator)
 		Params.m_ModulationType = 1; // QPSK
 	Params.m_bOutputEnabled = (m_pszReply[36] != 0); 
 	Params.m_OutputLevel = RawDataToSignedShort(m_pszReply+33)/10.;
-	Params.m_bSpectrumInversion = (m_pszReply[38] != 0);
+
+	Params.m_SpectrumMode = 0;
+	if (m_pszReply[34] != 0)
+		Params.m_SpectrumMode = 1;
+
 
 	return EC;
 }

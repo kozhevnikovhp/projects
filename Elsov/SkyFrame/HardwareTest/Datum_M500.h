@@ -99,11 +99,18 @@ public:
 	virtual MC_ErrorCode GetTModulationType(int &Type, int Modulator);
 	virtual MC_ErrorCode SetTModulationType(int &Type, int Modulator);
 	
-// Spectral inversion
-	virtual MC_ErrorCode IsRSpectralInvEnabled(BOOL &bEnabled, int Demodulator);
-	virtual MC_ErrorCode EnableRSpectralInv(BOOL &bEnabled, int Demodulator);
-	virtual MC_ErrorCode IsTSpectralInvEnabled(BOOL &bEnabled, int Modulator);
-	virtual MC_ErrorCode EnableTSpectralInv(BOOL &bEnabled, int Modulator);
+// Spectrum mode
+	virtual BOOL CanRSpectrumMode() { return TRUE; }
+	virtual int GetRSpectrumModesCount();
+	virtual const char *doGetRSpectrumModeName(int mode);
+	virtual MC_ErrorCode doGetRSpectrumMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetRSpectrumMode(int &mode, int demodulator);
+
+	virtual BOOL CanTSpectrumMode() { return TRUE; }
+	virtual int GetTSpectrumModesCount();
+	virtual const char *doGetTSpectrumModeName(int mode);
+	virtual MC_ErrorCode doGetTSpectrumMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTSpectrumMode(int &mode, int modulator);
 
 // FEC mode
 	virtual BOOL CanRFecMode() { return TRUE; }

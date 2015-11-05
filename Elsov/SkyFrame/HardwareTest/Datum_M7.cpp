@@ -61,6 +61,8 @@ static const char *DATUM_M7_SCRAMBLER_MODES[] = {
 	"FEC Sync"		// 8
 };
 
+static const char *DATUM_M7_SPECTRUM_MODES[] = { "Normal", "Inverted" };
+
 static const char *DATUM_M7_10MHZ_MODES[] = { "Disabled", "Enabled" };
 
 static const char *DATUM_M7_DIFF_CODING_MODES[] = { "Disabled", "Enabled" };
@@ -549,54 +551,74 @@ MC_ErrorCode CDatum_M7::SetTModulationType(int &Type, int Modulator)
 }
 
 // Spectral inversion
-//virtual
-MC_ErrorCode CDatum_M7::IsRSpectralInvEnabled(BOOL &bEnabled, int Demodulator)
+int CDatum_M7::GetRSpectrumModesCount()
 {
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-
-	MC_ErrorCode EC = getBooleanParam(getDemodulatorSlotNumber(Demodulator), 26, bEnabled);
-	
-	return EC;
+	return sizeof(DATUM_M7_SPECTRUM_MODES)/sizeof(DATUM_M7_SPECTRUM_MODES[0]);
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::EnableRSpectralInv(BOOL &bEnabled, int Demodulator)
+const char *CDatum_M7::doGetRSpectrumModeName(int mode)
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateRSpectralInvEnabled(bEnabled, Demodulator))
-		return MC_OK; // already set
+	return DATUM_M7_SPECTRUM_MODES[mode];
+}
 
-	MC_ErrorCode EC = setBooleanParam(getDemodulatorSlotNumber(Demodulator), 26, bEnabled);
+//virtual
+MC_ErrorCode CDatum_M7::doGetRSpectrumMode(int &mode, int demodulator)
+{
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getDemodulatorSlotNumber(demodulator), 26, bEnabled);
 	if (EC != MC_OK)
 		return EC;
-	IsRSpectralInvEnabled(bEnabled, Demodulator);
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
 	
 	return EC;
 }
 
 //virtual
-MC_ErrorCode CDatum_M7::IsTSpectralInvEnabled(BOOL &bEnabled, int Modulator)
+MC_ErrorCode CDatum_M7::doSetRSpectrumMode(int &mode, int demodulator)
 {
-	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
-
-	MC_ErrorCode EC = getBooleanParam(getModulatorSlotNumber(Modulator), 22, bEnabled);
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getDemodulatorSlotNumber(demodulator), 26, bEnabled);
 	
 	return EC;
 }
 
-//virtual
-MC_ErrorCode CDatum_M7::EnableTSpectralInv(BOOL &bEnabled, int Modulator)
+int CDatum_M7::GetTSpectrumModesCount()
 {
-	if (!IsControllable())
-		return MC_DEVICE_NOT_CONTROLLABLE;
-	if (!NeedToUpdateTSpectralInvEnabled(bEnabled, Modulator))
-		return MC_OK; // already set
+	return sizeof(DATUM_M7_SPECTRUM_MODES)/sizeof(DATUM_M7_SPECTRUM_MODES[0]);
+}
 
-	MC_ErrorCode EC = setBooleanParam(getModulatorSlotNumber(Modulator), 22, bEnabled);
+//virtual
+const char *CDatum_M7::doGetTSpectrumModeName(int mode)
+{
+	return DATUM_M7_SPECTRUM_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTSpectrumMode(int &mode, int modulator)
+{
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getModulatorSlotNumber(modulator), 22, bEnabled);
 	if (EC != MC_OK)
 		return EC;
-	IsTSpectralInvEnabled(bEnabled, Modulator);
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTSpectrumMode(int &mode, int modulator)
+{
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getModulatorSlotNumber(modulator), 22, bEnabled);
 	
 	return EC;
 }

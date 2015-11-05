@@ -489,10 +489,12 @@
 #define IDC_LNB_10MHZ_COMBO             1608
 #define IDC_FEC_MODE_COMBO              1609
 #define IDC_BUC_10MHZ_COMBO             1609
+#define IDC_SPECTRUM_COMBO              1609
 #define IDC_POWER_SUPPLY_COMBO          1610
 #define IDC_SCRAMBLER_MODE_COMBO        1610
 #define IDC_POWER_SUPPLY_COMBO2         1611
 #define IDC_DIFFERENTIAL_MODE_COMBO     1611
+#define IDC_SPECTRUM_COMBO2             1611
 #define IDC_TEST_OK_BUTTON              1612
 #define IDC_FEC_OPTION_COMBO            1612
 #define IDC_TEST_FAILED_BUTTON          1613

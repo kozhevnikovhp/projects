@@ -22,7 +22,6 @@ CModulatorCarrierForm::CModulatorCarrierForm()
 	//{{AFX_DATA_INIT(CModulatorCarrierForm)
 	m_Frequency = 0;
 	m_bOutputOn = FALSE;
-	m_bSpectralInvEnabled = FALSE;
 	m_bContiniousWaveOn = FALSE;
 	m_OutputLevel = 0.0;
 	m_Shift = 0;
@@ -39,6 +38,7 @@ void CModulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 {
 	CAbstractForm::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CModulatorCarrierForm)
+	DDX_Control(pDX, IDC_SPECTRUM_COMBO2, m_SpectrumCombo);
 	DDX_Control(pDX, IDC_BUC_10MHZ_COMBO, m_Buc10MHzCombo);
 	DDX_Control(pDX, IDC_OUTPUT_LEVEL_EDIT, m_OutputLevelEdit);
 	DDX_Control(pDX, IDC_POWER_SUPPLY_COMBO, m_PowerSupplyCombo);
@@ -53,12 +53,10 @@ void CModulatorCarrierForm::DoDataExchange(CDataExchange *pDX)
 	DDX_Control(pDX, IDC_TRANSMITTER_FREQUENCY_EDIT, m_FrequencyCtrl);
 	DDX_Control(pDX, IDC_CW_CHECK, m_ContiniousWaveCtrl);
 	DDX_Control(pDX, IDC_ONOFF_CHECK, m_OutputOnOffCheck);
-	DDX_Control(pDX, IDC_SPECTRAL_INV_CHECK, m_SpectralInvCheck);
 	DDX_Control(pDX, IDC_OUTPUT_LEVEL_SPIN, m_OutputLevelSpin);
 	DDX_Control(pDX, IDC_TRANSMITTER_FREQUENCY_SPIN, m_FrequencySpin);
 	DDX_Text(pDX, IDC_TRANSMITTER_FREQUENCY_EDIT, m_Frequency);
 	DDX_Check(pDX, IDC_ONOFF_CHECK, m_bOutputOn);
-	DDX_Check(pDX, IDC_SPECTRAL_INV_CHECK, m_bSpectralInvEnabled);
 	DDX_Check(pDX, IDC_CW_CHECK, m_bContiniousWaveOn);
 	DDX_Text(pDX, IDC_OUTPUT_LEVEL_EDIT, m_OutputLevel);
 	DDX_Text(pDX, IDC_SHIFT_EDIT, m_Shift);
@@ -73,7 +71,6 @@ BEGIN_MESSAGE_MAP(CModulatorCarrierForm, CAbstractForm)
 	ON_BN_CLICKED(IDC_SET_FREQUENCY_BUTTON, OnSetFrequencyButton)
 	ON_BN_CLICKED(IDC_SET_OUTPUT_LEVEL_BUTTON, OnSetOutputLevelButton)
 	ON_BN_CLICKED(IDC_ONOFF_CHECK, OnOutputOnOffCheck)
-	ON_BN_CLICKED(IDC_SPECTRAL_INV_CHECK, OnSpectralInvCheck)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_OUTPUT_LEVEL_SPIN, OnDeltaPosOutputLevelSpin)
 	ON_BN_CLICKED(IDC_CW_CHECK, OnCwCheck)
 	ON_BN_CLICKED(IDC_SET_SHIFT_BUTTON, OnSetShiftButton)
@@ -81,6 +78,7 @@ BEGIN_MESSAGE_MAP(CModulatorCarrierForm, CAbstractForm)
 	ON_CBN_SELCHANGE(IDC_MODULATION_TYPE_COMBO, OnSelChangeModulationTypeCombo)
 	ON_CBN_SELCHANGE(IDC_POWER_SUPPLY_COMBO, OnSelChangePowerSupplyCombo)
 	ON_CBN_SELCHANGE(IDC_BUC_10MHZ_COMBO, OnSelChangeBuc10MHzCombo)
+	ON_CBN_SELCHANGE(IDC_SPECTRUM_COMBO2, OnSelChangeSpectrumCombo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -164,8 +162,7 @@ BOOL CModulatorCarrierForm::SetupControls()
 	m_ContiniousWaveCtrl.EnableWindow(m_pModem->CanContiniousWave());
 
 	// Spectral Inversion
-	m_SpectralInvCheck.EnableWindow(m_pModem->CanTSpectralInv());
-	m_bSpectralInvEnabled = Params.m_bSpectrumInversion;
+	m_SpectrumCombo.initT(m_pModem, m_DeviceNumber);
 
 	UpdateData(FALSE);
 
@@ -218,14 +215,6 @@ void CModulatorCarrierForm::OnOutputOnOffCheck()
 	CWaitCursor cursor;
 	UpdateData();
 	m_pModem->TurnOutputOn(m_bOutputOn, m_DeviceNumber);
-	UpdateData(FALSE);
-}
-
-void CModulatorCarrierForm::OnSpectralInvCheck() 
-{
-	CWaitCursor cursor;
-	UpdateData();
-	m_pModem->EnableTSpectralInv(m_bSpectralInvEnabled, m_DeviceNumber);
 	UpdateData(FALSE);
 }
 
@@ -294,4 +283,11 @@ void CModulatorCarrierForm::OnSelChangeBuc10MHzCombo()
 	m_pModem->SetT10MHzMode(mode, m_DeviceNumber);
 	m_Buc10MHzCombo.SelectByDataValue(mode);
 	UpdateBucStatus();
+}
+
+void CModulatorCarrierForm::OnSelChangeSpectrumCombo() 
+{
+	int mode = m_SpectrumCombo.getSelectedMode();
+	m_pModem->SetTSpectrumMode(mode, m_DeviceNumber);
+	m_SpectrumCombo.SelectByDataValue(mode);
 }

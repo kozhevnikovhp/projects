@@ -23,6 +23,7 @@ protected:
 public:
 	//{{AFX_DATA(CModulatorCarrierForm)
 	enum { IDD = IDD_MODULATOR_CARRIER_FORM };
+	SpectrumCombo m_SpectrumCombo;
 	c10MHzCombo	m_Buc10MHzCombo;
 	CEdit	m_OutputLevelEdit;
 	cPowerSupplyCombo	m_PowerSupplyCombo;
@@ -37,12 +38,10 @@ public:
 	CEdit	m_FrequencyCtrl;
 	CButton	m_ContiniousWaveCtrl;
 	CButton	m_OutputOnOffCheck;
-	CButton	m_SpectralInvCheck;
 	CSpinButtonCtrl	m_OutputLevelSpin;
 	CSpinButtonCtrl	m_FrequencySpin;
 	UINT	m_Frequency;
 	BOOL	m_bOutputOn;
-	BOOL	m_bSpectralInvEnabled;
 	BOOL	m_bContiniousWaveOn;
 	double	m_OutputLevel;
 	int		m_Shift;
@@ -89,7 +88,6 @@ protected:
 	afx_msg void OnSetFrequencyButton();
 	afx_msg void OnSetOutputLevelButton();
 	afx_msg void OnOutputOnOffCheck();
-	afx_msg void OnSpectralInvCheck();
 	afx_msg void OnDeltaPosOutputLevelSpin(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnCwCheck();
 	afx_msg void OnSetShiftButton();
@@ -97,6 +95,7 @@ protected:
 	afx_msg void OnSelChangeModulationTypeCombo();
 	afx_msg void OnSelChangePowerSupplyCombo();
 	afx_msg void OnSelChangeBuc10MHzCombo();
+	afx_msg void OnSelChangeSpectrumCombo();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
