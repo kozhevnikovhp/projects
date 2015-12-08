@@ -89,8 +89,9 @@ class cSnmpDatagram
 public:
 	cSnmpDatagram();
 
-	bool isRequest() const { return (isGetRequest() || isSetRequest()); }
+	bool isRequest() const { return (isGetRequest() || isGetNextRequest() || isSetRequest()); }
 	bool isGetRequest() const { return (m_FieldType == SNMP_FIELD_GET_REQUEST); }
+	bool isGetNextRequest() const { return (m_FieldType == SNMP_FIELD_GET_NEXT_REQUEST); }
 	void setGetResponse() { m_FieldType = SNMP_FIELD_GET_RESPONSE; }
 	bool isSetRequest() const { return m_FieldType == SNMP_FIELD_SET_REQUEST; }
 	bool isResponse() const { return isGetResponse(); }
@@ -120,12 +121,16 @@ public:
 
 // Public methods
 public:
-	LOGICAL waitForDatagram(cSnmpDatagram &dgm);
+	LOGICAL waitForRequest(cSnmpDatagram &dgm);
 	LOGICAL SendGetResponse(IPADDRESS_TYPE uIP, unsigned short uPort, int iVersion, const std::string &strCommunity, int ReqID, const cSnmpVariable &var);
 	LOGICAL SendSnmpGetRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID);
+	LOGICAL SendSnmpGetNextRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID);
 	LOGICAL SendSnmpSetIntegerRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID, int iValue);
 	LOGICAL SendSnmpSetUnsignedIntegerRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID, unsigned int uiValue);
 	LOGICAL GetSnmpReply(cSnmpDatagram &replyDgm);
+
+protected:
+	LOGICAL SendSnmpRequest(unsigned char reqCode, IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID);
 };
 
 #endif //__SNMP_STUFF_H_INCLUDED__

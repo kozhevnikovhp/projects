@@ -108,19 +108,19 @@ MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &
 	if (var.m_OID.isPartOfOID(OidModulatorIfFrequency, OidModulatorIfFrequencyLen))
 	{
 		printf("\t\tfrequency ");
-		unsigned int frequency;
+		unsigned int frequency = 0;
 		if (bGet)
 		{ // get
-			EC = pModem->GetTFrequency(frequency, 1);
+			EC = pModem->GetTFrequency(frequency, 1); // KHz
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(frequency);
+				var.setInteger32Value(frequency*1000); // Hz
 				printf("%d KHz", frequency);
 			}
 		}
 		else
 		{ // set
-			frequency = var.m_iIntegerValue/1000;
+			frequency = var.m_iIntegerValue/1000; // Hz -> KHz
 			printf("%d KHz", frequency);
 			EC = pModem->SetTFrequency(frequency, 1);
 			if (EC == MC_OK)
@@ -237,51 +237,25 @@ MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &
 	else if (var.m_OID.isPartOfOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen))
 	{
 		printf("\t\tSpectrum ");
-		BOOL bSpectrumInverted;
+		int mode = -1;
 		if (bGet)
-		{ // get
-			EC = pModem->IsTSpectralInvEnabled(bSpectrumInverted, 1);
+		{
+			EC = pModem->GetTSpectrumMode(mode, 1);
 			if (EC == MC_OK)
 			{
-				if (bSpectrumInverted)
-				{
-					var.setInteger32Value(2);
-					printf("INVERTED");
-				}
-				else
-				{
-					var.setInteger32Value(1);
-					printf("NORMAL");
-				}
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetTSpectrumModeName(mode));
 			}
 		}
 		else
 		{ // set
-			bSpectrumInverted = (var.m_iIntegerValue == 2);
-			if (bSpectrumInverted)
-			{
-				var.setInteger32Value(2);
-				printf("INVERTED");
-			}
-			else
-			{
-				var.setInteger32Value(1);
-				printf("NORMAL");
-			}
-			EC = pModem->IsTSpectralInvEnabled(bSpectrumInverted, 1);
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetTSpectrumModeName(mode));
+			EC = pModem->SetTSpectrumMode(mode, 1);
 			if (EC == MC_OK)
 			{
-				printf(", result = ");
-				if (bSpectrumInverted)
-				{
-					var.setInteger32Value(2);
-					printf("INVERTED");
-				}
-				else
-				{
-					var.setInteger32Value(1);
-					printf("NORMAL");
-				}
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetTSpectrumModeName(mode));
 			}
 		}
 	}
@@ -340,85 +314,171 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				switch (mode)
 				{
 				case 0:
-					var.setInteger32Value(0); // None
-					break;
+					var.setInteger32Value(0); break; // None
 				case 1:
-					var.setInteger32Value(1); // Viterbi
-					break;
+					var.setInteger32Value(1); break; // Viterbi
 				case 2:
-					var.setInteger32Value(5); // TCM
-					break;
+					var.setInteger32Value(5); break; // TCM
 				case 4:
-					var.setInteger32Value(2); // TPC
-					break;
+					var.setInteger32Value(2); break; // TPC
 				case 5:
-					var.setInteger32Value(8); // LDPC
-					break;
+					var.setInteger32Value(8); break; // LDPC
 				default:
-					var.setInteger32Value(4); // unknown
-					break;
-				}
- 
+					var.setInteger32Value(4); break; // unknown
+				} 
 				printf("%s", pModem->GetTFecModeName(mode));
 			}
 		}
 		else
-		{
+		{ //set
+			switch (var.m_iIntegerValue)
+			{
+			case 0:
+				mode = 0; break; // none
+			case 1:
+				mode = 1; break; // viterbi
+			case 2:
+				mode = 4; break; // TPC
+			case 5:
+				mode = 2; break; // TPM
+			case 8:
+				mode = 5; break; // LDPC
+			default:
+				mode = 0; break; // none
+			}
+			printf("%s", pModem->GetTFecModeName(mode));
+			EC = pModem->SetTFecMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode);
+				printf("%s", pModem->GetTFecModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataCodeRate, OidModulatorDataCodeRateLen))
 	{
 		printf("\t\tFEC code rate ");
-		int mode;
-		EC = pModem->GetTFecCodeRate(mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(mode+1);
+			EC = pModem->GetTFecCodeRate(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetTFecCodeRateName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetTFecCodeRateName(mode));
+			EC = pModem->SetTFecCodeRate(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetTFecCodeRateName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataFecOption, OidModulatorDataFecOptionLen))
 	{
 		printf("\t\tFEC code option ");
 		int option = -1;
-		EC = pModem->GetTFecOption(option, 1);
-		if (EC == MC_OK)
+		if (bGet)
 		{
-			var.setInteger32Value(option+1);
+			EC = pModem->GetTFecOption(option, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(option+1);
+				printf("%s", pModem->GetTFecOptionName(option));
+			}
+		}
+		else
+		{ // set
+			option = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetTFecOptionName(option));
+			EC = pModem->SetTFecOption(option, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(option+1);
+				printf("%s", pModem->GetTFecOptionName(option));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataDiffEncoder, OidModulatorDataDiffEncoderLen))
 	{
 		printf("\t\tdifferential encoder ");
-		int Mode;
-		EC = pModem->GetDiffEncoderMode(Mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(Mode);
-			printf("%s", pModem->GetDiffEncoderModeName(Mode));
+			EC = pModem->GetDiffEncoderMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetDiffEncoderModeName(mode));
+			}
 		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetDiffEncoderModeName(mode));
+			EC = pModem->SetDiffEncoderMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetDiffEncoderModeName(mode));
+			}
+		}
+
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataScrambler, OidModulatorDataScramblerLen))
 	{
 		printf("\t\tscrambler ");
-		int mode;
-		EC = pModem->GetScramblerMode(mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(mode);
+			EC = pModem->GetScramblerMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetScramblerModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetScramblerModeName(mode));
+			EC = pModem->SetScramblerMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetScramblerModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataReedSolomonMode, OidModulatorDataReedSolomonModeLen))
 	{
 		printf("\t\tReed-Solomon mode ");
-		int Mode;
-		EC = pModem->GetTReedSolomonMode(Mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(Mode);
-			printf("%s", pModem->GetReedSolomonModeName(Mode));
+			EC = pModem->GetTReedSolomonMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetReedSolomonModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetReedSolomonModeName(mode));
+			EC = pModem->SetTReedSolomonMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetReedSolomonModeName(mode));
+			}
 		}
 	}
 
@@ -474,22 +534,50 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 	{
 		printf("\t\tpower ");
 		int mode = -1;
-		EC = pModem->GetTPowerSupplyMode(mode, 1);
-		if (EC == MC_OK)
+		if (bGet)
 		{
-			var.setInteger32Value(mode+1);
+			EC = pModem->GetTPowerSupplyMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetTPowerSupplyModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetTPowerSupplyModeName(mode));
+			EC = pModem->SetTPowerSupplyMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode + 1);
+				printf("%s", pModem->GetTPowerSupplyModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorBuc10MHz, OidModulatorBuc10MHzLen))
 	{
 		printf("\t\t10 MHz reference ");
 		int mode = -1;
-		EC = pModem->GetT10MHzMode(mode, 1);
-		if (EC == MC_OK)
+		if (bGet)
 		{
-			var.setInteger32Value(mode+1);
-			printf("%s", pModem->GetTPowerSupplyModeName(mode));
+			EC = pModem->GetT10MHzMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetT10MHzModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetT10MHzModeName(mode));
+			EC = pModem->SetT10MHzMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetT10MHzModeName(mode));
+			}
 		}
 	}
 
@@ -669,16 +757,30 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tsweep range ");
 		unsigned int range;
-		EC = pModem->GetSearchRange(range, 1);
-		if (EC == MC_OK)
+		if (bGet)
 		{
-			var.setInteger32Value(range);
+			EC = pModem->GetSearchRange(range, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(range);
+				printf("%d Hz", range);
+			}
+		}
+		else
+		{ // set
+			range = var.m_iIntegerValue;
 			printf("%d Hz", range);
+			EC = pModem->SetSearchRange(range, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(range);
+				printf("%d Hz", range);
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorIfSweepTime, OidDemodulatorIfSweepTimeLen))
 	{
-		printf("\t\tsweep range ");
+		printf("\t\tsweep time ");
 		CDemIfParams params;
 		EC = pModem->GetRIfParams(params, 1);
 		if (EC == MC_OK)
@@ -690,41 +792,75 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	else if (var.m_OID.isPartOfOID(OidDemodulatorIfSweepMode, OidDemodulatorIfSweepModeLen))
 	{
 		printf("\t\tsweep mode ");
-		int mode;
-		EC = pModem->GetRSweepMode(mode, 1);
-		if (EC == MC_OK)
-		{
-			var.setInteger32Value(mode);
+		int mode = -1;
+		if (bGet)
+		{ //get
+			EC = pModem->GetRSweepMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRSweepModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRSweepModeName(mode));
+			EC = pModem->SetRSweepMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRSweepModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorIfModulation, OidDemodulatorIfModulationLen))
 	{
 		printf("\t\tModulation ");
-		int modType;
-		EC = pModem->GetRModulationType(modType, 1);
-		if (EC == MC_OK)
-		{
-			var.setInteger32Value(modType+1);
+		int modType = -1;
+		if (bGet)
+		{ //get
+			EC = pModem->GetRModulationType(modType, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(modType+1);
+				printf("%s", pModem->GetRModulationTypeName(modType));
+			}
+		}
+		else
+		{ // set
+			modType = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRModulationTypeName(modType));
+			EC = pModem->SetRModulationType(modType, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(modType+1);
+				printf("%s", pModem->GetRModulationTypeName(modType));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorIfSpectrum, OidDemodulatorIfSpectrumLen))
 	{
 		printf("\t\tSpectrum ");
-		BOOL bSpectrumInverted;
-		EC = pModem->IsRSpectralInvEnabled(bSpectrumInverted, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			if (bSpectrumInverted)
+			EC = pModem->GetRSpectrumMode(mode, 1);
+			if (EC == MC_OK)
 			{
-				var.setInteger32Value(2);
-				printf("INVERTED");
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRSpectrumModeName(mode));
 			}
-			else
+		}
+		else
+		{ // set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetRSpectrumModeName(mode));
+			EC = pModem->SetRSpectrumMode(mode, 1);
+			if (EC == MC_OK)
 			{
-				var.setInteger32Value(1);
-				printf("NORMAL");
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRSpectrumModeName(mode));
 			}
 		}
 	}
@@ -739,110 +875,229 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	if (var.m_OID.isPartOfOID(OidDemodulatorDataBitRate, OidDemodulatorDataBitRateLen))
 	{
 		printf("\t\tBit rate ");
-		unsigned int DataRate;
-		EC = pModem->GetRDataRate(DataRate, 1);
-		if (EC == MC_OK)
+		unsigned int DataRate = 0;
+		if (bGet)
 		{
-			var.setInteger32Value(DataRate);
+			EC = pModem->GetRDataRate(DataRate, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(DataRate);
+				printf("%d baud", DataRate);
+			}
+		}
+		else
+		{ //set
+			DataRate = var.m_iIntegerValue;
 			printf("%d baud", DataRate);
+			EC = pModem->GetRDataRate(DataRate, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(DataRate);
+				printf("%d baud", DataRate);
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataClockSource, OidDemodulatorDataClockSourceLen))
 	{
 		printf("\t\tClock source ");
-		int source;
-		EC = pModem->GetRDataClockSource(source, 1);
-		if (EC == MC_OK)
+		int source = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(source);
+			EC = pModem->GetRDataClockSource(source, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(source+1);
+				printf("%s", pModem->GetRDataClockSourceName(source));
+			}
+		}
+		else
+		{ //set
+			source = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRDataClockSourceName(source));
+			EC = pModem->GetRDataClockSource(source, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(source+1);
+				printf("%s", pModem->GetRDataClockSourceName(source));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataFecType, OidDemodulatorDataFecTypeLen))
 	{
 		printf("\t\tFEC type ");
-		int mode;
-		EC = pModem->GetTFecMode(mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			switch (mode)
+			EC = pModem->GetRFecMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				switch (mode)
+				{
+				case 0:
+					var.setInteger32Value(0); break; // None
+				case 1:
+					var.setInteger32Value(1); break; // Viterbi
+				case 2:
+					var.setInteger32Value(5); break; // TCM
+				case 4:
+					var.setInteger32Value(2); break; // TPC
+				case 5:
+					var.setInteger32Value(8); break; // LDPC
+				default:
+					var.setInteger32Value(4); break; // unknown
+				} 
+				printf("%s", pModem->GetRFecModeName(mode));
+			}
+		}
+		else
+		{ //set
+			switch (var.m_iIntegerValue)
 			{
 			case 0:
-				var.setInteger32Value(0); // None
-				break;
+				mode = 0; break; // none
 			case 1:
-				var.setInteger32Value(1); // Viterbi
-				break;
+				mode = 1; break; // viterbi
 			case 2:
-				var.setInteger32Value(5); // TCM
-				break;
-			case 4:
-				var.setInteger32Value(2); // TPC
-				break;
+				mode = 4; break; // TPC
 			case 5:
-				var.setInteger32Value(8); // LDPC
-				break;
+				mode = 2; break; // TPM
+			case 8:
+				mode = 5; break; // LDPC
 			default:
-				var.setInteger32Value(4); // unknown
-				break;
+				mode = 0; break; // none
 			}
- 
 			printf("%s", pModem->GetRFecModeName(mode));
+			EC = pModem->SetRFecMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode);
+				printf("%s", pModem->GetRFecModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataCodeRate, OidDemodulatorDataCodeRateLen))
 	{
 		printf("\t\tFEC code rate ");
-		int mode;
-		EC = pModem->GetRFecCodeRate(mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(mode+1);
+			EC = pModem->GetRFecCodeRate(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRFecCodeRateName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRFecCodeRateName(mode));
+			EC = pModem->SetRFecCodeRate(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRFecCodeRateName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataFecOption, OidDemodulatorDataFecOptionLen))
 	{
 		printf("\t\tFEC code option ");
 		int option = -1;
-		EC = pModem->GetRFecOption(option, 1);
-		if (EC == MC_OK)
+		if (bGet)
 		{
-			var.setInteger32Value(option+1);
+			EC = pModem->GetRFecOption(option, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(option+1);
+				printf("%s", pModem->GetRFecOptionName(option));
+			}
+		}
+		else
+		{ // set
+			option = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRFecOptionName(option));
+			EC = pModem->SetRFecOption(option, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(option+1);
+				printf("%s", pModem->GetRFecOptionName(option));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataReedSolomonMode, OidDemodulatorDataReedSolomonModeLen))
 	{
 		printf("\t\tReed-Solomon mode ");
-		int Mode;
-		EC = pModem->GetRReedSolomonMode(Mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(Mode);
-			printf("%s", pModem->GetReedSolomonModeName(Mode));
+			EC = pModem->GetRReedSolomonMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetReedSolomonModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetReedSolomonModeName(mode));
+			EC = pModem->SetRReedSolomonMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetReedSolomonModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataDiffDecoder, OidDemodulatorDataDiffDecoderLen))
 	{
 		printf("\t\tdifferential decoder ");
-		int Mode;
-		EC = pModem->GetDiffDecoderMode(Mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(Mode);
-			printf("%s", pModem->GetDiffDecoderModeName(Mode));
+			EC = pModem->GetDiffDecoderMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetDiffDecoderModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetDiffDecoderModeName(mode));
+			EC = pModem->SetDiffDecoderMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetDiffDecoderModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataDescrambler, OidDemodulatorDataDescramblerLen))
 	{
 		printf("\t\tdescrambler ");
-		int mode;
-		EC = pModem->GetDescramblerMode(mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(mode);
+			EC = pModem->GetDescramblerMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetDescramblerModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetDescramblerModeName(mode));
+			EC = pModem->SetDescramblerMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetDescramblerModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataBufferDelay, OidDemodulatorDataBufferDelayLen))
@@ -919,24 +1174,51 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 	else if (var.m_OID.isPartOfOID(OidDemodulatorLnbPower, OidDemodulatorLnbPowerLen))
 	{
 		printf("\t\tpower ");
-		int mode = 0;
-		EC = pModem->GetRPowerSupplyMode(mode, 1);
-		if (EC == MC_OK)
+		int mode = -1;
+		if (bGet)
 		{
-			var.setInteger32Value(mode+1);
+			EC = pModem->GetRPowerSupplyMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRPowerSupplyModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRPowerSupplyModeName(mode));
+			EC = pModem->SetRPowerSupplyMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetRPowerSupplyModeName(mode));
+			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorLnb10MHz, OidDemodulatorLnb10MHzLen))
 	{
 		printf("\t\t10 MHz reference ");
-		BOOL b = FALSE;
 		int mode = -1;
-		EC = pModem->GetR10MHzMode(mode, 1);
-		if (EC == MC_OK)
+		if (bGet)
 		{
-			var.setInteger32Value(mode+1);
-			printf("%s", pModem->GetTPowerSupplyModeName(mode));
+			EC = pModem->GetR10MHzMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetR10MHzModeName(mode));
+			}
+		}
+		else
+		{ //set
+			mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetR10MHzModeName(mode));
+			EC = pModem->SetR10MHzMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf("%s", pModem->GetR10MHzModeName(mode));
+			}
 		}
 	}
 
@@ -991,13 +1273,13 @@ MC_ErrorCode processDatumDemodulatorAlarmRequest(CDatumModem *pModem, cSnmpVaria
 		index = DATUM_DEMODULATOR_LNB_ALARM;
 		printf("\t\tLNB POWER alarm");
 	}
-	if (EC == MC_OK && pAlarms != NULL && index < pModem->GetDemodulatorAlarmCount())
+	if ((EC == MC_OK) && (pAlarms != NULL) && (index < pModem->GetDemodulatorAlarmCount()))
 	{
-		printf(" = %d", pAlarms[index]);
-		var.setInteger32Value(pAlarms[index]);
+		printf(" = %d", pAlarms[index]+1);
+		var.setInteger32Value(pAlarms[index]+1);
 	}
 	else
-		var.setInteger32Value(-1);
+		var.setInteger32Value(0);
 
 	return EC;
 }

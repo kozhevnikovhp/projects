@@ -35,6 +35,18 @@ LOGICAL DecodeSequence(unsigned char *&pucCurrentPos, int &nOctets)
 	return LOGICAL_TRUE;
 }
 
+int EncodeByte(unsigned char cValue, unsigned char *&pucCurrentPos)
+{
+	// Field type
+	*pucCurrentPos = cValue;
+	++pucCurrentPos;
+	// Length
+	*pucCurrentPos = 0x00; // just 0
+	++pucCurrentPos;
+
+	return 2; // 2 octets required
+}
+
 int EncodeNull(unsigned char *&pucCurrentPos)
 {
 	// Field type
@@ -100,7 +112,8 @@ LOGICAL DecodeRequestField(unsigned char *&pucCurrentPos, unsigned char &fieldTy
 {
 	fieldType = *pucCurrentPos;
 	nOctets = 0;
-	if (fieldType != SNMP_FIELD_GET_REQUEST &&
+	if (fieldType != SNMP_FIELD_GET_REQUEST      &&
+		fieldType != SNMP_FIELD_GET_NEXT_REQUEST &&
 		fieldType != SNMP_FIELD_SET_REQUEST)
 		return LOGICAL_FALSE;
 	++pucCurrentPos;
@@ -121,7 +134,7 @@ void OidIntToByte(unsigned int &uiValue, unsigned char *&pucCurrentPos, int &nOc
 	}
 	else
 	{
-		(*pucCurrentPos) = uiValue;
+		*pucCurrentPos = uiValue;
 	}
 	
 	if (bMultyByteSign)
@@ -139,10 +152,11 @@ int EncodeOID(const cSnmpOID &OID, unsigned char *&pucCurrentPos)
 	// Length
 	unsigned char *pucOidLen = pucCurrentPos;
 	*pucOidLen = 0x00; // unknown yet
+
 	++pucCurrentPos;
 	int nOctets = 2; // 2 octets occupied already
 	// packed two first octets
-	(*pucCurrentPos) = OID.m_uiOID[0]*40 + OID.m_uiOID[1];
+	*pucCurrentPos = OID.m_uiOID[0]*40 + OID.m_uiOID[1];
 	++pucCurrentPos;
 	++nOctets;
 	(*pucOidLen)++;
@@ -571,6 +585,7 @@ cSnmpOID::cSnmpOID(const unsigned int *pOID, int nOidLength)
 			break;
 		m_uiOID[i] = *(pOID + i);
 	}
+	m_nOIDlen = nOidLength;
 }
 
 void cSnmpOID::operator = (const cSnmpOID &OID)
@@ -664,13 +679,17 @@ CSnmpSocket::~CSnmpSocket()
 {
 }
 
-LOGICAL CSnmpSocket::waitForDatagram(cSnmpDatagram &dgm)
+LOGICAL CSnmpSocket::waitForRequest(cSnmpDatagram &dgm)
 {
-	unsigned char szBuffer[0xFFFF];
-	unsigned int BytesRead = 0;
-	LOGICAL bOK = ReadFrom(szBuffer, sizeof(szBuffer), BytesRead, dgm.srcIpAddress_, dgm.m_FromIpPort);
+	unsigned char szBuffer[0xFFF];
+	unsigned int nBytesRead = 0;
+	LOGICAL bOK = ReadFrom(szBuffer, sizeof(szBuffer), nBytesRead, dgm.srcIpAddress_, dgm.m_FromIpPort);
 	if (!bOK)
 		return LOGICAL_FALSE;
+	/*for (int i = 0; i < nBytesRead; i++)
+	{
+		printf("i = %d, value = %d\n", i, szBuffer[i]);
+	}*/
 	return DecodeSnmpRequest(szBuffer, dgm);
 }
 
@@ -722,7 +741,7 @@ LOGICAL CSnmpSocket::SendGetResponse(IPADDRESS_TYPE uIP, unsigned short uPort, i
 	return WriteTo(&datagram, *pucTotalLen + 2, nWrittenBytes, uIP, uPort);
 }
 
-LOGICAL CSnmpSocket::SendSnmpGetRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID)
+LOGICAL CSnmpSocket::SendSnmpRequest(unsigned char reqCode, IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID)
 {
 	unsigned char datagram[1024];
 	unsigned char *pucCurrentPos = datagram;
@@ -730,14 +749,18 @@ LOGICAL CSnmpSocket::SendSnmpGetRequest(IPADDRESS_TYPE uIP, const std::string &s
 	// Sequence
 	unsigned char ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucTotalLen = pucCurrentPos-1;
+	*pucTotalLen = 0;
+
 	// version
-	(*pucTotalLen) += EncodeOctet(0, pucCurrentPos);
+	*pucTotalLen += EncodeOctet(0, pucCurrentPos);
 	// Community
-	(*pucTotalLen) += EncodeString(strCommunity, pucCurrentPos);
+	*pucTotalLen += EncodeString(strCommunity, pucCurrentPos);
 	// Request header
-	(*pucTotalLen) += EncodeGetRequest(pucCurrentPos);
+	*pucTotalLen += EncodeByte(reqCode, pucCurrentPos);
 	// Store pdu length
 	unsigned char *pucPduLen = pucCurrentPos-1;
+	*pucPduLen = 0;
+
 	// RequestID
 	ucOctets = EncodeInteger(ReqID, pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
@@ -751,8 +774,12 @@ LOGICAL CSnmpSocket::SendSnmpGetRequest(IPADDRESS_TYPE uIP, const std::string &s
 	ucOctets = EncodeSequence(pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
 	unsigned char *pucOidLen = pucCurrentPos-1;
+	(*pucOidLen) = 0;
+
 	ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucOidLen2 = pucCurrentPos-1;
+	(*pucOidLen2) = 0;
+
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets;
 	ucOctets = EncodeOID(OID, pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
@@ -762,6 +789,16 @@ LOGICAL CSnmpSocket::SendSnmpGetRequest(IPADDRESS_TYPE uIP, const std::string &s
 	
 	unsigned int nWrittenBytes = 0;
 	return WriteTo(&datagram, *pucTotalLen + 2, nWrittenBytes, uIP, SNMP_PORT);
+}
+
+LOGICAL CSnmpSocket::SendSnmpGetRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID)
+{
+	return SendSnmpRequest(SNMP_FIELD_GET_REQUEST, uIP, strCommunity, OID, ReqID);
+}
+
+LOGICAL CSnmpSocket::SendSnmpGetNextRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID)
+{
+	return SendSnmpRequest(SNMP_FIELD_GET_NEXT_REQUEST, uIP, strCommunity, OID, ReqID);
 }
 
 LOGICAL CSnmpSocket::SendSnmpSetIntegerRequest(IPADDRESS_TYPE uIP, const std::string &strCommunity, const cSnmpOID &OID, int ReqID, int iValue)

@@ -27,11 +27,13 @@ void ConnectDevice(CDevice *pDevice, MC_ControlType ControlType, const char *psz
 class ListeningThread : public CThreadObject
 {
 public:
-	ListeningThread(IPADDRESS_TYPE IP, unsigned int port, int nMCAddress,
+	ListeningThread(const std::string &strChannelName,
+					IPADDRESS_TYPE IP, unsigned int port, int nMCAddress,
 					CDatumModem *pModem,
 					CPozharskyUpDownConverter *pUpConverter,
 					CPozharskyUpDownConverter *pDownConverter)
 	{
+		strChannelName_ = strChannelName;
 		IP_ = IP;
 		port_ = port;
 		nMCAddress_ = nMCAddress;
@@ -88,21 +90,22 @@ protected:
 		if (!bSuccesfullySet_)
 			return LOGICAL_FALSE;
 
-		if (!sock_.waitForDatagram(requestDatagram_))
+		if (!sock_.waitForRequest(requestDatagram_))
 		{
 			printf("Cannot read from socket, error code = %d\n", sock_.GetLastErrorCode());
-			Sleep(10*1000);
+			Sleep(1000);
 			return LOGICAL_TRUE;
 		}
 					
-		if (requestDatagram_.isResponse())
+		if (!requestDatagram_.isRequest())
 			return LOGICAL_TRUE; // stranger response
 
 		printf("%s\n", PSZ_SEPARATOR);
 		time_t t; time(&t);
 		printf( "%s", ctime(&t) );
-		
-		bool bGet = requestDatagram_.isGetRequest();
+
+		printf("Channel %s: ", strChannelName_.c_str());
+		bool bGet = requestDatagram_.isGetRequest() || requestDatagram_.isGetNextRequest();
 		if (bGet)
 			printf("GET ");
 		else
@@ -157,6 +160,7 @@ protected:
 
 protected:
 	CSnmpSocket sock_;
+	std::string strChannelName_;
 	IPADDRESS_TYPE IP_;
 	unsigned int port_;
 	int nMCAddress_;
@@ -243,7 +247,7 @@ void ListenRequests(IPADDRESS_TYPE IP, unsigned short port,
 		ConnectDevice(pDownConverter, MC_SERIAL_PORT, strConnectionName.c_str(), nMCAddress);
 	}
 
-	ListeningThread *pThreadObject = new ListeningThread(IP, port, nMCAddress, pModem, pUpConverter, pDownConverter);
+	ListeningThread *pThreadObject = new ListeningThread(strChannelName, IP, port, nMCAddress, pModem, pUpConverter, pDownConverter);
 	pThreadObject->Run();
 	Sleep(1000);
 }
@@ -273,6 +277,21 @@ std::string getLine(FILE *pFile)
 
 int main(int argc, char* argv[])
 {
+	/*IPADDRESS_TYPE thisIP = StringToAddress("10.192.1.219");
+	IPADDRESS_TYPE thatIP = StringToAddress("10.192.1.3");
+	CSnmpSocket testSock;
+	if (!testSock.Bind(161, thisIP))
+	{
+		printf("Cannot bind, EC = %d\n", testSock.GetLastErrorCode());
+		return 1;
+	}
+
+	unsigned int id[] = {1,3,6,1,4,1,7840,3,1,2,2,2,1,1,16,1};
+	cSnmpOID oid(id, ELEMENT_COUNT(id));
+	testSock.SendSnmpGetNextRequest(thatIP, "public", oid, 46211);
+	cSnmpDatagram dgm;
+	testSock.GetSnmpReply(dgm);*/
+
 	if (argc < 2)
 	{
 		printf("Usage: %s cfg_file\n", argv[0]);

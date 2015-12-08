@@ -178,9 +178,11 @@ LOGICAL CIpSocket::ReadFrom
 {
 	int fromlen = sizeof(*a_pSrc);
 	nReadBytes = recvfrom(GetSocket(), (char *)pBufferToFill, nBufferSize, 0, (struct sockaddr *)a_pSrc, &fromlen);
+	//printf("%d bytes read from socket\n", nReadBytes);
 	if (nReadBytes == SOCKET_ERROR)
 	{
 		m_dwLastErrorCode = WSAGetLastError();
+		//printf("Error code = %d\n", m_dwLastErrorCode);	
 		return LOGICAL_FALSE;
 	}
 	return LOGICAL_TRUE;
