@@ -47,54 +47,6 @@ int EncodeByte(unsigned char cValue, unsigned char *&pucCurrentPos)
 	return 2; // 2 octets required
 }
 
-int EncodeNull(unsigned char *&pucCurrentPos)
-{
-	// Field type
-	*pucCurrentPos = SNMP_FIELD_TYPE_NULL;
-	++pucCurrentPos;
-	// Length
-	*pucCurrentPos = 0x00; // just 0
-	++pucCurrentPos;
-
-	return 2; // 2 octets required
-}
-
-int EncodeGetRequest(unsigned char *&pucCurrentPos)
-{
-	// Field type
-	*pucCurrentPos = SNMP_FIELD_GET_REQUEST;
-	++pucCurrentPos;
-	// Length
-	*pucCurrentPos = 0x00; // unknown yet
-	++pucCurrentPos;
-
-	return 2; // 2 octets required
-}
-
-int EncodeGetResponse(unsigned char *&pucCurrentPos)
-{
-	// Field type
-	*pucCurrentPos = SNMP_FIELD_GET_RESPONSE;
-	++pucCurrentPos;
-	// Length
-	*pucCurrentPos = 0x00; // unknown yet
-	++pucCurrentPos;
-
-	return 2; // 2 octets required
-}
-
-int EncodeSetRequest(unsigned char *&pucCurrentPos)
-{
-	// Field type
-	*pucCurrentPos = SNMP_FIELD_SET_REQUEST;
-	++pucCurrentPos;
-	// Length
-	*pucCurrentPos = 0x00; // unknown yet
-	++pucCurrentPos;
-
-	return 2; // 2 octets required
-}
-
 LOGICAL DecodeResponseField(unsigned char *&pucCurrentPos, unsigned char &fieldType, int &nOctets)
 {
 	fieldType = *pucCurrentPos;
@@ -702,31 +654,31 @@ LOGICAL CSnmpSocket::SendGetResponse(IPADDRESS_TYPE uIP, unsigned short uPort, i
 	unsigned char ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucTotalLen = pucCurrentPos-1;
 	// version
-	(*pucTotalLen) += EncodeOctet(iVersion, pucCurrentPos);
+	*pucTotalLen += EncodeOctet(iVersion, pucCurrentPos);
 	// Community
-	(*pucTotalLen) += EncodeString(strCommunity, pucCurrentPos);
+	*pucTotalLen += EncodeString(strCommunity, pucCurrentPos);
 	// Request header
-	(*pucTotalLen) += EncodeGetResponse(pucCurrentPos);
+	*pucTotalLen += EncodeByte(SNMP_FIELD_GET_RESPONSE, pucCurrentPos);
 	// Store pdu length
 	unsigned char *pucPduLen = pucCurrentPos-1;
 	// RequestID
 	ucOctets = EncodeInteger(ReqID, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// Status code
 	ucOctets = EncodeOctet(0, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// Error code
 	ucOctets = EncodeOctet(0, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// oid
 	ucOctets = EncodeSequence(pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	unsigned char *pucOidLen = pucCurrentPos-1;
 	ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucOidLen2 = pucCurrentPos-1;
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets;
 	ucOctets = EncodeOID(var.m_OID, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	// value
 	if (var.m_DataType == SNMP_FIELD_TYPE_INTEGER)
 		ucOctets = EncodeInteger(var.m_iIntegerValue, pucCurrentPos);
@@ -735,7 +687,7 @@ LOGICAL CSnmpSocket::SendGetResponse(IPADDRESS_TYPE uIP, unsigned short uPort, i
 		ucOctets = EncodeString(var.m_strValue, pucCurrentPos);
 	}
 
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	
 	unsigned int nWrittenBytes = 0;
 	return WriteTo(&datagram, *pucTotalLen + 2, nWrittenBytes, uIP, uPort);
@@ -784,7 +736,7 @@ LOGICAL CSnmpSocket::SendSnmpRequest(unsigned char reqCode, IPADDRESS_TYPE uIP, 
 	ucOctets = EncodeOID(OID, pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
 	// null
-	ucOctets = EncodeNull(pucCurrentPos);
+	ucOctets = EncodeByte(0, pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
 	
 	unsigned int nWrittenBytes = 0;
@@ -810,34 +762,34 @@ LOGICAL CSnmpSocket::SendSnmpSetIntegerRequest(IPADDRESS_TYPE uIP, const std::st
 	unsigned char ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucTotalLen = pucCurrentPos-1;
 	// version
-	(*pucTotalLen) += EncodeOctet(0, pucCurrentPos);
+	*pucTotalLen += EncodeOctet(0, pucCurrentPos);
 	// Community
-	(*pucTotalLen) += EncodeString(strCommunity, pucCurrentPos);
+	*pucTotalLen += EncodeString(strCommunity, pucCurrentPos);
 	// Request header
-	(*pucTotalLen) += EncodeSetRequest(pucCurrentPos);
+	*pucTotalLen += EncodeByte(SNMP_FIELD_SET_REQUEST, pucCurrentPos);
 	// Store pdu length
 	unsigned char *pucPduLen = pucCurrentPos-1;
 	// RequestID
 	ucOctets = EncodeInteger(ReqID, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// Status code
 	ucOctets = EncodeOctet(0, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// Error code
 	ucOctets = EncodeOctet(0, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// oid
 	ucOctets = EncodeSequence(pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	unsigned char *pucOidLen = pucCurrentPos-1;
 	ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucOidLen2 = pucCurrentPos-1;
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets;
 	ucOctets = EncodeOID(OID, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	// Value
 	ucOctets = EncodeInteger(iValue, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	
 	unsigned int nWrittenBytes = 0;
 	return WriteTo(&datagram, *pucTotalLen + 2, nWrittenBytes, uIP, SNMP_PORT);
@@ -852,34 +804,34 @@ LOGICAL CSnmpSocket::SendSnmpSetUnsignedIntegerRequest(IPADDRESS_TYPE uIP, const
 	unsigned char ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucTotalLen = pucCurrentPos-1;
 	// version
-	(*pucTotalLen) += EncodeOctet(0, pucCurrentPos);
+	*pucTotalLen += EncodeOctet(0, pucCurrentPos);
 	// Community
-	(*pucTotalLen) += EncodeString(strCommunity, pucCurrentPos);
+	*pucTotalLen += EncodeString(strCommunity, pucCurrentPos);
 	// Request header
-	(*pucTotalLen) += EncodeSetRequest(pucCurrentPos);
+	*pucTotalLen += EncodeByte(SNMP_FIELD_SET_REQUEST, pucCurrentPos);
 	// Store pdu length
 	unsigned char *pucPduLen = pucCurrentPos-1;
 	// RequestID
 	ucOctets = EncodeInteger(ReqID, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// Status code
 	ucOctets = EncodeOctet(0, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// Error code
 	ucOctets = EncodeOctet(0, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets;
 	// oid
 	ucOctets = EncodeSequence(pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets;
 	unsigned char *pucOidLen = pucCurrentPos-1;
 	ucOctets = EncodeSequence(pucCurrentPos);
 	unsigned char *pucOidLen2 = pucCurrentPos-1;
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets;
 	ucOctets = EncodeOID(OID, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	// Value
 	ucOctets = EncodeUnsignedInteger(uiValue, pucCurrentPos);
-	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
+	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	
 	unsigned int nWrittenBytes = 0;
 	return WriteTo(&datagram, *pucTotalLen + 2, nWrittenBytes, uIP, SNMP_PORT);
