@@ -4,4 +4,4 @@
 #include "../HardwareTest/Datum_M7.h"
 #include "snmp_stuff.h"
 
-MC_ErrorCode processDatumRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet);
+MC_ErrorCode processDatumRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType);

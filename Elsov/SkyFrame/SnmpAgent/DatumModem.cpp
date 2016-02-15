@@ -3,7 +3,7 @@
 #include "../Common/SDMS_OIDs.h"
 #include "DatumModem.h"
 
-MC_ErrorCode processDatumUnitAlarmRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumUnitAlarmRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	unsigned int *pAlarms = NULL;
@@ -45,7 +45,7 @@ MC_ErrorCode processDatumUnitAlarmRequest(CDatumModem *pModem, cSnmpVariable &va
 	return EC;
 }
 
-MC_ErrorCode processDatumUnitRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumUnitRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("\tunit\n");
@@ -95,106 +95,208 @@ MC_ErrorCode processDatumUnitRequest(CDatumModem *pModem, cSnmpVariable &var, bo
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemUnitAlarm, OidDatumModemUnitAlarmLen))
 	{
-		EC = processDatumUnitAlarmRequest(pModem, var, bGet);
+		EC = processDatumUnitAlarmRequest(pModem, var, reqType);
 	}
 
 	return EC;
 }
 
-MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+static MC_ErrorCode getTFrequency(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tfrequency ");
+	unsigned int frequency;
+	MC_ErrorCode EC = pModem->GetTFrequency(frequency, 1); // KHz
+	if (EC == MC_OK)
+	{
+		var.setGaugeValue(frequency*1000); // Hz
+		printf("%d KHz", frequency);
+	}
+	return EC;
+}
+
+static MC_ErrorCode getTOffset(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tfrequency offset ");
+	int offset;
+	MC_ErrorCode EC = pModem->GetModulatorShift(offset, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(offset);
+		printf("%d Hz", offset);
+	}
+	return EC;
+}
+
+static MC_ErrorCode getTOutputLevel(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tOutput level ");
+	double level;
+	MC_ErrorCode EC = pModem->GetOutputLevel(level, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value((int)(level*10));
+		printf("%.2f dB", level);
+	}
+	return EC;
+}
+
+static MC_ErrorCode getTOutputEnabled(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tOutput enabled ");
+	BOOL bOn;
+	MC_ErrorCode EC = pModem->IsOutputOn(bOn, 1);
+	if (EC == MC_OK)
+	{
+		if (bOn)
+		{
+			var.setInteger32Value(2);
+			printf("ON");
+		}
+		else
+		{
+			var.setInteger32Value(1);
+			printf("OFF");
+		}
+	}
+	return EC;
+}
+
+static MC_ErrorCode getTModulationType(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tModulation ");
+	int modType;
+	MC_ErrorCode EC = pModem->GetTModulationType(modType, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(modType+1);
+		printf("%s", pModem->GetTModulationTypeName(modType));
+	}
+	return EC;
+}
+
+static MC_ErrorCode getTSpectrumType(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tSpectrum ");
+	int mode = -1;
+	MC_ErrorCode EC = pModem->GetTSpectrumMode(mode, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(mode+1);
+		printf("%s", pModem->GetTSpectrumModeName(mode));
+	}
+	return EC;
+}
+
+MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
 	if (var.m_OID.isPartOfOID(OidModulatorIfFrequency, OidModulatorIfFrequencyLen))
 	{
-		printf("\t\tfrequency ");
-		unsigned int frequency = 0;
-		if (bGet)
-		{ // get
-			EC = pModem->GetTFrequency(frequency, 1); // KHz
-			if (EC == MC_OK)
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTFrequency(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorIfFrequency, OidModulatorIfFrequencyLen))
 			{
-				var.setInteger32Value(frequency*1000); // Hz
-				printf("%d KHz", frequency);
+				var.setOID(OidModulatorIfOffset, OidModulatorIfOffsetLen);
+				EC = processDatumModulatorIfRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else
-		{ // set
-			frequency = var.m_iIntegerValue/1000; // Hz -> KHz
-			printf("%d KHz", frequency);
+			else
+			{
+				EC = getTFrequency(pModem, var);
+				var.setOID(OidModulatorIfFrequency, OidModulatorIfFrequencyLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			unsigned int frequency = var.m_iIntegerValue/1000; // Hz -> KHz
+			printf("\t\tfrequency %d KHz", frequency);
 			EC = pModem->SetTFrequency(frequency, 1);
 			if (EC == MC_OK)
 				printf(", result = %d KHz", frequency);
-		}
+			break;
+		};
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorIfOffset, OidModulatorIfOffsetLen))
 	{
-		printf("\t\tfrequency offset ");
-		int offset;
-		if (bGet)
-		{ // get
-			EC = pModem->GetModulatorShift(offset, 1);
-			if (EC == MC_OK)
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTOffset(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorIfOffset, OidModulatorIfOffsetLen))
 			{
-				var.setInteger32Value(offset);
-				printf("%d Hz", offset);
+				var.setOID(OidModulatorIfOutputLevel, OidModulatorIfOutputLevelLen);
+				EC = processDatumModulatorIfRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else
-		{ // set
-			offset = var.m_iIntegerValue;
-			printf("%d Hz", offset);
+			else
+			{
+				EC = getTOffset(pModem, var);
+				var.setOID(OidModulatorIfOffset, OidModulatorIfOffsetLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int offset = var.m_iIntegerValue;
+			printf("\t\tOffset %d Hz", offset);
 			EC = pModem->SetModulatorShift(offset, 1);
 			if (EC == MC_OK)
 				printf(", result = %d Hz", offset);
-		}
+			break;
+		};
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorIfOutputLevel, OidModulatorIfOutputLevelLen))
 	{
-		printf("\t\tOutput level ");
-		double level;
-		if (bGet)
-		{ // get
-			EC = pModem->GetOutputLevel(level, 1);
-			if (EC == MC_OK)
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTOutputLevel(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorIfOutputLevel, OidModulatorIfOutputLevelLen))
 			{
-				var.setInteger32Value((int)(level*10));
-				printf("%.2f dB", level);
+				var.setOID(OidModulatorIfOutputEnabled, OidModulatorIfOutputEnabledLen);
+				EC = processDatumModulatorIfRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else
-		{ // set
-			level = var.m_iIntegerValue/10.;
-			printf("%.2f dB", level);
+			else
+			{
+				EC = getTOutputLevel(pModem, var);
+				var.setOID(OidModulatorIfOutputLevel, OidModulatorIfOutputLevelLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			double level = var.m_iIntegerValue/10.;
+			printf("\t\tOutput level %.2f dB", level);
 			EC = pModem->SetOutputLevel(level, 1);
 			if (EC == MC_OK)
 				printf(", result = %.2f dB", level);
+			break;
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorIfOutputEnabled, OidModulatorIfOutputEnabledLen))
 	{
-		printf("\t\tOutput enabled ");
-		BOOL bOn;
-		if (bGet)
-		{ // get
-			EC = pModem->IsOutputOn(bOn, 1);
-			if (EC == MC_OK)
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTOutputEnabled(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorIfOutputEnabled, OidModulatorIfOutputEnabledLen))
 			{
-				if (bOn)
-				{
-					var.setInteger32Value(2);
-					printf("ON");
-				}
-				else
-				{
-					var.setInteger32Value(1);
-					printf("OFF");
-				}
+				var.setOID(OidModulatorIfModulation, OidModulatorIfModulationLen);
+				EC = processDatumModulatorIfRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else
-		{ // set
-			bOn = (var.m_iIntegerValue == 2);
+			else
+			{
+				EC = getTOutputEnabled(pModem, var);
+				var.setOID(OidModulatorIfOutputEnabled, OidModulatorIfOutputEnabledLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			printf("\t\tOutput");
+			BOOL bOn = (var.m_iIntegerValue == 2);
 			if (bOn)
 				printf("ON");
 			else
@@ -212,21 +314,26 @@ MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorIfModulation, OidModulatorIfModulationLen))
 	{
-		printf("\t\tModulation ");
-		int modType;
-		if (bGet)
-		{ //  get
-			EC = pModem->GetTModulationType(modType, 1);
-			if (EC == MC_OK)
-			{
-				var.setInteger32Value(modType+1);
-				printf("%s", pModem->GetTModulationTypeName(modType));
-			}
-		}
-		else
+		switch (reqType)
 		{
-			modType = var.m_iIntegerValue - 1;
-			printf("%s", pModem->GetTModulationTypeName(modType));
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTModulationType(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorIfModulation, OidModulatorIfModulationLen))
+			{
+				var.setOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen);
+				EC = processDatumModulatorIfRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				EC = getTModulationType(pModem, var);
+				var.setOID(OidModulatorIfModulation, OidModulatorIfModulationLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int modType = var.m_iIntegerValue - 1;
+			printf("Modulation %s", pModem->GetTModulationTypeName(modType));
 			EC = pModem->SetTModulationType(modType, 1);
 			if (EC == MC_OK)
 			{
@@ -236,21 +343,26 @@ MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen))
 	{
-		printf("\t\tSpectrum ");
-		int mode = -1;
-		if (bGet)
+		switch (reqType)
 		{
-			EC = pModem->GetTSpectrumMode(mode, 1);
-			if (EC == MC_OK)
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTSpectrumType(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen))
 			{
-				var.setInteger32Value(mode+1);
-				printf("%s", pModem->GetTSpectrumModeName(mode));
+				var.setOID(OidModulatorIfMode, OidModulatorIfModeLen);
+				EC = processDatumModulatorIfRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else
-		{ // set
-			mode = var.m_iIntegerValue-1;
-			printf("%s", pModem->GetTSpectrumModeName(mode));
+			else
+			{
+				EC = getTSpectrumType(pModem, var);
+				var.setOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = var.m_iIntegerValue-1;
+			printf("\t\tSpectrum %s", pModem->GetTSpectrumModeName(mode));
 			EC = pModem->SetTSpectrumMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -263,7 +375,7 @@ MC_ErrorCode processDatumModulatorIfRequest(CDatumModem *pModem, cSnmpVariable &
 	return EC;
 }
 
-MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
@@ -271,7 +383,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tBit rate ");
 		unsigned int DataRate;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{ // get
 			EC = pModem->GetTDataRate(DataRate, 1);
 			if (EC == MC_OK)
@@ -280,7 +392,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%d Baud", DataRate);
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
 			DataRate = var.m_iIntegerValue;
 			printf("%d Baud", DataRate);
@@ -306,7 +421,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tFEC type ");
 		int mode;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{
 			EC = pModem->GetTFecMode(mode, 1);
 			if (EC == MC_OK)
@@ -329,7 +444,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetTFecModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			switch (var.m_iIntegerValue)
 			{
@@ -359,7 +477,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tFEC code rate ");
 		int mode = -1;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{
 			EC = pModem->GetTFecCodeRate(mode, 1);
 			if (EC == MC_OK)
@@ -368,7 +486,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetTFecCodeRateName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetTFecCodeRateName(mode));
@@ -384,7 +505,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tFEC code option ");
 		int option = -1;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{
 			EC = pModem->GetTFecOption(option, 1);
 			if (EC == MC_OK)
@@ -393,7 +514,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetTFecOptionName(option));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
 			option = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetTFecOptionName(option));
@@ -409,7 +533,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tdifferential encoder ");
 		int mode = -1;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{
 			EC = pModem->GetDiffEncoderMode(mode, 1);
 			if (EC == MC_OK)
@@ -418,7 +542,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetDiffEncoderModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetDiffEncoderModeName(mode));
@@ -435,7 +562,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tscrambler ");
 		int mode = -1;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{
 			EC = pModem->GetScramblerMode(mode, 1);
 			if (EC == MC_OK)
@@ -444,7 +571,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetScramblerModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetScramblerModeName(mode));
@@ -460,7 +590,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tReed-Solomon mode ");
 		int mode = -1;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{
 			EC = pModem->GetTReedSolomonMode(mode, 1);
 			if (EC == MC_OK)
@@ -469,7 +599,10 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetReedSolomonModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetReedSolomonModeName(mode));
@@ -485,7 +618,7 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 	return EC;
 }
 
-MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
@@ -534,8 +667,8 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 	{
 		printf("\t\tpower ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetTPowerSupplyMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -543,7 +676,10 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 				printf("%s", pModem->GetTPowerSupplyModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetTPowerSupplyModeName(mode));
@@ -559,8 +695,8 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 	{
 		printf("\t\t10 MHz reference ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetT10MHzMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -568,7 +704,10 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 				printf("%s", pModem->GetT10MHzModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetT10MHzModeName(mode));
@@ -584,7 +723,7 @@ MC_ErrorCode processDatumModulatorBucRequest(CDatumModem *pModem, cSnmpVariable 
 	return EC;
 }
 
-MC_ErrorCode processDatumModulatorRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumModulatorRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("\tmodulator\n");
@@ -601,21 +740,21 @@ MC_ErrorCode processDatumModulatorRequest(CDatumModem *pModem, cSnmpVariable &va
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorIf, OidModulatorIfLen))
 	{
-		EC = processDatumModulatorIfRequest(pModem, var, bGet);
+		EC = processDatumModulatorIfRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorData, OidModulatorDataLen))
 	{
-		EC = processDatumModulatorDataRequest(pModem, var, bGet);
+		EC = processDatumModulatorDataRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorBuc, OidModulatorBucLen))
 	{
-		EC = processDatumModulatorBucRequest(pModem, var, bGet);
+		EC = processDatumModulatorBucRequest(pModem, var, reqType);
 	}
 
 	return EC;
 }
 
-MC_ErrorCode processDatumDemodulatorStatusRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumDemodulatorStatusRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
@@ -706,14 +845,14 @@ MC_ErrorCode processDatumDemodulatorStatusRequest(CDatumModem *pModem, cSnmpVari
 	return EC;
 }
 
-MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	if (var.m_OID.isPartOfOID(OidDemodulatorIfFrequency, OidDemodulatorIfFrequencyLen))
 	{
 		printf("\t\tfrequency ");
 		unsigned int frequency;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{ // get
 			EC = pModem->GetRFrequency(frequency, 1);
 			if (EC == MC_OK)
@@ -722,9 +861,12 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%d KHz", frequency);
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
-			frequency = var.m_uiIntegerValue/1000;
+			frequency = var.m_GaugeValue/1000;
 			printf("%d KHz", frequency);
 			EC = pModem->SetRFrequency(frequency, 1);
 			if (EC == MC_OK)
@@ -757,8 +899,8 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tsweep range ");
 		unsigned int range;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetSearchRange(range, 1);
 			if (EC == MC_OK)
 			{
@@ -766,7 +908,10 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%d Hz", range);
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
 			range = var.m_iIntegerValue;
 			printf("%d Hz", range);
@@ -793,8 +938,8 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tsweep mode ");
 		int mode = -1;
-		if (bGet)
-		{ //get
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRSweepMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -802,7 +947,10 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetRSweepModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRSweepModeName(mode));
@@ -818,8 +966,8 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tModulation ");
 		int modType = -1;
-		if (bGet)
-		{ //get
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRModulationType(modType, 1);
 			if (EC == MC_OK)
 			{
@@ -827,7 +975,10 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetRModulationTypeName(modType));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
 			modType = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRModulationTypeName(modType));
@@ -843,8 +994,8 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	{
 		printf("\t\tSpectrum ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRSpectrumMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -852,7 +1003,10 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 				printf("%s", pModem->GetRSpectrumModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRSpectrumModeName(mode));
@@ -868,7 +1022,7 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	return EC;
 }
 
-MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
@@ -876,8 +1030,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tBit rate ");
 		unsigned int DataRate = 0;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRDataRate(DataRate, 1);
 			if (EC == MC_OK)
 			{
@@ -885,7 +1039,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%d baud", DataRate);
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			DataRate = var.m_iIntegerValue;
 			printf("%d baud", DataRate);
@@ -901,8 +1058,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tClock source ");
 		int source = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRDataClockSource(source, 1);
 			if (EC == MC_OK)
 			{
@@ -910,7 +1067,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetRDataClockSourceName(source));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			source = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRDataClockSourceName(source));
@@ -926,8 +1086,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tFEC type ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRFecMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -949,7 +1109,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetRFecModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			switch (var.m_iIntegerValue)
 			{
@@ -979,8 +1142,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tFEC code rate ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRFecCodeRate(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -988,7 +1151,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetRFecCodeRateName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRFecCodeRateName(mode));
@@ -1004,8 +1170,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tFEC code option ");
 		int option = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRFecOption(option, 1);
 			if (EC == MC_OK)
 			{
@@ -1013,7 +1179,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetRFecOptionName(option));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ // set
 			option = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRFecOptionName(option));
@@ -1029,8 +1198,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tReed-Solomon mode ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRReedSolomonMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -1038,7 +1207,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetReedSolomonModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetReedSolomonModeName(mode));
@@ -1054,8 +1226,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tdifferential decoder ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetDiffDecoderMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -1063,7 +1235,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetDiffDecoderModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetDiffDecoderModeName(mode));
@@ -1079,8 +1254,8 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	{
 		printf("\t\tdescrambler ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetDescramblerMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -1088,7 +1263,10 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				printf("%s", pModem->GetDescramblerModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetDescramblerModeName(mode));
@@ -1126,7 +1304,7 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 	return EC;
 }
 
-MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
@@ -1175,8 +1353,8 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 	{
 		printf("\t\tpower ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetRPowerSupplyMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -1184,7 +1362,10 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 				printf("%s", pModem->GetRPowerSupplyModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetRPowerSupplyModeName(mode));
@@ -1200,8 +1381,8 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 	{
 		printf("\t\t10 MHz reference ");
 		int mode = -1;
-		if (bGet)
-		{
+		if (reqType == SNMP_FIELD_GET_REQUEST)
+		{ // get
 			EC = pModem->GetR10MHzMode(mode, 1);
 			if (EC == MC_OK)
 			{
@@ -1209,7 +1390,10 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 				printf("%s", pModem->GetR10MHzModeName(mode));
 			}
 		}
-		else
+		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{ // get_next
+		} 
+		else if (reqType == SNMP_FIELD_SET_REQUEST)
 		{ //set
 			mode = var.m_iIntegerValue-1;
 			printf("%s", pModem->GetR10MHzModeName(mode));
@@ -1225,7 +1409,7 @@ MC_ErrorCode processDatumDemodulatorLnbRequest(CDatumModem *pModem, cSnmpVariabl
 	return EC;
 }
 
-MC_ErrorCode processDatumDemodulatorAlarmRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumDemodulatorAlarmRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	unsigned int *pAlarms = NULL;
@@ -1284,7 +1468,7 @@ MC_ErrorCode processDatumDemodulatorAlarmRequest(CDatumModem *pModem, cSnmpVaria
 	return EC;
 }
 
-MC_ErrorCode processDatumDemodulatorRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumDemodulatorRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("\tdemodulator\n");
@@ -1301,29 +1485,29 @@ MC_ErrorCode processDatumDemodulatorRequest(CDatumModem *pModem, cSnmpVariable &
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorIf, OidDemodulatorIfLen))
 	{
-		EC = processDatumDemodulatorIfRequest(pModem, var, bGet);
+		EC = processDatumDemodulatorIfRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorStatus, OidDemodulatorStatusLen))
 	{
-		EC = processDatumDemodulatorStatusRequest(pModem, var, bGet);
+		EC = processDatumDemodulatorStatusRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorData, OidDemodulatorDataLen))
 	{
-		EC = processDatumDemodulatorDataRequest(pModem, var, bGet);
+		EC = processDatumDemodulatorDataRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorLnb, OidDemodulatorLnbLen))
 	{
-		EC = processDatumDemodulatorLnbRequest(pModem, var, bGet);
+		EC = processDatumDemodulatorLnbRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorAlarm, OidDemodulatorAlarmLen))
 	{
-		EC = processDatumDemodulatorAlarmRequest(pModem, var, bGet);
+		EC = processDatumDemodulatorAlarmRequest(pModem, var, reqType);
 	}
 
 	return EC;
 }
 
-MC_ErrorCode processDatumInterfaceIORequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumInterfaceIORequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("\t\tIO");
@@ -1331,7 +1515,7 @@ MC_ErrorCode processDatumInterfaceIORequest(CDatumModem *pModem, cSnmpVariable &
 	return EC;
 }
 
-MC_ErrorCode processDatumInterfaceAlarmRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumInterfaceAlarmRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("\t\tAlarm");
@@ -1348,43 +1532,43 @@ MC_ErrorCode processDatumInterfaceAlarmRequest(CDatumModem *pModem, cSnmpVariabl
 	return EC;
 }
 
-MC_ErrorCode processDatumInterfaceRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumInterfaceRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("\tinterface\n");
 
 	if (var.m_OID.isPartOfOID(OidDatumModemInterfaceIOTable, OidDatumModemInterfaceIOTableLen))
 	{
-		EC = processDatumInterfaceIORequest(pModem, var, bGet);
+		EC = processDatumInterfaceIORequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemInterfaceAlarmTable, OidDatumModemInterfaceAlarmTableLen))
 	{
-		EC = processDatumInterfaceAlarmRequest(pModem, var, bGet);
+		EC = processDatumInterfaceAlarmRequest(pModem, var, reqType);
 	}
 
 	return EC;
 }
 
-MC_ErrorCode processDatumRequest(CDatumModem *pModem, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processDatumRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 	printf("Datum modem\n");
 
 	if (var.m_OID.isPartOfOID(OidDatumModemUnitObjs, OidDatumModemUnitObjsLen))
 	{
-		EC = processDatumUnitRequest(pModem, var, bGet);
+		EC = processDatumUnitRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemModulatorObjs, OidDatumModemModulatorObjsLen))
 	{
-		EC = processDatumModulatorRequest(pModem, var, bGet);
+		EC = processDatumModulatorRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemDemodulatorObjs, OidDatumModemDemodulatorObjsLen))
 	{
-		EC = processDatumDemodulatorRequest(pModem, var, bGet);
+		EC = processDatumDemodulatorRequest(pModem, var, reqType);
 	}
 	else if (var.m_OID.isPartOfOID(OidDatumModemInterfaceObjs, OidDatumModemInterfaceObjsLen))
 	{
-		EC = processDatumInterfaceRequest(pModem, var, bGet);
+		EC = processDatumInterfaceRequest(pModem, var, reqType);
 	}
 
 	if (EC == MC_DEVICE_NOT_RESPONDING)

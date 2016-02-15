@@ -2,7 +2,7 @@
 #include "../Common/SDMS_OIDs.h"
 #include "PozharskyDownConverter.h"
 
-MC_ErrorCode processPozharskyDownRequest(CPozharskyUpDownConverter *pConverter, cSnmpVariable &var, bool bGet)
+MC_ErrorCode processPozharskyDownRequest(CPozharskyUpDownConverter *pConverter, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC = MC_DEVICE_NOT_RESPONDING;
 
@@ -11,7 +11,7 @@ MC_ErrorCode processPozharskyDownRequest(CPozharskyUpDownConverter *pConverter, 
 	{
 		printf("\t\tenabled ");
 		BOOL bOn;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{ // get
 			EC = pConverter->IsDownTurnedOn(bOn);
 			if (EC == MC_OK)
@@ -50,7 +50,7 @@ MC_ErrorCode processPozharskyDownRequest(CPozharskyUpDownConverter *pConverter, 
 	{
 		printf("\t\tfrequency ");
 		unsigned int frequency;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{ // get
 			EC = pConverter->GetDownInputFrequency(frequency);
 			if (EC == MC_OK)
@@ -61,7 +61,7 @@ MC_ErrorCode processPozharskyDownRequest(CPozharskyUpDownConverter *pConverter, 
 		}
 		else
 		{ // set
-			frequency = var.m_uiIntegerValue;
+			frequency = var.m_GaugeValue;
 			printf("%d MHz", frequency);
 			EC = pConverter->SetDownInputFrequency(frequency);
 			if (EC == MC_OK)
@@ -72,7 +72,7 @@ MC_ErrorCode processPozharskyDownRequest(CPozharskyUpDownConverter *pConverter, 
 	{
 		printf("\t\tattenuator ");
 		double att;
-		if (bGet)
+		if (reqType == SNMP_FIELD_GET_REQUEST)
 		{ // get
 			EC = pConverter->GetDownInputAtt(att);
 			if (EC == MC_OK)

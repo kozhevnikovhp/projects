@@ -58,6 +58,8 @@ public:
 	cSnmpOID(const unsigned int *pOID, int nOidLength);
 
 	void operator = (const cSnmpOID &OID);
+	void set(const unsigned int *pOID, int nOidLength);
+	void addDot1();
 
 	bool isTheSame(const cSnmpOID &OID) const;
 	bool isTheSameOID(const unsigned int *puiOID, int nOIDlen) const;
@@ -72,7 +74,10 @@ class cSnmpVariable
 {
 public:
 	cSnmpVariable();
+	void setOID(const unsigned int *pOID, int nOidLength);
+	void appendDot1ToOID();
 	void setInteger32Value(int iValue) { m_iIntegerValue = iValue; m_DataType = SNMP_FIELD_TYPE_INTEGER; }
+	void setGaugeValue(int iValue) { m_GaugeValue = iValue; m_DataType = SNMP_FIELD_TYPE_GAUGE; }
 	void setStringValue(const std::string &strValue) {	m_strValue = strValue;	m_DataType = SNMP_FIELD_TYPE_OCTET_STRING; }
 	
 	void operator = (const cSnmpVariable &var);
@@ -80,7 +85,7 @@ public:
 	cSnmpOID m_OID;
 	unsigned char m_DataType;
 	int m_iIntegerValue;
-	unsigned int m_uiIntegerValue;
+	unsigned int m_GaugeValue;
 	std::string m_strValue;
 };
 
@@ -89,6 +94,7 @@ class cSnmpDatagram
 public:
 	cSnmpDatagram();
 
+	unsigned char getRequestType() const { return m_FieldType; }
 	bool isRequest() const { return (isGetRequest() || isGetNextRequest() || isSetRequest()); }
 	bool isGetRequest() const { return (m_FieldType == SNMP_FIELD_GET_REQUEST); }
 	bool isGetNextRequest() const { return (m_FieldType == SNMP_FIELD_GET_NEXT_REQUEST); }

@@ -105,11 +105,22 @@ protected:
 		printf( "%s", ctime(&t) );
 
 		printf("Channel %s: ", strChannelName_.c_str());
-		bool bGet = requestDatagram_.isGetRequest() || requestDatagram_.isGetNextRequest();
-		if (bGet)
+		unsigned char requestType = requestDatagram_.getRequestType();
+		bool bGet = false;
+		if (requestType == SNMP_FIELD_GET_REQUEST)
+		{
+			bGet = true;
 			printf("GET ");
-		else
+		}
+		else if (requestType == SNMP_FIELD_GET_NEXT_REQUEST)
+		{
+			bGet = true;
+			printf("GET_NEXT ");
+		}
+		else if (requestType == SNMP_FIELD_SET_REQUEST)
 			printf("SET ");
+		else
+			printf("UNKNOWN_REQUEST_TYPE ");
 
 		bool bOK = false;
 		var_ = requestDatagram_.m_Variable;
@@ -122,21 +133,21 @@ protected:
 		if (var_.m_OID.isPartOfOID(OidDatumModemMIB, OidDatumModemMIBLen))
 		{
 			if (pModem_)
-				bOK = (MC_OK == processDatumRequest(pModem_, var_, bGet));
+				bOK = (MC_OK == processDatumRequest(pModem_, var_, requestType));
 			else
 				printf("Modem object is not created, check CFG-file!\n");
 		}
 		else if (var_.m_OID.isPartOfOID(OidPozharskyUpConverter, OidPozharskyUpConverterLen))
 		{
 			if (pUpConverter_)
-				bOK = (MC_OK == processPozharskyUpRequest(pUpConverter_, var_, bGet));
+				bOK = (MC_OK == processPozharskyUpRequest(pUpConverter_, var_, requestType));
 			else
 				printf("UP-converter object is not created, check CFG-file!\n");
 		}
 		else if (var_.m_OID.isPartOfOID(OidPozharskyDownConverter, OidPozharskyDownConverterLen))
 		{
 			if (pDownConverter_)
-				bOK = (MC_OK == processPozharskyDownRequest(pDownConverter_, var_, bGet));
+				bOK = (MC_OK == processPozharskyDownRequest(pDownConverter_, var_, requestType));
 			else
 				printf("DOWN-converter object is not created, check CFG-file!\n");
 		}
@@ -277,6 +288,12 @@ std::string getLine(FILE *pFile)
 
 int main(int argc, char* argv[])
 {
+	if (argc < 2)
+	{
+		printf("Usage: %s cfg_file\n", argv[0]);
+		return 0;
+	}
+
 	/*IPADDRESS_TYPE thisIP = StringToAddress("10.192.1.219");
 	IPADDRESS_TYPE thatIP = StringToAddress("10.192.1.3");
 	CSnmpSocket testSock;
@@ -286,18 +303,14 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	unsigned int id[] = {1,3,6,1,4,1,7840,3,1,2,2,2,1,1,16,1};
+	unsigned int id[] = {1,3,6,1,4,1,7840,3,1,2,2,2,1,1,12,1};
 	cSnmpOID oid(id, ELEMENT_COUNT(id));
-	testSock.SendSnmpGetNextRequest(thatIP, "public", oid, 46211);
+	//cSnmpOID oid(OidModulatorIfFrequency, OidModulatorIfFrequencyLen);
+	testSock.SendSnmpGetNextRequest(thatIP, "public", oid, 31261);
 	cSnmpDatagram dgm;
-	testSock.GetSnmpReply(dgm);*/
+    BOOL b1 = testSock.GetSnmpReply(dgm);*/
 
-	if (argc < 2)
-	{
-		printf("Usage: %s cfg_file\n", argv[0]);
-		return 0;
-	}
-
+	
 	// real lines of cfg-file, one line per device
 	char *pszFileName = argv[1];
 	FILE *pCfgFile = fopen(pszFileName, "r");
@@ -341,6 +354,7 @@ int main(int argc, char* argv[])
 	}
 	fclose(pCfgFile);
 	printf("Totally %d listened IP-Addresses\n", nListened);
+
 
 	getch();
 

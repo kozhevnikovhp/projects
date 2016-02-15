@@ -105,6 +105,8 @@ unsigned int OidModulatorIfModulation[] =   { MOD_IF_MODULATION,1 };
 unsigned int OidModulatorIfModulationLen =   ELEMENT_COUNT(OidModulatorIfModulation);
 unsigned int OidModulatorIfSpectrum[] =   { MOD_IF_SPECTRUM,1 };
 unsigned int OidModulatorIfSpectrumLen =   ELEMENT_COUNT(OidModulatorIfSpectrum);
+unsigned int OidModulatorIfMode[] =   { MOD_IF_MODE,1 };
+unsigned int OidModulatorIfModeLen =   ELEMENT_COUNT(OidModulatorIfMode);
 
 //  Data table
 unsigned int OidModulatorData[] = { MOD_DATA_TABLE,1 };

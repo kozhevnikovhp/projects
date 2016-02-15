@@ -47,6 +47,18 @@ int EncodeByte(unsigned char cValue, unsigned char *&pucCurrentPos)
 	return 2; // 2 octets required
 }
 
+int EncodeNull(unsigned char *&pucCurrentPos)
+{
+	// Field type
+	*pucCurrentPos = SNMP_FIELD_TYPE_NULL;
+	++pucCurrentPos;
+	// Length
+	*pucCurrentPos = 0x00; // just 0
+	++pucCurrentPos;
+
+	return 2; // 2 octets required
+}
+
 LOGICAL DecodeResponseField(unsigned char *&pucCurrentPos, unsigned char &fieldType, int &nOctets)
 {
 	fieldType = *pucCurrentPos;
@@ -227,7 +239,7 @@ int EncodeInteger(const int iValue, unsigned char *&pucCurrentPos)
 	return 1+1+(*pucIntLength);
 }
 
-int EncodeUnsignedInteger(const unsigned int uiValue, unsigned char *&pucCurrentPos)
+int EncodeGauge(const unsigned int uiValue, unsigned char *&pucCurrentPos)
 {
 	// Field type
 	*pucCurrentPos = SNMP_FIELD_TYPE_GAUGE;
@@ -315,7 +327,7 @@ LOGICAL DecodeInteger(int &iValue, const unsigned char *&pucCurrentPos)
 	return LOGICAL_TRUE;
 }
 
-LOGICAL DecodeUnsignedInteger(unsigned int &uiValue, const unsigned char *&pucCurrentPos)
+LOGICAL DecodeGauge(unsigned int &uiValue, const unsigned char *&pucCurrentPos)
 {
 	uiValue = 0;
 	if (*pucCurrentPos != SNMP_FIELD_TYPE_COUNTER32 &&
@@ -421,7 +433,7 @@ LOGICAL DecodeValue(cSnmpVariable &var, const unsigned char *&pucCurrentPos)
 		break;
 	case SNMP_FIELD_TYPE_GAUGE:
 	case SNMP_FIELD_TYPE_COUNTER32:
-		DecodeUnsignedInteger(var.m_uiIntegerValue, pucCurrentPos);
+		DecodeGauge(var.m_GaugeValue, pucCurrentPos);
 		break;
 	case SNMP_FIELD_TYPE_INTEGER:
 		DecodeInteger(var.m_iIntegerValue, pucCurrentPos);
@@ -459,6 +471,7 @@ LOGICAL DecodeSnmpResponse(unsigned char *pDgm, cSnmpDatagram &responseDgm)
 	char szCommunity[128];
 	if (!DecodeString(szCommunity, pucCurrentPos))
 		return LOGICAL_FALSE;
+	responseDgm.m_Community = szCommunity;
 	// Response header
 	if (!DecodeResponseField(pucCurrentPos, responseDgm.m_FieldType, nOctetsRemaining))
 		return LOGICAL_FALSE;
@@ -526,10 +539,22 @@ LOGICAL DecodeSnmpRequest(unsigned char *pDgm, cSnmpDatagram &requestDgm)
 
 cSnmpOID::cSnmpOID()
 {
+	memset(m_uiOID, 0, sizeof(m_uiOID));
 	m_nOIDlen = 0;
 }
 
 cSnmpOID::cSnmpOID(const unsigned int *pOID, int nOidLength)
+{
+	set(pOID, nOidLength);
+}
+
+void cSnmpOID::operator = (const cSnmpOID &OID)
+{
+	memcpy(m_uiOID, OID.m_uiOID, sizeof(m_uiOID));
+	m_nOIDlen = OID.m_nOIDlen;
+}
+
+void cSnmpOID::set(const unsigned int *pOID, int nOidLength)
 {
 	for (int i = 0; i < nOidLength; i++)
 	{
@@ -540,10 +565,10 @@ cSnmpOID::cSnmpOID(const unsigned int *pOID, int nOidLength)
 	m_nOIDlen = nOidLength;
 }
 
-void cSnmpOID::operator = (const cSnmpOID &OID)
+void cSnmpOID::addDot1()
 {
-	memcpy(m_uiOID, OID.m_uiOID, sizeof(m_uiOID));
-	m_nOIDlen = OID.m_nOIDlen;
+	m_uiOID[m_nOIDlen] = 1;
+	++m_nOIDlen;
 }
 
 bool cSnmpOID::isTheSameOID(const unsigned int *puiOID, int nOIDlen) const
@@ -594,10 +619,19 @@ void cSnmpVariable::operator = (const cSnmpVariable &var)
 	m_OID = var.m_OID;
 	m_DataType = var.m_DataType;
 	m_iIntegerValue = var.m_iIntegerValue;
-	m_uiIntegerValue = var.m_uiIntegerValue;
+	m_GaugeValue = var.m_GaugeValue;
 	m_strValue = var.m_strValue;
 }
 
+void cSnmpVariable::setOID(const unsigned int *pOID, int nOidLength)
+{
+	m_OID.set(pOID, nOidLength);
+}
+
+void cSnmpVariable::appendDot1ToOID()
+{
+	m_OID.addDot1();
+}
 
 ////////////////////////////////////////////////////////////////////
 // class cSnmpDatagram
@@ -682,6 +716,8 @@ LOGICAL CSnmpSocket::SendGetResponse(IPADDRESS_TYPE uIP, unsigned short uPort, i
 	// value
 	if (var.m_DataType == SNMP_FIELD_TYPE_INTEGER)
 		ucOctets = EncodeInteger(var.m_iIntegerValue, pucCurrentPos);
+	if (var.m_DataType == SNMP_FIELD_TYPE_GAUGE)
+		ucOctets = EncodeGauge(var.m_GaugeValue, pucCurrentPos);
 	else if (var.m_DataType == SNMP_FIELD_TYPE_OCTET_STRING)
 	{
 		ucOctets = EncodeString(var.m_strValue, pucCurrentPos);
@@ -735,8 +771,9 @@ LOGICAL CSnmpSocket::SendSnmpRequest(unsigned char reqCode, IPADDRESS_TYPE uIP, 
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets;
 	ucOctets = EncodeOID(OID, pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
-	// null
-	ucOctets = EncodeByte(0, pucCurrentPos);
+	
+	// value type (null)
+	ucOctets = EncodeNull(pucCurrentPos);
 	(*pucTotalLen) += ucOctets; (*pucPduLen) += ucOctets; (*pucOidLen) += ucOctets; (*pucOidLen2) += ucOctets;
 	
 	unsigned int nWrittenBytes = 0;
@@ -830,7 +867,7 @@ LOGICAL CSnmpSocket::SendSnmpSetUnsignedIntegerRequest(IPADDRESS_TYPE uIP, const
 	ucOctets = EncodeOID(OID, pucCurrentPos);
 	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	// Value
-	ucOctets = EncodeUnsignedInteger(uiValue, pucCurrentPos);
+	ucOctets = EncodeGauge(uiValue, pucCurrentPos);
 	*pucTotalLen += ucOctets; *pucPduLen += ucOctets; *pucOidLen += ucOctets; *pucOidLen2 += ucOctets;
 	
 	unsigned int nWrittenBytes = 0;

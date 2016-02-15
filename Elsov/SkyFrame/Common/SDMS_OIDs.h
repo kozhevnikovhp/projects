@@ -310,6 +310,8 @@ extern unsigned int OidModulatorIfModulation[];
 extern unsigned int OidModulatorIfModulationLen;
 extern unsigned int OidModulatorIfSpectrum[];
 extern unsigned int OidModulatorIfSpectrumLen;
+extern unsigned int OidModulatorIfMode[];
+extern unsigned int OidModulatorIfModeLen;
 
 // ModDataTable
 extern unsigned int OidModulatorData[];
