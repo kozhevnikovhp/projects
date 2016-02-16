@@ -240,7 +240,7 @@ MC_ErrorCode CDatumPsm4900::GetRIfParams(CDemIfParams &Params, int Demodulator)
 
 	Params.m_Frequency = RawDataToInt(m_pDataBytes+8) / 1000;
 	Params.m_SearchRange = RawDataToInt(m_pDataBytes+14); // Hz
-	Params.m_SweepTime = RawDataToSignedShort(m_pDataBytes+18);
+	Params.m_SweepTime = RawDataToSignedShort(m_pDataBytes+18)/10.;
 	Params.m_LowEbno = RawDataToSignedShort(m_pDataBytes+20)/10.;
 	Params.m_LowLevel = RawDataToSignedShort(m_pDataBytes+22)/10.;
 	

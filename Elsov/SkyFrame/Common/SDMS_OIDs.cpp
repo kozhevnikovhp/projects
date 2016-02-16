@@ -175,6 +175,8 @@ unsigned int OidDemodulatorIfModulation[] =   { DEMOD_IF_MODULATION,1 };
 unsigned int OidDemodulatorIfModulationLen =   ELEMENT_COUNT(OidDemodulatorIfModulation);
 unsigned int OidDemodulatorIfSpectrum[] =   { DEMOD_IF_SPECTRUM,1 };
 unsigned int OidDemodulatorIfSpectrumLen =   ELEMENT_COUNT(OidDemodulatorIfSpectrum);
+unsigned int OidDemodulatorIfInputImpedance[] =   { DEMOD_IF_INPUT_IMPEDANCE,1 };
+unsigned int OidDemodulatorIfInputImpedanceLen =   ELEMENT_COUNT(OidDemodulatorIfInputImpedance);
 
 //  Demod Data table
 unsigned int OidDemodulatorData[] = { DEMOD_DATA_TABLE,1 };

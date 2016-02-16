@@ -30,7 +30,7 @@ public:
 	virtual ~CDemIfParams();
 // public members
 	unsigned int m_SearchRange;
-	unsigned int m_SweepTime;
+	double m_SweepTime;
 	double m_LowLevel;
 	double m_LowEbno;
 };

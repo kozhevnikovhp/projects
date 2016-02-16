@@ -134,15 +134,15 @@
 #define						DEMOD_CONFIG_OBJS	DATUM_MODEM_DEMOD_OBJS,2
 #define							DEMOD_IF_TABLE		DEMOD_CONFIG_OBJS,1
 #define								DEMOD_IF_ENTRY	DEMOD_IF_TABLE,1
-#define									DEMOD_IF_FREQUENCY		DEMOD_IF_ENTRY,1
-#define									DEMOD_IF_SWEEP_RANGE	DEMOD_IF_ENTRY,2
-#define									DEMOD_IF_SWEEP_TIME		DEMOD_IF_ENTRY,3
-#define									DEMOD_IF_LOW_LEVEL		DEMOD_IF_ENTRY,4
-#define									DEMOD_IF_LOW_EBNO		DEMOD_IF_ENTRY,5
-#define									DEMOD_IF_SWEEP_MODE		DEMOD_IF_ENTRY,6
-#define									DEMOD_IF_MODULATION		DEMOD_IF_ENTRY,7
-#define									DEMOD_IF_SPECTRUM		DEMOD_IF_ENTRY,8
-#define									DEMOD_IF_INPUT_IMP		DEMOD_IF_ENTRY,9
+#define									DEMOD_IF_FREQUENCY			DEMOD_IF_ENTRY,1
+#define									DEMOD_IF_SWEEP_RANGE		DEMOD_IF_ENTRY,2
+#define									DEMOD_IF_SWEEP_TIME			DEMOD_IF_ENTRY,3
+#define									DEMOD_IF_LOW_LEVEL			DEMOD_IF_ENTRY,4
+#define									DEMOD_IF_LOW_EBNO			DEMOD_IF_ENTRY,5
+#define									DEMOD_IF_SWEEP_MODE			DEMOD_IF_ENTRY,6
+#define									DEMOD_IF_MODULATION			DEMOD_IF_ENTRY,7
+#define									DEMOD_IF_SPECTRUM			DEMOD_IF_ENTRY,8
+#define									DEMOD_IF_INPUT_IMPEDANCE	DEMOD_IF_ENTRY,9
 #define							DEMOD_DATA_TABLE	DEMOD_CONFIG_OBJS,2
 #define								DEMOD_DATA_ENTRY	DEMOD_DATA_TABLE,1
 #define									DEMOD_DATA_BIT_RATE				DEMOD_DATA_ENTRY,1
@@ -374,6 +374,8 @@ extern unsigned int OidDemodulatorIfModulation[];
 extern unsigned int OidDemodulatorIfModulationLen;
 extern unsigned int OidDemodulatorIfSpectrum[];
 extern unsigned int OidDemodulatorIfSpectrumLen;
+extern unsigned int OidDemodulatorIfInputImpedance[];
+extern unsigned int OidDemodulatorIfInputImpedanceLen;
 
 // DemodDataTable
 extern unsigned int OidDemodulatorData[];
