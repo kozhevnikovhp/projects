@@ -1088,6 +1088,228 @@ BOOL CModem::NeedToUpdateTSpectrumMode(int mode, int modulator)
 	return (current_mode != mode);
 }
 
+// Burst mode
+
+//virtual
+const char *CModem::GetTBurstModeName(int mode)
+{
+	if (mode < 0 || mode >= GetTBurstModesCount())
+		return "";
+	return doGetTBurstModeName(mode);
+}
+
+MC_ErrorCode CModem::GetTBurstMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetTBurstMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetTBurstMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTBurstMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTBurstMode(mode, modulator);
+	GetTBurstMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTBurstMode(int mode, int modulator)
+{
+	int current_mode = 0;
+	GetTBurstMode(current_mode, modulator);
+	return (current_mode != mode);
+}
+
+MC_ErrorCode CModem::getTBurstPreambleLength(int &length, int modulator)
+{
+	length = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetTBurstPreambleLength(length, modulator);
+}
+
+MC_ErrorCode CModem::setTBurstPreambleLength(int &length, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTBurstPreambleLength(length, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTBurstPreambleLength(length, modulator);
+	getTBurstPreambleLength(length, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTBurstPreambleLength(int length, int modulator)
+{
+	int currentLength = 0;
+	getTBurstPreambleLength(currentLength, modulator);
+	return (currentLength != length);
+}
+
+// AUPC mode
+
+//virtual
+const char *CModem::GetTAupcModeName(int mode)
+{
+	if (mode < 0 || mode >= GetTAupcModesCount())
+		return "";
+	return doGetTAupcModeName(mode);
+}
+
+MC_ErrorCode CModem::getTAupcMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetTAupcMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::setTAupcMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTAupcMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTAupcMode(mode, modulator);
+	getTAupcMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTAupcMode(int mode, int modulator)
+{
+	int currentMode = 0;
+	getTAupcMode(currentMode, modulator);
+	return (currentMode != mode);
+}
+
+// Cxr mute mode
+
+//virtual
+const char *CModem::GetTCxrMuteModeName(int mode)
+{
+	if (mode < 0 || mode >= GetTCxrMuteModesCount())
+		return "";
+	return doGetTCxrMuteModeName(mode);
+}
+
+MC_ErrorCode CModem::getTCxrMuteMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetTCxrMuteMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::setTCxrMuteMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTCxrMuteMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTCxrMuteMode(mode, modulator);
+	getTCxrMuteMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTCxrMuteMode(int mode, int modulator)
+{
+	int currentMode = 0;
+	getTCxrMuteMode(currentMode, modulator);
+	return (currentMode != mode);
+}
+
+// IF Impedance
+
+//virtual
+const char *CModem::GetRInputImpedanceModeName(int mode)
+{
+	if (mode < 0 || mode >= GetRInputImpedanceModesCount())
+		return "";
+	return doGetRInputImpedanceModeName(mode);
+}
+
+MC_ErrorCode CModem::GetRInputImpedanceMode(int &mode, int demodulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetRInputImpedanceMode(mode, demodulator);
+}
+
+MC_ErrorCode CModem::SetRInputImpedanceMode(int &mode, int demodulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateRInputImpedanceMode(mode, demodulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetRInputImpedanceMode(mode, demodulator);
+	GetRInputImpedanceMode(mode, demodulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateRInputImpedanceMode(int mode, int demodulator)
+{
+	int current_mode = 0;
+	GetRInputImpedanceMode(current_mode, demodulator);
+	return (current_mode != mode);
+}
+
+//virtual
+const char *CModem::GetTOutputImpedanceModeName(int mode)
+{
+	if (mode < 0 || mode >= GetTOutputImpedanceModesCount())
+		return "";
+	return doGetTOutputImpedanceModeName(mode);
+}
+
+MC_ErrorCode CModem::GetTOutputImpedanceMode(int &mode, int modulator)
+{
+	mode = -1;
+	if (!IsControllable()) return MC_DEVICE_NOT_CONTROLLABLE;
+
+	return doGetTOutputImpedanceMode(mode, modulator);
+}
+
+MC_ErrorCode CModem::SetTOutputImpedanceMode(int &mode, int modulator)
+{
+	if (!IsControllable())
+		return MC_DEVICE_NOT_CONTROLLABLE;
+	if (!NeedToUpdateTOutputImpedanceMode(mode, modulator))
+		return MC_OK; // already set
+
+	MC_ErrorCode EC = doSetTOutputImpedanceMode(mode, modulator);
+	GetTOutputImpedanceMode(mode, modulator);
+
+	return EC;
+}
+
+//virtual
+BOOL CModem::NeedToUpdateTOutputImpedanceMode(int mode, int modulator)
+{
+	int current_mode = 0;
+	GetTOutputImpedanceMode(current_mode, modulator);
+	return (current_mode != mode);
+}
+
 // Data inversion
 
 //virtual

@@ -518,13 +518,73 @@ public:
 
 	virtual BOOL CanTSpectrumMode() { return FALSE; }
 	const char *GetTSpectrumModeName(int mode);
-	MC_ErrorCode GetTSpectrumMode(int &mode, int demodulator);
-	MC_ErrorCode SetTSpectrumMode(int &mode, int demodulator);
+	MC_ErrorCode GetTSpectrumMode(int &mode, int modulator);
+	MC_ErrorCode SetTSpectrumMode(int &mode, int modulator);
 	virtual BOOL NeedToUpdateTSpectrumMode(int mode, int modulator);
 	virtual int GetTSpectrumModesCount() = 0;
 	virtual const char *doGetTSpectrumModeName(int mode) = 0;
 	virtual MC_ErrorCode doGetTSpectrumMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	virtual MC_ErrorCode doSetTSpectrumMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+// Burst mode
+	virtual BOOL CanTBurstMode() { return FALSE; }
+	const char *GetTBurstModeName(int mode);
+	MC_ErrorCode GetTBurstMode(int &mode, int modulator);
+	MC_ErrorCode SetTBurstMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateTBurstMode(int mode, int modulator);
+	virtual int GetTBurstModesCount() = 0;
+	virtual const char *doGetTBurstModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetTBurstMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTBurstMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+	MC_ErrorCode getTBurstPreambleLength(int &length, int modulator);
+	MC_ErrorCode setTBurstPreambleLength(int &length, int modulator);
+	virtual BOOL NeedToUpdateTBurstPreambleLength(int length, int modulator);
+	virtual MC_ErrorCode doGetTBurstPreambleLength(int &length, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTBurstPreambleLength(int &length, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+// AUPC mode
+	virtual BOOL CanTAupcMode() { return FALSE; }
+	const char *GetTAupcModeName(int mode);
+	MC_ErrorCode getTAupcMode(int &mode, int modulator);
+	MC_ErrorCode setTAupcMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateTAupcMode(int mode, int modulator);
+	virtual int GetTAupcModesCount() = 0;
+	virtual const char *doGetTAupcModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetTAupcMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTAupcMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+// Cxr mute mode
+	virtual BOOL CanTCxrMuteMode() { return FALSE; }
+	const char *GetTCxrMuteModeName(int mode);
+	MC_ErrorCode getTCxrMuteMode(int &mode, int modulator);
+	MC_ErrorCode setTCxrMuteMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateTCxrMuteMode(int mode, int modulator);
+	virtual int GetTCxrMuteModesCount() = 0;
+	virtual const char *doGetTCxrMuteModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetTCxrMuteMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTCxrMuteMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+// IF impedance
+	virtual BOOL CanRInputImpedanceMode() { return FALSE; }
+	const char *GetRInputImpedanceModeName(int mode);
+	MC_ErrorCode GetRInputImpedanceMode(int &mode, int demodulator);
+	MC_ErrorCode SetRInputImpedanceMode(int &mode, int demodulator);
+	virtual BOOL NeedToUpdateRInputImpedanceMode(int mode, int demodulator);
+	virtual int GetRInputImpedanceModesCount() = 0;
+	virtual const char *doGetRInputImpedanceModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetRInputImpedanceMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetRInputImpedanceMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+
+	virtual BOOL CanTOutputImpedanceMode() { return FALSE; }
+	const char *GetTOutputImpedanceModeName(int mode);
+	MC_ErrorCode GetTOutputImpedanceMode(int &mode, int modulator);
+	MC_ErrorCode SetTOutputImpedanceMode(int &mode, int modulator);
+	virtual BOOL NeedToUpdateTOutputImpedanceMode(int mode, int modulator);
+	virtual int GetTOutputImpedanceModesCount() = 0;
+	virtual const char *doGetTOutputImpedanceModeName(int mode) = 0;
+	virtual MC_ErrorCode doGetTOutputImpedanceMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual MC_ErrorCode doSetTOutputImpedanceMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 
 // Data inversion
 	virtual BOOL CanRDataInv() { return FALSE; }

@@ -63,6 +63,15 @@ static const char *DATUM_M7_SCRAMBLER_MODES[] = {
 
 static const char *DATUM_M7_SPECTRUM_MODES[] = { "Normal", "Inverted" };
 
+static const char *DATUM_M7_T_BURST_MODES[] = { "Normal" };
+
+static const char *DATUM_M7_T_AUPC_MODES[] = { "Disabled", "Enabled" };
+
+static const char *DATUM_M7_CXR_MUTE_MODES[] = { "Automatic", "Confirm", "Manual" };
+
+static const char *DATUM_M7_INPUT_IMPEDANCE_MODES[] = { "50 Ohms", "75 Ohms" };
+static const char *DATUM_M7_OUTPUT_IMPEDANCE_MODES[] = { "50 Ohms", "75 Ohms" };
+
 static const char *DATUM_M7_10MHZ_MODES[] = { "Disabled", "Enabled" };
 
 static const char *DATUM_M7_DIFF_CODING_MODES[] = { "Disabled", "Enabled" };
@@ -551,6 +560,7 @@ MC_ErrorCode CDatum_M7::SetTModulationType(int &Type, int Modulator)
 }
 
 // Spectral inversion
+
 int CDatum_M7::GetRSpectrumModesCount()
 {
 	return sizeof(DATUM_M7_SPECTRUM_MODES)/sizeof(DATUM_M7_SPECTRUM_MODES[0]);
@@ -622,6 +632,214 @@ MC_ErrorCode CDatum_M7::doSetTSpectrumMode(int &mode, int modulator)
 	
 	return EC;
 }
+
+// Burst mode
+
+int CDatum_M7::GetTBurstModesCount()
+{
+	return sizeof(DATUM_M7_T_BURST_MODES)/sizeof(DATUM_M7_T_BURST_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetTBurstModeName(int mode)
+{
+	return DATUM_M7_T_BURST_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTBurstMode(int &mode, int modulator)
+{ // TODO check "24"
+	return MC_COMMAND_NOT_SUPPORTED;
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getModulatorSlotNumber(modulator), 24, bEnabled);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTBurstMode(int &mode, int modulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getModulatorSlotNumber(modulator), 24, bEnabled);
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTBurstPreambleLength(int &length, int modulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTBurstPreambleLength(int &length, int modulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+}
+
+// AUPC mode
+
+int CDatum_M7::GetTAupcModesCount()
+{
+	return sizeof(DATUM_M7_T_AUPC_MODES)/sizeof(DATUM_M7_T_AUPC_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetTAupcModeName(int mode)
+{
+	return DATUM_M7_T_AUPC_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTAupcMode(int &mode, int modulator)
+{ // TODO check "24"
+	return MC_COMMAND_NOT_SUPPORTED;
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getModulatorSlotNumber(modulator), 24, bEnabled);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTAupcMode(int &mode, int modulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getModulatorSlotNumber(modulator), 24, bEnabled);
+	
+	return EC;
+}
+
+// CXR mute mode
+
+int CDatum_M7::GetTCxrMuteModesCount()
+{
+	return sizeof(DATUM_M7_CXR_MUTE_MODES)/sizeof(DATUM_M7_CXR_MUTE_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetTCxrMuteModeName(int mode)
+{
+	return DATUM_M7_CXR_MUTE_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTCxrMuteMode(int &mode, int modulator)
+{ // TODO check "24"
+	return MC_COMMAND_NOT_SUPPORTED;
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getModulatorSlotNumber(modulator), 24, bEnabled);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTCxrMuteMode(int &mode, int modulator)
+{
+	return MC_COMMAND_NOT_SUPPORTED;
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getModulatorSlotNumber(modulator), 24, bEnabled);
+	
+	return EC;
+}
+
+// IF Impedance
+
+int CDatum_M7::GetRInputImpedanceModesCount()
+{
+	return sizeof(DATUM_M7_INPUT_IMPEDANCE_MODES)/sizeof(DATUM_M7_INPUT_IMPEDANCE_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetRInputImpedanceModeName(int mode)
+{
+	return DATUM_M7_INPUT_IMPEDANCE_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetRInputImpedanceMode(int &mode, int demodulator)
+{// TODO: check numbers (27)
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getDemodulatorSlotNumber(demodulator), 27, bEnabled);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetRInputImpedanceMode(int &mode, int demodulator)
+{// TODO: check numbers (27)
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getDemodulatorSlotNumber(demodulator), 27, bEnabled);
+	
+	return EC;
+}
+
+int CDatum_M7::GetTOutputImpedanceModesCount()
+{
+	return sizeof(DATUM_M7_OUTPUT_IMPEDANCE_MODES)/sizeof(DATUM_M7_OUTPUT_IMPEDANCE_MODES[0]);
+}
+
+//virtual
+const char *CDatum_M7::doGetTOutputImpedanceModeName(int mode)
+{
+	return DATUM_M7_OUTPUT_IMPEDANCE_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doGetTOutputImpedanceMode(int &mode, int modulator)
+{// TODO: check numbers (27)
+	BOOL bEnabled = FALSE;
+	MC_ErrorCode EC = getBooleanParam(getModulatorSlotNumber(modulator), 27, bEnabled);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (bEnabled)
+		mode = 1;
+	
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatum_M7::doSetTOutputImpedanceMode(int &mode, int modulator)
+{// TODO: check numbers (27)
+	BOOL bEnabled = FALSE;
+	if (mode == 1)
+		bEnabled = TRUE;
+	MC_ErrorCode EC = setBooleanParam(getModulatorSlotNumber(modulator), 27, bEnabled);
+	
+	return EC;
+}
+
+// DC supply
 
 //virtual
 int CDatum_M7::GetRPowerSupplyModesCount()

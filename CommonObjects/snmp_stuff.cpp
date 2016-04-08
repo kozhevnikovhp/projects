@@ -565,6 +565,12 @@ void cSnmpOID::set(const unsigned int *pOID, int nOidLength)
 	m_nOIDlen = nOidLength;
 }
 
+void cSnmpOID::addDot0()
+{
+	m_uiOID[m_nOIDlen] = 0;
+	++m_nOIDlen;
+}
+
 void cSnmpOID::addDot1()
 {
 	m_uiOID[m_nOIDlen] = 1;
@@ -626,6 +632,11 @@ void cSnmpVariable::operator = (const cSnmpVariable &var)
 void cSnmpVariable::setOID(const unsigned int *pOID, int nOidLength)
 {
 	m_OID.set(pOID, nOidLength);
+}
+
+void cSnmpVariable::appendDot0ToOID()
+{
+	m_OID.addDot0();
 }
 
 void cSnmpVariable::appendDot1ToOID()

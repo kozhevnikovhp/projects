@@ -224,6 +224,43 @@ public:
 	virtual MC_ErrorCode doGetTSpectrumMode(int &mode, int modulator);
 	virtual MC_ErrorCode doSetTSpectrumMode(int &mode, int modulator);
 
+// Burst mode
+	virtual BOOL CanTBurstMode() { return TRUE; }
+	virtual int GetTBurstModesCount();
+	virtual const char *doGetTBurstModeName(int mode);
+	virtual MC_ErrorCode doGetTBurstMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTBurstMode(int &mode, int modulator);
+
+	virtual MC_ErrorCode doGetTBurstPreambleLength(int &length, int modulator);
+	virtual MC_ErrorCode doSetTBurstPreambleLength(int &length, int modulator);
+
+// AUPC mode
+	virtual BOOL CanTAupcMode() { return TRUE; }
+	virtual int GetTAupcModesCount();
+	virtual const char *doGetTAupcModeName(int mode);
+	virtual MC_ErrorCode doGetTAupcMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTAupcMode(int &mode, int modulator);
+
+// Cxr mute mode
+	virtual BOOL CanTCxrMuteMode() { return TRUE; }
+	virtual int GetTCxrMuteModesCount();
+	virtual const char *doGetTCxrMuteModeName(int mode);
+	virtual MC_ErrorCode doGetTCxrMuteMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTCxrMuteMode(int &mode, int modulator);
+
+// IF impedance
+	virtual BOOL CanRInputImpedanceMode() { return TRUE; }
+	virtual int GetRInputImpedanceModesCount();
+	virtual const char *doGetRInputImpedanceModeName(int mode);
+	virtual MC_ErrorCode doGetRInputImpedanceMode(int &mode, int demodulator);
+	virtual MC_ErrorCode doSetRInputImpedanceMode(int &mode, int demodulator);
+
+	virtual BOOL CanTOutputImpedanceMode() { return TRUE; }
+	virtual int GetTOutputImpedanceModesCount();
+	virtual const char *doGetTOutputImpedanceModeName(int mode);
+	virtual MC_ErrorCode doGetTOutputImpedanceMode(int &mode, int modulator);
+	virtual MC_ErrorCode doSetTOutputImpedanceMode(int &mode, int modulator);
+
 // Data inversion
 	virtual BOOL CanRDataInv() { return FALSE; }
 //	virtual MC_ErrorCode IsRDataInvEnabled(BOOL &bEnabled, int Demodulator);

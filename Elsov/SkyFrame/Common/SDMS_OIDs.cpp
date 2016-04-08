@@ -87,10 +87,16 @@ extern unsigned int OidDatumModemInterfaceAlarmBerLen = ELEMENT_COUNT(OidDatumMo
 // Modulator
 extern unsigned int OidDatumModemModulatorCount[] = {MOD_COUNT,1};
 extern unsigned int OidDatumModemModulatorCountLen = ELEMENT_COUNT(OidDatumModemModulatorCount);
-extern unsigned int OidDatumModemModulatorIndex[] = {MOD_INDEX,1};
-extern unsigned int OidDatumModemModulatorIndexLen = ELEMENT_COUNT(OidDatumModemModulatorIndex);
 
-//  IF table
+// Modulator Status
+extern unsigned int OidModulatorStatus[] =  { MOD_STATUS_TABLE,1 };
+extern unsigned int OidModulatorStatusLen = ELEMENT_COUNT(OidModulatorStatus);
+extern unsigned int OidModulatorIndex[] = {MOD_INDEX,1};
+extern unsigned int OidModulatorIndexLen = ELEMENT_COUNT(OidModulatorIndex);
+extern unsigned int OidModulatorStatusCxrEn[] = {MOD_CXR_EN,1};
+extern unsigned int OidModulatorStatusCxrEnLen = ELEMENT_COUNT(OidModulatorStatusCxrEn);
+
+//  Mod IF table
 unsigned int OidModulatorIf[] = { MOD_IF_TABLE,1 };
 unsigned int OidModulatorIfLen = ELEMENT_COUNT(OidModulatorIf);
 unsigned int OidModulatorIfFrequency[] =   { MOD_IF_FREQUENCY,1 };
@@ -105,14 +111,24 @@ unsigned int OidModulatorIfModulation[] =   { MOD_IF_MODULATION,1 };
 unsigned int OidModulatorIfModulationLen =   ELEMENT_COUNT(OidModulatorIfModulation);
 unsigned int OidModulatorIfSpectrum[] =   { MOD_IF_SPECTRUM,1 };
 unsigned int OidModulatorIfSpectrumLen =   ELEMENT_COUNT(OidModulatorIfSpectrum);
-unsigned int OidModulatorIfMode[] =   { MOD_IF_MODE,1 };
-unsigned int OidModulatorIfModeLen =   ELEMENT_COUNT(OidModulatorIfMode);
+unsigned int OidModulatorIfBurstMode[] =   { MOD_IF_BURST_MODE,1 };
+unsigned int OidModulatorIfBurstModeLen =  ELEMENT_COUNT(OidModulatorIfBurstMode);
+unsigned int OidModulatorIfBurstPreLength[] = { MOD_IF_BURST_PRE_LEN,1 };
+unsigned int OidModulatorIfBurstPreLengthLen = ELEMENT_COUNT(OidModulatorIfBurstPreLength);
+unsigned int OidModulatorIfAupcMode[] = { MOD_IF_AUPC_MODE,1 };
+unsigned int OidModulatorIfAupcModeLen = ELEMENT_COUNT(OidModulatorIfAupcMode);
+unsigned int OidModulatorIfCxrMuteMode[] = { MOD_IF_CXR_MUTE_MODE,1 };
+unsigned int OidModulatorIfCxrMuteModeLen = ELEMENT_COUNT(OidModulatorIfCxrMuteMode);
+unsigned int OidModulatorIfOutputImpedance[] =   { MOD_IF_OUTPUT_IMPEDANCE,1 };
+unsigned int OidModulatorIfOutputImpedanceLen =   ELEMENT_COUNT(OidModulatorIfOutputImpedance);
 
 //  Data table
 unsigned int OidModulatorData[] = { MOD_DATA_TABLE,1 };
 unsigned int OidModulatorDataLen = ELEMENT_COUNT(OidModulatorData);
 unsigned int OidModulatorDataBitRate[] =   { MOD_DATA_BIT_RATE,1 };
 unsigned int OidModulatorDataBitRateLen =   ELEMENT_COUNT(OidModulatorDataBitRate);
+unsigned int OidModulatorDataModulation[] =   { MOD_DATA_MODULATION,1 };
+unsigned int OidModulatorDataModulationLen =   ELEMENT_COUNT(OidModulatorDataModulation);
 unsigned int OidModulatorDataFecType[] =   { MOD_DATA_FEC_TYPE,1 };
 unsigned int OidModulatorDataFecTypeLen =   ELEMENT_COUNT(OidModulatorDataFecType);
 unsigned int OidModulatorDataCodeRate[] =   { MOD_DATA_CODE_RATE,1 };
@@ -238,7 +254,7 @@ unsigned int OidDemodulatorLnbPowerLen = ELEMENT_COUNT(OidDemodulatorLnbPower);
 unsigned int OidDemodulatorLnb10MHz[] = { DEMOD_LNB_10_MHZ,1 };
 unsigned int OidDemodulatorLnb10MHzLen = ELEMENT_COUNT(OidDemodulatorLnb10MHz);
 
-// Status
+// Demodulator Status
 unsigned int OidDemodulatorStatus[] =  { DEMOD_STATUS_TABLE,1 };
 unsigned int OidDemodulatorStatusLen = ELEMENT_COUNT(OidDemodulatorStatus);
 unsigned int OidDemodulatorStatusOffset[] = { DEMOD_RCV_OFFSET,1 };

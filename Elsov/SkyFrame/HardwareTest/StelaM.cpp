@@ -3020,7 +3020,7 @@ MC_ErrorCode CSdmsVsat::GetTIfParams(CModIfParams &Params, int Modulator)
 					continue;
 				if (reply.m_Variable.m_OID.isTheSameOID(OidModulatorIfFrequency, OidModulatorIfFrequencyLen))
 				{
-					Params.m_Frequency = reply.m_Variable.m_uiIntegerValue/1000;
+					Params.m_Frequency = reply.m_Variable.m_iIntegerValue/1000;
 				}
 				else if (reply.m_Variable.m_OID.isTheSameOID(OidModulatorIfOffset, OidModulatorIfOffsetLen))
 				{
@@ -3043,7 +3043,7 @@ MC_ErrorCode CSdmsVsat::GetTIfParams(CModIfParams &Params, int Modulator)
 				}
 				else if (reply.m_Variable.m_OID.isTheSameOID(OidModulatorIfSpectrum, OidModulatorIfSpectrumLen))
 				{
-					Params.m_SpectrumMode = reply.m_Variable.m_uiIntegerValue -1;
+					Params.m_SpectrumMode = reply.m_Variable.m_iIntegerValue -1;
 				}
 			} while (bGotReply);
 			if (bGotAnyReply)
@@ -3095,7 +3095,7 @@ MC_ErrorCode CSdmsVsat::GetTFrequency(unsigned int &Frequency, int Modulator)
 					continue;
 				if (reply.m_Variable.m_OID.isTheSameOID(OidModulatorIfFrequency, OidModulatorIfFrequencyLen))
 				{
-					Frequency = reply.m_Variable.m_uiIntegerValue/1000;
+					Frequency = reply.m_Variable.m_iIntegerValue/1000;
 				}
 			} while (bGotReply);
 			if (bGotAnyReply)

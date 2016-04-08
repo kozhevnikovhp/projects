@@ -62,6 +62,15 @@ static const char *DATUM_PSM500_SCRAMBLER_MODES[] = {
 
 static const char *DATUM_PSM500_SPECTRUM_MODES[] = { "Normal", "Inverted" };
 
+static const char *DATUM_PSM500_T_BURST_MODES[] = { "Normal" };
+
+static const char *DATUM_PSM500_T_AUPC_MODES[] = { "Disabled", "Enabled" };
+
+static const char *DATUM_PSM500_CXR_MUTE_MODES[] = { "Automatic", "Confirm", "Manual" };
+
+static const char *DATUM_PSM500_INPUT_IMPEDANCE_MODES[] = { "50 Ohms", "75 Ohms" };
+static const char *DATUM_PSM500_OUTPUT_IMPEDANCE_MODES[] = { "50 Ohms", "75 Ohms" };
+
 static const char *DATUM_PSM500_10MHZ_MODES[] = { "Disabled", "Enabled" };
 
 static const char *DATUM_PSM500_DIFF_CODING_MODES[] = { "Disabled", "Enabled", "DiffCoherent" };
@@ -940,7 +949,7 @@ MC_ErrorCode CDatumPsm500::doGetDiffEncoderMode(int &mode, int modulator)
 {
 	int CommandLength = FillCommandBuffer(0x42, modeRead, NULL, 0);
 	MC_ErrorCode EC = Command(CommandLength);
-	mode = m_pDataBytes[5] & (3<<2);
+	mode = (m_pDataBytes[5] & (3<<2)) >> 2;
 	return EC;
 }
 
@@ -1104,6 +1113,217 @@ MC_ErrorCode CDatumPsm500::doSetTSpectrumMode(int &mode, int modulator)
 	else
 		m_WriteData[4] = 0;		// normal
 	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 36);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+// Burst mode
+
+int CDatumPsm500::GetTBurstModesCount()
+{
+	return sizeof(DATUM_PSM500_T_BURST_MODES)/sizeof(DATUM_PSM500_T_BURST_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm500::doGetTBurstModeName(int mode)
+{
+	return DATUM_PSM500_T_BURST_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTBurstMode(int &mode, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x41, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+	mode = (m_pDataBytes[5] & 0x0F);// 4 lower bits
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTBurstMode(int &mode, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[0] = 1<<7;	// Output flag set
+	m_WriteData[5] = (unsigned char)mode;
+	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 36);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTBurstPreambleLength(int &length, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x41, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+	length = (m_pDataBytes[5] & 0xF0) >> 4;// 4 upper bits
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTBurstPreambleLength(int &length, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[1] = 1<<0;	// Output flag set
+	m_WriteData[5] = ((unsigned char)length) << 4;
+	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 36);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+// AUPC mode
+
+int CDatumPsm500::GetTAupcModesCount()
+{
+	return sizeof(DATUM_PSM500_T_AUPC_MODES)/sizeof(DATUM_PSM500_T_AUPC_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm500::doGetTAupcModeName(int mode)
+{
+	return DATUM_PSM500_T_AUPC_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTAupcMode(int &mode, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x41, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+	mode = (m_pDataBytes[6] & 0x01);// 1 lower bit
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTAupcMode(int &mode, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[1] = 1<<1;	// Output flag set
+	m_WriteData[6] = (unsigned char)mode;
+	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 36);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+// CXR mute mode
+
+int CDatumPsm500::GetTCxrMuteModesCount()
+{
+	return sizeof(DATUM_PSM500_CXR_MUTE_MODES)/sizeof(DATUM_PSM500_CXR_MUTE_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm500::doGetTCxrMuteModeName(int mode)
+{
+	return DATUM_PSM500_CXR_MUTE_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTCxrMuteMode(int &mode, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x41, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+	mode = (m_pDataBytes[6] & 0x06) >> 1;// bits 2 and 3
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTCxrMuteMode(int &mode, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[1] = 1<<5;	// Output flag set
+	m_WriteData[6] = ((unsigned char)mode) << 1; // bits 2 and 3
+	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 36);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+// IF Impedance
+
+int CDatumPsm500::GetRInputImpedanceModesCount()
+{
+	return sizeof(DATUM_PSM500_INPUT_IMPEDANCE_MODES)/sizeof(DATUM_PSM500_INPUT_IMPEDANCE_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm500::doGetRInputImpedanceModeName(int mode)
+{
+	return DATUM_PSM500_INPUT_IMPEDANCE_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetRInputImpedanceMode(int &mode, int demodulator)
+{
+	int CommandLength = FillCommandBuffer(0x81, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (m_pDataBytes[6] & 1)
+		mode = 1;
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetRInputImpedanceMode(int &mode, int demodulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[1] = 1<<3;	// Output flag set
+	if (mode == 1)
+		m_WriteData[6] = 1 << 0;	// 75 ohm
+	else
+		m_WriteData[6] = 0;		// 50 ohm
+	int CommandLength = FillCommandBuffer(0x81, modeExecute, m_WriteData, 34);
+	MC_ErrorCode EC = Command(CommandLength);
+
+	return EC;
+}
+
+int CDatumPsm500::GetTOutputImpedanceModesCount()
+{
+	return sizeof(DATUM_PSM500_OUTPUT_IMPEDANCE_MODES)/sizeof(DATUM_PSM500_OUTPUT_IMPEDANCE_MODES[0]);
+}
+
+//virtual
+const char *CDatumPsm500::doGetTOutputImpedanceModeName(int mode)
+{
+	return DATUM_PSM500_OUTPUT_IMPEDANCE_MODES[mode];
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doGetTOutputImpedanceMode(int &mode, int modulator)
+{
+	int CommandLength = FillCommandBuffer(0x41, modeRead, NULL, 0);
+	MC_ErrorCode EC = Command(CommandLength);
+	if (EC != MC_OK)
+		return EC;
+	mode = 0;
+	if (m_pDataBytes[6] & 1)
+		mode = 1;
+	return EC;
+}
+
+//virtual
+MC_ErrorCode CDatumPsm500::doSetTOutputImpedanceMode(int &mode, int modulator)
+{
+	memset(m_WriteData, 0, sizeof(m_WriteData));
+	m_WriteData[1] = 1<<6;	// Output flag set
+	if (mode == 1)
+		m_WriteData[6] = 1<<3;	// 75 ohm
+	else
+		m_WriteData[6] = 0;		// 50 ohm
+	int CommandLength = FillCommandBuffer(0x41, modeExecute, m_WriteData, 34);
 	MC_ErrorCode EC = Command(CommandLength);
 
 	return EC;

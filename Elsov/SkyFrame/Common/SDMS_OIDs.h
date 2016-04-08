@@ -76,11 +76,11 @@
 #define									MOD_IF_OUTPUT_EN		MOD_IF_ENTRY,4
 #define									MOD_IF_MODULATION		MOD_IF_ENTRY,5
 #define									MOD_IF_SPECTRUM			MOD_IF_ENTRY,6
-#define									MOD_IF_MODE				MOD_IF_ENTRY,7
+#define									MOD_IF_BURST_MODE		MOD_IF_ENTRY,7
 #define									MOD_IF_BURST_PRE_LEN	MOD_IF_ENTRY,8
 #define									MOD_IF_AUPC_MODE		MOD_IF_ENTRY,9
 #define									MOD_IF_CXR_MUTE_MODE	MOD_IF_ENTRY,10
-#define									MOD_IF_OUTPUT_IMP		MOD_IF_ENTRY,11
+#define									MOD_IF_OUTPUT_IMPEDANCE	MOD_IF_ENTRY,11
 #define							MOD_DATA_TABLE	MOD_CONFIG_OBJS,2
 #define								MOD_DATA_ENTRY	MOD_DATA_TABLE,1
 #define									MOD_DATA_BIT_RATE			MOD_DATA_ENTRY,1
@@ -270,8 +270,6 @@ extern unsigned int OidDatumModemModulatorObjs[];
 extern unsigned int OidDatumModemModulatorObjsLen;
 extern unsigned int OidDatumModemModulatorCount[];
 extern unsigned int OidDatumModemModulatorCountLen;
-extern unsigned int OidDatumModemModulatorIndex[];
-extern unsigned int OidDatumModemModulatorIndexLen;
 
 // Datum modem DEMODULATOR objs
 extern unsigned int OidDatumModemDemodulatorObjs[];
@@ -295,6 +293,14 @@ extern unsigned int OidDatumModemInterfaceAlarmSdmsLen;
 extern unsigned int OidDatumModemInterfaceAlarmBer[];
 extern unsigned int OidDatumModemInterfaceAlarmBerLen;
 
+// ModStatusTable
+extern unsigned int OidModulatorStatus[];
+extern unsigned int OidModulatorStatusLen;
+extern unsigned int OidModulatorIndex[];
+extern unsigned int OidModulatorIndexLen;
+extern unsigned int OidModulatorStatusCxrEn[];
+extern unsigned int OidModulatorStatusCxrEnLen;
+
 // ModIfTable
 extern unsigned int OidModulatorIf[];
 extern unsigned int OidModulatorIfLen;
@@ -310,14 +316,24 @@ extern unsigned int OidModulatorIfModulation[];
 extern unsigned int OidModulatorIfModulationLen;
 extern unsigned int OidModulatorIfSpectrum[];
 extern unsigned int OidModulatorIfSpectrumLen;
-extern unsigned int OidModulatorIfMode[];
-extern unsigned int OidModulatorIfModeLen;
+extern unsigned int OidModulatorIfBurstMode[];
+extern unsigned int OidModulatorIfBurstModeLen;
+extern unsigned int OidModulatorIfBurstPreLength[];
+extern unsigned int OidModulatorIfBurstPreLengthLen;
+extern unsigned int OidModulatorIfAupcMode[];
+extern unsigned int OidModulatorIfAupcModeLen;
+extern unsigned int OidModulatorIfCxrMuteMode[];
+extern unsigned int OidModulatorIfCxrMuteModeLen;
+extern unsigned int OidModulatorIfOutputImpedance[];
+extern unsigned int OidModulatorIfOutputImpedanceLen;
 
 // ModDataTable
 extern unsigned int OidModulatorData[];
 extern unsigned int OidModulatorDataLen;
 extern unsigned int OidModulatorDataBitRate[];
 extern unsigned int OidModulatorDataBitRateLen;
+extern unsigned int OidModulatorDataModulation[];
+extern unsigned int OidModulatorDataModulationLen;
 extern unsigned int OidModulatorDataFecType[];
 extern unsigned int OidModulatorDataFecTypeLen;
 extern unsigned int OidModulatorDataCodeRate[];
@@ -454,11 +470,6 @@ extern unsigned int OidDemodulatorStatusBuffer[];
 extern unsigned int OidDemodulatorStatusBufferLen;
 extern unsigned int OidDemodulatorStatusLock[];
 extern unsigned int OidDemodulatorStatusLockLen;
-
-extern unsigned int OidModulatorDataBitRate[];
-extern unsigned int OidModulatorDataBitRateLen;
-extern unsigned int OidDemodulatorDataBitRate[];
-extern unsigned int OidDemodulatorDataBitRateLen;
 
 #define OID_AND_LEN(x) x, ELEMENT_COUNT(x)
 

@@ -59,6 +59,7 @@ public:
 
 	void operator = (const cSnmpOID &OID);
 	void set(const unsigned int *pOID, int nOidLength);
+	void addDot0();
 	void addDot1();
 
 	bool isTheSame(const cSnmpOID &OID) const;
@@ -75,6 +76,7 @@ class cSnmpVariable
 public:
 	cSnmpVariable();
 	void setOID(const unsigned int *pOID, int nOidLength);
+	void appendDot0ToOID();
 	void appendDot1ToOID();
 	void setInteger32Value(int iValue) { m_iIntegerValue = iValue; m_DataType = SNMP_FIELD_TYPE_INTEGER; }
 	void setGaugeValue(int iValue) { m_GaugeValue = iValue; m_DataType = SNMP_FIELD_TYPE_GAUGE; }
