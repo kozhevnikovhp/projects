@@ -18,13 +18,13 @@ static const char *DATUM_PSM500_MODULATION_TYPES[] = {
 	"16QAM"		// 5
 };
 
-static const char *DATUM_PSM500_FEC_MODES[] = {
-	"None",		// 0
-	"Viterbi",	// 1
-	"TCM",		// 2
-	"",			// 3
-	"TPC",		// 4
-	"LDPC"		// 5
+static ModeTextSNMP DATUM_PSM500_FEC_MODES[] = {
+	{ "None", 0 },
+	{ "Viterbi", 1 },
+	{ "TCM", 5 },
+	{ "", 0 },
+	{ "TPC", 7 },
+	{ "LDPC", 8 }
 };
 
 static const char *DATUM_PSM500_FEC_OPTIONS[] = {
@@ -47,17 +47,17 @@ static const char *DATUM_PSM500_FEC_CODE_RATES[] = {
 	"LDPC 16/17"						// 6
 };
 
-static const char *DATUM_PSM500_SCRAMBLER_MODES[] = {
-	"Disable",		// 0
-	"Auto",			// 1
-	"V.35",			// 2
-	"Intelsat",		// 3
-	"Alt V.35",		// 4
-	"Alt Intelsat",	// 5
-	"EFD",			// 6
-	"RS Sync",		// 7
-	"IBS Sync",		// 8
-	"FEC Sync"		// 9
+static ModeTextSNMP DATUM_PSM500_SCRAMBLER_MODES[] = {
+	{ "Disable", 1 },
+	{ "Auto", 9 },
+	{ "V.35", 4 },
+	{ "Intelsat", 6 },
+	{ "Alt V.35", 5 },
+	{ "Alt Intelsat", 7 },
+	{ "EFD", 10 },
+	{ "RS Sync", 11 },
+	{ "IBS Sync", 12 },
+	{ "FEC Sync", 13 }
 };
 
 static const char *DATUM_PSM500_SPECTRUM_MODES[] = { "Normal", "Inverted" };
@@ -975,7 +975,7 @@ int CDatumPsm500::GetScramblerModesCount()
 //virtual
 const char *CDatumPsm500::doGetScramblerModeName(int mode)
 {
-	return DATUM_PSM500_SCRAMBLER_MODES[mode];
+	return DATUM_PSM500_SCRAMBLER_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1003,6 +1003,12 @@ MC_ErrorCode CDatumPsm500::doSetScramblerMode(int &mode, int modulator)
 }
 
 //virtual
+int CDatumPsm500::doGetScramblerSnmpValueByMode(int mode)
+{
+	return DATUM_PSM500_SCRAMBLER_MODES[mode].SnmpValue;
+}
+
+//virtual
 int CDatumPsm500::GetDescramblerModesCount()
 {
 	return sizeof(DATUM_PSM500_SCRAMBLER_MODES)/sizeof(DATUM_PSM500_SCRAMBLER_MODES[0]);
@@ -1011,7 +1017,7 @@ int CDatumPsm500::GetDescramblerModesCount()
 //virtual
 const char *CDatumPsm500::doGetDescramblerModeName(int mode)
 {
-	return DATUM_PSM500_SCRAMBLER_MODES[mode];
+	return DATUM_PSM500_SCRAMBLER_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1036,6 +1042,12 @@ MC_ErrorCode CDatumPsm500::doSetDescramblerMode(int &mode, int Demodulator)
 	MC_ErrorCode EC = Command(CommandLength);
 
 	return EC;
+}
+
+//virtual
+int CDatumPsm500::doGetDescramblerSnmpValueByMode(int mode)
+{
+	return DATUM_PSM500_SCRAMBLER_MODES[mode].SnmpValue;
 }
 
 // Spectrum modes
@@ -1480,7 +1492,7 @@ int CDatumPsm500::GetRFecModeCount()
 //virtual
 const char *CDatumPsm500::doGetRFecModeName(int mode)
 {
-	return DATUM_PSM500_FEC_MODES[mode];
+	return DATUM_PSM500_FEC_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1508,6 +1520,12 @@ MC_ErrorCode CDatumPsm500::doSetRFecMode(int &mode, int demodulator)
 }
 
 //virtual
+int CDatumPsm500::doGetRFecSnmpValueByMode(int mode)
+{
+	return DATUM_PSM500_FEC_MODES[mode].SnmpValue;
+}
+
+//virtual
 int CDatumPsm500::GetTFecModeCount()
 {
 	return (sizeof(DATUM_PSM500_FEC_MODES)/sizeof(DATUM_PSM500_FEC_MODES[0]));
@@ -1516,7 +1534,7 @@ int CDatumPsm500::GetTFecModeCount()
 //virtual
 const char *CDatumPsm500::doGetTFecModeName(int mode)
 {
-	return DATUM_PSM500_FEC_MODES[mode];
+	return DATUM_PSM500_FEC_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1542,6 +1560,12 @@ MC_ErrorCode CDatumPsm500::doSetTFecMode(int &mode, int modulator)
 	int CommandLength = FillCommandBuffer(0x42, modeExecute, m_WriteData, 32);
 	MC_ErrorCode EC = Command(CommandLength);
 	return EC;
+}
+
+//virtual
+int CDatumPsm500::doGetTFecSnmpValueByMode(int mode)
+{
+	return DATUM_PSM500_FEC_MODES[mode].SnmpValue;
 }
 
 // FEC option

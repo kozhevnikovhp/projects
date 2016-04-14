@@ -643,23 +643,8 @@ static MC_ErrorCode getTFecMode(CDatumModem *pModem, cSnmpVariable &var)
 	MC_ErrorCode EC = pModem->GetTFecMode(mode, 1);
 	if (EC == MC_OK)
 	{
-		switch (mode)
-		{
-			case 0:
-				var.setInteger32Value(0); break; // none
-			case 1:
-				var.setInteger32Value(1); break; // viterbi
-			case 2:
-				var.setInteger32Value(5); break; // TCM
-			case 3:
-				var.setInteger32Value(3); break; // TPM
-			case 4:
-				var.setInteger32Value(4); break; // TPM
-			case 5:
-				var.setInteger32Value(8); break; // LDPC
-			default:
-				var.setInteger32Value(0); break; // none
-		}
+		int snmpValue = pModem->getRFecSnmpValueByMode(mode);
+		var.setInteger32Value(snmpValue);
 		printf("%s", pModem->GetTFecModeName(mode));
 	}
 	return EC;
@@ -698,8 +683,22 @@ static MC_ErrorCode getTScramblerMode(CDatumModem *pModem, cSnmpVariable &var)
 	MC_ErrorCode EC = pModem->GetScramblerMode(mode, 1);
 	if (EC == MC_OK)
 	{
-		var.setInteger32Value(mode);
+		int snmpValue = pModem->getScramblerSnmpValueByMode(mode);
+		var.setInteger32Value(snmpValue);
 		printf("%s", pModem->GetScramblerModeName(mode));
+	}
+	return EC;
+}
+
+static MC_ErrorCode getTDataClockSource(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tclock source ");
+	int source = -1;
+	MC_ErrorCode EC = pModem->GetTDataClockSource(source, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(source+1);
+		printf("%s", pModem->GetTDataClockSourceName(source));
 	}
 	return EC;
 }
@@ -787,27 +786,12 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 			}
 			break;
 		case SNMP_FIELD_SET_REQUEST:
-			int mode = 0;
-			switch (var.m_iIntegerValue)
-			{
-			case 0:
-				mode = 0; break; // none
-			case 1:
-				mode = 1; break; // viterbi
-			case 2:
-				mode = 4; break; // TPC
-			case 5:
-				mode = 2; break; // TCM
-			case 8:
-				mode = 5; break; // LDPC
-			default:
-				mode = 0; break; // none
-			}
+			int mode = pModem->getTFecModeBySnmpValue(var.m_iIntegerValue);
 			printf("%s", pModem->GetTFecModeName(mode));
 			EC = pModem->SetTFecMode(mode, 1);
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(mode);
+				var.setInteger32Value(pModem->getTFecSnmpValueByMode(mode));
 				printf("%s", pModem->GetTFecModeName(mode));
 			}
 		}
@@ -892,13 +876,43 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 			}
 			break;
 		case SNMP_FIELD_SET_REQUEST:
-			int mode = var.m_iIntegerValue;
+			int mode = pModem->getScramblerModeBySnmpValue(var.m_iIntegerValue);
 			printf("scrambler %s", pModem->GetScramblerModeName(mode));
 			EC = pModem->SetScramblerMode(mode, 1);
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(mode+1);
+				var.setInteger32Value(pModem->getDescramblerSnmpValueByMode(mode));
 				printf(" result = %s", pModem->GetScramblerModeName(mode));
+			}
+		}
+	}
+	else if (var.m_OID.isPartOfOID(OidModulatorDataClockSource, OidModulatorDataClockSourceLen))
+	{
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getTDataClockSource(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidModulatorDataClockSource, OidModulatorDataClockSourceLen))
+			{
+				var.setOID(OidModulatorDataFecOption, OidModulatorDataFecOptionLen);
+				EC = processDatumModulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				EC = getTDataClockSource(pModem, var);
+				var.setOID(OidModulatorDataClockSource, OidModulatorDataClockSourceLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = var.m_iIntegerValue;
+			printf("clock source %s", pModem->GetTDataClockSourceName(mode));
+			EC = pModem->SetTDataClockSource(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf(" result = %s", pModem->GetTDataClockSourceName(mode));
 			}
 		}
 	}
@@ -928,17 +942,6 @@ MC_ErrorCode processDatumModulatorDataRequest(CDatumModem *pModem, cSnmpVariable
 				var.setInteger32Value(option+1);
 				printf("%s", pModem->GetTFecOptionName(option));
 			}
-		}
-	}
-	else if (var.m_OID.isPartOfOID(OidModulatorDataClockSource, OidModulatorDataClockSourceLen))
-	{
-		printf("\t\tClock source ");
-		int source;
-		EC = pModem->GetTDataClockSource(source, 1);
-		if (EC == MC_OK)
-		{
-			var.setInteger32Value(source);
-			printf("%s", pModem->GetTDataClockSourceName(source));
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidModulatorDataReedSolomonMode, OidModulatorDataReedSolomonModeLen))
@@ -1755,147 +1758,350 @@ MC_ErrorCode processDatumDemodulatorIfRequest(CDatumModem *pModem, cSnmpVariable
 	return EC;
 }
 
+static MC_ErrorCode getRBitRate(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tbit rste ");
+	unsigned int bitRate = 0;
+	MC_ErrorCode EC = pModem->GetRDataRate(bitRate, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(bitRate);
+		printf("%d baud", bitRate);
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRBufferDelay(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tbuffer delay ");
+	CModemDataParams params;
+	MC_ErrorCode EC = pModem->GetRDataParams(params, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(params.m_DopplerBufferDelay);
+		printf("%d", params.m_DopplerBufferDelay);
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRBufferSize(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tbuffer size ");
+	CModemDataParams params;
+	MC_ErrorCode EC = pModem->GetRDataParams(params, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(params.m_DopplerBufferSize);
+		printf("%d", params.m_DopplerBufferSize);
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRFecMode(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tFEC type ");
+	int mode = -1;
+	MC_ErrorCode EC = pModem->GetRFecMode(mode, 1);
+	if (EC == MC_OK)
+	{
+		int snmpValue = pModem->getRFecSnmpValueByMode(mode);
+		var.setInteger32Value(snmpValue);
+		printf("%s", pModem->GetRFecModeName(mode));
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRFecCodeRateMode(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tFEC code rate ");
+	int mode = -1;
+	MC_ErrorCode EC = pModem->GetRFecCodeRate(mode, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(mode+1);
+		printf("%s", pModem->GetRFecCodeRateName(mode));
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRDiffDecoderMode(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tdifferential deccoder ");
+	int mode = -1;
+	MC_ErrorCode EC = pModem->GetDiffDecoderMode(mode, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(mode+1);
+		printf("%s", pModem->GetDiffDecoderModeName(mode));
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRDescramblerMode(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tdescrambler ");
+	int mode = -1;
+	MC_ErrorCode EC = pModem->GetDescramblerMode(mode, 1);
+	if (EC == MC_OK)
+	{
+		int snmpValue = pModem->getDescramblerSnmpValueByMode(mode);
+		var.setInteger32Value(snmpValue);
+		printf("%s", pModem->GetDescramblerModeName(mode));
+	}
+	return EC;
+}
+
+static MC_ErrorCode getRDataClockSource(CDatumModem *pModem, cSnmpVariable &var)
+{
+	printf("\t\tclock source ");
+	int source = -1;
+	MC_ErrorCode EC = pModem->GetRDataClockSource(source, 1);
+	if (EC == MC_OK)
+	{
+		var.setInteger32Value(source+1);
+		printf("%s", pModem->GetRDataClockSourceName(source));
+	}
+	return EC;
+}
+
 MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariable &var, unsigned char reqType)
 {
 	MC_ErrorCode EC  = MC_DEVICE_NOT_RESPONDING;
 
 	if (var.m_OID.isPartOfOID(OidDemodulatorDataBitRate, OidDemodulatorDataBitRateLen))
 	{
-		printf("\t\tBit rate ");
-		unsigned int DataRate = 0;
-		if (reqType == SNMP_FIELD_GET_REQUEST)
-		{ // get
-			EC = pModem->GetRDataRate(DataRate, 1);
-			if (EC == MC_OK)
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRBitRate(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			EC = getRBitRate(pModem, var);
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataBitRate, OidDemodulatorDataBitRateLen))
 			{
-				var.setInteger32Value(DataRate);
-				printf("%d baud", DataRate);
+				var.setOID(OidDemodulatorDataBufferDelay, OidDemodulatorDataBufferDelayLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
-		{ // get_next
-		} 
-		else if (reqType == SNMP_FIELD_SET_REQUEST)
-		{ //set
-			DataRate = var.m_iIntegerValue;
-			printf("%d baud", DataRate);
-			EC = pModem->GetRDataRate(DataRate, 1);
+			else
+			{
+				var.appendDot1ToOID();
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			unsigned int bitRate = var.m_iIntegerValue;
+			printf("%d baud", bitRate);
+			EC = pModem->SetRDataRate(bitRate, 1);
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(DataRate);
-				printf("%d baud", DataRate);
+				printf(", result = %d Baud", bitRate);
 			}
 		}
 	}
-	else if (var.m_OID.isPartOfOID(OidDemodulatorDataClockSource, OidDemodulatorDataClockSourceLen))
+	else if (var.m_OID.isPartOfOID(OidDemodulatorDataBufferDelay, OidDemodulatorDataBufferDelayLen))
 	{
-		printf("\t\tClock source ");
-		int source = -1;
-		if (reqType == SNMP_FIELD_GET_REQUEST)
-		{ // get
-			EC = pModem->GetRDataClockSource(source, 1);
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRBufferDelay(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			EC = getRBufferDelay(pModem, var);
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataBufferDelay, OidDemodulatorDataBufferDelayLen))
+			{
+				var.setOID(OidDemodulatorDataBufferSize, OidDemodulatorDataBufferSizeLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				var.appendDot1ToOID();
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			unsigned int bufferDelay = var.m_iIntegerValue;
+			printf("%d msec", bufferDelay);
+			/*EC = pModem->SetRDopplerBufferDelay(bufferDelay, 1);
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(source+1);
-				printf("%s", pModem->GetRDataClockSourceName(source));
-			}
+				printf(", result = %d msec", bufferDelay);
+			}*/
 		}
-		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
-		{ // get_next
-		} 
-		else if (reqType == SNMP_FIELD_SET_REQUEST)
-		{ //set
-			source = var.m_iIntegerValue-1;
-			printf("%s", pModem->GetRDataClockSourceName(source));
-			EC = pModem->GetRDataClockSource(source, 1);
+	}
+	else if (var.m_OID.isPartOfOID(OidDemodulatorDataBufferSize, OidDemodulatorDataBufferSizeLen))
+	{
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRBufferSize(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			EC = getRBufferSize(pModem, var);
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataBufferSize, OidDemodulatorDataBufferSizeLen))
+			{
+				var.setOID(OidDemodulatorDataFecType, OidDemodulatorDataFecTypeLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				var.appendDot1ToOID();
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			unsigned int bufferSize = var.m_iIntegerValue;
+			printf("%d ", bufferSize);
+			/*EC = pModem->SetRDopplerBufferSize(bufferDelay, 1);
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(source+1);
-				printf("%s", pModem->GetRDataClockSourceName(source));
-			}
+				printf(", result = %d", bufferSize);
+			}*/
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataFecType, OidDemodulatorDataFecTypeLen))
 	{
-		printf("\t\tFEC type ");
-		int mode = -1;
-		if (reqType == SNMP_FIELD_GET_REQUEST)
-		{ // get
-			EC = pModem->GetRFecMode(mode, 1);
-			if (EC == MC_OK)
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRFecMode(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataFecType, OidModulatorDataFecTypeLen))
 			{
-				switch (mode)
-				{
-				case 0:
-					var.setInteger32Value(0); break; // None
-				case 1:
-					var.setInteger32Value(1); break; // Viterbi
-				case 2:
-					var.setInteger32Value(5); break; // TCM
-				case 4:
-					var.setInteger32Value(2); break; // TPC
-				case 5:
-					var.setInteger32Value(8); break; // LDPC
-				default:
-					var.setInteger32Value(4); break; // unknown
-				} 
-				printf("%s", pModem->GetRFecModeName(mode));
+				var.setOID(OidDemodulatorDataCodeRate, OidDemodulatorDataCodeRateLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
 			}
-		}
-		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
-		{ // get_next
-		} 
-		else if (reqType == SNMP_FIELD_SET_REQUEST)
-		{ //set
-			switch (var.m_iIntegerValue)
+			else
 			{
-			case 0:
-				mode = 0; break; // none
-			case 1:
-				mode = 1; break; // viterbi
-			case 2:
-				mode = 4; break; // TPC
-			case 5:
-				mode = 2; break; // TPM
-			case 8:
-				mode = 5; break; // LDPC
-			default:
-				mode = 0; break; // none
+				EC = getRFecMode(pModem, var);
+				var.setOID(OidDemodulatorDataFecType, OidDemodulatorDataFecTypeLen);
 			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = pModem->getRFecModeBySnmpValue(var.m_iIntegerValue);
 			printf("%s", pModem->GetRFecModeName(mode));
 			EC = pModem->SetRFecMode(mode, 1);
 			if (EC == MC_OK)
 			{
-				var.setInteger32Value(mode);
+				var.setInteger32Value(pModem->getRFecSnmpValueByMode(mode));
 				printf("%s", pModem->GetRFecModeName(mode));
 			}
 		}
 	}
 	else if (var.m_OID.isPartOfOID(OidDemodulatorDataCodeRate, OidDemodulatorDataCodeRateLen))
 	{
-		printf("\t\tFEC code rate ");
-		int mode = -1;
-		if (reqType == SNMP_FIELD_GET_REQUEST)
-		{ // get
-			EC = pModem->GetRFecCodeRate(mode, 1);
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRFecCodeRateMode(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataCodeRate, OidDemodulatorDataCodeRateLen))
+			{
+				var.setOID(OidDemodulatorDataDiffDecoder, OidDemodulatorDataDiffDecoderLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				EC = getRFecCodeRateMode(pModem, var);
+				var.setOID(OidDemodulatorDataCodeRate, OidDemodulatorDataCodeRateLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetRFecCodeRateName(mode));
+			EC = pModem->SetTFecCodeRate(mode, 1);
 			if (EC == MC_OK)
 			{
 				var.setInteger32Value(mode+1);
 				printf("%s", pModem->GetRFecCodeRateName(mode));
 			}
 		}
-		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
-		{ // get_next
-		} 
-		else if (reqType == SNMP_FIELD_SET_REQUEST)
-		{ //set
-			mode = var.m_iIntegerValue-1;
-			printf("%s", pModem->GetRFecCodeRateName(mode));
+	}
+	else if (var.m_OID.isPartOfOID(OidDemodulatorDataDiffDecoder, OidDemodulatorDataDiffDecoderLen))
+	{
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRDiffDecoderMode(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataDiffDecoder, OidDemodulatorDataDiffDecoderLen))
+			{
+				var.setOID(OidDemodulatorDataDescrambler, OidDemodulatorDataDescramblerLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				EC = getRDiffDecoderMode(pModem, var);
+				var.setOID(OidDemodulatorDataDiffDecoder, OidDemodulatorDataDiffDecoderLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = var.m_iIntegerValue-1;
+			printf("%s", pModem->GetDiffDecoderModeName(mode));
 			EC = pModem->SetRFecCodeRate(mode, 1);
 			if (EC == MC_OK)
 			{
 				var.setInteger32Value(mode+1);
-				printf("%s", pModem->GetRFecCodeRateName(mode));
+				printf(" result = %s", pModem->GetDiffDecoderModeName(mode));
+			}
+		}
+	}
+	else if (var.m_OID.isPartOfOID(OidDemodulatorDataDescrambler, OidDemodulatorDataDescramblerLen))
+	{
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRDescramblerMode(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataDescrambler, OidDemodulatorDataDescramblerLen))
+			{
+				var.setOID(OidDemodulatorDataClockSource, OidDemodulatorDataClockSourceLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				EC = getRDescramblerMode(pModem, var);
+				var.setOID(OidDemodulatorDataDescrambler, OidDemodulatorDataDescramblerLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = pModem->getDescramblerModeBySnmpValue(var.m_iIntegerValue);
+			printf("descrambler %s", pModem->GetDescramblerModeName(mode));
+			EC = pModem->SetDescramblerMode(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(pModem->getDescramblerSnmpValueByMode(mode));
+				printf(" result = %s", pModem->GetDescramblerModeName(mode));
+			}
+		}
+	}
+	else if (var.m_OID.isPartOfOID(OidDemodulatorDataClockSource, OidDemodulatorDataClockSourceLen))
+	{
+		switch (reqType)
+		{
+		case SNMP_FIELD_GET_REQUEST:
+			EC = getRDataClockSource(pModem, var);
+			break;
+		case SNMP_FIELD_GET_NEXT_REQUEST:
+			if (var.m_OID.isTheSameOID(OidDemodulatorDataClockSource, OidDemodulatorDataClockSourceLen))
+			{
+				var.setOID(OidDemodulatorDataFecOption, OidDemodulatorDataFecOptionLen);
+				EC = processDatumDemodulatorDataRequest(pModem, var, SNMP_FIELD_GET_REQUEST);
+			}
+			else
+			{
+				EC = getRDataClockSource(pModem, var);
+				var.setOID(OidDemodulatorDataClockSource, OidDemodulatorDataClockSourceLen);
+			}
+			break;
+		case SNMP_FIELD_SET_REQUEST:
+			int mode = var.m_iIntegerValue;
+			printf("clock source %s", pModem->GetRDataClockSourceName(mode));
+			EC = pModem->SetRDataClockSource(mode, 1);
+			if (EC == MC_OK)
+			{
+				var.setInteger32Value(mode+1);
+				printf(" result = %s", pModem->GetRDataClockSourceName(mode));
 			}
 		}
 	}
@@ -1953,84 +2159,6 @@ MC_ErrorCode processDatumDemodulatorDataRequest(CDatumModem *pModem, cSnmpVariab
 				var.setInteger32Value(mode+1);
 				printf("%s", pModem->GetReedSolomonModeName(mode));
 			}
-		}
-	}
-	else if (var.m_OID.isPartOfOID(OidDemodulatorDataDiffDecoder, OidDemodulatorDataDiffDecoderLen))
-	{
-		printf("\t\tdifferential decoder ");
-		int mode = -1;
-		if (reqType == SNMP_FIELD_GET_REQUEST)
-		{ // get
-			EC = pModem->GetDiffDecoderMode(mode, 1);
-			if (EC == MC_OK)
-			{
-				var.setInteger32Value(mode+1);
-				printf("%s", pModem->GetDiffDecoderModeName(mode));
-			}
-		}
-		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
-		{ // get_next
-		} 
-		else if (reqType == SNMP_FIELD_SET_REQUEST)
-		{ //set
-			mode = var.m_iIntegerValue-1;
-			printf("%s", pModem->GetDiffDecoderModeName(mode));
-			EC = pModem->SetDiffDecoderMode(mode, 1);
-			if (EC == MC_OK)
-			{
-				var.setInteger32Value(mode+1);
-				printf("%s", pModem->GetDiffDecoderModeName(mode));
-			}
-		}
-	}
-	else if (var.m_OID.isPartOfOID(OidDemodulatorDataDescrambler, OidDemodulatorDataDescramblerLen))
-	{
-		printf("\t\tdescrambler ");
-		int mode = -1;
-		if (reqType == SNMP_FIELD_GET_REQUEST)
-		{ // get
-			EC = pModem->GetDescramblerMode(mode, 1);
-			if (EC == MC_OK)
-			{
-				var.setInteger32Value(mode+1);
-				printf("%s", pModem->GetDescramblerModeName(mode));
-			}
-		}
-		else if (reqType == SNMP_FIELD_GET_NEXT_REQUEST)
-		{ // get_next
-		} 
-		else if (reqType == SNMP_FIELD_SET_REQUEST)
-		{ //set
-			mode = var.m_iIntegerValue-1;
-			printf("%s", pModem->GetDescramblerModeName(mode));
-			EC = pModem->SetDescramblerMode(mode, 1);
-			if (EC == MC_OK)
-			{
-				var.setInteger32Value(mode+1);
-				printf("%s", pModem->GetDescramblerModeName(mode));
-			}
-		}
-	}
-	else if (var.m_OID.isPartOfOID(OidDemodulatorDataBufferDelay, OidDemodulatorDataBufferDelayLen))
-	{
-		printf("\t\tbuffer delay ");
-		CModemDataParams params;
-		EC = pModem->GetRDataParams(params, 1);
-		if (EC == MC_OK)
-		{
-			var.setInteger32Value(params.m_DopplerBufferDelay);
-			printf("%d", params.m_DopplerBufferDelay);
-		}
-	}
-	else if (var.m_OID.isPartOfOID(OidDemodulatorDataBufferSize, OidDemodulatorDataBufferSizeLen))
-	{
-		printf("\t\tbuffer size ");
-		CModemDataParams params;
-		EC = pModem->GetRDataParams(params, 1);
-		if (EC == MC_OK)
-		{
-			var.setInteger32Value(params.m_DopplerBufferSize);
-			printf("%d", params.m_DopplerBufferSize);
 		}
 	}
 

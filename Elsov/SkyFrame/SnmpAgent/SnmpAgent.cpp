@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	unsigned int id[] = {1,3,6,1,4,1,7840,3,1,2,2,2,2,1,2};
+	unsigned int id[] = {1,3,6,1,4,1,7840,3,1,2,2,2,2,1,6};
 	cSnmpOID oid(id, ELEMENT_COUNT(id));
 	//cSnmpOID oid(OidModulatorIfFrequency, OidModulatorIfFrequencyLen);
 	testSock.SendSnmpGetNextRequest(thatIP, "public", oid, 31261);

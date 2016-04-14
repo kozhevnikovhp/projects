@@ -19,13 +19,13 @@ static const char *DATUM_M7_MODULATION_TYPES[] = {
 	"16QAM"
 };
 
-static const char *DATUM_M7_FEC_MODES[] = {
-	"None",		// 0
-	"Viterbi",	// 1
-	"TCM",		// 2
-	"",			// 3
-	"TPC",		// 4
-	"LDPC"		// 5
+static ModeTextSNMP DATUM_M7_FEC_MODES[] = {
+	{ "None", 0 },
+	{ "Viterbi", 1 },
+	{ "TCM", 5 },
+	{ "", 0 },
+	{ "TPC", 7 },
+	{ "LDPC", 8 }
 };
 
 static const char *DATUM_M7_FEC_OPTIONS[] = {
@@ -49,16 +49,16 @@ static const char *DATUM_M7_FEC_CODE_RATES[] = {
 };
 
 
-static const char *DATUM_M7_SCRAMBLER_MODES[] = {
-	"Disabled",		// 0
-	"Auto",			// 1
-	"V.35",			// 2
-	"Intelsat",		// 3
-	"EFD",			// 4
-	"Alt V.35",		// 5
-	"Alt Intelsat",	// 6
-	"",				// 7
-	"FEC Sync"		// 8
+static ModeTextSNMP DATUM_M7_SCRAMBLER_MODES[] = {
+	{ "Disabled", 1},
+	{ "Auto", 0},
+	{ "V.35", 4},
+	{ "Intelsat", 6},
+	{ "EFD", 10},
+	{ "Alt V.35", 6},
+	{ "Alt Intelsat", 7},
+	{ "",	 0},
+	{ "FEC Sync", 13}
 };
 
 static const char *DATUM_M7_SPECTRUM_MODES[] = { "Normal", "Inverted" };
@@ -1093,7 +1093,7 @@ int CDatum_M7::GetRFecModeCount()
 //virtual
 const char *CDatum_M7::doGetRFecModeName(int mode)
 {
-	return DATUM_M7_FEC_MODES[mode];
+	return DATUM_M7_FEC_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1111,6 +1111,12 @@ MC_ErrorCode CDatum_M7::doSetRFecMode(int &mode, int demodulator)
 }
 
 //virtual
+int CDatum_M7::doGetRFecSnmpValueByMode(int mode)
+{
+	return DATUM_M7_FEC_MODES[mode].SnmpValue;
+}
+
+//virtual
 int CDatum_M7::GetTFecModeCount()
 {
 	return (sizeof(DATUM_M7_FEC_MODES)/sizeof(DATUM_M7_FEC_MODES[0]));
@@ -1119,7 +1125,7 @@ int CDatum_M7::GetTFecModeCount()
 //virtual
 const char *CDatum_M7::doGetTFecModeName(int mode)
 {
-	return DATUM_M7_FEC_MODES[mode];
+	return DATUM_M7_FEC_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1134,6 +1140,12 @@ MC_ErrorCode CDatum_M7::doSetTFecMode(int &mode, int modulator)
 {
 	MC_ErrorCode EC = setSignedInt8Param(getModulatorSlotNumber(modulator), 36, mode);
 	return EC;
+}
+
+//virtual
+int CDatum_M7::doGetTFecSnmpValueByMode(int mode)
+{
+	return DATUM_M7_FEC_MODES[mode].SnmpValue;
 }
 
 // FEC option
@@ -1356,7 +1368,7 @@ int CDatum_M7::GetScramblerModesCount()
 //virtual
 const char *CDatum_M7::doGetScramblerModeName(int mode)
 {
-	return DATUM_M7_SCRAMBLER_MODES[mode];
+	return DATUM_M7_SCRAMBLER_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1374,6 +1386,12 @@ MC_ErrorCode CDatum_M7::doSetScramblerMode(int &mode, int modulator)
 }
 
 //virtual
+int CDatum_M7::doGetScramblerSnmpValueByMode(int mode)
+{
+	return DATUM_M7_SCRAMBLER_MODES[mode].SnmpValue;
+}
+
+//virtual
 int CDatum_M7::GetDescramblerModesCount()
 {
 	return sizeof(DATUM_M7_SCRAMBLER_MODES)/sizeof(DATUM_M7_SCRAMBLER_MODES[0]);
@@ -1382,7 +1400,7 @@ int CDatum_M7::GetDescramblerModesCount()
 //virtual
 const char *CDatum_M7::doGetDescramblerModeName(int mode)
 {
-	return DATUM_M7_SCRAMBLER_MODES[mode];
+	return DATUM_M7_SCRAMBLER_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1397,6 +1415,12 @@ MC_ErrorCode CDatum_M7::doSetDescramblerMode(int &mode, int demodulator)
 {
 	MC_ErrorCode EC = setSignedInt8Param(getDemodulatorSlotNumber(demodulator), 44, mode);
 	return EC;
+}
+
+//virtual
+int CDatum_M7::doGetDescramblerSnmpValueByMode(int mode)
+{
+	return DATUM_M7_SCRAMBLER_MODES[mode].SnmpValue;
 }
 
 // Alarms

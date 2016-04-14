@@ -23,15 +23,15 @@ static const char *DATUM_PSM4900_FEC_CODE_RATES[] = {
 	"7/8"
 };
 
-static const char *DATUM_PSM4900_SCRAMBLER_MODES[] = {
-	"Disable",		// 0
-	"IESS-308",		// 1
-	"IESS-309",		// 2
-	"V.35",			// 3
-	"Alt V.35",		// 4
-	"Intelsat",		// 5
-	"Alt Intelsat",	// 6
-	"TPC Synchro"	// 7
+static ModeTextSNMP DATUM_PSM4900_SCRAMBLER_MODES[] = {
+	{ "Disable", 1 },
+	{ "IESS-308", 2 },
+	{ "IESS-309", 3 },
+	{ "V.35", 4 },
+	{ "Alt V.35", 5 },
+	{ "Intelsat", 6 },
+	{ "Alt Intelsat", 7 },
+	{ "TPC Synchro", 8 }
 };
 
 static const char *DATUM_PSM4900_SPECTRUM_MODES[] = { "Normal", "Inverted" };
@@ -1363,7 +1363,7 @@ int CDatumPsm4900::GetScramblerModesCount()
 //virtual
 const char *CDatumPsm4900::doGetScramblerModeName(int Mode)
 {
-	return DATUM_PSM4900_SCRAMBLER_MODES[Mode];
+	return DATUM_PSM4900_SCRAMBLER_MODES[Mode].pszDescription;
 }
 
 //virtual
@@ -1391,6 +1391,12 @@ MC_ErrorCode CDatumPsm4900::doSetScramblerMode(int &mode, int modulator)
 }
 
 //virtual
+int CDatumPsm4900::doGetScramblerSnmpValueByMode(int mode)
+{
+	return DATUM_PSM4900_SCRAMBLER_MODES[mode].SnmpValue;
+}
+
+//virtual
 int CDatumPsm4900::GetDescramblerModesCount()
 {
 	return sizeof(DATUM_PSM4900_SCRAMBLER_MODES)/sizeof(DATUM_PSM4900_SCRAMBLER_MODES[0]);
@@ -1399,7 +1405,7 @@ int CDatumPsm4900::GetDescramblerModesCount()
 //virtual
 const char *CDatumPsm4900::doGetDescramblerModeName(int mode)
 {
-	return DATUM_PSM4900_SCRAMBLER_MODES[mode];
+	return DATUM_PSM4900_SCRAMBLER_MODES[mode].pszDescription;
 }
 
 //virtual
@@ -1424,6 +1430,12 @@ MC_ErrorCode CDatumPsm4900::doSetDescramblerMode(int &mode, int demodulator)
 	MC_ErrorCode EC = Command(CommandLength);
 
 	return EC;
+}
+
+//virtual
+int CDatumPsm4900::doGetDescramblerSnmpValueByMode(int mode)
+{
+	return DATUM_PSM4900_SCRAMBLER_MODES[mode].SnmpValue;
 }
 
 // Spectral inversion

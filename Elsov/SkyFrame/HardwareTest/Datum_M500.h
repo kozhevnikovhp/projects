@@ -155,12 +155,14 @@ public:
 	virtual const char *doGetRFecModeName(int mode);
 	virtual MC_ErrorCode doGetRFecMode(int &mode, int demodulator);
 	virtual MC_ErrorCode doSetRFecMode(int &mode, int demodulator);
+	virtual int doGetRFecSnmpValueByMode(int mode);
 
 	virtual BOOL CanTFecMode() { return TRUE; }
 	virtual int GetTFecModeCount();
 	virtual const char *doGetTFecModeName(int mode);
 	virtual MC_ErrorCode doGetTFecMode(int &mode, int modulator);
 	virtual MC_ErrorCode doSetTFecMode(int &mode, int modulator);
+	virtual int doGetTFecSnmpValueByMode(int mode);
 
 // FEC option
 	virtual BOOL CanRFecOption() { return TRUE; }
@@ -219,11 +221,13 @@ public:
 	virtual const char *doGetScramblerModeName(int mode);
 	virtual MC_ErrorCode doGetScramblerMode(int &mode, int modulator);
 	virtual MC_ErrorCode doSetScramblerMode(int &mode, int modulator);
+	virtual int doGetScramblerSnmpValueByMode(int mode);
 
 	virtual int GetDescramblerModesCount();
 	virtual const char *doGetDescramblerModeName(int Mode);
 	virtual MC_ErrorCode doGetDescramblerMode(int &mode, int Demodulator);
 	virtual MC_ErrorCode doSetDescramblerMode(int &mode, int Demodulator);
+	virtual int doGetDescramblerSnmpValueByMode(int mode);
 
 // Data Rate
 	virtual int GetMaxDataRateBPSK() { return 1650000; }

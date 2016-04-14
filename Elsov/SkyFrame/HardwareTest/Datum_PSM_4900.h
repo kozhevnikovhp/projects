@@ -155,9 +155,11 @@ public:
 // FEC mode
 	virtual int GetRFecModeCount() { return 0; }
 	virtual const char *doGetRFecModeName(int mode) { return ""; }
+	virtual int doGetRFecSnmpValueByMode(int mode) { return -1; }
 
 	virtual int GetTFecModeCount() { return 0; }
 	virtual const char *doGetTFecModeName(int mode) { return ""; }
+	virtual int doGetTFecSnmpValueByMode(int mode) { return -1; }
 
 // FEC option
 	virtual int GetRFecOptionCount() { return 0; }
@@ -205,11 +207,13 @@ public:
 	virtual const char *doGetScramblerModeName(int Mode);
 	virtual MC_ErrorCode doGetScramblerMode(int &mode, int modulator);
 	virtual MC_ErrorCode doSetScramblerMode(int &mode, int modulator);
+	virtual int doGetScramblerSnmpValueByMode(int mode);
 
 	virtual int GetDescramblerModesCount();
 	virtual const char *doGetDescramblerModeName(int mode);
 	virtual MC_ErrorCode doGetDescramblerMode(int &mode, int demodulator);
 	virtual MC_ErrorCode doSetDescramblerMode(int &mode, int demodulator);
+	virtual int doGetDescramblerSnmpValueByMode(int mode);
 
 // Spectrum mode
 	virtual BOOL CanRSpectrumMode() { return TRUE; }

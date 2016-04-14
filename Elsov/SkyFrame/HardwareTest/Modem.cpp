@@ -625,6 +625,23 @@ MC_ErrorCode CModem::SetRFecMode(int &mode, int demodulator)
 	return EC;
 }
 
+int CModem::getRFecSnmpValueByMode(int mode)
+{
+	if (mode < 0 || mode >= GetRFecModeCount())
+		return 0;
+	return doGetRFecSnmpValueByMode(mode);
+}
+
+int CModem::getRFecModeBySnmpValue(int SnmpValue)
+{
+	for (int mode = 0; mode < GetRFecModeCount(); mode++)
+	{
+		if (getRFecSnmpValueByMode(mode) == SnmpValue)
+			return mode;
+	}
+	return -1;
+}
+
 //virtual
 BOOL CModem::NeedToUpdateRFecMode(int mode, int demodulator)
 {
@@ -664,6 +681,23 @@ MC_ErrorCode CModem::SetTFecMode(int &mode, int modulator)
 	GetTFecMode(mode, modulator);
 
 	return EC;
+}
+
+int CModem::getTFecSnmpValueByMode(int mode)
+{
+	if (mode < 0 || mode >= GetTFecModeCount())
+		return 0;
+	return doGetTFecSnmpValueByMode(mode);
+}
+
+int CModem::getTFecModeBySnmpValue(int SnmpValue)
+{
+	for (int mode = 0; mode < GetTFecModeCount(); mode++)
+	{
+		if (getTFecSnmpValueByMode(mode) == SnmpValue)
+			return mode;
+	}
+	return -1;
 }
 
 //virtual
@@ -968,6 +1002,23 @@ MC_ErrorCode CModem::SetDescramblerMode(int &mode, int demodulator)
 	return EC;
 }
 
+int CModem::getDescramblerSnmpValueByMode(int mode)
+{
+	if (mode < 0 || mode >= GetDescramblerModesCount())
+		return 0;
+	return doGetDescramblerSnmpValueByMode(mode);
+}
+
+int CModem::getDescramblerModeBySnmpValue(int SnmpValue)
+{
+	for (int mode = 0; mode < GetDescramblerModesCount(); mode++)
+	{
+		if (getDescramblerSnmpValueByMode(mode) == SnmpValue)
+			return mode;
+	}
+	return -1;
+}
+
 //virtual
 BOOL CModem::NeedToUpdateDescramblerMode(int mode, int demodulator)
 {
@@ -1002,6 +1053,23 @@ MC_ErrorCode CModem::SetScramblerMode(int &mode, int modulator)
 	GetScramblerMode(mode, modulator);
 
 	return EC;
+}
+
+int CModem::getScramblerSnmpValueByMode(int mode)
+{
+	if (mode < 0 || mode >= GetScramblerModesCount())
+		return 0;
+	return doGetScramblerSnmpValueByMode(mode);
+}
+
+int CModem::getScramblerModeBySnmpValue(int SnmpValue)
+{
+	for (int mode = 0; mode < GetScramblerModesCount(); mode++)
+	{
+		if (getScramblerSnmpValueByMode(mode) == SnmpValue)
+			return mode;
+	}
+	return -1;
 }
 
 //virtual

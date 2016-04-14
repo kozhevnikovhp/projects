@@ -173,6 +173,12 @@ public:
 	int m_nMeasure;
 };
 
+typedef struct
+{
+	const char *pszDescription;
+	int SnmpValue;
+} ModeTextSNMP;
+
 class CModem : public CRadioDevice, public CAutoSN
 {
 public:
@@ -393,21 +399,27 @@ public:
 	const char *GetRFecModeName(int mode);
 	MC_ErrorCode GetRFecMode(int &mode, int demodulator);
 	MC_ErrorCode SetRFecMode(int &mode, int demodulator);
+	int getRFecSnmpValueByMode(int mode);
+	int getRFecModeBySnmpValue(int SnmpValue);
 	virtual BOOL NeedToUpdateRFecMode(int mode, int demodulator);
 	virtual int GetRFecModeCount() = 0;
 	virtual const char *doGetRFecModeName(int mode) = 0;
 	virtual MC_ErrorCode doGetRFecMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	virtual MC_ErrorCode doSetRFecMode(int &mode, int demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual int doGetRFecSnmpValueByMode(int mode) = 0;
 
 	virtual BOOL CanTFecMode() { return FALSE; }
 	const char *GetTFecModeName(int mode);
 	MC_ErrorCode GetTFecMode(int &mode, int modulator);
 	MC_ErrorCode SetTFecMode(int &mode, int modulator);
+	int getTFecSnmpValueByMode(int mode);
+	int getTFecModeBySnmpValue(int SnmpValue);
 	virtual BOOL NeedToUpdateTFecMode(int mode, int modulator);
 	virtual int GetTFecModeCount() = 0;
 	virtual const char *doGetTFecModeName(int mode) = 0;
 	virtual MC_ErrorCode doGetTFecMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	virtual MC_ErrorCode doSetTFecMode(int &mode, int modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual int doGetTFecSnmpValueByMode(int mode) = 0;
 
 // FEC option
 	virtual BOOL CanRFecOption() { return FALSE; }
@@ -488,22 +500,28 @@ public:
 	const char *GetDescramblerModeName(int mode);
 	MC_ErrorCode GetDescramblerMode(int &mode, int demodulator);
 	MC_ErrorCode SetDescramblerMode(int &mode, int demodulator);
+	int getDescramblerSnmpValueByMode(int mode);
+	int getDescramblerModeBySnmpValue(int SnmpValue);
 	virtual BOOL NeedToUpdateDescramblerMode(int mode, int demodulator);
 	virtual BOOL CanDescramble() { return FALSE; }
 	virtual int GetDescramblerModesCount() = 0;
 	virtual const char *doGetDescramblerModeName(int Mode) = 0;
 	virtual MC_ErrorCode doGetDescramblerMode(int &mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	virtual MC_ErrorCode doSetDescramblerMode(int &mode, int Demodulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual int doGetDescramblerSnmpValueByMode(int mode) = 0;
 	
 	const char *GetScramblerModeName(int mode);
 	MC_ErrorCode GetScramblerMode(int &mode, int modulator);
 	MC_ErrorCode SetScramblerMode(int &mode, int Modulator);
+	int getScramblerSnmpValueByMode(int mode);
+	int getScramblerModeBySnmpValue(int SnmpValue);
 	virtual BOOL NeedToUpdateScramblerMode(int mode, int Modulator);
 	virtual BOOL CanScramble() { return FALSE; }
 	virtual int GetScramblerModesCount() = 0;
 	virtual const char *doGetScramblerModeName(int mode) = 0;
 	virtual MC_ErrorCode doGetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
 	virtual MC_ErrorCode doSetScramblerMode(int &mode, int Modulator) { return MC_COMMAND_NOT_SUPPORTED; }
+	virtual int doGetScramblerSnmpValueByMode(int mode) = 0;
 
 // Spectral inversion
 	virtual BOOL CanRSpectrumMode() { return FALSE; }
