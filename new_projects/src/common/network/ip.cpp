@@ -75,23 +75,23 @@ void cIpSocket::storeLastErrorCode()
 
 bool cIpSocket::create(int af, int type, int protocol)
 {
-	if (!m_SocketCount)
-		InitSockets();
+    if (!m_SocketCount)
+        InitSockets();
     if (isCreated())
         return true; // opened already, do nothing
     
-	++m_SocketCount;
-	++m_MaxSocketSeqNumber;
+    ++m_SocketCount;
+    ++m_MaxSocketSeqNumber;
     
-	m_Socket = socket(af, type, protocol);
-	if (m_Socket == INVALID_SOCKET)
-	{
-		storeLastErrorCode();
+    m_Socket = socket(af, type, protocol);
+    if (m_Socket == INVALID_SOCKET)
+    {
+        storeLastErrorCode();
         perror("socket");
-		return false;
-	}
+        return false;
+    }
     
-	return true;
+    return true;
 }
 
 void cIpSocket::destroy()
@@ -99,25 +99,25 @@ void cIpSocket::destroy()
     if (isDestroyed())
         return; // do nothing
 
-	onBeforeClosing();
+    onBeforeClosing();
     
 #ifdef SOCKETS_WSA
-	::shutdown(m_Socket, SD_BOTH);
-	::closesocket(m_Socket);
+    ::shutdown(m_Socket, SD_BOTH);
+    ::closesocket(m_Socket);
 #endif
     
 #ifdef SOCKETS_BSD
-	::shutdown(m_Socket, SHUT_RDWR);
+    ::shutdown(m_Socket, SHUT_RDWR);
     if (::close(m_Socket) != 0) // success = 0, fail = -1
     {
         perror("close");
     }
 #endif
     
-	m_Socket = INVALID_SOCKET;
-	--m_SocketCount;
-	if (!m_SocketCount)
-		FinitSockets();
+    m_Socket = INVALID_SOCKET;
+    --m_SocketCount;
+    if (!m_SocketCount)
+        FinitSockets();
 }
 
 bool cIpSocket::bind(IPPORT portNo, IPADDRESS_TYPE InterfaceIpAddress/* = INADDR_ANY */)
@@ -128,9 +128,9 @@ bool cIpSocket::bind(IPPORT portNo, IPADDRESS_TYPE InterfaceIpAddress/* = INADDR
 	local.sin_port = htons(portNo);
 	if (::bind(GetSocket(), (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
 	{
-        perror("bind");
-		storeLastErrorCode();
-		return false;
+            perror("bind");
+            storeLastErrorCode();
+            return false;
 	}
 	return true;
 }
@@ -139,9 +139,9 @@ bool cIpSocket::SetOption(int level, int OptionName, void *pcValue, socklen_t Op
 {
 	if ((setsockopt(m_Socket, level, OptionName, pcValue, OptionLength)) == SOCKET_ERROR)
 	{
-        perror("setsockopt");
-		storeLastErrorCode();
-		return false;
+            perror("setsockopt");
+            storeLastErrorCode();
+            return false;
 	}
 	return true;
 }
@@ -204,7 +204,7 @@ bool cIpSocket::SetReadTimeout(unsigned int timeout)
     struct timeval t;
     t.tv_sec = timeout/1000;
     t.tv_usec = (timeout % 1000)*1000;
-	return SetOption(SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
+    return SetOption(SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
 }
 
 //virtual
@@ -308,9 +308,9 @@ bool cIpSocket::WriteTo
 
 bool cIpSocket::SetSendTTL(unsigned char ttl)
 {
-	m_cTTL = ttl;
-	int dwValue = ttl;
-	return SetOption(IPPROTO_IP, IP_TTL, &dwValue, sizeof(dwValue));
+    m_cTTL = ttl;
+    int dwValue = ttl;
+    return SetOption(IPPROTO_IP, IP_TTL, &dwValue, sizeof(dwValue));
 }
 
 bool cIpSocket::SetSendTOS(unsigned char tos)
