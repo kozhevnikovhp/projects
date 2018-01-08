@@ -1,6 +1,9 @@
 ## \file calc/CMakeLists.txt
 #
 
+PROJECT(calc)
+
+include_directories("..")
 
 SET (CALC_SRCS
     calc.cpp

@@ -10,7 +10,7 @@ namespace network {
 
 cUdpSocket::cUdpSocket()
 {
-	CreateAndInit();
+    CreateAndInit();
 }
 
 cUdpSocket::cUdpSocket(IPPORT portNo)
