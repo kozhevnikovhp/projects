@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-project(TrafficCounter)
+PROJECT(udpgen)
 
 INCLUDE_DIRECTORIES("../common")
 
@@ -8,8 +8,6 @@ SET (NETWORK_SRCS_DIR "../common/network")
 SET (NETWORK_SRCS
     ${NETWORK_SRCS_DIR}/ip.cpp
     ${NETWORK_SRCS_DIR}/misc.cpp
-    ${NETWORK_SRCS_DIR}/raw.cpp
-    ${NETWORK_SRCS_DIR}/sniffer.cpp
     ${NETWORK_SRCS_DIR}/udp.cpp
 )
 
@@ -33,5 +31,9 @@ ENDIF(UNIX)
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
 
+#TARGET_LINK_LIBRARIES (udpgen
+#                      network
+#                      portable
+#)
 
-SET(CMAKE_EXE_LINKER_FLAGS " -static")
+
