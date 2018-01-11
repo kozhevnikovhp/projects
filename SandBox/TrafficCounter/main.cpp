@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include "network/sniffer.h"
 #include "network/misc.h"
@@ -53,10 +54,10 @@ public:
         }
     }
 protected:
-    INT64 nInputPackets_;
-    INT64 nOutputPackets_;
-    INT64 nInputOctets_;
-    INT64 nOutputOctets_;
+    int64_t nInputPackets_;
+    int64_t nOutputPackets_;
+    int64_t nInputOctets_;
+    int64_t nOutputOctets_;
 };
 
 class ListenerSocket : public SnifferSocket
@@ -108,8 +109,8 @@ protected:
     virtual bool OnIpPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
         reportStatistics();
-        if (!isPacketOfInterest(pIpHeader))
-                return true; // true means "processed", no any other processing needed
+        //if (!isPacketOfInterest(pIpHeader))
+         //       return true; // true means "processed", no any other processing needed
         bool bInput = (pIpHeader->destIP == teloIP_);
         unsigned int nPacketSize = pIpHeader->h_len*4+nUserDataLength; // recalculate it :-(
         IpStatTotal_.update(nPacketSize, bInput);
@@ -167,27 +168,27 @@ int main(int argc, char* argv[])
 {
     if (argc < 4)
     {
-        printf("Not enough arguments\nUsage: %s InterfaceIP SubnetMask TeloIP\n");
+        printf("Not enough arguments\nUsage: TrafficCounter InterfaceIP SubnetMask TeloIP\n");
         return 0;
     }
 
     IpSocket::InitSockets();
 
-    IPADDRESS_TYPE ifaceIP = StringToAddress(argv[1]);
+    IPADDRESS_TYPE ifaceIP = stringToAddress(argv[1]);
     if (!ifaceIP)
     {
         printf("Cannot resolve %s to IP-address\n", argv[1]);
         return 0;
     }
 
-    IPADDRESS_TYPE subnetMask = StringToAddress(argv[2]);
+    IPADDRESS_TYPE subnetMask = stringToAddress(argv[2]);
     if (!subnetMask)
     {
         printf("Cannot recognize subnet mask %s\n", argv[2]);
         return 0;
     }
 
-    IPADDRESS_TYPE teloIP = StringToAddress(argv[3]);
+    IPADDRESS_TYPE teloIP = stringToAddress(argv[3]);
     if (!teloIP)
     {
         printf("Cannot resolve %s to IP-address\n", argv[3]);

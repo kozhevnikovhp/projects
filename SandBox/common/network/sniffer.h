@@ -18,7 +18,7 @@ public:
 // Public methods
 // Public overridables
 // Public members
-    bool bind(unsigned long InterfaceIpAddress = INADDR_ANY);
+    bool bind(IPADDRESS_TYPE = INADDR_ANY);
     bool enablePromiscMode();
     bool disablePromiscMode();
     bool waitForPacket();

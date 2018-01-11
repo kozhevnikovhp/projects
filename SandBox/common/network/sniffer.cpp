@@ -1,6 +1,9 @@
 // Class CSnifferSocket implementation
 
 #include "sniffer.h"
+#include <net/if.h>
+#include <string.h>
+#include <stdio.h>
 
 #ifndef SIO_RCVALL
 #define SIO_RCVALL 0x98000001
@@ -24,30 +27,40 @@ SnifferSocket::~SnifferSocket()
 bool SnifferSocket::open()
 {
 #ifdef SOCKETS_WSA
-    return create(AF_INET, SOCK_RAW, IPPROTO_IP);
+    return create(AF_PACKET, SOCK_RAW, IPPROTO_IP);
 #endif
 #ifdef SOCKETS_BSD
-   // return create(AF_UNIX, SOCK_RAW, IPPROTO_IP);
-   return create(AF_PACKET, SOCK_RAW, IPPROTO_IP);
+   return create(AF_PACKET, SOCK_RAW, htons(0x0003));
 #endif
 }
 
-bool SnifferSocket::bind(unsigned long InterfaceIpAddress)
+bool SnifferSocket::bind(IPADDRESS_TYPE InterfaceIpAddress)
 {
+//    return true;
     return inherited::bind(0, InterfaceIpAddress);
 }
 
 bool SnifferSocket::enablePromiscMode()
 {
-    unsigned long	flag = 1;  // flag PROMISC ON/OFF
+    unsigned long flag = 1;  // flag PROMISC ON/OFF
 
 #ifdef SOCKETS_WSA
     ioctlsocket(m_Socket, SIO_RCVALL, &flag);
 #endif
 #ifdef SOCKETS_BSD
-    ioctl(m_Socket, SIO_RCVALL, &flag);
-#endif
+//    ioctl(m_Socket, SIO_RCVALL, &flag);
 
+    struct ifreq eth;
+
+    strcpy(eth.ifr_name, "enp0s3");
+
+    ioctl(m_Socket, SIOCGIFFLAGS, &eth);
+
+    eth.ifr_flags |= IFF_PROMISC;
+
+    ioctl(m_Socket, SIOCSIFFLAGS, &eth);
+
+#endif
     return true;
 }
 

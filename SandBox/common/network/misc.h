@@ -17,8 +17,8 @@ IPADDRESS_TYPE getIP(const in_addr *pAddr);
 void setIP(sockaddr *pSockAddr, IPADDRESS_TYPE IP);
 void setIP(in_addr *pAddr, IPADDRESS_TYPE IP);
 
-IPADDRESS_TYPE StringToAddress(const std::string &str);
-IPADDRESS_TYPE StringToAddress(const char *pszStr);
+IPADDRESS_TYPE stringToAddress(const std::string &str);
+IPADDRESS_TYPE stringToAddress(const char *pszStr);
 
 std::string addressToDotNotation(IPADDRESS_TYPE Address);
 std::string addressToHostName(IPADDRESS_TYPE Address);

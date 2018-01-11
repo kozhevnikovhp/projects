@@ -57,17 +57,16 @@ void setIP(in_addr *pAddr, IPADDRESS_TYPE IP)
 #endif
 }
 
-IPADDRESS_TYPE StringToAddress(const std::string &str)
+IPADDRESS_TYPE stringToAddress(const std::string &str)
 {
-    return StringToAddress(str.c_str());
+    return stringToAddress(str.c_str());
 }
 
-IPADDRESS_TYPE StringToAddress(const char *pszStr)
+IPADDRESS_TYPE stringToAddress(const char *pszStr)
 {
     struct hostent *pHost = gethostbyname(pszStr);
     if (!pHost)
     {
-        DWORD ec = WSAGetLastError();
         perror("gethostbyname");
         return 0;
     }

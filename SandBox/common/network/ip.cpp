@@ -286,7 +286,7 @@ bool IpSocket::WriteTo
     IPPORT portNo
 )
 {
-    IPADDRESS_TYPE IpAddress = StringToAddress(pszIpAddress);
+    IPADDRESS_TYPE IpAddress = stringToAddress(pszIpAddress);
     return WriteTo(pBufferToSend, nBytesToSend, nSentBytes, IpAddress, portNo);
 }
 
