@@ -24,9 +24,10 @@ std::string addressToDotNotation(IPADDRESS_TYPE Address);
 std::string addressToHostName(IPADDRESS_TYPE Address);
 std::string getFullName(IPADDRESS_TYPE ip);
 
+bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask);
 int Count1s(IPADDRESS_TYPE Address);
 IPADDRESS_TYPE GetSubnetMaskByLength(int nMaskLength);
-int CalcMaxPossibleHosts(IPADDRESS_TYPE uSubnetMask); // including 0th and last broadcast addresses, just 2**MaskLength
+int CalcMaxPossibleHosts(IPADDRESS_TYPE subnetMask); // including 0th and last broadcast addresses, just 2**MaskLength
 int CalcMaxPossibleHosts(int nMaskLength); // including 0th and last broadcast addresses, just 2**MaskLength
 
 } // namespace network

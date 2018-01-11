@@ -26,6 +26,7 @@ const char SUBDIRECTORIES_SEPARATOR = '/';
 void portableSleep(unsigned int uSleepTime);
 void portableSwitchContext();
 unsigned int portableGetCurrentTimeMsec();
+unsigned int portableGetCurrentTimeSec();
 
 } // namespace portable
 

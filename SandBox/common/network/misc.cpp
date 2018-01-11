@@ -67,6 +67,7 @@ IPADDRESS_TYPE StringToAddress(const char *pszStr)
     struct hostent *pHost = gethostbyname(pszStr);
     if (!pHost)
     {
+        DWORD ec = WSAGetLastError();
         perror("gethostbyname");
         return 0;
     }
@@ -112,6 +113,11 @@ std::string getFullName(IPADDRESS_TYPE ip)
         str += ')';
     }
     return str;
+}
+
+bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask)
+{
+    return ((a1 & subnetMask) == (a2 & subnetMask));
 }
 
 int Count1s(IPADDRESS_TYPE Address)
@@ -170,9 +176,9 @@ IPADDRESS_TYPE GetSubnetMaskByLength(int nMaskLength)
 }
 
 // including 0th and last broadcast addresses, just 2**(32-MaskLength)
-int CalcMaxPossibleHosts(IPADDRESS_TYPE uSubnetMask)
+int CalcMaxPossibleHosts(IPADDRESS_TYPE subnetMask)
 {
-    return CalcMaxPossibleHosts(Count1s(uSubnetMask));
+    return CalcMaxPossibleHosts(Count1s(subnetMask));
 }
 
 int CalcMaxPossibleHosts(int nMaskLength)

@@ -90,7 +90,7 @@ typedef struct
         unsigned char	tos;				// Type of service
         unsigned short	total_len;			// total length of packet
         unsigned short	ident;				// unique identifier
-        unsigned short	frag_and_flags;		// flags
+        unsigned short	frag_and_flags;                 // flags
         unsigned char	ttl;				// time to live value
         unsigned char	proto;				// protocol (TCP, UDP, etc.)
         unsigned short	checksum;			// IP checksum
@@ -152,6 +152,9 @@ class IpSocket
 public:
     IpSocket();
     virtual ~IpSocket();
+    static int InitSockets();
+    static int FinitSockets();
+
 // Public methods
     unsigned long getLastErrorCode() const { return m_LastErrorCode; }
     void storeLastErrorCode();
@@ -179,8 +182,8 @@ public:
 protected:
 // Protected methods
     bool create(int af, int type, int protocol);
-    bool SetOption(int level, int OptionName, void *pcValue, socklen_t OptionLength);
-    bool GetOption(int level, int OptionName, void *pcValue, socklen_t &OptionLength);
+    bool SetOption(int level, int OptionName, char *pcValue, socklen_t OptionLength);
+    bool GetOption(int level, int OptionName, char *pcValue, socklen_t &OptionLength);
     unsigned short CalcCheckSum(unsigned short *pData, unsigned short);
     unsigned short CalcPseudoCheckSum(SIpHeader *pIpHeader, unsigned short *pData, unsigned short);
 
@@ -196,6 +199,7 @@ protected:
     unsigned int m_SocketSeqNumber; // numerates all sockets of this application
     static unsigned int m_SocketCount;
     static unsigned int m_MaxSocketSeqNumber;
+    static bool bSocketsInitialized_;
 
     unsigned char m_cTTL;
     unsigned char m_cTOS;

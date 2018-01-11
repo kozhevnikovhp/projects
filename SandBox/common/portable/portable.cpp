@@ -43,9 +43,21 @@ unsigned int portableGetCurrentTimeMsec()
     return GetTickCount();
 #endif
 #ifdef OS_UNIX
-	timeval t;
-	gettimeofday(&t, NULL);
-	return 1000*t.tv_sec + t.tv_usec/1000.;
+    timeval t;
+    gettimeofday(&t, NULL);
+    return 1000*t.tv_sec + t.tv_usec/1000.;
+#endif
+}
+
+unsigned int portableGetCurrentTimeSec()
+{
+#ifdef OS_WINDOWS
+    return GetTickCount()/1000;
+#endif
+#ifdef OS_UNIX
+    timeval t;
+    gettimeofday(&t, NULL);
+    return t.tv_sec;
 #endif
 }
 

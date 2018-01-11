@@ -9,8 +9,11 @@ namespace common {
 namespace network {
 
 // methods to initialize and deinitialize socket subsystem
-int InitSockets()
+//static
+int IpSocket::InitSockets()
 {
+    if (bSocketsInitialized_)
+        return 1;
 #ifdef SOCKETS_WSA
 #define VERSION_MINOR 1
 #define VERSION_MAJOR 1
@@ -32,13 +35,14 @@ int InitSockets()
 	return 1; // success
 } //  InitSockets()
 
-
-int FinitSockets()
+//static
+int IpSocket::FinitSockets()
 {
 #ifdef SOCKETS_WSA
 	WSACleanup();
 #endif
-	return 1; // success
+    bSocketsInitialized_ = false;
+    return 1; // success
 } //  FinitSockets()
 
 
@@ -47,6 +51,7 @@ int FinitSockets()
 
 unsigned int IpSocket::m_SocketCount = 0;
 unsigned int IpSocket::m_MaxSocketSeqNumber = 0;
+bool IpSocket::bSocketsInitialized_ = false;
 
 IpSocket::IpSocket()
 {
@@ -75,8 +80,7 @@ void IpSocket::storeLastErrorCode()
 
 bool IpSocket::create(int af, int type, int protocol)
 {
-    if (!m_SocketCount)
-        InitSockets();
+    InitSockets();
     if (isCreated())
         return true; // opened already, do nothing
     
@@ -116,8 +120,6 @@ void IpSocket::destroy()
     
     m_Socket = INVALID_SOCKET;
     --m_SocketCount;
-    if (!m_SocketCount)
-        FinitSockets();
 }
 
 bool IpSocket::bind(IPPORT portNo, IPADDRESS_TYPE InterfaceIpAddress/* = INADDR_ANY */)
@@ -135,18 +137,18 @@ bool IpSocket::bind(IPPORT portNo, IPADDRESS_TYPE InterfaceIpAddress/* = INADDR_
 	return true;
 }
 
-bool IpSocket::SetOption(int level, int OptionName, void *pcValue, socklen_t OptionLength)
+bool IpSocket::SetOption(int level, int OptionName, char *pcValue, socklen_t OptionLength)
 {
 	if ((setsockopt(m_Socket, level, OptionName, pcValue, OptionLength)) == SOCKET_ERROR)
 	{
-            perror("setsockopt");
-            storeLastErrorCode();
-            return false;
+        perror("setsockopt");
+        storeLastErrorCode();
+        return false;
 	}
 	return true;
 }
 
-bool IpSocket::GetOption(int level, int OptionName, void *pcValue, socklen_t &OptionLength)
+bool IpSocket::GetOption(int level, int OptionName, char *pcValue, socklen_t &OptionLength)
 {
 	if ((getsockopt(m_Socket, level, OptionName, pcValue, &OptionLength)) == SOCKET_ERROR)
 	{
@@ -204,7 +206,7 @@ bool IpSocket::SetReadTimeout(unsigned int timeout)
     struct timeval t;
     t.tv_sec = timeout/1000;
     t.tv_usec = (timeout % 1000)*1000;
-    return SetOption(SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
+    return SetOption(SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t));
 }
 
 //virtual
@@ -252,7 +254,7 @@ bool IpSocket::SetWriteTimeout(unsigned int timeout)
     struct timeval t;
     t.tv_sec = timeout/1000;
     t.tv_usec = (timeout % 1000)*1000;
-	return SetOption(SOL_SOCKET, SO_SNDTIMEO, &t, sizeof(t));
+    return SetOption(SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t));
 }
 
 //virtual
@@ -310,7 +312,7 @@ bool IpSocket::SetSendTTL(unsigned char ttl)
 {
     m_cTTL = ttl;
     int dwValue = ttl;
-    return SetOption(IPPROTO_IP, IP_TTL, &dwValue, sizeof(dwValue));
+    return SetOption(IPPROTO_IP, IP_TTL, (char *)&dwValue, sizeof(dwValue));
 }
 
 bool IpSocket::SetSendTOS(unsigned char tos)
@@ -323,7 +325,7 @@ bool IpSocket::SetSendTOS(unsigned char tos)
 bool IpSocket::EnableBroadcasting(bool bEnable /*= true */)
 {
     int dwValue = bEnable;
-    return SetOption(SOL_SOCKET, SO_BROADCAST, &dwValue, sizeof(dwValue));
+    return SetOption(SOL_SOCKET, SO_BROADCAST, (char *)&dwValue, sizeof(dwValue));
 }
 
 bool IpSocket::WriteBroadcast(void *pBufferToSend, size_t nBytesToSend, int &nSentBytes, IPPORT portNo)
