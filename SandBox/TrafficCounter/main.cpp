@@ -54,23 +54,36 @@ public:
         }
     }
 protected:
-    int64_t nInputPackets_;
-    int64_t nOutputPackets_;
-    int64_t nInputOctets_;
-    int64_t nOutputOctets_;
+    long long nInputPackets_;
+    long long nOutputPackets_;
+    long long nInputOctets_;
+    long long nOutputOctets_;
 };
 
 class ListenerSocket : public SnifferSocket
 {
 //Attributes
 public:
-    ListenerSocket(IPADDRESS_TYPE subnetMask, IPADDRESS_TYPE teloIP)
+#if (WIN32)
+    ListenerSocket(IPADDRESS_TYPE ifaceIP, IPADDRESS_TYPE ifaceMask, IPADDRESS_TYPE teloIP)
     {
-        subnetMask_ = subnetMask;
+        subnetMask_ = ifaceMask;
         teloIP_ = teloIP;
         lastStatTime_ = 0;
+        printf("Listening %s...\n", addressToDotNotation(ifaceIP).c_str());
+        promiscModeOn(ifaceIP);
     }
-    virtual ~ListenerSocket() {}
+#elif (UNIX)
+    ListenerSocket(IPADDRESS_TYPE teloIP)
+    {
+        //subnetMask_ = ifaceMask;
+        teloIP_ = teloIP;
+        lastStatTime_ = 0;
+        //printf("Listening %s...\n", pszIfaceName);
+        //promiscModeOn(pszIfaceName);
+    }
+
+#endif
 
 // Public methods
 // Public overridables
@@ -109,8 +122,8 @@ protected:
     virtual bool OnIpPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
         reportStatistics();
-        //if (!isPacketOfInterest(pIpHeader))
-         //       return true; // true means "processed", no any other processing needed
+        if (!isPacketOfInterest(pIpHeader))
+                return true; // true means "processed", no any other processing needed
         bool bInput = (pIpHeader->destIP == teloIP_);
         unsigned int nPacketSize = pIpHeader->h_len*4+nUserDataLength; // recalculate it :-(
         IpStatTotal_.update(nPacketSize, bInput);
@@ -166,12 +179,12 @@ protected:
 
 int main(int argc, char* argv[])
 {
-    if (argc < 4)
+    if (argc < 2)
     {
-        printf("Not enough arguments\nUsage: TrafficCounter InterfaceIP SubnetMask TeloIP\n");
+        printf("Not enough arguments\nUsage: TrafficCounter TeloIP\n");
         return 0;
     }
-
+#if (WIN32)
     IpSocket::InitSockets();
 
     IPADDRESS_TYPE ifaceIP = stringToAddress(argv[1]);
@@ -184,7 +197,7 @@ int main(int argc, char* argv[])
     IPADDRESS_TYPE subnetMask = stringToAddress(argv[2]);
     if (!subnetMask)
     {
-        printf("Cannot recognize subnet mask %s\n", argv[2]);
+        printf("Cannot resolve subnet mask %s\n", argv[2]);
         return 0;
     }
 
@@ -195,18 +208,16 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    ListenerSocket sniffer(ifaceIP, subnetMask, teloIP);
+#elif (UNIX)
 
-    ListenerSocket sniffer(subnetMask, teloIP);
+#endif
     if (!sniffer.isCreated())
     {
         printf("Abnormal termination!\n");
         return 1;
     }
 
-    sniffer.bind(ifaceIP);
-    sniffer.enablePromiscMode();
-
-    printf("Listening %s...\n", addressToDotNotation(ifaceIP).c_str());
     while (1)
     {
         if (sniffer.waitForPacket())

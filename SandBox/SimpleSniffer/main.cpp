@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < helper.GetIpAddressesCount(); i++)
     {
         DWORD IpAddress = helper.GetIpAddress(i);
+        helper.Get
         printf("IP-Address %d : %s\n", i, AddressToString(szIpAddress, IpAddress));
     }
     do

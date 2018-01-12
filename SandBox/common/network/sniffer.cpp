@@ -1,14 +1,19 @@
 // Class CSnifferSocket implementation
 
 #include "sniffer.h"
-#include <net/if.h>
-#include <linux/if_ether.h>
-#include <string.h>
-#include <stdio.h>
 
+#if (WIN32)
 #ifndef SIO_RCVALL
 #define SIO_RCVALL 0x98000001
 #endif
+#elif (UNIX)
+#include <net/if.h>
+#include <linux/if_ether.h>
+#endif
+
+#include <string.h>
+#include <stdio.h>
+
 
 
 namespace common {
@@ -28,68 +33,49 @@ SnifferSocket::~SnifferSocket()
 bool SnifferSocket::open()
 {
 #ifdef SOCKETS_WSA
-    return create(AF_PACKET, SOCK_RAW, IPPROTO_IP);
+    return create(AF_INET, SOCK_RAW, IPPROTO_IP);
 #endif
 #ifdef SOCKETS_BSD
-   return create(AF_PACKET, SOCK_RAW, htons(ETH_P_IP));
+   return create(PF_PACKET, SOCK_RAW, htons(ETH_P_IP));
 #endif
 }
 
-bool SnifferSocket::bind(IPADDRESS_TYPE InterfaceIpAddress)
+#if (WIN32)
+bool SnifferSocket::promiscModeOn(IPADDRESS_TYPE ifaceIP)
 {
-    return true;
- //   return inherited::bind(0, InterfaceIpAddress);
- /*   sockaddr_in local;
-    local.sin_family = AF_PACKET;
-    local.sin_addr.s_addr = InterfaceIpAddress;
-    local.sin_port = htons(0);
-    if (::bind(GetSocket(), (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
-    {
-        perror("bind");
-        storeLastErrorCode();
-        return false;
-    }
-    return true;
-*/
-}
-
-bool SnifferSocket::enablePromiscMode()
-{
+    inherited::bind(0, ifaceIP);
     unsigned long flag = 1;  // flag PROMISC ON/OFF
-
-#ifdef SOCKETS_WSA
     ioctlsocket(m_Socket, SIO_RCVALL, &flag);
-#endif
-#ifdef SOCKETS_BSD
-//    ioctl(m_Socket, SIO_RCVALL, &flag);
-
-    struct ifreq eth;
-
-    strcpy(eth.ifr_name, "enp0s3");
-
-    ioctl(m_Socket, SIOCGIFFLAGS, &eth);
-
-    eth.ifr_flags |= IFF_PROMISC;
-
-    ioctl(m_Socket, SIOCSIFFLAGS, &eth);
-
-#endif
     return true;
 }
-
-bool SnifferSocket::disablePromiscMode()
+#elif (UNIX)
+bool SnifferSocket::promiscModeOn(const char *pszIfaceName)
 {
-    unsigned long	flag = 0;  // flag PROMISC ON/OFF
-#ifdef SOCKETS_WSA
-    ioctlsocket(m_Socket, SIO_RCVALL, &flag);
-#endif
-#ifdef SOCKETS_BSD
-    ioctl(m_Socket, SIO_RCVALL, &flag);
-#endif
-
+    struct ifreq interface;
+    strcpy(interface.ifr_name, pszIfaceName);
+    ioctl(m_Socket, SIOCGIFFLAGS, &interface);
+    interface.ifr_flags |= IFF_PROMISC;
+    ioctl(m_Socket, SIOCSIFFLAGS, &eth);
     return true;
 }
+#endif
 
+bool SnifferSocket::promiscModeOff()
+{
+#if (WIN32)
+    unsigned long flag = 0;  // flag PROMISC ON/OFF
+    ioctlsocket(m_Socket, SIO_RCVALL, &flag);
+    return true;
+#elif (UNIX)
+    struct ifreq interface;
+    strcpy(interface.ifr_name, pszIfaceName);
+    ioctl(m_Socket, SIOCGIFFLAGS, &interface);
+    interface.ifr_flags &= ~IFF_PROMISC;
+    ioctl(m_Socket, SIOCSIFFLAGS, &eth);
+    return true;
+
+#endif
+}
 bool SnifferSocket::waitForPacket()
 {
     struct sockaddr Src;

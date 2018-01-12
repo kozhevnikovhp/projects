@@ -32,7 +32,8 @@ int IpSocket::InitSockets()
 		return 0;
 	}
 #endif
-	return 1; // success
+    bSocketsInitialized_ = true;
+    return 1; // success
 } //  InitSockets()
 
 //static

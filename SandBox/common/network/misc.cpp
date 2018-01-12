@@ -119,6 +119,33 @@ bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnet
     return ((a1 & subnetMask) == (a2 & subnetMask));
 }
 
+bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName)
+{
+    //
+    // check all interfaces to find better pair Address/Mask to be in the same net as target IP
+#if (WIN32)
+
+#elif (UNIX)
+    // http://forum.sources.ru/index.php?showtopic=78789
+    // find IP address and mask of the interface
+    char szHostName[128] = "";
+    gethostname(szHostName, sizeof(szHostName));
+    printf("%s\n", szHostName);
+    struct hostent *pHost = gethostbyname(szHostName);
+    if (!pHost)
+    {
+        perror("gethostbyname");
+    }
+    char *p = pHost->h_addr_list[0];
+    for (int i = 0; pHost->h_addr_list[i] != 0; ++i) {
+        struct in_addr addr;
+        memcpy(&addr, pHost
+               ->h_addr_list[i], sizeof(struct in_addr));
+        printf("Address %d:%s\n", i, inet_ntoa(addr));
+    }
+#endif
+}
+
 int Count1s(IPADDRESS_TYPE Address)
 {
     // count 1s

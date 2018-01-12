@@ -2,7 +2,6 @@
 #define __SNIFFER_SOCKETS_H_INCLUDED__
 
 #include "raw.h"
-//#include "icmp.h"
 
 namespace common {
 
@@ -18,9 +17,12 @@ public:
 // Public methods
 // Public overridables
 // Public members
-    bool bind(IPADDRESS_TYPE = INADDR_ANY);
-    bool enablePromiscMode();
-    bool disablePromiscMode();
+#if (WIN32)
+    bool promiscModeOn(IPADDRESS_TYPE ifaceIP);
+#elif (UNIX)
+    bool promiscModeOn(const char *pszIfaceName);
+#endif
+    bool promiscModeOff();
     bool waitForPacket();
 
 // Protected methods
@@ -39,6 +41,7 @@ protected:
 // Protected members
 protected:
     unsigned char m_szBufferForPackets[0xFFFF];
+    const char *pszIfaceName_;
 };
 
 }
