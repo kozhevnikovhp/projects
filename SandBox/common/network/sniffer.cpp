@@ -2,6 +2,7 @@
 
 #include "sniffer.h"
 #include <net/if.h>
+#include <linux/if_ether.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -30,14 +31,26 @@ bool SnifferSocket::open()
     return create(AF_PACKET, SOCK_RAW, IPPROTO_IP);
 #endif
 #ifdef SOCKETS_BSD
-   return create(AF_PACKET, SOCK_RAW, htons(0x0003));
+   return create(AF_PACKET, SOCK_RAW, htons(ETH_P_IP));
 #endif
 }
 
 bool SnifferSocket::bind(IPADDRESS_TYPE InterfaceIpAddress)
 {
-//    return true;
-    return inherited::bind(0, InterfaceIpAddress);
+    return true;
+ //   return inherited::bind(0, InterfaceIpAddress);
+ /*   sockaddr_in local;
+    local.sin_family = AF_PACKET;
+    local.sin_addr.s_addr = InterfaceIpAddress;
+    local.sin_port = htons(0);
+    if (::bind(GetSocket(), (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
+    {
+        perror("bind");
+        storeLastErrorCode();
+        return false;
+    }
+    return true;
+*/
 }
 
 bool SnifferSocket::enablePromiscMode()
@@ -85,7 +98,8 @@ bool SnifferSocket::waitForPacket()
 	if (!bSuccess)
         return false;
 	
-	SIpHeader *pIpHeader = (SIpHeader *)m_szBufferForPackets;
+    //struct ethhdr* eth = (struct ethhdr*)m_szBufferForPackets;
+    SIpHeader *pIpHeader = (SIpHeader *)/*(eth+1)*/(m_szBufferForPackets);
 	unsigned short	nIpHdrLen = pIpHeader->h_len * 4;
 	unsigned char *pUserData = m_szBufferForPackets + nIpHdrLen;
 	unsigned int nUserDataLength = nReadBytes - nIpHdrLen;

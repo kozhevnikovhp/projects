@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 
     IPPORT wPort = 8888;
 
-    IPADDRESS_TYPE ip = StringToAddress(argv[1]);
+    IPADDRESS_TYPE ip = stringToAddress(argv[1]);
     if (!ip)
     {
         printf("Cannot resolve name %s to IP-address\n", argv[1]);
