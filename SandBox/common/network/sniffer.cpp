@@ -51,11 +51,11 @@ bool SnifferSocket::promiscModeOn(IPADDRESS_TYPE ifaceIP)
 #elif (UNIX)
 bool SnifferSocket::promiscModeOn(const char *pszIfaceName)
 {
-    struct ifreq interface;
-    strcpy(interface.ifr_name, pszIfaceName);
-    ioctl(m_Socket, SIOCGIFFLAGS, &interface);
+    memset(&ifaceDesc_, 0, sizeof(ifaceDesc_);
+    strcpy(ifaceDesc_.ifr_name, pszIfaceName);
+    ioctl(m_Socket, SIOCGIFFLAGS, &ifaceDesc_);
     interface.ifr_flags |= IFF_PROMISC;
-    ioctl(m_Socket, SIOCSIFFLAGS, &eth);
+    ioctl(m_Socket, SIOCSIFFLAGS, &ifaceDesc_);
     return true;
 }
 #endif
@@ -67,13 +67,10 @@ bool SnifferSocket::promiscModeOff()
     ioctlsocket(m_Socket, SIO_RCVALL, &flag);
     return true;
 #elif (UNIX)
-    struct ifreq interface;
-    strcpy(interface.ifr_name, pszIfaceName);
-    ioctl(m_Socket, SIOCGIFFLAGS, &interface);
-    interface.ifr_flags &= ~IFF_PROMISC;
-    ioctl(m_Socket, SIOCSIFFLAGS, &eth);
+    ioctl(m_Socket, SIOCGIFFLAGS, &ifaceDesc_);
+    ifaceDesc_.ifr_flags &= ~IFF_PROMISC;
+    ioctl(m_Socket, SIOCSIFFLAGS, &ifaceDesc_);
     return true;
-
 #endif
 }
 bool SnifferSocket::waitForPacket()

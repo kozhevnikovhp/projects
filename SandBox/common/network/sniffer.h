@@ -41,7 +41,9 @@ protected:
 // Protected members
 protected:
     unsigned char m_szBufferForPackets[0xFFFF];
-    const char *pszIfaceName_;
+#if (UNIX)
+    struct ifreq ifaceDesc_;
+#endif
 };
 
 }

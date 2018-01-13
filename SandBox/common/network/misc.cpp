@@ -5,6 +5,7 @@
 
 #ifdef SOCKETS_WSA
 #include <Winsock2.h>
+#include "IpHelper.h"
 #endif
 
 namespace common {
@@ -121,10 +122,26 @@ bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnet
 
 bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName)
 {
-    //
+    ifaceIP = ifaceMask = 0;
     // check all interfaces to find better pair Address/Mask to be in the same net as target IP
 #if (WIN32)
-
+    //printf("This workstation has the following IP-addresses:\n");
+    IpHelper helper;
+    unsigned int i;
+    for (i = 0; i < helper.GetIpAddressesCount(); i++)
+    {
+        IPADDRESS_TYPE thisIP = helper.GetIpAddress(i);
+        IPADDRESS_TYPE thisMask = helper.GetIpSubnetMask(i);
+        //std::string str = helper.GetIfaceDesc(i);
+        //printf("IP-Address %d : %s/%s\n", i, addressToDotNotation(thisIP).c_str(), addressToDotNotation(thisMask).c_str());
+        if (isTheSameSubnet(IP, thisIP, thisMask))
+        {
+            ifaceIP = thisIP;
+            ifaceMask = thisMask;
+            return true;
+        }
+    }
+    return false;
 #elif (UNIX)
     // http://forum.sources.ru/index.php?showtopic=78789
     // find IP address and mask of the interface

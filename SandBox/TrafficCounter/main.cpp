@@ -64,26 +64,30 @@ class ListenerSocket : public SnifferSocket
 {
 //Attributes
 public:
-#if (WIN32)
-    ListenerSocket(IPADDRESS_TYPE ifaceIP, IPADDRESS_TYPE ifaceMask, IPADDRESS_TYPE teloIP)
-    {
-        subnetMask_ = ifaceMask;
-        teloIP_ = teloIP;
-        lastStatTime_ = 0;
-        printf("Listening %s...\n", addressToDotNotation(ifaceIP).c_str());
-        promiscModeOn(ifaceIP);
-    }
-#elif (UNIX)
     ListenerSocket(IPADDRESS_TYPE teloIP)
     {
-        //subnetMask_ = ifaceMask;
         teloIP_ = teloIP;
         lastStatTime_ = 0;
-        //printf("Listening %s...\n", pszIfaceName);
-        //promiscModeOn(pszIfaceName);
+        IPADDRESS_TYPE ifaceIP;
+        std::string name; // not used so far, Linux only
+        bool bSuccess = common::network::findBestInterface(teloIP, ifaceIP, subnetMask_, name);
+        if (bSuccess)
+        {
+            printf("Listening local interface %s to figure out traffic of Telo %s...\n",
+                   addressToDotNotation(ifaceIP).c_str(),
+                   addressToDotNotation(teloIP_).c_str());
+#if (WIN32)
+            promiscModeOn(ifaceIP);
+#elif (UNIX)
+            promiscModeOn(name.c_str());
+#endif (WIN32/UNIX)
+        }
+        else
+        {
+            printf("ERROR: could not find appropriate interface for listenning\n");
+        }
     }
 
-#endif
 
 // Public methods
 // Public overridables
@@ -187,28 +191,14 @@ int main(int argc, char* argv[])
 #if (WIN32)
     IpSocket::InitSockets();
 
-    IPADDRESS_TYPE ifaceIP = stringToAddress(argv[1]);
-    if (!ifaceIP)
+    IPADDRESS_TYPE teloIP = stringToAddress(argv[1]);
+    if (!teloIP)
     {
         printf("Cannot resolve %s to IP-address\n", argv[1]);
         return 0;
     }
 
-    IPADDRESS_TYPE subnetMask = stringToAddress(argv[2]);
-    if (!subnetMask)
-    {
-        printf("Cannot resolve subnet mask %s\n", argv[2]);
-        return 0;
-    }
-
-    IPADDRESS_TYPE teloIP = stringToAddress(argv[3]);
-    if (!teloIP)
-    {
-        printf("Cannot resolve %s to IP-address\n", argv[3]);
-        return 0;
-    }
-
-    ListenerSocket sniffer(ifaceIP, subnetMask, teloIP);
+    ListenerSocket sniffer(teloIP);
 #elif (UNIX)
 
 #endif

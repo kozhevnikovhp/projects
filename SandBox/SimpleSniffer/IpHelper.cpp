@@ -15,7 +15,7 @@
 
 //#pragma comment(lib, "iphlpapi.lib")
 
-CIpHelper::CIpHelper()
+IpHelper::IpHelper()
 {
 	m_pIpAddressesBuffer = NULL;
 	m_bIpAddressesTableInitialized = FALSE;
@@ -28,7 +28,7 @@ CIpHelper::CIpHelper()
 }
 
 //virtual
-CIpHelper::~CIpHelper()
+IpHelper::~IpHelper()
 {
 	free(m_pIpAddressesBuffer);
 	free(m_pIfacesTable);
@@ -36,7 +36,7 @@ CIpHelper::~CIpHelper()
 	free(m_pArpCacheTable);
 }
 
-unsigned int CIpHelper::RequeryIpAddressTable()
+unsigned int IpHelper::RequeryIpAddressTable()
 {
 	unsigned long BufferSize = 0;
 	DWORD ErrorCode = ::GetIpAddrTable(NULL, &BufferSize, FALSE);
@@ -48,7 +48,7 @@ unsigned int CIpHelper::RequeryIpAddressTable()
 
 // GetIpAddressesCount
 // Returns the number of IP-addresses currently available on this workstation (include so-called local)
-unsigned long CIpHelper::GetIpAddressesCount()
+unsigned long IpHelper::GetIpAddressesCount()
 {
 	if (!m_bIpAddressesTableInitialized)
 		RequeryIpAddressTable();
@@ -57,7 +57,7 @@ unsigned long CIpHelper::GetIpAddressesCount()
 	return m_pIpAddressesBuffer->dwNumEntries; //success
 }
 
-unsigned long CIpHelper::GetIpAddress(unsigned long index)
+unsigned long IpHelper::GetIpAddress(unsigned long index)
 {
 	if (!m_bIpAddressesTableInitialized)
 		RequeryIpAddressTable();
@@ -68,7 +68,7 @@ unsigned long CIpHelper::GetIpAddress(unsigned long index)
 	return m_pIpAddressesBuffer->table[index].dwAddr;
 }
 
-unsigned long CIpHelper::GetIpSubnetMask(unsigned long index)
+unsigned long IpHelper::GetIpSubnetMask(unsigned long index)
 {
 	if (!m_bIpAddressesTableInitialized)
 		RequeryIpAddressTable();
@@ -79,7 +79,7 @@ unsigned long CIpHelper::GetIpSubnetMask(unsigned long index)
 	return m_pIpAddressesBuffer->table[index].dwMask;
 }
 
-BOOL CIpHelper::IsIpAddressLocal(unsigned long index)
+BOOL IpHelper::IsIpAddressLocal(unsigned long index)
 {
 	if (!m_bIpAddressesTableInitialized)
 		RequeryIpAddressTable();
@@ -90,7 +90,7 @@ BOOL CIpHelper::IsIpAddressLocal(unsigned long index)
 	return (m_pIpAddressesBuffer->table[index].dwIndex == 1);
 }
 
-unsigned int CIpHelper::RequeryIfacesTable()
+unsigned int IpHelper::RequeryIfacesTable()
 {
 	unsigned long BufferSize = 0;
 	DWORD ErrorCode = ::GetIfTable(NULL, &BufferSize, FALSE);
@@ -102,7 +102,7 @@ unsigned int CIpHelper::RequeryIfacesTable()
 
 // GetIfacesCount
 // Returns the number of interfaces currently available on this workstation
-unsigned long CIpHelper::GetIfacesCount()
+unsigned long IpHelper::GetIfacesCount()
 {
 	if (!m_bIfacesTableInitialized)
 		RequeryIfacesTable();
@@ -112,7 +112,7 @@ unsigned long CIpHelper::GetIfacesCount()
 }
 
 // returns index in interface table of IP-address specified by index in IpAddressesTable
-unsigned long CIpHelper::GetIfaceIpAddressIndex(unsigned long index)
+unsigned long IpHelper::GetIfaceIpAddressIndex(unsigned long index)
 {
 	if (!m_bIfacesTableInitialized)
 		RequeryIfacesTable();
@@ -132,7 +132,7 @@ unsigned long CIpHelper::GetIfaceIpAddressIndex(unsigned long index)
 	return (unsigned long)-1;
 }
 
-const char *CIpHelper::GetIfaceDesc(unsigned long index)
+const char *IpHelper::GetIfaceDesc(unsigned long index)
 {
 	if (!m_bIfacesTableInitialized)
 		RequeryIfacesTable();
@@ -144,7 +144,7 @@ const char *CIpHelper::GetIfaceDesc(unsigned long index)
 	return (const char *)m_pIfacesTable->table[index].bDescr;
 }
 
-unsigned char *CIpHelper::GetIfacePhysAddress(unsigned long index)
+unsigned char *IpHelper::GetIfacePhysAddress(unsigned long index)
 {
 	if (!m_bIfacesTableInitialized)
 		RequeryIfacesTable();
@@ -155,7 +155,7 @@ unsigned char *CIpHelper::GetIfacePhysAddress(unsigned long index)
 	return m_pIfacesTable->table[index].bPhysAddr;
 }
 
-unsigned long CIpHelper::GetIfacePhysAddressLength(unsigned long index)
+unsigned long IpHelper::GetIfacePhysAddressLength(unsigned long index)
 {
 	if (!m_bIfacesTableInitialized)
 		RequeryIfacesTable();
@@ -166,7 +166,7 @@ unsigned long CIpHelper::GetIfacePhysAddressLength(unsigned long index)
 	return m_pIfacesTable->table[index].dwPhysAddrLen;
 }
 
-unsigned long CIpHelper::GetIfacePhysAddressStr(unsigned long index, char *pszBufferForAddress)
+unsigned long IpHelper::GetIfacePhysAddressStr(unsigned long index, char *pszBufferForAddress)
 {
 	static char pszAdd[4];
 	pszBufferForAddress[0] = 0;
@@ -187,7 +187,7 @@ unsigned long CIpHelper::GetIfacePhysAddressStr(unsigned long index, char *pszBu
 	return strlen(pszBufferForAddress);
 }
 
-unsigned long CIpHelper::AddAdapterIpAddress(unsigned long nAdapter, DWORD IpAddress, DWORD SubnetMask)
+unsigned long IpHelper::AddAdapterIpAddress(unsigned long nAdapter, DWORD IpAddress, DWORD SubnetMask)
 {
 	// Determine adapter index
 	if (!m_bAdaptersTableInitialized)
@@ -202,7 +202,7 @@ unsigned long CIpHelper::AddAdapterIpAddress(unsigned long nAdapter, DWORD IpAdd
 }
 
 // the number of network adapters currently available on this workstation
-unsigned long CIpHelper::GetAdaptersCount()
+unsigned long IpHelper::GetAdaptersCount()
 {
 	if (!m_bAdaptersTableInitialized)
 		RequeryAdaptersTable();
@@ -214,7 +214,7 @@ unsigned long CIpHelper::GetAdaptersCount()
 	return nAdapters;//success
 }
 
-unsigned int CIpHelper::RequeryAdaptersTable()
+unsigned int IpHelper::RequeryAdaptersTable()
 {
 	unsigned long BufferSize = 0;
 	DWORD ErrorCode = ::GetAdaptersInfo(NULL, &BufferSize);
@@ -224,7 +224,7 @@ unsigned int CIpHelper::RequeryAdaptersTable()
 	return 1;
 }
 
-const char *CIpHelper::GetAdapterDescription(unsigned int nAdapter)
+const char *IpHelper::GetAdapterDescription(unsigned int nAdapter)
 {
 	if (!m_bAdaptersTableInitialized)
 		RequeryAdaptersTable();
@@ -235,7 +235,7 @@ const char *CIpHelper::GetAdapterDescription(unsigned int nAdapter)
 	return m_pAdaptersInfo[nAdapter].Description;
 }
 
-const char *CIpHelper::GetAdapterName(unsigned int nAdapter)
+const char *IpHelper::GetAdapterName(unsigned int nAdapter)
 {
 	if (!m_bAdaptersTableInitialized)
 		RequeryAdaptersTable();
@@ -246,7 +246,7 @@ const char *CIpHelper::GetAdapterName(unsigned int nAdapter)
 	return m_pAdaptersInfo[nAdapter].AdapterName;
 }
 
-int CIpHelper::RequeryArpCacheTable()
+int IpHelper::RequeryArpCacheTable()
 {
 	m_bArpCacheTableInitialized = FALSE;
 	unsigned long BufferSize = 0;
@@ -262,7 +262,7 @@ int CIpHelper::RequeryArpCacheTable()
 	return 1;
 }
 
-int CIpHelper::GetArpCacheRecordCount()
+int IpHelper::GetArpCacheRecordCount()
 {
 	if (!m_bArpCacheTableInitialized)
 		RequeryArpCacheTable();
@@ -271,7 +271,7 @@ int CIpHelper::GetArpCacheRecordCount()
 	return m_pArpCacheTable->dwNumEntries; //success
 }
 
-BOOL CIpHelper::GetArpCacheRecord(int index, SArpCacheRecord &ArpCacheRecord)
+BOOL IpHelper::GetArpCacheRecord(int index, SArpCacheRecord &ArpCacheRecord)
 {
 	if (!m_bArpCacheTableInitialized)
 		RequeryArpCacheTable();
