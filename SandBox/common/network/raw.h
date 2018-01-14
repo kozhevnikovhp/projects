@@ -17,8 +17,8 @@ public:
     IpRawSocket();
     virtual ~IpRawSocket();
 // Public methods
-	unsigned char GetReceivedTTL() { return m_IPHeader.ttl; }
-	unsigned char GetReceivedTOS() { return m_IPHeader.tos; }
+    unsigned char GetReceivedTTL() { return m_IPHeader.ttl; }
+    unsigned char GetReceivedTOS() { return m_IPHeader.tos; }
 	void SetSrcIP(IPADDRESS_TYPE uIP) { m_uSrcIP = uIP; }
 // Public overridables
 	virtual bool ReadFrom(void *pBufferToFill, size_t nBufferSize, int &nReadBytes, IPADDRESS_TYPE &IpAddress, unsigned short &PortNo);

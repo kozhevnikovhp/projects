@@ -4,7 +4,7 @@
 typedef unsigned int IPADDRESS_TYPE;
 typedef unsigned short IPPORT;
 
-#ifdef SOCKETS_WSA
+#if SOCKETS_WSA
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -45,7 +45,7 @@ typedef unsigned short IPPORT;
 #endif
 #endif
 
-#ifdef SOCKETS_BSD
+#if SOCKETS_BSD
 typedef int SOCKET;
 const int INVALID_SOCKET  = (~0);
 const int SOCKET_ERROR    = (-1);
@@ -86,16 +86,18 @@ typedef union
 typedef struct
 {
         unsigned char	h_len:4;			// length of the header
-        unsigned char	version:4;			// Version of IP
-        unsigned char	tos;				// Type of service
+        unsigned char	version:4;			// version of IP
+        unsigned char	tos;				// type of service
         unsigned short	total_len;			// total length of packet
         unsigned short	ident;				// unique identifier
-        unsigned short	frag_and_flags;                 // flags
+        unsigned short	frag_and_flags;     // flags
         unsigned char	ttl;				// time to live value
         unsigned char	proto;				// protocol (TCP, UDP, etc.)
         unsigned short	checksum;			// IP checksum
-        unsigned long	sourceIP;			// source IP address
-        unsigned long	destIP;				// destination IP address
+        int32_t	sourceIP;			        // source IP address
+        int32_t	destIP;                 	// destination IP address
+
+        unsigned short getHeaderLength() const { return h_len*4; }
 } SIpHeader;
 
 typedef struct
@@ -110,13 +112,13 @@ typedef struct
 {
         unsigned short	SrcPortNo;
         unsigned short	DstPortNo;
-        unsigned long	Other[5];
+        int32_t	Other[5];
 } STcpHeader;
 
 struct SPseudoHeader
 {
-        unsigned int src_addr; //
-        unsigned int dst_addr; //
+        int32_t src_addr; //
+        int32_t dst_addr; //
         unsigned char zero ; //
         unsigned char proto; //
         unsigned short length; //
@@ -130,7 +132,7 @@ typedef struct
         unsigned short	i_chksum;					// packet checksum
         unsigned short	i_id;						// unique packet ID
         unsigned short	i_seq;						// packet sequence number
-        unsigned long	timestamp;					// timestamp
+        int32_t	timestamp;					// timestamp
 } SIcmpHeader;
 
 // IGMP-protocol (RFC-1112, 2236, 3376)
@@ -139,13 +141,13 @@ typedef struct
         unsigned char type;
         unsigned char unused;
         unsigned short CRC;
-        unsigned long IP;			// Group address
+        int32_t IP;			// Group address
 } SIgmpHeader;
 
 #pragma pack(pop)
 
 
-// cIpSocket - class for all IP-sockets
+// IpSocket - class for all IP-sockets
 class IpSocket
 {
 //Constructors/destructors

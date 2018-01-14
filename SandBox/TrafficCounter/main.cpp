@@ -69,23 +69,27 @@ public:
         teloIP_ = teloIP;
         lastStatTime_ = 0;
         IPADDRESS_TYPE ifaceIP;
-        std::string name; // not used so far, Linux only
-        bool bSuccess = common::network::findBestInterface(teloIP, ifaceIP, subnetMask_, name);
+        std::string ifaceName; // not used so far for Windows, Linux only
+        bool bSuccess = common::network::findBestInterface(teloIP, ifaceIP, subnetMask_, ifaceName);
         if (bSuccess)
         {
+#if (SOCKETS_WSA)
             printf("Listening local interface %s to figure out traffic of Telo %s...\n",
                    addressToDotNotation(ifaceIP).c_str(),
                    addressToDotNotation(teloIP_).c_str());
-#if (WIN32)
             promiscModeOn(ifaceIP);
-#elif (UNIX)
-            promiscModeOn(name.c_str());
-#endif (WIN32/UNIX)
+#elif (SOCKETS_BSD)
+            printf("Listening local interface %s to figure out traffic of Telo %s...\n",
+                   ifaceName.c_str(),
+                   addressToDotNotation(teloIP_).c_str());
+            promiscModeOn(ifaceName.c_str());
+#endif
         }
         else
         {
             printf("ERROR: could not find appropriate interface for listenning\n");
         }
+        reportStatistics();
     }
 
 
@@ -97,8 +101,8 @@ public:
 protected:
     bool isPacketOfInterest(const SIpHeader *pIpHeader) const
     {
-        if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
-            return false; // Telo traffic only
+        //if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
+        //    return false; // Telo traffic only
         if (isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_))
             return false; // Skip LAN traffic
         return true;
@@ -126,10 +130,10 @@ protected:
     virtual bool OnIpPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
         reportStatistics();
-        if (!isPacketOfInterest(pIpHeader))
-                return true; // true means "processed", no any other processing needed
+        //if (!isPacketOfInterest(pIpHeader))
+          //      return true; // true means "processed", no any other processing needed
         bool bInput = (pIpHeader->destIP == teloIP_);
-        unsigned int nPacketSize = pIpHeader->h_len*4+nUserDataLength; // recalculate it :-(
+        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
         IpStatTotal_.update(nPacketSize, bInput);
         return false;
     }
@@ -139,7 +143,7 @@ protected:
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         bool bInput = (pIpHeader->destIP == teloIP_);
-        unsigned int nPacketSize = pIpHeader->h_len*4+nUserDataLength; // recalculate it :-(
+        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
         IcmpStatTotal_.update(nPacketSize, bInput);
     }
     virtual void OnTcpPacket(SIpHeader *pIpHeader, STcpHeader *pTcpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
@@ -150,7 +154,7 @@ protected:
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         bool bInput = (pIpHeader->destIP == teloIP_);
-        unsigned int nPacketSize = pIpHeader->h_len*4+nUserDataLength; // recalculate it :-(
+        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
         TcpStatTotal_.update(nPacketSize, bInput);
     }
     virtual void OnUdpPacket(SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
@@ -161,7 +165,7 @@ protected:
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         bool bInput = (pIpHeader->destIP == teloIP_);
-        unsigned int nPacketSize = pIpHeader->h_len*4+nUserDataLength; // recalculate it :-(
+        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
         UdpStatTotal_.update(nPacketSize, bInput);
     }
     virtual void OnUnknownProtoPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
@@ -188,7 +192,7 @@ int main(int argc, char* argv[])
         printf("Not enough arguments\nUsage: TrafficCounter TeloIP\n");
         return 0;
     }
-#if (WIN32)
+
     IpSocket::InitSockets();
 
     IPADDRESS_TYPE teloIP = stringToAddress(argv[1]);
@@ -199,9 +203,7 @@ int main(int argc, char* argv[])
     }
 
     ListenerSocket sniffer(teloIP);
-#elif (UNIX)
 
-#endif
     if (!sniffer.isCreated())
     {
         printf("Abnormal termination!\n");

@@ -6,6 +6,8 @@
 #ifdef SOCKETS_WSA
 #include <Winsock2.h>
 #include "IpHelper.h"
+#elif (SOCKETS_BSD)
+#include <net/if.h>
 #endif
 
 namespace common {
@@ -124,7 +126,7 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
 {
     ifaceIP = ifaceMask = 0;
     // check all interfaces to find better pair Address/Mask to be in the same net as target IP
-#if (WIN32)
+#if (SOCKETS_WSA)
     //printf("This workstation has the following IP-addresses:\n");
     IpHelper helper;
     unsigned int i;
@@ -142,24 +144,69 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
         }
     }
     return false;
-#elif (UNIX)
+#elif (SOCKETS_BSD)
     // http://forum.sources.ru/index.php?showtopic=78789
-    // find IP address and mask of the interface
-    char szHostName[128] = "";
-    gethostname(szHostName, sizeof(szHostName));
-    printf("%s\n", szHostName);
-    struct hostent *pHost = gethostbyname(szHostName);
-    if (!pHost)
+    char buf[2048];
+    struct ifconf ifc;
+    int s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s < 0)
     {
-        perror("gethostbyname");
+        perror("socket");
+        return false;
     }
-    char *p = pHost->h_addr_list[0];
-    for (int i = 0; pHost->h_addr_list[i] != 0; ++i) {
-        struct in_addr addr;
-        memcpy(&addr, pHost
-               ->h_addr_list[i], sizeof(struct in_addr));
-        printf("Address %d:%s\n", i, inet_ntoa(addr));
+
+    // Query available interfaces.
+    ifc.ifc_len = sizeof(buf);
+    ifc.ifc_buf = buf;
+    if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
+    {
+        perror("ioctl(SIOCGIFCONF)");
+        close(s);
+        return false;
     }
+
+    // Iterate through the list of interfaces.
+    int nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
+    for (int i = 0; i < nInterfaces; i++)
+    {
+        struct ifreq *pInterface = &ifc.ifc_req[i];
+
+        // device name
+        ifaceName = pInterface->ifr_name;
+        // IP address
+        ifaceIP = getIP(&pInterface->ifr_addr);
+        //printf("%s: IP %s", pInterface->ifr_name, addressToDotNotation(ifaceIP).c_str());
+
+        // SubnetMask
+        if(ioctl(s, SIOCGIFNETMASK, pInterface) < 0)
+        {
+            perror("ioctl SIOCGIFNETMASK");
+            return false;
+        }
+        ifaceMask = getIP(&pInterface->ifr_netmask);
+        //printf(", MASK %s", addressToDotNotation(ifaceMask).c_str());
+        if (isTheSameSubnet(IP, ifaceIP, ifaceMask))
+        {
+            close(s);
+            return true;
+        }
+
+        // Get the broadcast address
+        //if (ioctl(s, SIOCGIFBRDADDR, pInterface) >= 0)
+        //{
+        //    IPADDRESS_TYPE broadcastIP = getIP(&pInterface->ifr_broadaddr);
+        //    printf(", BROADCAST %s", addressToDotNotation(broadcastIP).c_str());
+        //}
+
+        // Get the MAC address
+        //if(ioctl(s, SIOCGIFHWADDR, pInterface) >= 0)
+        //{
+        //}
+
+        //printf("\n");
+    }
+    close(s);
+    return false; // not found
 #endif
 }
 

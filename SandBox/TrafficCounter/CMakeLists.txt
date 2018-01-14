@@ -11,8 +11,14 @@ SET (NETWORK_SRCS
     ${NETWORK_SRCS_DIR}/raw.cpp
     ${NETWORK_SRCS_DIR}/sniffer.cpp
     ${NETWORK_SRCS_DIR}/udp.cpp
-    ${NETWORK_SRCS_DIR}/IpHelper.cpp
  )
+
+IF (WIN32)
+SET (NETWORK_SRCS
+    ${NETWORK_SRCS}
+    ${NETWORK_SRCS_DIR}/IpHelper.cpp
+)
+ENDIF (WIN32)
 
 
 SET (PORTABLE_SRCS_DIR "../common/portable")

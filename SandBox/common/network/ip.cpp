@@ -191,7 +191,7 @@ unsigned short IpSocket::CalcPseudoCheckSum(SIpHeader *pIpHeader, unsigned short
 	pseudo.src_addr = pIpHeader->sourceIP;
 	pseudo.dst_addr = pIpHeader->destIP;
 	pseudo.zero = 0;
-	pseudo.proto = pIpHeader->proto;
+    pseudo.proto = pIpHeader->proto;
 	pseudo.length = htons(nDataSize);
 	unsigned long checksum = Sum16bit((unsigned short *)&pseudo, sizeof(pseudo));
 	checksum += Sum16bit(pData, nDataSize);

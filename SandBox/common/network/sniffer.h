@@ -1,7 +1,11 @@
-#ifndef __SNIFFER_SOCKETS_H_INCLUDED__
-#define __SNIFFER_SOCKETS_H_INCLUDED__
+#ifndef __SNIFFER_H_INCLUDED__
+#define __SNIFFER_H_INCLUDED__
 
 #include "raw.h"
+
+#if (SOCKETS_BSD)
+#include <net/if.h>
+#endif
 
 namespace common {
 
@@ -17,9 +21,9 @@ public:
 // Public methods
 // Public overridables
 // Public members
-#if (WIN32)
+#if (SOCKETS_WSA)
     bool promiscModeOn(IPADDRESS_TYPE ifaceIP);
-#elif (UNIX)
+#elif (SOCKETS_BSD)
     bool promiscModeOn(const char *pszIfaceName);
 #endif
     bool promiscModeOff();
@@ -40,8 +44,8 @@ protected:
 
 // Protected members
 protected:
-    unsigned char m_szBufferForPackets[0xFFFF];
-#if (UNIX)
+    unsigned char bufferForPackets_[0xFFFF];
+#if (SOCKETS_BSD)
     struct ifreq ifaceDesc_;
 #endif
 };
@@ -49,4 +53,4 @@ protected:
 }
 }
 
-#endif // __SNIFFER_SOCKETS_H_INCLUDED__
+#endif // __SNIFFER_H_INCLUDED__
