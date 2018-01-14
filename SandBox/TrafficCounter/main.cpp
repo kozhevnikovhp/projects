@@ -66,6 +66,7 @@ class ListenerSocket : public SnifferSocket
 public:
     ListenerSocket(IPADDRESS_TYPE teloIP)
     {
+        bInputPacket_ = false;
         teloIP_ = teloIP;
         lastStatTime_ = 0;
         IPADDRESS_TYPE ifaceIP;
@@ -101,10 +102,17 @@ public:
 protected:
     bool isPacketOfInterest(const SIpHeader *pIpHeader) const
     {
-        //if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
-        //    return false; // Telo traffic only
-        if (isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_))
-            return false; // Skip LAN traffic
+        if (pIpHeader->proto == IPPROTO_TCP)
+        {
+
+        }
+        else
+        {
+            if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
+                return false; // Telo traffic only
+            if (isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_))
+                return false; // Skip LAN traffic
+        }
         return true;
     }
     void reportStatistics()
@@ -130,11 +138,11 @@ protected:
     virtual bool OnIpPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
         reportStatistics();
-        //if (!isPacketOfInterest(pIpHeader))
-          //      return true; // true means "processed", no any other processing needed
-        bool bInput = (pIpHeader->destIP == teloIP_);
+        bInputPacket_ = (pIpHeader->destIP == teloIP_);
+        if (!isPacketOfInterest(pIpHeader))
+            return true; // true means "processed", no any other processing needed
         unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        IpStatTotal_.update(nPacketSize, bInput);
+        IpStatTotal_.update(nPacketSize, bInputPacket_);
         return false;
     }
     virtual void OnIcmpPacket(SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
@@ -142,9 +150,8 @@ protected:
         printf("ICMP\tlen = %5d (from %s\t to %s)\n", ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        bool bInput = (pIpHeader->destIP == teloIP_);
         unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        IcmpStatTotal_.update(nPacketSize, bInput);
+        IcmpStatTotal_.update(nPacketSize, bInputPacket_);
     }
     virtual void OnTcpPacket(SIpHeader *pIpHeader, STcpHeader *pTcpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
@@ -153,9 +160,8 @@ protected:
         printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", SrcPortNo, DstPortNo, ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        bool bInput = (pIpHeader->destIP == teloIP_);
         unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        TcpStatTotal_.update(nPacketSize, bInput);
+        TcpStatTotal_.update(nPacketSize, bInputPacket_);
     }
     virtual void OnUdpPacket(SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
@@ -164,9 +170,8 @@ protected:
         printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", SrcPortNo, DstPortNo, ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        bool bInput = (pIpHeader->destIP == teloIP_);
         unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        UdpStatTotal_.update(nPacketSize, bInput);
+        UdpStatTotal_.update(nPacketSize, bInputPacket_);
     }
     virtual void OnUnknownProtoPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
     {
@@ -183,6 +188,7 @@ protected:
     ProtocolStat TcpStatTotal_, TcpStatLast_;
     ProtocolStat IcmpStatTotal_, IcmpStatLast_;
     unsigned int lastStatTime_;
+    bool bInputPacket_;
 };
 
 int main(int argc, char* argv[])

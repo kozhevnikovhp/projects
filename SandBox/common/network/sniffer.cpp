@@ -87,8 +87,8 @@ bool SnifferSocket::waitForPacket()
     SIpHeader *pIpHeader = (SIpHeader *)(pEthernetHeader+1);
 #endif
     unsigned short	nIpHdrLen = pIpHeader->getHeaderLength();
-    unsigned char *pUserData = bufferForPackets_ + nIpHdrLen;
-	unsigned int nUserDataLength = nReadBytes - nIpHdrLen;
+    unsigned int nUserDataLength = nReadBytes - nIpHdrLen;
+    unsigned char *pUserData = (unsigned char *)pIpHeader + nIpHdrLen;
     bool bProcessed = OnIpPacket(pIpHeader, pUserData, nUserDataLength);
 	if (bProcessed)
         return true; // no more processing required
@@ -96,27 +96,27 @@ bool SnifferSocket::waitForPacket()
     switch (pIpHeader->proto)
 	{
     case IPPROTO_TCP: {
-        STcpHeader *pTcpHeader = (STcpHeader *)pUserData;
-		pUserData += sizeof(STcpHeader);
+        STcpHeader *pTcpHeader = (STcpHeader *)(pIpHeader+1);
+        unsigned char *pUserData = (unsigned char *)(pTcpHeader+1);
 		nUserDataLength -= sizeof(STcpHeader);
 		OnTcpPacket(pIpHeader, pTcpHeader, pUserData, nUserDataLength);
         break; }
     case IPPROTO_UDP: {
-        SUdpHeader *pUdpHeader = (SUdpHeader *)pUserData;
-		pUserData += sizeof(SUdpHeader);
-		nUserDataLength -= sizeof(SUdpHeader);
+        SUdpHeader *pUdpHeader = (SUdpHeader *)(pIpHeader+1);
+        unsigned char *pUserData = (unsigned char *)(pUdpHeader+1);
+        nUserDataLength -= sizeof(SUdpHeader);
 		OnUdpPacket(pIpHeader, pUdpHeader, pUserData, nUserDataLength);
         break; }
     case IPPROTO_ICMP: {
-        SIcmpHeader *pIcmpHeader = (SIcmpHeader *)pUserData;
-		pUserData += sizeof(SIcmpHeader);
-		nUserDataLength -= sizeof(SIcmpHeader);
+        SIcmpHeader *pIcmpHeader = (SIcmpHeader *)(pIpHeader+1);
+        unsigned char *pUserData = (unsigned char *)(pIcmpHeader+1);
+        nUserDataLength -= sizeof(SIcmpHeader);
 		OnIcmpPacket(pIpHeader, pIcmpHeader, pUserData, nUserDataLength);
         break; }
     case IPPROTO_IGMP: {
-        SIgmpHeader *pIgmpHeader = (SIgmpHeader *)pUserData;
-		pUserData += sizeof(SIgmpHeader);
-		nUserDataLength -= sizeof(SIgmpHeader);
+        SIgmpHeader *pIgmpHeader = (SIgmpHeader *)(pIpHeader+1);
+        unsigned char *pUserData = (unsigned char *)(pIgmpHeader+1);
+        nUserDataLength -= sizeof(SIgmpHeader);
 		OnIgmpPacket(pIpHeader, pIgmpHeader, pUserData, nUserDataLength);
         break; }
 	default:
