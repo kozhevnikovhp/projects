@@ -81,7 +81,7 @@ bool SnifferSocket::waitForPacket()
         return false;
 	
 #if (SOCKETS_WSA)
-    SIpHeader *pIpHeader = (SIpHeader *)m_szBufferForPackets;
+    SIpHeader *pIpHeader = (SIpHeader *)bufferForPackets_;
 #elif (SOCKETS_BSD)
     struct ethhdr *pEthernetHeader = (struct ethhdr *)bufferForPackets_;
     SIpHeader *pIpHeader = (SIpHeader *)(pEthernetHeader+1);

@@ -5,6 +5,7 @@ typedef unsigned int IPADDRESS_TYPE;
 typedef unsigned short IPPORT;
 
 #if SOCKETS_WSA
+#include <stdint.h> //int32_t
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
