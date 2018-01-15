@@ -35,7 +35,7 @@ bool SnifferSocket::open()
     return create(AF_INET, SOCK_RAW, IPPROTO_IP);
 #endif
 #ifdef SOCKETS_BSD
-   return create(PF_PACKET, SOCK_RAW, htons(ETH_P_IP));
+   return create(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 #endif
 }
 
@@ -89,9 +89,7 @@ bool SnifferSocket::waitForPacket()
     unsigned short	nIpHdrLen = pIpHeader->getHeaderLength();
     unsigned int nUserDataLength = nReadBytes - nIpHdrLen;
     unsigned char *pUserData = (unsigned char *)pIpHeader + nIpHdrLen;
-    bool bProcessed = OnIpPacket(pIpHeader, pUserData, nUserDataLength);
-	if (bProcessed)
-        return true; // no more processing required
+    OnIpPacket(pIpHeader, pUserData, nUserDataLength);
 
     switch (pIpHeader->proto)
 	{
@@ -105,13 +103,13 @@ bool SnifferSocket::waitForPacket()
         SUdpHeader *pUdpHeader = (SUdpHeader *)(pIpHeader+1);
         unsigned char *pUserData = (unsigned char *)(pUdpHeader+1);
         nUserDataLength -= sizeof(SUdpHeader);
-		OnUdpPacket(pIpHeader, pUdpHeader, pUserData, nUserDataLength);
+        OnUdpPacket(pIpHeader, pUdpHeader, pUserData, nUserDataLength);
         break; }
     case IPPROTO_ICMP: {
         SIcmpHeader *pIcmpHeader = (SIcmpHeader *)(pIpHeader+1);
         unsigned char *pUserData = (unsigned char *)(pIcmpHeader+1);
         nUserDataLength -= sizeof(SIcmpHeader);
-		OnIcmpPacket(pIpHeader, pIcmpHeader, pUserData, nUserDataLength);
+        OnIcmpPacket(pIpHeader, pIcmpHeader, pUserData, nUserDataLength);
         break; }
     case IPPROTO_IGMP: {
         SIgmpHeader *pIgmpHeader = (SIgmpHeader *)(pIpHeader+1);
