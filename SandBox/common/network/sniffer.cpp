@@ -96,8 +96,8 @@ bool SnifferSocket::waitForPacket()
 	{
     case IPPROTO_TCP: {
         STcpHeader *pTcpHeader = (STcpHeader *)(pIpHeader+1);
-        pPayload = (unsigned char *)(pTcpHeader+1);
-        nPayloadLen -= sizeof(STcpHeader);
+        pPayload = (unsigned char *)pTcpHeader+pTcpHeader->getHeaderLength();
+        nPayloadLen -= pTcpHeader->getHeaderLength();
         tcpPacketCaptured(pIpHeader, nPacketSize, pTcpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_UDP: {

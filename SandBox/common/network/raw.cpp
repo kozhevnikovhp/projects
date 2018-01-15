@@ -83,7 +83,8 @@ int IpRawSocket::FillIpHeader(SIpHeader *pIpHeader, int nPacketSize, unsigned lo
     pIpHeader->tos = IpHeader_TOS();
     pIpHeader->total_len = htons(nPacketSize);
     pIpHeader->ident = 0;
-    pIpHeader->frag_and_flags = 0;
+    pIpHeader->frag_offset = pIpHeader->more_fragment = pIpHeader->dont_fragment = 0;
+    pIpHeader->frag_offset1 = 0;
     pIpHeader->ttl = IpHeader_TTL();
     pIpHeader->proto = IpHeader_Proto();
     pIpHeader->checksum = 0;

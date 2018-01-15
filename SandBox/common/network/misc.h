@@ -31,6 +31,11 @@ IPADDRESS_TYPE getSubnetMaskByLength(int nMaskLength);
 int calcMaxPossibleHostsInSubnet(IPADDRESS_TYPE subnetMask); // including 0th and last broadcast addresses, just 2**MaskLength
 int calcMaxPossibleHostsFromMaskLen(int nMaskLength); // including 0th and last broadcast addresses, just 2**MaskLength
 
+void printIpHeader(const SIpHeader *pHeader);
+void printIcmpHeader(const SIcmpHeader *pHeader);
+void printTcpHeader(const STcpHeader *pHeader);
+void printUdpHeader(const SUdpHeader *pHeader);
+
 } // namespace network
 
 } // namespace common

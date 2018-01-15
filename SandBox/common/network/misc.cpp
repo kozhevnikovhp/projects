@@ -285,6 +285,67 @@ int calcMaxPossibleHostsFromMaskLen(int nMaskLength)
     return nHosts[32-nMaskLength];
 }
 
+void printIpHeader(const SIpHeader *pHeader)
+{
+    printf(" IP HEADER:\n");
+    printf(" |-IP Version : %d\n", pHeader->version);
+    printf(" |-IP Header Length : %d octets\n", pHeader->getHeaderLength());
+    printf(" |-Type Of Service : %d\n", pHeader->tos);
+    printf(" |-IP Total Length : %d octets\n", ntohs(pHeader->total_len));
+    printf(" |-Identification : %d\n", ntohs(pHeader->ident));
+    printf(" |-Reserved ZERO Field : %d\n", pHeader->reserved_zero);
+    printf(" |-Dont Fragment Field : %d\n", pHeader->dont_fragment);
+    printf(" |-More Fragment Field : %d\n", pHeader->more_fragment);
+    printf(" |-TTL : %d\n", pHeader->ttl);
+    printf(" |-Protocol : %d\n", pHeader->proto);
+    printf(" |-Checksum : %d\n", ntohs(pHeader->checksum));
+    printf(" |-Source IP : %s\n", addressToDotNotation(pHeader->sourceIP).c_str());
+    printf(" |-Destination IP : %s\n", addressToDotNotation(pHeader->destIP).c_str());
+    printf(" ============================\n");
+}
+
+void printIcmpHeader(const SIcmpHeader *pHeader)
+{
+    printf("ICMP HEADER:\n");
+    printf(" |-Type : %d\n", pHeader->i_type);
+    printf(" |-Code : %d\n", pHeader->i_code);
+    printf(" |-Checksum : %d\n", ntohs(pHeader->i_chksum));
+    printf(" |-ID : %d\n", ntohs(pHeader->i_id));
+    printf(" |-Sequence : %d\n", ntohs(pHeader->i_seq));
+    printf(" ============================\n");
+}
+
+void printTcpHeader(const STcpHeader *pHeader)
+{
+    printf(" TCP HEADER:\n");
+    printf(" |-SRC Port : %u\n", ntohs(pHeader->srcPortNo));
+    printf(" |-DST Port : %u\n", ntohs(pHeader->dstPortNo));
+    printf(" |-Seq Number : %u\n", ntohl(pHeader->sequence));
+    printf(" |-Ack Number : %u\n", ntohl(pHeader->acknowledge));
+    printf(" |-Header Length : %d octets\n", pHeader->getHeaderLength());
+    printf(" |-FIN : %d\n", pHeader->fin);
+    printf(" |-SYN : %d\n", pHeader->syn);
+    printf(" |-RST : %d\n", pHeader->rst);
+    printf(" |-PSH : %d\n", pHeader->psh);
+    printf(" |-ACK : %d\n", pHeader->ack);
+    printf(" |-URG : %d\n", pHeader->urg);
+    printf(" |-CWR : %d\n", pHeader->cwr);
+    printf(" |-ECN : %d\n", pHeader->ecn);
+    printf(" |-Window : %d\n", ntohs(pHeader->window));
+    printf(" |-Checksum : %d\n", ntohs(pHeader->checksum));
+    printf(" |-Urgent Pointer : %d\n", pHeader->urgent_pointer);
+    printf(" ============================\n");
+}
+
+void printUdpHeader(const SUdpHeader *pHeader)
+{
+    printf("UDP HEADER:\n");
+    printf(" |-SRC Port : %d\n", ntohs(pHeader->srcPortNo));
+    printf(" |-DST Port : %d\n", ntohs(pHeader->dstPortNo));
+    printf(" |-UDP Length : %d\n", ntohs(pHeader->length));
+    printf(" |-UDP Checksum : %d\n", ntohs(pHeader->checksum));
+    printf(" ============================\n");
+ }
 
 } // namespace network
 

@@ -91,49 +91,78 @@ typedef struct
         unsigned char	tos;				// type of service
         unsigned short	total_len;			// total length of packet
         unsigned short	ident;				// unique identifier
-        unsigned short	frag_and_flags;     // flags
+
+        unsigned char frag_offset:5;        // Fragment offset field
+        unsigned char more_fragment :1;
+        unsigned char dont_fragment :1;
+        unsigned char reserved_zero :1;
+
+        unsigned char frag_offset1;         //fragment offset
+
         unsigned char	ttl;				// time to live value
         unsigned char	proto;				// protocol (TCP, UDP, etc.)
         unsigned short	checksum;			// IP checksum
-        IPADDRESS_TYPE	sourceIP;			        // source IP address
-        IPADDRESS_TYPE	destIP;                 	// destination IP address
+        IPADDRESS_TYPE	sourceIP;			// source IP address
+        IPADDRESS_TYPE	destIP;             // destination IP address
 
         unsigned short getHeaderLength() const { return h_len*4; }
 } SIpHeader;
 
 typedef struct
 {
-        unsigned short SrcPortNo;
-        unsigned short DstPortNo;
-        unsigned short Length;
-        unsigned short CRC;
+    unsigned short srcPortNo;
+    unsigned short dstPortNo;
+    unsigned short length;
+    unsigned short checksum;
 } SUdpHeader;
 
 typedef struct
 {
-        unsigned short	SrcPortNo;
-        unsigned short	DstPortNo;
-        int32_t	Other[5];
+    IPPORT srcPortNo;
+    IPPORT dstPortNo;
+
+    int32_t sequence; // sequence number - 32 bits
+    int32_t acknowledge; // acknowledgement number - 32 bits
+
+    unsigned char ns:1; //Nonce Sum Flag Added in RFC 3540.
+    unsigned char reserved_part1:3; //according to rfc
+    unsigned char h_len:4; // length of the header
+
+    unsigned char fin:1; //Finish Flag
+    unsigned char syn:1; //Synchronise Flag
+    unsigned char rst:1; //Reset Flag
+    unsigned char psh:1; //Push Flag
+    unsigned char ack:1; //Acknowledgement Flag
+    unsigned char urg:1; //Urgent Flag
+
+    unsigned char ecn:1; //ECN-Echo Flag
+    unsigned char cwr:1; //Congestion Window Reduced Flag
+
+    unsigned short window; // window
+    unsigned short checksum; // checksum
+    unsigned short urgent_pointer; // urgent pointer
+
+    unsigned short getHeaderLength() const { return h_len*4; }
 } STcpHeader;
 
 struct SPseudoHeader
 {
-        IPADDRESS_TYPE src_addr; //
-        IPADDRESS_TYPE dst_addr; //
-        unsigned char zero ; //
-        unsigned char proto; //
-        unsigned short length; //
+    IPADDRESS_TYPE src_addr; //
+    IPADDRESS_TYPE dst_addr; //
+    unsigned char zero ; //
+    unsigned char proto; //
+    unsigned short length; //
 };
 
 // ICMP header definition
 typedef struct
 {
-        unsigned char	i_type;						// ICMP packet type
-        unsigned char	i_code;						// type subcode
-        unsigned short	i_chksum;					// packet checksum
-        unsigned short	i_id;						// unique packet ID
-        unsigned short	i_seq;						// packet sequence number
-        int32_t	timestamp;                  		// timestamp
+    unsigned char	i_type;						// ICMP packet type
+    unsigned char	i_code;						// type subcode
+    unsigned short	i_chksum;					// packet checksum
+    unsigned short	i_id;						// unique packet ID
+    unsigned short	i_seq;						// packet sequence number
+    int32_t	timestamp;                  		// timestamp
 } SIcmpHeader;
 
 // IGMP-protocol (RFC-1112, 2236, 3376)

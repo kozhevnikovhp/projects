@@ -138,6 +138,7 @@ protected:
             return;
         bInputPacket_ = (pIpHeader->destIP == teloIP_);
         IpStatTotal_.update(nPacketLen, bInputPacket_);
+        //printIpHeader(pIpHeader);
     }
     virtual void icmpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
@@ -147,6 +148,7 @@ protected:
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         IcmpStatTotal_.update(nPacketLen, bInputPacket_);
+        //printIcmpHeader(pIcmpHeader);
     }
     virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
@@ -161,23 +163,21 @@ protected:
     {
         if (!bPacketOfInterest_)
             return;
-        unsigned short SrcPortNo = ntohs(pTcpHeader->SrcPortNo);
-        unsigned short DstPortNo = ntohs(pTcpHeader->DstPortNo);
-        printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", SrcPortNo, DstPortNo, ntohs(pIpHeader->total_len),
+        printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", ntohs(pTcpHeader->srcPortNo), ntohs(pTcpHeader->dstPortNo), ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         TcpStatTotal_.update(nPacketLen, bInputPacket_);
+        //printTcpHeader(pTcpHeader);
     }
     virtual void udpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        unsigned short SrcPortNo = ntohs(pUdpHeader->SrcPortNo);
-        unsigned short DstPortNo = ntohs(pUdpHeader->DstPortNo);
-        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", SrcPortNo, DstPortNo, ntohs(pIpHeader->total_len),
+        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", ntohs(pUdpHeader->srcPortNo), ntohs(pUdpHeader->dstPortNo), ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         UdpStatTotal_.update(nPacketLen, bInputPacket_);
+        //printUdpHeader(pUdpHeader);
     }
     virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload, int nPayloadLen)
     {
