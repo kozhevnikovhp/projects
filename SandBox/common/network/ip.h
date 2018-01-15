@@ -1,9 +1,6 @@
 #ifndef __IP_H_INCLUDED__
 #define __IP_H_INCLUDED__
 
-typedef unsigned int IPADDRESS_TYPE;
-typedef unsigned short IPPORT;
-
 #if SOCKETS_WSA
 #include <stdint.h> //int32_t
 #include <winsock2.h>
@@ -60,6 +57,9 @@ const int SOCKET_ERROR    = (-1);
 #include <errno.h>
 #endif
 
+typedef int32_t IPADDRESS_TYPE;
+typedef int16_t IPPORT;
+
 namespace common {
 
 namespace network {
@@ -95,8 +95,8 @@ typedef struct
         unsigned char	ttl;				// time to live value
         unsigned char	proto;				// protocol (TCP, UDP, etc.)
         unsigned short	checksum;			// IP checksum
-        int32_t	sourceIP;			        // source IP address
-        int32_t	destIP;                 	// destination IP address
+        IPADDRESS_TYPE	sourceIP;			        // source IP address
+        IPADDRESS_TYPE	destIP;                 	// destination IP address
 
         unsigned short getHeaderLength() const { return h_len*4; }
 } SIpHeader;
@@ -118,8 +118,8 @@ typedef struct
 
 struct SPseudoHeader
 {
-        int32_t src_addr; //
-        int32_t dst_addr; //
+        IPADDRESS_TYPE src_addr; //
+        IPADDRESS_TYPE dst_addr; //
         unsigned char zero ; //
         unsigned char proto; //
         unsigned short length; //
@@ -133,7 +133,7 @@ typedef struct
         unsigned short	i_chksum;					// packet checksum
         unsigned short	i_id;						// unique packet ID
         unsigned short	i_seq;						// packet sequence number
-        int32_t	timestamp;					// timestamp
+        int32_t	timestamp;                  		// timestamp
 } SIcmpHeader;
 
 // IGMP-protocol (RFC-1112, 2236, 3376)

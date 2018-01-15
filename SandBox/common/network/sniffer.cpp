@@ -74,9 +74,9 @@ bool SnifferSocket::promiscModeOff()
 }
 bool SnifferSocket::waitForPacket()
 {
-    struct sockaddr Src;
-    int nReadBytes = 0;
-    bool bSuccess = ReadFrom(bufferForPackets_, sizeof(bufferForPackets_), nReadBytes, &Src);
+    struct sockaddr src;
+    int nPacketSize = 0;
+    bool bSuccess = ReadFrom(bufferForPackets_, sizeof(bufferForPackets_), nPacketSize, &src);
 	if (!bSuccess)
         return false;
 	
@@ -85,40 +85,41 @@ bool SnifferSocket::waitForPacket()
 #elif (SOCKETS_BSD)
     struct ethhdr *pEthernetHeader = (struct ethhdr *)bufferForPackets_;
     SIpHeader *pIpHeader = (SIpHeader *)(pEthernetHeader+1);
+    nPacketSize -= sizeof(struct ethhdr);
 #endif
-    unsigned short	nIpHdrLen = pIpHeader->getHeaderLength();
-    unsigned int nUserDataLength = nReadBytes - nIpHdrLen;
-    unsigned char *pUserData = (unsigned char *)pIpHeader + nIpHdrLen;
-    OnIpPacket(pIpHeader, pUserData, nUserDataLength);
+    unsigned short nIpHdrLen = pIpHeader->getHeaderLength();
+    int nPayloadLen = nPacketSize - nIpHdrLen;
+    unsigned char *pPayload = (unsigned char *)pIpHeader + nIpHdrLen;
+    ipPacketCaptured(pIpHeader, nPacketSize, pPayload, nPayloadLen);
 
     switch (pIpHeader->proto)
 	{
     case IPPROTO_TCP: {
         STcpHeader *pTcpHeader = (STcpHeader *)(pIpHeader+1);
-        unsigned char *pUserData = (unsigned char *)(pTcpHeader+1);
-		nUserDataLength -= sizeof(STcpHeader);
-		OnTcpPacket(pIpHeader, pTcpHeader, pUserData, nUserDataLength);
+        pPayload = (unsigned char *)(pTcpHeader+1);
+        nPayloadLen -= sizeof(STcpHeader);
+        tcpPacketCaptured(pIpHeader, nPacketSize, pTcpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_UDP: {
         SUdpHeader *pUdpHeader = (SUdpHeader *)(pIpHeader+1);
-        unsigned char *pUserData = (unsigned char *)(pUdpHeader+1);
-        nUserDataLength -= sizeof(SUdpHeader);
-        OnUdpPacket(pIpHeader, pUdpHeader, pUserData, nUserDataLength);
+        pPayload = (unsigned char *)(pUdpHeader+1);
+        nPayloadLen -= sizeof(SUdpHeader);
+        udpPacketCaptured(pIpHeader, nPacketSize, pUdpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_ICMP: {
         SIcmpHeader *pIcmpHeader = (SIcmpHeader *)(pIpHeader+1);
-        unsigned char *pUserData = (unsigned char *)(pIcmpHeader+1);
-        nUserDataLength -= sizeof(SIcmpHeader);
-        OnIcmpPacket(pIpHeader, pIcmpHeader, pUserData, nUserDataLength);
+        pPayload = (unsigned char *)(pIcmpHeader+1);
+        nPayloadLen -= sizeof(SIcmpHeader);
+        icmpPacketCaptured(pIpHeader, nPacketSize, pIcmpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_IGMP: {
         SIgmpHeader *pIgmpHeader = (SIgmpHeader *)(pIpHeader+1);
-        unsigned char *pUserData = (unsigned char *)(pIgmpHeader+1);
-        nUserDataLength -= sizeof(SIgmpHeader);
-		OnIgmpPacket(pIpHeader, pIgmpHeader, pUserData, nUserDataLength);
+        pPayload = (unsigned char *)(pIgmpHeader+1);
+        nPayloadLen -= sizeof(SIgmpHeader);
+        igmpPacketCaptured(pIpHeader, nPacketSize, pIgmpHeader, pPayload, nPayloadLen);
         break; }
 	default:
-		OnUnknownProtoPacket(pIpHeader, pUserData, nUserDataLength);
+        unknownProtoPacketCaptured(pIpHeader, nPacketSize, pPayload, nPayloadLen);
 		break;
 	} // end of switch (pIpHeader->proto)
 

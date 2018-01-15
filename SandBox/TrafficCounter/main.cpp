@@ -102,18 +102,10 @@ public:
 protected:
     bool isPacketOfInterest(const SIpHeader *pIpHeader) const
     {
-        return true;
-        if (pIpHeader->proto == IPPROTO_TCP)
-        {
-
-        }
-        else
-        {
-            if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
-                return false; // Telo traffic only
-            if (isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_))
-                return false; // Skip LAN traffic
-        }
+        if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
+            return false; // Telo traffic only
+        if (isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_))
+            return false; // Skip LAN traffic
         return true;
     }
     void reportStatistics()
@@ -124,57 +116,73 @@ protected:
             return; // too early to do something
         IpStatTotal_.report("ip.txt", IpStatLast_, deltaTime);
         IcmpStatTotal_.report("icmp.txt", IcmpStatLast_, deltaTime);
+        IgmpStatTotal_.report("igmp.txt", IgmpStatLast_, deltaTime);
         TcpStatTotal_.report("tcp.txt", TcpStatLast_, deltaTime);
         UdpStatTotal_.report("udp.txt", UdpStatLast_, deltaTime);
 
         lastStatTime_ = currentTime;
         memcpy(&IpStatLast_, &IpStatTotal_, sizeof(ProtocolStat));
         memcpy(&IcmpStatLast_, &IcmpStatTotal_, sizeof(ProtocolStat));
+        memcpy(&IgmpStatLast_, &IgmpStatTotal_, sizeof(ProtocolStat));
         memcpy(&TcpStatLast_, &TcpStatTotal_, sizeof(ProtocolStat));
         memcpy(&UdpStatLast_, &UdpStatTotal_, sizeof(ProtocolStat));
     }
 
 // Protected overridables
 protected:
-    virtual void OnIpPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
+    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload,  int nPayloadLen)
     {
         reportStatistics();
-        bInputPacket_ = (pIpHeader->destIP == teloIP_);
-        if (!isPacketOfInterest(pIpHeader))
+        bPacketOfInterest_ = isPacketOfInterest(pIpHeader);
+        if (!bPacketOfInterest_)
             return;
-        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        IpStatTotal_.update(nPacketSize, bInputPacket_);
+        bInputPacket_ = (pIpHeader->destIP == teloIP_);
+        IpStatTotal_.update(nPacketLen, bInputPacket_);
     }
-    virtual void OnIcmpPacket(SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
+    virtual void icmpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
+        if (!bPacketOfInterest_)
+            return;
         printf("ICMP\tlen = %5d (from %s\t to %s)\n", ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        IcmpStatTotal_.update(nPacketSize, bInputPacket_);
+        IcmpStatTotal_.update(nPacketLen, bInputPacket_);
     }
-    virtual void OnTcpPacket(SIpHeader *pIpHeader, STcpHeader *pTcpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
+    virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
+        if (!bPacketOfInterest_)
+            return;
+        printf("IGMP\tlen = %5d (from %s\t to %s)\n", ntohs(pIpHeader->total_len),
+            addressToDotNotation(pIpHeader->sourceIP).c_str(),
+            addressToDotNotation(pIpHeader->destIP).c_str());
+        IgmpStatTotal_.update(nPacketLen, bInputPacket_);
+    }
+    virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
+    {
+        if (!bPacketOfInterest_)
+            return;
         unsigned short SrcPortNo = ntohs(pTcpHeader->SrcPortNo);
         unsigned short DstPortNo = ntohs(pTcpHeader->DstPortNo);
         printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", SrcPortNo, DstPortNo, ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        TcpStatTotal_.update(nPacketSize, bInputPacket_);
+        TcpStatTotal_.update(nPacketLen, bInputPacket_);
     }
-    virtual void OnUdpPacket(SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
+    virtual void udpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
+        if (!bPacketOfInterest_)
+            return;
         unsigned short SrcPortNo = ntohs(pUdpHeader->SrcPortNo);
         unsigned short DstPortNo = ntohs(pUdpHeader->DstPortNo);
         printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", SrcPortNo, DstPortNo, ntohs(pIpHeader->total_len),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        unsigned int nPacketSize = pIpHeader->getHeaderLength()+nUserDataLength; // recalculate it :-(
-        UdpStatTotal_.update(nPacketSize, bInputPacket_);
+        UdpStatTotal_.update(nPacketLen, bInputPacket_);
     }
-    virtual void OnUnknownProtoPacket(SIpHeader *pIpHeader, unsigned char *pUserData, unsigned int nUserDataLength)
+    virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload, int nPayloadLen)
     {
+        if (!bPacketOfInterest_)
+            return;
         printf("UNKNOWN: PROTO=%d, %s -> %s\n", pIpHeader->proto,
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
@@ -187,7 +195,9 @@ protected:
     ProtocolStat UdpStatTotal_, UdpStatLast_;
     ProtocolStat TcpStatTotal_, TcpStatLast_;
     ProtocolStat IcmpStatTotal_, IcmpStatLast_;
+    ProtocolStat IgmpStatTotal_, IgmpStatLast_;
     unsigned int lastStatTime_;
+    bool bPacketOfInterest_;
     bool bInputPacket_;
 };
 

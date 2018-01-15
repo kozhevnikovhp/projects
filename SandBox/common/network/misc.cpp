@@ -210,7 +210,7 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
 #endif
 }
 
-int Count1s(IPADDRESS_TYPE Address)
+int count1s(IPADDRESS_TYPE Address)
 {
     // count 1s
     int n1Count = 0;
@@ -222,7 +222,7 @@ int Count1s(IPADDRESS_TYPE Address)
     return n1Count;
 }
 
-IPADDRESS_TYPE GetSubnetMaskByLength(int nMaskLength)
+IPADDRESS_TYPE getSubnetMaskByLength(int nMaskLength)
 {
     static IPADDRESS_TYPE uMasks[] = {
         0x00000000, // "0.0.0.0"  , /0
@@ -266,12 +266,12 @@ IPADDRESS_TYPE GetSubnetMaskByLength(int nMaskLength)
 }
 
 // including 0th and last broadcast addresses, just 2**(32-MaskLength)
-int CalcMaxPossibleHosts(IPADDRESS_TYPE subnetMask)
+int calcMaxPossibleHostsInSubnet(IPADDRESS_TYPE subnetMask)
 {
-    return CalcMaxPossibleHosts(Count1s(subnetMask));
+    return calcMaxPossibleHostsFromMaskLen(count1s(subnetMask));
 }
 
-int CalcMaxPossibleHosts(int nMaskLength)
+int calcMaxPossibleHostsFromMaskLen(int nMaskLength)
 {
     static int nHosts[] = {
         0x00000001,	0x00000002,	0x00000004,	0x00000008,	0x00000010,	0x00000020,	0x00000040,	0x00000080,

@@ -21,7 +21,7 @@ public:
     unsigned char GetReceivedTOS() { return m_IPHeader.tos; }
 	void SetSrcIP(IPADDRESS_TYPE uIP) { m_uSrcIP = uIP; }
 // Public overridables
-	virtual bool ReadFrom(void *pBufferToFill, size_t nBufferSize, int &nReadBytes, IPADDRESS_TYPE &IpAddress, unsigned short &PortNo);
+    virtual bool ReadFrom(void *pBufferToFill, size_t nBufferSize, int &nReadBytes, IPADDRESS_TYPE &IpAddress, IPPORT &PortNo);
 // Public members
 
 protected:
