@@ -13,8 +13,6 @@
 #include <stdio.h>
 #include "IpHelper.h"
 
-//#pragma comment(lib, "iphlpapi.lib")
-
 IpHelper::IpHelper()
 {
     m_pIpAddressesBuffer = NULL;

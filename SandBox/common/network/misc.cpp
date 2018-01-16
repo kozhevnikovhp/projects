@@ -90,16 +90,14 @@ std::string addressToDotNotation(IPADDRESS_TYPE Address)
 
 std::string addressToHostName(IPADDRESS_TYPE ip)
 {
- 	struct in_addr inaddr;
+    // try that: http://man7.org/linux/man-pages/man3/getnameinfo.3.html
+    struct in_addr inaddr;
+    memset(&inaddr, 0, sizeof(inaddr));
     setIP(&inaddr, ip);
 
-    struct hostent *pHost = gethostbyaddr((const char *)&inaddr,
-                                         sizeof inaddr, AF_INET);
+    struct hostent *pHost = gethostbyaddr((const char *)&inaddr, sizeof inaddr, AF_INET);
     if (!pHost)
-    {
-        perror("gethostbyname");
         return "";
-    }
     std::string strName(pHost->h_name);
     return strName;
 }
@@ -224,7 +222,7 @@ int count1s(IPADDRESS_TYPE Address)
 
 IPADDRESS_TYPE getSubnetMaskByLength(int nMaskLength)
 {
-    static IPADDRESS_TYPE uMasks[] = {
+    IPADDRESS_TYPE uMasks[] = {
         0x00000000, // "0.0.0.0"  , /0
         0x00000080, // "128.0.0.0", /1
         0x000000C0, // "192.0.0.0", /2
@@ -257,7 +255,7 @@ IPADDRESS_TYPE getSubnetMaskByLength(int nMaskLength)
         0xF8FFFFFF, // "255.255.255.248", /29
         0xFCFFFFFF, // "255.255.255.252", /30
         0xFEFFFFFF, // "255.255.255.254", /31
-        0xFFFFFFFF, // "255.255.255.255", /32
+        0xFFFFFFFF // "255.255.255.255", /32
     };
 
     if (nMaskLength <= 0 || nMaskLength > 32)
@@ -273,7 +271,7 @@ int calcMaxPossibleHostsInSubnet(IPADDRESS_TYPE subnetMask)
 
 int calcMaxPossibleHostsFromMaskLen(int nMaskLength)
 {
-    static int nHosts[] = {
+    static unsigned int nHosts[] = {
         0x00000001,	0x00000002,	0x00000004,	0x00000008,	0x00000010,	0x00000020,	0x00000040,	0x00000080,
         0x00000100,	0x00000200,	0x00000400,	0x00000800,	0x00001000,	0x00002000,	0x00004000,	0x00008000,
         0x00010000,	0x00020000,	0x00040000,	0x00080000,	0x00100000,	0x00200000,	0x00400000,	0x00800000,
@@ -307,11 +305,11 @@ void printIpHeader(const SIpHeader *pHeader)
 void printIcmpHeader(const SIcmpHeader *pHeader)
 {
     printf("ICMP HEADER:\n");
-    printf(" |-Type : %d\n", pHeader->i_type);
-    printf(" |-Code : %d\n", pHeader->i_code);
-    printf(" |-Checksum : %d\n", ntohs(pHeader->i_chksum));
-    printf(" |-ID : %d\n", ntohs(pHeader->i_id));
-    printf(" |-Sequence : %d\n", ntohs(pHeader->i_seq));
+    printf(" |-Type : %d\n", pHeader->type);
+    printf(" |-Code : %d\n", pHeader->code);
+    printf(" |-Checksum : %d\n", ntohs(pHeader->checksum));
+    printf(" |-ID : %d\n", ntohs(pHeader->id));
+    printf(" |-Sequence : %d\n", ntohs(pHeader->seq));
     printf(" ============================\n");
 }
 

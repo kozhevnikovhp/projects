@@ -1,11 +1,55 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <vector>
+#include <map>
+#include <tuple>
+#include <algorithm>
 #include "network/sniffer.h"
 #include "network/misc.h"
 #include "portable/portable.h"
 
 using namespace common::network;
+
+class ServiceStat
+{
+public:
+    ServiceStat()
+        : nPackets_(0), nOctets_(0), bTriedToResolve_(false)
+    {
+    }
+
+    void update(int nPacketSize)
+    {
+        ++nPackets_;
+        nOctets_ += nPacketSize;
+        //print();
+    }
+
+    std::string &hostName(IPADDRESS_TYPE IP)
+    {
+        if (!bTriedToResolve_)
+        {
+            hostName_ = addressToHostName(IP);
+            bTriedToResolve_ = true;
+        }
+        return hostName_;
+    }
+
+    long long getPackets() const { return nPackets_; }
+    long long getOctets() const { return nOctets_; }
+
+    void print() const
+    {
+        printf(" %lld packets\t%lld octets\n", nPackets_);
+    }
+
+protected:
+    long long nPackets_;
+    long long nOctets_;
+    bool bTriedToResolve_; // try only once, can be time consuming
+    std::string hostName_; // resolved from IP-address
+};
 
 class ProtocolStat
 {
@@ -59,6 +103,14 @@ protected:
     long long nInputOctets_;
     long long nOutputOctets_;
 };
+
+typedef std::tuple<IPADDRESS_TYPE, IPPORT, unsigned char> ServiceType;
+typedef std::pair<const ServiceType *, ServiceStat *> Talker;
+
+bool compareTalkers(const Talker &t1, const Talker &t2)
+{
+    return t1.second->getOctets() > t2.second->getOctets();
+}
 
 class ListenerSocket : public SnifferSocket
 {
@@ -126,6 +178,56 @@ protected:
         memcpy(&IgmpStatLast_, &IgmpStatTotal_, sizeof(ProtocolStat));
         memcpy(&TcpStatLast_, &TcpStatTotal_, sizeof(ProtocolStat));
         memcpy(&UdpStatLast_, &UdpStatTotal_, sizeof(ProtocolStat));
+
+        // print out top-talkers to us
+        const unsigned int N_MAX_REPORTED_TALKERS = 20;
+        FILE *pFile = fopen("top_talkers.txt", "w");
+        if (pFile)
+        {
+            if (servicesStat_.size() > N_MAX_REPORTED_TALKERS)
+                fprintf(pFile, "%d top talkers to TELO (of totally %d talkers)\n", N_MAX_REPORTED_TALKERS, servicesStat_.size());
+            else
+                fprintf(pFile, "Top talkers to TELO\n");
+
+            topTalkers_.clear();
+            topTalkers_.reserve(servicesStat_.size());
+            for (auto it = servicesStat_.begin(); it != servicesStat_.end(); ++it)
+            {
+                const ServiceType &type = it->first;
+                ServiceStat &stat = it->second;
+                Talker talker(&type, &stat);
+                topTalkers_.emplace_back(talker);
+            }
+            std::sort(topTalkers_.begin(), topTalkers_.end(), compareTalkers);
+            int nReported = 0;
+            for (std::vector<Talker>::iterator talkerIt = topTalkers_.begin(); talkerIt != topTalkers_.end(); ++talkerIt)
+            {
+                if (nReported >= N_MAX_REPORTED_TALKERS)
+                    break;
+
+                const ServiceType *pType = talkerIt->first;
+                ServiceStat *pStat = talkerIt->second;
+
+                IPADDRESS_TYPE IP = std::get<0>(*pType);
+                IPPORT portNo = std::get<1>(*pType);
+                unsigned char proto = std::get<2>(*pType);
+                const char *pszProtoName = "UNKNOWN";
+                if (proto == IPPROTO_UDP)
+                    pszProtoName = "UDP";
+                else if (proto == IPPROTO_TCP)
+                        pszProtoName = "TCP";
+                else if (proto == IPPROTO_ICMP)
+                        pszProtoName = "ICMP";
+
+                fprintf(pFile, "%d.\t%s\t%d\t%s\t%8lld packets, %10lld octets\t%s\n",
+                        ++nReported,
+                        pszProtoName, portNo,
+                        addressToDotNotation(IP).c_str(),
+                        pStat->getPackets(), pStat->getOctets(),
+                        pStat->hostName(IP).c_str());
+            }
+            fclose(pFile);
+        }
     }
 
 // Protected overridables
@@ -149,6 +251,11 @@ protected:
             addressToDotNotation(pIpHeader->destIP).c_str());
         IcmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printIcmpHeader(pIcmpHeader);
+        IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
+        IPPORT servicePort = 0;
+        if (bInputPacket_)
+            serviceIP = pIpHeader->sourceIP;
+         this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
     }
     virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
@@ -168,16 +275,33 @@ protected:
             addressToDotNotation(pIpHeader->destIP).c_str());
         TcpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printTcpHeader(pTcpHeader);
+        IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
+        IPPORT servicePort = pTcpHeader->getDstPortNo();
+        if (bInputPacket_)
+        {
+            serviceIP = pIpHeader->sourceIP;
+            servicePort = pTcpHeader->getSrcPortNo();
+        }
+        this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
     }
     virtual void udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", ntohs(pUdpHeader->srcPortNo), ntohs(pUdpHeader->dstPortNo), pIpHeader->getPacketLen(),
+        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", pUdpHeader->getSrcPortNo(), pUdpHeader->getDstPortNo(), pIpHeader->getPacketLen(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
         UdpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printUdpHeader(pUdpHeader);
+
+        IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
+        IPPORT servicePort = pUdpHeader->getDstPortNo();
+        if (bInputPacket_)
+        {
+            serviceIP = pIpHeader->sourceIP;
+            servicePort = pUdpHeader->getSrcPortNo();
+        }
+        this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
     }
     virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload, int nPayloadLen)
     {
@@ -188,6 +312,23 @@ protected:
             addressToDotNotation(pIpHeader->destIP).c_str());
     }
 
+    void updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader)
+    {
+        ServiceType service(serviceIP, servicePort, pIpHeader->proto);
+        auto it = servicesStat_.find(service);
+        if (servicesStat_.end() == it)
+        { // not found, create new entry
+            ServiceStat stat;
+            stat.update(pIpHeader->getPacketLen());
+            servicesStat_[service] = stat;
+        }
+        else
+        { // update statistics of the service
+            ServiceStat &stat = it->second;
+            stat.update(pIpHeader->getPacketLen());
+        }
+    }
+
 // Protected members
 protected:
     IPADDRESS_TYPE subnetMask_, teloIP_;
@@ -196,6 +337,10 @@ protected:
     ProtocolStat TcpStatTotal_, TcpStatLast_;
     ProtocolStat IcmpStatTotal_, IcmpStatLast_;
     ProtocolStat IgmpStatTotal_, IgmpStatLast_;
+
+    std::map<ServiceType, ServiceStat> servicesStat_;
+    std::vector<Talker> topTalkers_;
+
     unsigned int lastStatTime_;
     bool bPacketOfInterest_;
     bool bInputPacket_;
@@ -487,36 +632,6 @@ void ProcessPacket(char* Buffer, int Size)
         break;
     }
     printf("TCP : %d UDP : %d ICMP : %d IGMP : %d Others : %d Total : %d\r",tcp,udp,icmp,igmp,others,total);
-}
-
-void PrintIpHeader (char* Buffer )
-{
-    unsigned short iphdrlen;
-
-    iphdr = (IPV4_HDR *)Buffer;
-    iphdrlen = iphdr->ip_header_len*4;
-
-    memset(&source, 0, sizeof(source));
-    source.sin_addr.s_addr = iphdr->ip_srcaddr;
-
-    memset(&dest, 0, sizeof(dest));
-    dest.sin_addr.s_addr = iphdr->ip_destaddr;
-
-    fprintf(logfile,"\n");
-    fprintf(logfile,"IP Header\n");
-    fprintf(logfile," |-IP Version : %d\n",(unsigned int)iphdr->ip_version);
-    fprintf(logfile," |-IP Header Length : %d DWORDS or %d Bytes\n",(unsigned int)iphdr->ip_header_len,((unsigned int)(iphdr->ip_header_len))*4);
-    fprintf(logfile," |-Type Of Service : %d\n",(unsigned int)iphdr->ip_tos);
-    fprintf(logfile," |-IP Total Length : %d Bytes(Size of Packet)\n",ntohs(iphdr->ip_total_length));
-    fprintf(logfile," |-Identification : %d\n",ntohs(iphdr->ip_id));
-    fprintf(logfile," |-Reserved ZERO Field : %d\n",(unsigned int)iphdr->ip_reserved_zero);
-    fprintf(logfile," |-Dont Fragment Field : %d\n",(unsigned int)iphdr->ip_dont_fragment);
-    fprintf(logfile," |-More Fragment Field : %d\n",(unsigned int)iphdr->ip_more_fragment);
-    fprintf(logfile," |-TTL : %d\n",(unsigned int)iphdr->ip_ttl);
-    fprintf(logfile," |-Protocol : %d\n",(unsigned int)iphdr->ip_protocol);
-    fprintf(logfile," |-Checksum : %d\n",ntohs(iphdr->ip_checksum));
-    fprintf(logfile," |-Source IP : %s\n",inet_ntoa(source.sin_addr));
-    fprintf(logfile," |-Destination IP : %s\n",inet_ntoa(dest.sin_addr));
 }
 
 void PrintTcpPacket(char* Buffer, int Size)

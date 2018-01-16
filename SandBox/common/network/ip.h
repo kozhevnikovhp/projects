@@ -3,7 +3,6 @@
 
 #if SOCKETS_WSA
 #include <stdint.h> //int32_t
-#include <winsock2.h>
 #include <ws2tcpip.h>
 
 #ifndef socklen_t
@@ -53,8 +52,8 @@ const int SOCKET_ERROR    = (-1);
 #include <errno.h>
 #endif
 
-typedef int32_t IPADDRESS_TYPE;
-typedef int16_t IPPORT;
+typedef uint32_t IPADDRESS_TYPE;
+typedef unsigned short IPPORT;
 
 namespace common {
 
@@ -82,44 +81,44 @@ typedef union
 // IP header definition
 typedef struct
 {
-        unsigned char	h_len:4;			// length of the header
-        unsigned char	version:4;			// version of IP
-        unsigned char	tos;				// type of service
-        unsigned short	total_len;			// total length of packet
-        unsigned short	ident;				// unique identifier
+    unsigned char	h_len:4;            // length of the header
+    unsigned char	version:4;          // version of IP
+    unsigned char	tos;                // type of service
+    unsigned short	total_len;          // total length of packet
+    unsigned short	ident;              // unique identifier
 
-        unsigned char frag_offset:5;        // Fragment offset field
-        unsigned char more_fragment :1;
-        unsigned char dont_fragment :1;
-        unsigned char reserved_zero :1;
+    unsigned char       frag_offset:5;      // Fragment offset field
+    unsigned char       more_fragment :1;
+    unsigned char       dont_fragment :1;
+    unsigned char       reserved_zero :1;
 
-        unsigned char frag_offset1;         //fragment offset
+    unsigned char       frag_offset1;       //fragment offset
 
-        unsigned char	ttl;				// time to live value
-        unsigned char	proto;				// protocol (TCP, UDP, etc.)
-        unsigned short	checksum;			// IP checksum
-        IPADDRESS_TYPE	sourceIP;			// source IP address
-        IPADDRESS_TYPE	destIP;             // destination IP address
+    unsigned char	ttl;                // time to live value
+    unsigned char	proto;              // protocol (TCP, UDP, etc.)
+    unsigned short	checksum;           // IP checksum
+    IPADDRESS_TYPE	sourceIP;           // source IP address
+    IPADDRESS_TYPE	destIP;             // destination IP address
 
-        unsigned short getHeaderLen() const { return h_len*4; }
-        unsigned short getPacketLen() const { return ntohs(total_len); }
+    unsigned short getHeaderLen() const { return h_len*4; }
+    unsigned short getPacketLen() const { return ntohs(total_len); }
 } SIpHeader;
 
 typedef struct
 {
-    unsigned short srcPortNo;
-    unsigned short dstPortNo;
+    IPPORT srcPortNo;
+    IPPORT dstPortNo;
     unsigned short length;
     unsigned short checksum;
 
-    unsigned short getSrcPortNo() const { return ntohs(srcPortNo); }
-    unsigned short getDstPortNo() const { return ntohs(dstPortNo); }
+    IPPORT getSrcPortNo() const { return ntohs(srcPortNo); }
+    IPPORT getDstPortNo() const { return ntohs(dstPortNo); }
 } SUdpHeader;
 
 typedef struct
 {
-    unsigned short srcPortNo;
-    unsigned short dstPortNo;
+    IPPORT srcPortNo;
+    IPPORT dstPortNo;
 
     int32_t seqNum; // sequence number - 32 bits
     int32_t ackNum; // acknowledgement number - 32 bits
@@ -143,8 +142,8 @@ typedef struct
     unsigned short urgent_pointer; // urgent pointer
 
     unsigned short getHeaderLen() const { return h_len*4; }
-    unsigned short getSrcPortNo() const { return ntohs(srcPortNo); }
-    unsigned short getDstPortNo() const { return ntohs(dstPortNo); }
+    IPPORT getSrcPortNo() const { return ntohs(srcPortNo); }
+    IPPORT getDstPortNo() const { return ntohs(dstPortNo); }
     int32_t getSeqNum() const { return ntohl(seqNum); }
     int32_t getAckNum() const { return ntohl(ackNum); }
 } STcpHeader;
@@ -161,21 +160,21 @@ struct SPseudoHeader
 // ICMP header definition
 typedef struct
 {
-    unsigned char	i_type;						// ICMP packet type
-    unsigned char	i_code;						// type subcode
-    unsigned short	i_chksum;					// packet checksum
-    unsigned short	i_id;						// unique packet ID
-    unsigned short	i_seq;						// packet sequence number
-    int32_t	timestamp;                  		// timestamp
+    unsigned char   type;	// ICMP packet type
+    unsigned char   code;	// type subcode
+    unsigned short  checksum;	// packet checksum
+    unsigned short  id;		// unique packet ID
+    unsigned short  seq;	// packet sequence number
+    int32_t         timestamp;  // timestamp
 } SIcmpHeader;
 
 // IGMP-protocol (RFC-1112, 2236, 3376)
 typedef struct
 {
-        unsigned char type;
-        unsigned char unused;
-        unsigned short CRC;
-        int32_t IP;			// Group address
+    unsigned char type;
+    unsigned char unused;
+    unsigned short CRC;
+    IPADDRESS_TYPE IP;      // Group address
 } SIgmpHeader;
 
 #pragma pack(pop)
