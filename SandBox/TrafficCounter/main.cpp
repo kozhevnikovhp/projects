@@ -130,53 +130,53 @@ protected:
 
 // Protected overridables
 protected:
-    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload,  int nPayloadLen)
+    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload,  int nPayloadLen)
     {
         reportStatistics();
         bPacketOfInterest_ = isPacketOfInterest(pIpHeader);
         if (!bPacketOfInterest_)
             return;
         bInputPacket_ = (pIpHeader->destIP == teloIP_);
-        IpStatTotal_.update(nPacketLen, bInputPacket_);
+        IpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printIpHeader(pIpHeader);
     }
-    virtual void icmpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen)
+    virtual void icmpPacketCaptured(const SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        printf("ICMP\tlen = %5d (from %s\t to %s)\n", ntohs(pIpHeader->total_len),
+        printf("ICMP\tlen = %5d (from %s\t to %s)\n", pIpHeader->getPacketLen(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        IcmpStatTotal_.update(nPacketLen, bInputPacket_);
+        IcmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printIcmpHeader(pIcmpHeader);
     }
-    virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
+    virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        printf("IGMP\tlen = %5d (from %s\t to %s)\n", ntohs(pIpHeader->total_len),
+        printf("IGMP\tlen = %5d (from %s\t to %s)\n", pIpHeader->getPacketLen(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        IgmpStatTotal_.update(nPacketLen, bInputPacket_);
+        IgmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
     }
-    virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
+    virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", ntohs(pTcpHeader->srcPortNo), ntohs(pTcpHeader->dstPortNo), ntohs(pIpHeader->total_len),
+        printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", pTcpHeader->getSrcPortNo(), pTcpHeader->getDstPortNo(), pIpHeader->getPacketLen(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        TcpStatTotal_.update(nPacketLen, bInputPacket_);
+        TcpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printTcpHeader(pTcpHeader);
     }
-    virtual void udpPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
+    virtual void udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", ntohs(pUdpHeader->srcPortNo), ntohs(pUdpHeader->dstPortNo), ntohs(pIpHeader->total_len),
+        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", ntohs(pUdpHeader->srcPortNo), ntohs(pUdpHeader->dstPortNo), pIpHeader->getPacketLen(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str());
-        UdpStatTotal_.update(nPacketLen, bInputPacket_);
+        UdpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printUdpHeader(pUdpHeader);
     }
     virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload, int nPayloadLen)

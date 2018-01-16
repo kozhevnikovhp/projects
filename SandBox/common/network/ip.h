@@ -34,10 +34,6 @@
 #define ENOTCONN     WSAENOTCONN
 #endif
 
-#ifndef ECONRESET
-#define ECONNRESET   WSAECONNRESET
-#endif
-
 #ifndef ETIMEDOUT
 #define ETIMEDOUT    WSAETIMEDOUT
 #endif
@@ -105,7 +101,8 @@ typedef struct
         IPADDRESS_TYPE	sourceIP;			// source IP address
         IPADDRESS_TYPE	destIP;             // destination IP address
 
-        unsigned short getHeaderLength() const { return h_len*4; }
+        unsigned short getHeaderLen() const { return h_len*4; }
+        unsigned short getPacketLen() const { return ntohs(total_len); }
 } SIpHeader;
 
 typedef struct
@@ -114,15 +111,18 @@ typedef struct
     unsigned short dstPortNo;
     unsigned short length;
     unsigned short checksum;
+
+    unsigned short getSrcPortNo() const { return ntohs(srcPortNo); }
+    unsigned short getDstPortNo() const { return ntohs(dstPortNo); }
 } SUdpHeader;
 
 typedef struct
 {
-    IPPORT srcPortNo;
-    IPPORT dstPortNo;
+    unsigned short srcPortNo;
+    unsigned short dstPortNo;
 
-    int32_t sequence; // sequence number - 32 bits
-    int32_t acknowledge; // acknowledgement number - 32 bits
+    int32_t seqNum; // sequence number - 32 bits
+    int32_t ackNum; // acknowledgement number - 32 bits
 
     unsigned char ns:1; //Nonce Sum Flag Added in RFC 3540.
     unsigned char reserved_part1:3; //according to rfc
@@ -142,7 +142,11 @@ typedef struct
     unsigned short checksum; // checksum
     unsigned short urgent_pointer; // urgent pointer
 
-    unsigned short getHeaderLength() const { return h_len*4; }
+    unsigned short getHeaderLen() const { return h_len*4; }
+    unsigned short getSrcPortNo() const { return ntohs(srcPortNo); }
+    unsigned short getDstPortNo() const { return ntohs(dstPortNo); }
+    int32_t getSeqNum() const { return ntohl(seqNum); }
+    int32_t getAckNum() const { return ntohl(ackNum); }
 } STcpHeader;
 
 struct SPseudoHeader

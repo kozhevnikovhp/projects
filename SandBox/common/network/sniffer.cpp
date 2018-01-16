@@ -87,39 +87,39 @@ bool SnifferSocket::waitForPacket()
     SIpHeader *pIpHeader = (SIpHeader *)(pEthernetHeader+1);
     nPacketSize -= sizeof(struct ethhdr);
 #endif
-    unsigned short nIpHdrLen = pIpHeader->getHeaderLength();
+    unsigned short nIpHdrLen = pIpHeader->getHeaderLen();
     int nPayloadLen = nPacketSize - nIpHdrLen;
     unsigned char *pPayload = (unsigned char *)pIpHeader + nIpHdrLen;
-    ipPacketCaptured(pIpHeader, nPacketSize, pPayload, nPayloadLen);
+    ipPacketCaptured(pIpHeader, pPayload, nPayloadLen);
 
     switch (pIpHeader->proto)
 	{
     case IPPROTO_TCP: {
         STcpHeader *pTcpHeader = (STcpHeader *)(pIpHeader+1);
-        pPayload = (unsigned char *)pTcpHeader+pTcpHeader->getHeaderLength();
-        nPayloadLen -= pTcpHeader->getHeaderLength();
-        tcpPacketCaptured(pIpHeader, nPacketSize, pTcpHeader, pPayload, nPayloadLen);
+        pPayload = (unsigned char *)pTcpHeader+pTcpHeader->getHeaderLen();
+        nPayloadLen -= pTcpHeader->getHeaderLen();
+        tcpPacketCaptured(pIpHeader, pTcpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_UDP: {
         SUdpHeader *pUdpHeader = (SUdpHeader *)(pIpHeader+1);
         pPayload = (unsigned char *)(pUdpHeader+1);
         nPayloadLen -= sizeof(SUdpHeader);
-        udpPacketCaptured(pIpHeader, nPacketSize, pUdpHeader, pPayload, nPayloadLen);
+        udpPacketCaptured(pIpHeader, pUdpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_ICMP: {
         SIcmpHeader *pIcmpHeader = (SIcmpHeader *)(pIpHeader+1);
         pPayload = (unsigned char *)(pIcmpHeader+1);
         nPayloadLen -= sizeof(SIcmpHeader);
-        icmpPacketCaptured(pIpHeader, nPacketSize, pIcmpHeader, pPayload, nPayloadLen);
+        icmpPacketCaptured(pIpHeader, pIcmpHeader, pPayload, nPayloadLen);
         break; }
     case IPPROTO_IGMP: {
         SIgmpHeader *pIgmpHeader = (SIgmpHeader *)(pIpHeader+1);
         pPayload = (unsigned char *)(pIgmpHeader+1);
         nPayloadLen -= sizeof(SIgmpHeader);
-        igmpPacketCaptured(pIpHeader, nPacketSize, pIgmpHeader, pPayload, nPayloadLen);
+        igmpPacketCaptured(pIpHeader, pIgmpHeader, pPayload, nPayloadLen);
         break; }
 	default:
-        unknownProtoPacketCaptured(pIpHeader, nPacketSize, pPayload, nPayloadLen);
+        unknownProtoPacketCaptured(pIpHeader, pPayload, nPayloadLen);
 		break;
 	} // end of switch (pIpHeader->proto)
 

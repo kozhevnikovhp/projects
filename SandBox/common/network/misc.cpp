@@ -289,9 +289,9 @@ void printIpHeader(const SIpHeader *pHeader)
 {
     printf(" IP HEADER:\n");
     printf(" |-IP Version : %d\n", pHeader->version);
-    printf(" |-IP Header Length : %d octets\n", pHeader->getHeaderLength());
+    printf(" |-IP Header Length : %d octets\n", pHeader->getHeaderLen());
     printf(" |-Type Of Service : %d\n", pHeader->tos);
-    printf(" |-IP Total Length : %d octets\n", ntohs(pHeader->total_len));
+    printf(" |-IP Total Length : %d octets\n", pHeader->getPacketLen());
     printf(" |-Identification : %d\n", ntohs(pHeader->ident));
     printf(" |-Reserved ZERO Field : %d\n", pHeader->reserved_zero);
     printf(" |-Dont Fragment Field : %d\n", pHeader->dont_fragment);
@@ -318,11 +318,11 @@ void printIcmpHeader(const SIcmpHeader *pHeader)
 void printTcpHeader(const STcpHeader *pHeader)
 {
     printf(" TCP HEADER:\n");
-    printf(" |-SRC Port : %u\n", ntohs(pHeader->srcPortNo));
-    printf(" |-DST Port : %u\n", ntohs(pHeader->dstPortNo));
-    printf(" |-Seq Number : %u\n", ntohl(pHeader->sequence));
-    printf(" |-Ack Number : %u\n", ntohl(pHeader->acknowledge));
-    printf(" |-Header Length : %d octets\n", pHeader->getHeaderLength());
+    printf(" |-SRC Port : %u\n", pHeader->getSrcPortNo());
+    printf(" |-DST Port : %u\n", pHeader->getDstPortNo());
+    printf(" |-Seq Number : %u\n", pHeader->getSeqNum());
+    printf(" |-Ack Number : %u\n", pHeader->getAckNum());
+    printf(" |-Header Length : %d octets\n", pHeader->getHeaderLen());
     printf(" |-FIN : %d\n", pHeader->fin);
     printf(" |-SYN : %d\n", pHeader->syn);
     printf(" |-RST : %d\n", pHeader->rst);
@@ -340,8 +340,8 @@ void printTcpHeader(const STcpHeader *pHeader)
 void printUdpHeader(const SUdpHeader *pHeader)
 {
     printf("UDP HEADER:\n");
-    printf(" |-SRC Port : %d\n", ntohs(pHeader->srcPortNo));
-    printf(" |-DST Port : %d\n", ntohs(pHeader->dstPortNo));
+    printf(" |-SRC Port : %d\n", pHeader->getSrcPortNo());
+    printf(" |-DST Port : %d\n", pHeader->getDstPortNo());
     printf(" |-UDP Length : %d\n", ntohs(pHeader->length));
     printf(" |-UDP Checksum : %d\n", ntohs(pHeader->checksum));
     printf(" ============================\n");
