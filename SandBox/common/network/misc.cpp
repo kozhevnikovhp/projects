@@ -20,12 +20,11 @@ namespace network {
 
 IPADDRESS_TYPE getIP(const sockaddr *pSockAddr)
 {
-	struct sockaddr_in *p = (struct sockaddr_in *)pSockAddr;
 #ifdef SOCKETS_WSA
-	return p->sin_addr.S_un.S_addr;
+    return ((sockaddr_in *)pSockAddr)->sin_addr.S_un.S_addr;
 #endif
 #ifdef SOCKETS_BSD
-	return p->sin_addr.s_addr;
+    return ((sockaddr_in *)pSockAddr)->sin_addr.s_addr;
 #endif
 }
 
@@ -41,12 +40,11 @@ IPADDRESS_TYPE getIP(const in_addr *pAddr)
 
 void setIP(sockaddr *pSockAddr, IPADDRESS_TYPE IP)
 {
-	struct sockaddr_in *p = (struct sockaddr_in *)pSockAddr;
 #ifdef SOCKETS_WSA
-	p->sin_addr.S_un.S_addr = IP;
+    ((sockaddr_in *)pSockAddr)->sin_addr.S_un.S_addr = IP;
 #endif
 #ifdef SOCKETS_BSD
-	p->sin_addr.s_addr = IP;
+    ((sockaddr_in *)pSockAddr)->sin_addr.s_addr = IP;
 #endif
 }
 
@@ -67,52 +65,93 @@ IPADDRESS_TYPE stringToAddress(const std::string &str)
 
 IPADDRESS_TYPE stringToAddress(const char *pszStr)
 {
-    struct hostent *pHost = gethostbyname(pszStr);
-    if (!pHost)
-    {
-        perror("gethostbyname");
-        return 0;
-    }
-    char *p = pHost->h_addr_list[0];
-    IPADDRESS_TYPE *pIpAddress = (IPADDRESS_TYPE *)p;
-    IPADDRESS_TYPE ip = *pIpAddress;
+    sockaddr_in sa;
+    inet_pton(AF_INET, pszStr, &(sa.sin_addr));
 
-    return ip;
+#ifdef SOCKETS_WSA
+    return sa.sin_addr.S_un.S_addr;
+#endif
+#ifdef SOCKETS_BSD
+     return sa.sin_addr.s_addr;
+#endif
+ }
+
+std::string addressToDotNotation(IPADDRESS_TYPE IP)
+{
+    std::string hostName;
+    sockaddr_in sa;
+#ifdef SOCKETS_WSA
+    sa.sin_addr.S_un.S_addr = IP;
+#endif
+#ifdef SOCKETS_BSD
+    sa.sin_addr.s_addr = IP;
+#endif
+    char str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(sa.sin_addr), str, sizeof(str));
+
+    hostName.append(str);
+    return hostName;
 }
 
-std::string addressToDotNotation(IPADDRESS_TYPE Address)
+std::string addressToHostName(IPADDRESS_TYPE IP)
 {
-    struct in_addr inaddr;
-    setIP(&inaddr, Address);
-    std::string str(inet_ntoa(inaddr));
-    return str;
-}
-
-std::string addressToHostName(IPADDRESS_TYPE ip)
-{
+    std::string hostName;
     // try that: http://man7.org/linux/man-pages/man3/getnameinfo.3.html
-    struct in_addr inaddr;
-    memset(&inaddr, 0, sizeof(inaddr));
-    setIP(&inaddr, ip);
 
-    struct hostent *pHost = gethostbyaddr((const char *)&inaddr, sizeof inaddr, AF_INET);
-    if (!pHost)
-        return "";
-    std::string strName(pHost->h_name);
-    return strName;
+    sockaddr addr;
+    socklen_t addrlen = sizeof(addr);
+    memset(&addr, 0, sizeof(addr));
+    setIP(&addr, IP);
+    addr.sa_family = AF_INET;
+    char hbuf[NI_MAXHOST];
+    memset(hbuf, 0, sizeof(hbuf));
+    char sbuf[NI_MAXSERV];
+    memset(sbuf, 0, sizeof(sbuf));
+
+    bool bSuccess = false;/*(getnameinfo(&addr, addrlen,
+                                 hbuf, sizeof(hbuf),
+                                 sbuf, sizeof(sbuf),
+                                 0) == 0);*/ // CRASHES HERE under LINUX!!!
+    if (bSuccess)
+        hostName.append(hbuf);
+
+/*
+  struct sockaddr_in saGNI;
+    char hostname[NI_MAXHOST];
+    char servInfo[NI_MAXSERV];
+    u_short port = 27015;
+
+     //-----------------------------------------
+    // Set up sockaddr_in structure which is passed
+    // to the getnameinfo function
+    saGNI.sin_family = AF_INET;
+    saGNI.sin_addr.s_addr = IP;
+    saGNI.sin_port = htons(port);
+
+    //-----------------------------------------
+    // Call getnameinfo
+    printf("before\n");
+    int aaa = getnameinfo((struct sockaddr *) &saGNI,
+                           sizeof (struct sockaddr_in),
+                           hostname, NI_MAXHOST,
+                          servInfo, NI_MAXSERV,
+                          0);
+    printf("after\n");
+    printf("%d resolved as %s and %s\n", aaa, hostname, servInfo);*/
+
+    return hostName;
 }
 
-std::string getFullName(IPADDRESS_TYPE ip)
+std::string getFullName(IPADDRESS_TYPE IP)
 {
-    std::string str = addressToDotNotation(ip);
-    std::string strSymbolicName = addressToHostName(ip);
+    std::string hostName = addressToDotNotation(IP);
+    std::string strSymbolicName = addressToHostName(IP);
     if (!strSymbolicName.empty())
     {
-        str += '(';
-        str += strSymbolicName;
-        str += ')';
+        hostName += '(';
+        hostName += strSymbolicName;
+        hostName += ')';
     }
-    return str;
 }
 
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask)
@@ -297,8 +336,8 @@ void printIpHeader(const SIpHeader *pHeader)
     printf(" |-TTL : %d\n", pHeader->ttl);
     printf(" |-Protocol : %d\n", pHeader->proto);
     printf(" |-Checksum : %d\n", ntohs(pHeader->checksum));
-    printf(" |-Source IP : %s\n", addressToDotNotation(pHeader->sourceIP).c_str());
-    printf(" |-Destination IP : %s\n", addressToDotNotation(pHeader->destIP).c_str());
+    printf(" |-SRC IP : %s\n", addressToDotNotation(pHeader->sourceIP).c_str());
+    printf(" |-DST IP : %s\n", addressToDotNotation(pHeader->destIP).c_str());
     printf(" ============================\n");
 }
 

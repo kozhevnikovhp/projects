@@ -75,7 +75,8 @@ bool IpRawSocket::SetIpHeaderIncl(bool bIncludeIpHeader)
 // Returns length of IP-header + options field length in octets
 int IpRawSocket::FillIpHeader(SIpHeader *pIpHeader, int nPacketSize, unsigned long uSrcIP, unsigned long uDstIP)
 {
-    if (!HasOwnIpHeader())
+    // return it BACK! gethostbyname is OBSOLETE and UNSAFE!
+/*    if (!HasOwnIpHeader())
         return 0;
     pIpHeader->version = 4; //IPv4
     int nIpHeaderLength = (sizeof(SIpHeader) + FillIpHeaderOptions(pIpHeader)); // in octets
@@ -103,7 +104,7 @@ int IpRawSocket::FillIpHeader(SIpHeader *pIpHeader, int nPacketSize, unsigned lo
      }
      pIpHeader->sourceIP =  uSrcIP;
      pIpHeader->checksum = CalcCheckSum((unsigned short *)pIpHeader, nIpHeaderLength);
-     return nIpHeaderLength;
+     return nIpHeaderLength;*/
 }
 
 

@@ -20,9 +20,9 @@ void setIP(in_addr *pAddr, IPADDRESS_TYPE IP);
 IPADDRESS_TYPE stringToAddress(const std::string &str);
 IPADDRESS_TYPE stringToAddress(const char *pszStr);
 
-std::string addressToDotNotation(IPADDRESS_TYPE Address);
-std::string addressToHostName(IPADDRESS_TYPE Address);
-std::string getFullName(IPADDRESS_TYPE ip);
+std::string addressToDotNotation(IPADDRESS_TYPE IP);
+std::string addressToHostName(IPADDRESS_TYPE IP);
+std::string getFullName(IPADDRESS_TYPE IP);
 
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask);
 bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName);

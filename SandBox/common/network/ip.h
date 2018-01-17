@@ -211,7 +211,7 @@ public:
 // Public overridables
     virtual bool ReadFrom(void *pBufferToFill, size_t nBufferSize, int &nReadBytes, IPADDRESS_TYPE &IpAddress, IPPORT &portNo);
     virtual bool WriteTo(void *pBufferToSend, size_t nBytesToSend, int &nSentBytes, IPADDRESS_TYPE IpAddress, IPPORT portNo);
-    virtual bool WriteTo(void *pBufferToSend, size_t nBytesToSend, int &nSentBytes, char *pszIpAddress, IPPORT portNo);
+    //virtual bool WriteTo(void *pBufferToSend, size_t nBytesToSend, int &nSentBytes, char *pszIpAddress, IPPORT portNo);
 // Public members
 
 protected:

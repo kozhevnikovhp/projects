@@ -30,9 +30,9 @@ public:
     {
         if (!bTriedToResolve_)
         {
-            hostName_ = addressToHostName(IP);
+            hostName_ = addressToHostName(IP); //CRASH on LINUX!
             bTriedToResolve_ = true;
-        }
+        }        
         return hostName_;
     }
 
@@ -48,7 +48,7 @@ protected:
     long long nPackets_;
     long long nOctets_;
     bool bTriedToResolve_; // try only once, can be time consuming
-    std::string hostName_; // resolved from IP-address
+    std::string hostName_;
 };
 
 class ProtocolStat
@@ -202,6 +202,7 @@ protected:
             int nReported = 0;
             for (std::vector<Talker>::iterator talkerIt = topTalkers_.begin(); talkerIt != topTalkers_.end(); ++talkerIt)
             {
+                //printf("%d reported\n", nReported);
                 if (nReported >= N_MAX_REPORTED_TALKERS)
                     break;
 
@@ -219,12 +220,19 @@ protected:
                 else if (proto == IPPROTO_ICMP)
                         pszProtoName = "ICMP";
 
+                std::string strHostAddress = addressToDotNotation(IP);
+                //printf("%s ", strHostAddress.c_str());
+                std::string strHostName = pStat->hostName(IP);
+                //printf("%s\n", strHostName.c_str());
+
+                ++nReported;
                 fprintf(pFile, "%d.\t%s\t%d\t%s\t%8lld packets, %10lld octets\t%s\n",
-                        ++nReported,
+                        nReported,
                         pszProtoName, portNo,
-                        addressToDotNotation(IP).c_str(),
+                        strHostAddress.c_str(),
                         pStat->getPackets(), pStat->getOctets(),
-                        pStat->hostName(IP).c_str());
+                        strHostName.c_str()
+                        );
             }
             fclose(pFile);
         }
@@ -247,8 +255,8 @@ protected:
         if (!bPacketOfInterest_)
             return;
         printf("ICMP\tlen = %5d (from %s\t to %s)\n", pIpHeader->getPacketLen(),
-            addressToDotNotation(pIpHeader->sourceIP).c_str(),
-            addressToDotNotation(pIpHeader->destIP).c_str());
+                addressToDotNotation(pIpHeader->sourceIP).c_str(),
+                addressToDotNotation(pIpHeader->destIP).c_str());
         IcmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printIcmpHeader(pIcmpHeader);
         IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
@@ -262,8 +270,8 @@ protected:
         if (!bPacketOfInterest_)
             return;
         printf("IGMP\tlen = %5d (from %s\t to %s)\n", pIpHeader->getPacketLen(),
-            addressToDotNotation(pIpHeader->sourceIP).c_str(),
-            addressToDotNotation(pIpHeader->destIP).c_str());
+               addressToDotNotation(pIpHeader->sourceIP).c_str(),
+               addressToDotNotation(pIpHeader->destIP).c_str());
         IgmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
     }
     virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
@@ -271,8 +279,8 @@ protected:
         if (!bPacketOfInterest_)
             return;
         printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", pTcpHeader->getSrcPortNo(), pTcpHeader->getDstPortNo(), pIpHeader->getPacketLen(),
-            addressToDotNotation(pIpHeader->sourceIP).c_str(),
-            addressToDotNotation(pIpHeader->destIP).c_str());
+               addressToDotNotation(pIpHeader->sourceIP).c_str(),
+               addressToDotNotation(pIpHeader->destIP).c_str());
         TcpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printTcpHeader(pTcpHeader);
         IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
@@ -289,8 +297,8 @@ protected:
         if (!bPacketOfInterest_)
             return;
         printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", pUdpHeader->getSrcPortNo(), pUdpHeader->getDstPortNo(), pIpHeader->getPacketLen(),
-            addressToDotNotation(pIpHeader->sourceIP).c_str(),
-            addressToDotNotation(pIpHeader->destIP).c_str());
+               addressToDotNotation(pIpHeader->sourceIP).c_str(),
+               addressToDotNotation(pIpHeader->destIP).c_str());
         UdpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printUdpHeader(pUdpHeader);
 
@@ -308,8 +316,8 @@ protected:
         if (!bPacketOfInterest_)
             return;
         printf("UNKNOWN: PROTO=%d, %s -> %s\n", pIpHeader->proto,
-            addressToDotNotation(pIpHeader->sourceIP).c_str(),
-            addressToDotNotation(pIpHeader->destIP).c_str());
+               addressToDotNotation(pIpHeader->sourceIP).c_str(),
+               addressToDotNotation(pIpHeader->destIP).c_str());
     }
 
     void updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader)
@@ -348,6 +356,19 @@ protected:
 
 int main(int argc, char* argv[])
 {
+/*while (1)
+{
+    IPADDRESS_TYPE IP = stringToAddress("37.200.67.14");
+    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
+    IP = stringToAddress("37.200.67.14");
+    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
+    IP = stringToAddress("80.68.253.11");
+    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
+    IP = stringToAddress("37.200.67.14");
+    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
+    IP = stringToAddress("37.200.67.14");
+    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
+}*/
     if (argc < 2)
     {
         printf("Not enough arguments\nUsage: TrafficCounter TeloIP\n");

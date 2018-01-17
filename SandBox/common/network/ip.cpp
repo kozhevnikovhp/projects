@@ -278,7 +278,7 @@ bool IpSocket::WriteTo
 }
 
 //virtual
-bool IpSocket::WriteTo
+/*bool IpSocket::WriteTo
 (
     void *pBufferToSend,
     size_t nBytesToSend,
@@ -289,7 +289,7 @@ bool IpSocket::WriteTo
 {
     IPADDRESS_TYPE IpAddress = stringToAddress(pszIpAddress);
     return WriteTo(pBufferToSend, nBytesToSend, nSentBytes, IpAddress, portNo);
-}
+}*/
 
 //virtual
 bool IpSocket::WriteTo
