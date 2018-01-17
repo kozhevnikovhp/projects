@@ -46,4 +46,4 @@ IF (WIN32)
   TARGET_LINK_LIBRARIES(TrafficCounter wsock32 ws2_32 iphlpapi)
 ENDIF(WIN32)
 
-SET(CMAKE_EXE_LINKER_FLAGS " -static")
+#SET(CMAKE_EXE_LINKER_FLAGS " -static")

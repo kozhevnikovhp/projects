@@ -116,11 +116,42 @@ class ListenerSocket : public SnifferSocket
 {
 //Attributes
 public:
-    ListenerSocket(IPADDRESS_TYPE teloIP)
+    ListenerSocket()
     {
         bInputPacket_ = false;
-        teloIP_ = teloIP;
+        teloIP_ = 0;
+        subnetMask_ = 0;
         lastStatTime_ = 0;
+    }
+
+    bool listenTo(const std::string &ifaceName)
+    {
+        bool bSuccess = common::network::getInterfaceAddressAndMask(ifaceName, teloIP_, subnetMask_);
+        if (bSuccess)
+        {
+#if (SOCKETS_WSA)
+            printf("Listening local interface %s to figure out traffic of Telo %s...\n",
+                   addressToDotNotation(ifaceIP).c_str(),
+                   addressToDotNotation(teloIP_).c_str());
+            promiscModeOn(teloIP_);
+#elif (SOCKETS_BSD)
+            printf("Listening local interface %s to figure out traffic of Telo %s...\n",
+                   ifaceName.c_str(),
+                   addressToDotNotation(teloIP_).c_str());
+            promiscModeOn(ifaceName.c_str());
+#endif
+        }
+        else
+        {
+            printf("ERROR: could not get interface properties for listenning\n");
+        }
+        reportStatistics();
+
+    }
+
+    bool listenTo(IPADDRESS_TYPE teloIP)
+    {
+        teloIP_ = teloIP;
         IPADDRESS_TYPE ifaceIP;
         std::string ifaceName; // not used so far for Windows, Linux only
         bool bSuccess = common::network::findBestInterface(teloIP, ifaceIP, subnetMask_, ifaceName);
@@ -356,22 +387,29 @@ protected:
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
-    {
-        printf("Not enough arguments\nUsage: TrafficCounter TeloIP\n");
-        return 0;
-    }
-
     IpSocket::InitSockets();
 
-    IPADDRESS_TYPE teloIP = dotNotationToAddress(argv[1]);
-    if (!teloIP)
+    std::string ifaceName = "eth0";
+    IPADDRESS_TYPE teloIP = 0;
+    if (argc > 1)
     {
-        printf("Cannot resolve %s to IP-address\n", argv[1]);
-        return 0;
+        ifaceName = argv[1];
+        if (isItInterfaceName(ifaceName))
+        {
+
+        }
+        else
+        {
+            teloIP = dotNotationToAddress(argv[1]);
+        }
+
     }
 
-    ListenerSocket sniffer(teloIP);
+    ListenerSocket sniffer;
+    if (teloIP)
+        sniffer.listenTo(teloIP);
+    else
+        sniffer.listenTo(ifaceName);
 
     if (!sniffer.isCreated())
     {

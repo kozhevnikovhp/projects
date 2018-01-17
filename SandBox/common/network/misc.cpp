@@ -70,7 +70,9 @@ IPADDRESS_TYPE dotNotationToAddress(const std::string &str)
 // At the same time inet_pton cannot be compiled on WINDOWS, have no idea why
 IPADDRESS_TYPE dotNotationToAddress(const char *pszStr)
 {
- #ifdef SOCKETS_WSA
+    IPADDRESS_TYPE IP = inet_addr(pszStr);
+    return IP;
+/*#ifdef SOCKETS_WSA
     IPADDRESS_TYPE IP = inet_addr(pszStr);
     return IP;
 #endif
@@ -78,7 +80,7 @@ IPADDRESS_TYPE dotNotationToAddress(const char *pszStr)
     sockaddr_in sa;
     inet_pton(AF_INET, pszStr, &(sa.sin_addr));
     return sa.sin_addr.s_addr;
-#endif
+#endif*/
 }
 
 // TODO: make it better
@@ -105,7 +107,6 @@ std::string addressToDotNotation(IPADDRESS_TYPE IP)
 std::string addressToHostName(IPADDRESS_TYPE IP)
 {
     std::string hostName;
-#ifdef SOCKETS_WSA // does not work (crashes) in LINUX
     sockaddr addr;
     socklen_t addrlen = sizeof(addr);
     memset(&addr, 0, sizeof(addr));
@@ -119,11 +120,10 @@ std::string addressToHostName(IPADDRESS_TYPE IP)
     bool bSuccess = (getnameinfo(&addr, addrlen,
                                  hbuf, sizeof(hbuf),
                                  sbuf, sizeof(sbuf),
-                                 0) == 0); // CRASHES HERE under LINUX!!!
+                                 0) == 0); // CRASHES HERE under LINUX!!! IN CASE OF STATIC LINK
     printf("resolved as %s and %s\n", hbuf, sbuf);
     if (bSuccess)
         hostName.append(hbuf);
-#endif
 
     return hostName;
 }
@@ -143,6 +143,62 @@ std::string getFullName(IPADDRESS_TYPE IP)
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask)
 {
     return ((a1 & subnetMask) == (a2 & subnetMask));
+}
+
+bool isItInterfaceName(const std::string &ifaceName)
+{
+#if (SOCKETS_WSA)
+    //printf("This workstation has the following IP-addresses:\n");
+    IpHelper helper;
+    unsigned int i;
+    for (i = 0; i < helper.GetIpAddressesCount(); i++)
+    {
+        IPADDRESS_TYPE thisIP = helper.GetIpAddress(i);
+        IPADDRESS_TYPE thisMask = helper.GetIpSubnetMask(i);
+        //std::string str = helper.GetIfaceDesc(i);
+        //printf("IP-Address %d : %s/%s\n", i, addressToDotNotation(thisIP).c_str(), addressToDotNotation(thisMask).c_str());
+        if (isTheSameSubnet(IP, thisIP, thisMask))
+        {
+            ifaceIP = thisIP;
+            ifaceMask = thisMask;
+            return true;
+        }
+    }
+    return false;
+#elif (SOCKETS_BSD)
+    // http://forum.sources.ru/index.php?showtopic=78789
+    char buf[2048];
+    struct ifconf ifc;
+    int s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s < 0)
+    {
+        perror("socket");
+        return false;
+    }
+
+    // Query available interfaces.
+    ifc.ifc_len = sizeof(buf);
+    ifc.ifc_buf = buf;
+    if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
+    {
+        perror("ioctl(SIOCGIFCONF)");
+        close(s);
+        return false;
+    }
+    close(s); // o need it anymore
+
+    // Iterate through the list of interfaces.
+    int nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
+    for (int i = 0; i < nInterfaces; i++)
+    {
+        struct ifreq *pInterface = &ifc.ifc_req[i];
+
+        // device name
+        if (!ifaceName.compare(pInterface->ifr_name))
+            return true;
+    }
+    return false;
+#endif
 }
 
 bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName)
@@ -230,6 +286,77 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
     }
     close(s);
     return false; // not found
+#endif
+}
+
+bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask)
+{
+    ifaceIP = ifaceMask = 0;
+    // check all interfaces to find better pair Address/Mask to be in the same net as target IP
+#if (SOCKETS_WSA)
+    //printf("This workstation has the following IP-addresses:\n");
+    IpHelper helper;
+    unsigned int i;
+    for (i = 0; i < helper.GetIpAddressesCount(); i++)
+    {
+        IPADDRESS_TYPE thisIP = helper.GetIpAddress(i);
+        IPADDRESS_TYPE thisMask = helper.GetIpSubnetMask(i);
+        //std::string str = helper.GetIfaceDesc(i);
+        //printf("IP-Address %d : %s/%s\n", i, addressToDotNotation(thisIP).c_str(), addressToDotNotation(thisMask).c_str());
+        if (isTheSameSubnet(IP, thisIP, thisMask))
+        {
+            ifaceIP = thisIP;
+            ifaceMask = thisMask;
+            return true;
+        }
+    }
+    return false;
+#elif (SOCKETS_BSD)
+    // http://forum.sources.ru/index.php?showtopic=78789
+    char buf[2048];
+    struct ifconf ifc;
+    int s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s < 0)
+    {
+        perror("socket");
+        return false;
+    }
+
+    // Query available interfaces.
+    ifc.ifc_len = sizeof(buf);
+    ifc.ifc_buf = buf;
+    if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
+    {
+        perror("ioctl(SIOCGIFCONF)");
+        close(s);
+        return false;
+    }
+
+    // Iterate through the list of interfaces.
+    int nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
+    for (int i = 0; i < nInterfaces; i++)
+    {
+        struct ifreq *pInterface = &ifc.ifc_req[i];
+
+        // device name
+        if (ifaceName.compare(pInterface->ifr_name))
+            continue;
+        // IP address
+        ifaceIP = getIP(&pInterface->ifr_addr);
+        //printf("%s: IP %s", pInterface->ifr_name, addressToDotNotation(ifaceIP).c_str());
+
+        // SubnetMask
+        if(ioctl(s, SIOCGIFNETMASK, pInterface) < 0)
+        {
+            perror("ioctl SIOCGIFNETMASK");
+            return false;
+        }
+        ifaceMask = getIP(&pInterface->ifr_netmask);
+        //printf(", MASK %s", addressToDotNotation(ifaceMask).c_str());
+        break;
+    }
+    close(s);
+    return (ifaceIP != 0 && ifaceMask != 0);
 #endif
 }
 

@@ -25,7 +25,9 @@ std::string addressToHostName(IPADDRESS_TYPE IP);
 std::string getFullName(IPADDRESS_TYPE IP);
 
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask);
+bool isItInterfaceName(const std::string &ifaceName);
 bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName);
+bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask);
 int Count1s(IPADDRESS_TYPE Address);
 IPADDRESS_TYPE getSubnetMaskByLength(int nMaskLength);
 int calcMaxPossibleHostsInSubnet(IPADDRESS_TYPE subnetMask); // including 0th and last broadcast addresses, just 2**MaskLength
