@@ -356,19 +356,6 @@ protected:
 
 int main(int argc, char* argv[])
 {
-/*while (1)
-{
-    IPADDRESS_TYPE IP = stringToAddress("37.200.67.14");
-    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
-    IP = stringToAddress("37.200.67.14");
-    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
-    IP = stringToAddress("80.68.253.11");
-    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
-    IP = stringToAddress("37.200.67.14");
-    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
-    IP = stringToAddress("37.200.67.14");
-    printf("Address %s, name %s\n", addressToDotNotation(IP).c_str(), addressToHostName(IP).c_str());
-}*/
     if (argc < 2)
     {
         printf("Not enough arguments\nUsage: TrafficCounter TeloIP\n");
@@ -377,7 +364,7 @@ int main(int argc, char* argv[])
 
     IpSocket::InitSockets();
 
-    IPADDRESS_TYPE teloIP = stringToAddress(argv[1]);
+    IPADDRESS_TYPE teloIP = dotNotationToAddress(argv[1]);
     if (!teloIP)
     {
         printf("Cannot resolve %s to IP-address\n", argv[1]);

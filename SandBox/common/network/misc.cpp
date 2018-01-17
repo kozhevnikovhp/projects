@@ -5,6 +5,8 @@
 
 #ifdef SOCKETS_WSA
 #include <Winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
 #include "IpHelper.h"
 #elif (SOCKETS_BSD)
 #include <net/if.h>
@@ -58,46 +60,52 @@ void setIP(in_addr *pAddr, IPADDRESS_TYPE IP)
 #endif
 }
 
-IPADDRESS_TYPE stringToAddress(const std::string &str)
+IPADDRESS_TYPE dotNotationToAddress(const std::string &str)
 {
-    return stringToAddress(str.c_str());
+    return dotNotationToAddress(str.c_str());
 }
 
-IPADDRESS_TYPE stringToAddress(const char *pszStr)
+// TODO: make it better
+// PROBLEM: gethostbyname(), inet_*() are declared UNSAFE and DEPRECATED in LINUX, but in Windows is OK
+// At the same time inet_pton cannot be compiled on WINDOWS, have no idea why
+IPADDRESS_TYPE dotNotationToAddress(const char *pszStr)
 {
+ #ifdef SOCKETS_WSA
+    IPADDRESS_TYPE IP = inet_addr(pszStr);
+    return IP;
+#endif
+#ifdef SOCKETS_BSD
     sockaddr_in sa;
     inet_pton(AF_INET, pszStr, &(sa.sin_addr));
-
-#ifdef SOCKETS_WSA
-    return sa.sin_addr.S_un.S_addr;
+    return sa.sin_addr.s_addr;
 #endif
-#ifdef SOCKETS_BSD
-     return sa.sin_addr.s_addr;
-#endif
- }
+}
 
+// TODO: make it better
+// PROBLEM: inet_*() is declared UNSAFE and DEPRECATED in LINUX, but in Windows is OK
+// At the same time inet_pton cannot be compiled on WINDOWS
 std::string addressToDotNotation(IPADDRESS_TYPE IP)
 {
-    std::string hostName;
-    sockaddr_in sa;
 #ifdef SOCKETS_WSA
-    sa.sin_addr.S_un.S_addr = IP;
+    struct in_addr inaddr;
+    setIP(&inaddr, IP);
+    std::string hostName(inet_ntoa(inaddr));
+    return hostName;
 #endif
 #ifdef SOCKETS_BSD
+    sockaddr_in sa;
     sa.sin_addr.s_addr = IP;
-#endif
-    char str[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(sa.sin_addr), str, sizeof(str));
-
-    hostName.append(str);
+    char buffer[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(sa.sin_addr), buffer, sizeof(buffer));
+    std::string hostName(buffer);
     return hostName;
+#endif
 }
 
 std::string addressToHostName(IPADDRESS_TYPE IP)
 {
     std::string hostName;
-    // try that: http://man7.org/linux/man-pages/man3/getnameinfo.3.html
-
+#ifdef SOCKETS_WSA // does not work (crashes) in LINUX
     sockaddr addr;
     socklen_t addrlen = sizeof(addr);
     memset(&addr, 0, sizeof(addr));
@@ -108,36 +116,14 @@ std::string addressToHostName(IPADDRESS_TYPE IP)
     char sbuf[NI_MAXSERV];
     memset(sbuf, 0, sizeof(sbuf));
 
-    bool bSuccess = false;/*(getnameinfo(&addr, addrlen,
+    bool bSuccess = (getnameinfo(&addr, addrlen,
                                  hbuf, sizeof(hbuf),
                                  sbuf, sizeof(sbuf),
-                                 0) == 0);*/ // CRASHES HERE under LINUX!!!
+                                 0) == 0); // CRASHES HERE under LINUX!!!
+    printf("resolved as %s and %s\n", hbuf, sbuf);
     if (bSuccess)
         hostName.append(hbuf);
-
-/*
-  struct sockaddr_in saGNI;
-    char hostname[NI_MAXHOST];
-    char servInfo[NI_MAXSERV];
-    u_short port = 27015;
-
-     //-----------------------------------------
-    // Set up sockaddr_in structure which is passed
-    // to the getnameinfo function
-    saGNI.sin_family = AF_INET;
-    saGNI.sin_addr.s_addr = IP;
-    saGNI.sin_port = htons(port);
-
-    //-----------------------------------------
-    // Call getnameinfo
-    printf("before\n");
-    int aaa = getnameinfo((struct sockaddr *) &saGNI,
-                           sizeof (struct sockaddr_in),
-                           hostname, NI_MAXHOST,
-                          servInfo, NI_MAXSERV,
-                          0);
-    printf("after\n");
-    printf("%d resolved as %s and %s\n", aaa, hostname, servInfo);*/
+#endif
 
     return hostName;
 }
