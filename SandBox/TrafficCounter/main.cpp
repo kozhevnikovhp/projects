@@ -130,10 +130,10 @@ public:
         if (bSuccess)
         {
 #if (SOCKETS_WSA)
-            printf("Listening local interface %s to figure out traffic of Telo %s...\n",
+            /*printf("Listening local interface %s to figure out traffic of Telo %s...\n",
                    addressToDotNotation(ifaceIP).c_str(),
                    addressToDotNotation(teloIP_).c_str());
-            promiscModeOn(teloIP_);
+            promiscModeOn(teloIP_);*/
 #elif (SOCKETS_BSD)
             printf("Listening local interface %s to figure out traffic of Telo %s...\n",
                    ifaceName.c_str(),
@@ -389,27 +389,30 @@ int main(int argc, char* argv[])
 {
     IpSocket::InitSockets();
 
-    std::string ifaceName = "eth0";
     IPADDRESS_TYPE teloIP = 0;
+    ListenerSocket sniffer;
+
+#ifdef SOCKETS_WSA
+    teloIP = dotNotationToAddress(argv[1]);
+    if (teloIP)
+        sniffer.listenTo(teloIP);
+#endif
+#ifdef SOCKETS_BSD
+    std::string ifaceName = "eth0";
     if (argc > 1)
     {
         ifaceName = argv[1];
-        if (isItInterfaceName(ifaceName))
-        {
-
-        }
-        else
+        if (!isItInterfaceName(ifaceName))
         {
             teloIP = dotNotationToAddress(argv[1]);
         }
-
     }
 
-    ListenerSocket sniffer;
     if (teloIP)
         sniffer.listenTo(teloIP);
     else
         sniffer.listenTo(ifaceName);
+#endif //SOCKETS_BSD
 
     if (!sniffer.isCreated())
     {
