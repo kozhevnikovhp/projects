@@ -80,8 +80,8 @@ public:
 
             fprintf(pFile, "\n");
             //fprintf(stdout, "\n");
+            fclose(pFile);
         }
-        fclose(pFile);
     }
 
     void update(unsigned int nPacketSize, bool bInput)
@@ -143,7 +143,8 @@ public:
         }
         else
         {
-            printf("ERROR: could not get interface properties for listenning\n");
+            printf("ERROR: interface %s does not exist\n", ifaceName.c_str());
+            destroy();
         }
         reportStatistics();
 
@@ -171,7 +172,8 @@ public:
         }
         else
         {
-            printf("ERROR: could not find appropriate interface for listenning\n");
+            printf("ERROR: could not find appropriate interface for listening %s\n", addressToDotNotation(teloIP_).c_str());
+            destroy();
         }
         reportStatistics();
     }
@@ -398,7 +400,7 @@ int main(int argc, char* argv[])
         sniffer.listenTo(teloIP);
 #endif
 #ifdef SOCKETS_BSD
-    std::string ifaceName = "eth0";
+    std::string ifaceName = "eth0";//"enp0s3";
     if (argc > 1)
     {
         ifaceName = argv[1];

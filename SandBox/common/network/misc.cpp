@@ -319,6 +319,7 @@ bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &if
     for (int i = 0; i < nInterfaces; i++)
     {
         struct ifreq *pInterface = &ifc.ifc_req[i];
+        //printf("Iface %d = %s\n", i, pInterface->ifr_name);
 
         // device name
         if (ifaceName.compare(pInterface->ifr_name))
@@ -331,6 +332,7 @@ bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &if
         if(ioctl(s, SIOCGIFNETMASK, pInterface) < 0)
         {
             perror("ioctl SIOCGIFNETMASK");
+            close(s);
             return false;
         }
         ifaceMask = getIP(&pInterface->ifr_netmask);
