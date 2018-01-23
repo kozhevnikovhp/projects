@@ -55,7 +55,16 @@ void SnifferSocket::destroy()
 #if (SOCKETS_WSA)
 bool SnifferSocket::promiscModeOn(IPADDRESS_TYPE ifaceIP)
 {
-    inherited::bind(0, ifaceIP);
+    sockaddr_in local;
+    local.sin_family = AF_INET;
+    local.sin_addr.s_addr = ifaceIP;
+    local.sin_port = 0;
+    if (::bind(m_Socket, (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
+    {
+        perror("bind");
+        return false;
+    }
+
     unsigned long flag = 1;  // flag PROMISC ON/OFF
     ioctlsocket(m_Socket, SIO_RCVALL, &flag);
     return true;

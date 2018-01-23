@@ -523,6 +523,24 @@ FILE *f = fopen(TCP_FILE_NAME, "r");
   */
 
    // IpSocket::InitSockets();
+#ifdef SOCKETS_WSA
+#define VERSION_MINOR 1
+#define VERSION_MAJOR 1
+
+    WSADATA WsaData;
+    WORD wVersionRequested = MAKEWORD(VERSION_MINOR, VERSION_MAJOR);
+
+    int err = WSAStartup(wVersionRequested, &WsaData);
+    if (err != 0)
+        return 0;
+
+    if (LOBYTE(WsaData.wVersion) != VERSION_MAJOR ||
+        HIBYTE(WsaData.wVersion) != VERSION_MINOR )
+    { // We could not find a usable WinSock DLL
+        WSACleanup();
+        return 0;
+    }
+#endif
 
     IPADDRESS_TYPE teloIP = 0;
     ListenerSocket sniffer;
@@ -561,6 +579,10 @@ FILE *f = fopen(TCP_FILE_NAME, "r");
         {
         }
     }
+
+#ifdef SOCKETS_WSA
+    WSACleanup();
+#endif
 
     return 0;
 }

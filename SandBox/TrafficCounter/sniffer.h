@@ -38,7 +38,7 @@ protected:
 // Protected members
 protected:
     SOCKET m_Socket;
-    unsigned char bufferForPackets_[0xFFFF];
+    char bufferForPackets_[0xFFFF];
 #if (SOCKETS_BSD)
     struct ifreq ifaceDesc_;
 #endif

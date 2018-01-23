@@ -10,6 +10,7 @@ SET (SRCS
     portable.cpp
     sniffer.cpp
 )
+
 IF (WIN32)
 SET (SRCS
     ${SRCS}
