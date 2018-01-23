@@ -1009,6 +1009,6 @@ void PrintData (char* data , int Size)
         }
     }
 
-    fprintf(logfile , "\nlocal_branch");
+    fprintf(logfile , "\nlocal_branch2");
 }
 #endif
