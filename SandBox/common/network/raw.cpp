@@ -76,7 +76,7 @@ bool IpRawSocket::SetIpHeaderIncl(bool bIncludeIpHeader)
 int IpRawSocket::FillIpHeader(SIpHeader *pIpHeader, int nPacketSize, unsigned long uSrcIP, unsigned long uDstIP)
 {
     // return it BACK! gethostbyname is OBSOLETE and UNSAFE!
-/*    if (!HasOwnIpHeader())
+    if (!HasOwnIpHeader())
         return 0;
     pIpHeader->version = 4; //IPv4
     int nIpHeaderLength = (sizeof(SIpHeader) + FillIpHeaderOptions(pIpHeader)); // in octets
@@ -96,7 +96,7 @@ int IpRawSocket::FillIpHeader(SIpHeader *pIpHeader, int nPacketSize, unsigned lo
         uSrcIP = m_uSrcIP;
     if (uSrcIP == 0)
     {
-        char szName[255];
+        char szName[256];
         gethostname(szName, sizeof(szName));
         struct hostent *pHostent = gethostbyname(szName);
         char **p = pHostent->h_addr_list;
@@ -104,7 +104,7 @@ int IpRawSocket::FillIpHeader(SIpHeader *pIpHeader, int nPacketSize, unsigned lo
      }
      pIpHeader->sourceIP =  uSrcIP;
      pIpHeader->checksum = CalcCheckSum((unsigned short *)pIpHeader, nIpHeaderLength);
-     return nIpHeaderLength;*/
+     return nIpHeaderLength;
 }
 
 

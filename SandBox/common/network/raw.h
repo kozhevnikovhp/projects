@@ -7,7 +7,7 @@ namespace common {
 
 namespace network {
 
-// cIpRawSocket - raw sockets classes will be derived from it
+// IpRawSocket - raw sockets classes will be derived from it
 class IpRawSocket : public IpSocket
 {
     typedef IpSocket inherited;

@@ -205,9 +205,9 @@ public:
     bool EnableBroadcasting(bool bEnable = true);
     bool WriteBroadcast(void *pBufferToSend, size_t nBytesToSend, int &nSentBytes, IPPORT portNo);
 
-        // Error codes
-    //       bool IsEC_Unreach() { return GetLastErrorCode() == WSAEHOSTUNREACH; }
-    //      bool IsEC_Timeout() { return GetLastErrorCode() == WSAETIMEDOUT; }
+    // Error codes
+    //bool IsEC_Unreach() { return GetLastErrorCode() == WSAEHOSTUNREACH; }
+    //bool IsEC_Timeout() { return GetLastErrorCode() == WSAETIMEDOUT; }
 // Public overridables
     virtual bool ReadFrom(void *pBufferToFill, size_t nBufferSize, int &nReadBytes, IPADDRESS_TYPE &IpAddress, IPPORT &portNo);
     virtual bool WriteTo(void *pBufferToSend, size_t nBytesToSend, int &nSentBytes, IPADDRESS_TYPE IpAddress, IPPORT portNo);

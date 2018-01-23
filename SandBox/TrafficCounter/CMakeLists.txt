@@ -8,9 +8,7 @@ SET (NETWORK_SRCS_DIR "../common/network")
 SET (NETWORK_SRCS
     ${NETWORK_SRCS_DIR}/ip.cpp
     ${NETWORK_SRCS_DIR}/misc.cpp
-    ${NETWORK_SRCS_DIR}/raw.cpp
     ${NETWORK_SRCS_DIR}/sniffer.cpp
-    ${NETWORK_SRCS_DIR}/udp.cpp
  )
 
 IF (WIN32)

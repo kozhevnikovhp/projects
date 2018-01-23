@@ -1,7 +1,7 @@
 #ifndef __SNIFFER_H_INCLUDED__
 #define __SNIFFER_H_INCLUDED__
 
-#include "raw.h"
+#include "ip.h"
 
 #if (SOCKETS_BSD)
 #include <net/if.h>
@@ -11,9 +11,9 @@ namespace common {
 
 namespace network {
 
-class SnifferSocket : public IpRawSocket
+class SnifferSocket : public IpSocket
 {
-    typedef IpRawSocket inherited;
+    typedef IpSocket inherited;
 //Attributes
 public:
     SnifferSocket();
