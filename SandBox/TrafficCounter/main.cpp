@@ -438,6 +438,8 @@ void StartSniffing (SOCKET Sock); //This will sniff here and there
 void ProcessPacket (char* , int); //This will decide how to digest
 void PrintIpHeader (char*);
 void PrintIcmpPacket (char* , int);
+
+
 void PrintUdpPacket (char* , int);
 void PrintTcpPacket (char* , int);
 void ConvertToHex (char* , unsigned int);
