@@ -5,11 +5,9 @@
 #include <map>
 #include <tuple>
 #include <algorithm>
-#include "network/sniffer.h"
-#include "network/misc.h"
-#include "portable/portable.h"
-
-using namespace common::network;
+#include "sniffer.h"
+#include "misc.h"
+#include "portable.h"
 
 class ServiceStat
 {
@@ -126,7 +124,7 @@ public:
 
     bool listenTo(const std::string &ifaceName)
     {
-        bool bSuccess = common::network::getInterfaceAddressAndMask(ifaceName, teloIP_, subnetMask_);
+        bool bSuccess = getInterfaceAddressAndMask(ifaceName, teloIP_, subnetMask_);
         if (bSuccess)
         {
 #if (SOCKETS_WSA)
@@ -155,7 +153,7 @@ public:
         teloIP_ = teloIP;
         IPADDRESS_TYPE ifaceIP;
         std::string ifaceName; // not used so far for Windows, Linux only
-        bool bSuccess = common::network::findBestInterface(teloIP, ifaceIP, subnetMask_, ifaceName);
+        bool bSuccess = findBestInterface(teloIP, ifaceIP, subnetMask_, ifaceName);
         if (bSuccess)
         {
 #if (SOCKETS_WSA)
@@ -195,7 +193,7 @@ protected:
     }
     void reportStatistics()
     {
-        unsigned int currentTime = common::portable::portableGetCurrentTimeSec();
+        unsigned int currentTime = portableGetCurrentTimeSec();
         unsigned int deltaTime = currentTime - lastStatTime_;
         if (deltaTime < 60*1) // every 1 min
             return; // too early to do something
@@ -387,9 +385,144 @@ protected:
     bool bInputPacket_;
 };
 
+const char *TCP_FILE_NAME = "/proc/net/tcp";
+
 int main(int argc, char* argv[])
 {
-    IpSocket::InitSockets();
+#if 0
+    char buffer[8192];
+    unsigned long rxq, txq, time_len, retr, inode;
+    int num, local_port, rem_port, d, state, uid, timer_run, timeout;
+    char rem_addr[128], local_addr[128], timers[64];
+    const struct aftype *ap;
+    struct sockaddr_storage localsas, remsas;
+    struct sockaddr_in *localaddr = (struct sockaddr_in *)&localsas;
+    struct sockaddr_in *remaddr = (struct sockaddr_in *)&remsas;
+#if HAVE_AFINET6
+    char addr6[INET6_ADDRSTRLEN];
+    struct in6_addr in6;
+    extern struct aftype inet6_aftype;
+#endif
+    long clk_tck = ticks_per_second();
+
+    if (lnr == 0)
+    return;
+
+    num = sscanf(line,
+    "%d: %64[0-9A-Fa-f]:%X %64[0-9A-Fa-f]:%X %X %lX:%lX %X:%lX %lX %d %d %lu %*s\n",
+         &d, local_addr, &local_port, rem_addr, &rem_port, &state,
+         &txq, &rxq, &timer_run, &time_len, &retr, &uid, &timeout, &inode);
+
+    if (num < 11) {
+    fprintf(stderr, _("warning, got bogus tcp line.\n"));
+    return;
+    }
+
+    if (!flag_all && ((flag_lst && rem_port) || (!flag_lst && !rem_port)))
+      return;
+
+    if (strlen(local_addr) > 8) {
+#if HAVE_AFINET6
+    /* Demangle what the kernel gives us */
+    sscanf(local_addr, "%08X%08X%08X%08X",
+           &in6.s6_addr32[0], &in6.s6_addr32[1],
+           &in6.s6_addr32[2], &in6.s6_addr32[3]);
+    inet_ntop(AF_INET6, &in6, addr6, sizeof(addr6));
+    inet6_aftype.input(1, addr6, &localsas);
+    sscanf(rem_addr, "%08X%08X%08X%08X",
+           &in6.s6_addr32[0], &in6.s6_addr32[1],
+           &in6.s6_addr32[2], &in6.s6_addr32[3]);
+    inet_ntop(AF_INET6, &in6, addr6, sizeof(addr6));
+    inet6_aftype.input(1, addr6, &remsas);
+    localsas.ss_family = AF_INET6;
+    remsas.ss_family = AF_INET6;
+#endif
+    } else {
+    sscanf(local_addr, "%X", &localaddr->sin_addr.s_addr);
+    sscanf(rem_addr, "%X", &remaddr->sin_addr.s_addr);
+    localsas.ss_family = AF_INET;
+    remsas.ss_family = AF_INET;
+    }
+
+    if ((ap = get_afntype(localsas.ss_family)) == NULL) {
+    fprintf(stderr, _("netstat: unsupported address family %d !\n"),
+        localsas.ss_family);
+    return;
+    }
+
+    addr_do_one(local_addr, sizeof(local_addr), 22, ap, &localsas, local_port, "tcp");
+    addr_do_one(rem_addr, sizeof(rem_addr), 22, ap, &remsas, rem_port, "tcp");
+
+    timers[0] = '\0';
+    if (flag_opt)
+        switch (timer_run) {
+        case 0:
+        snprintf(timers, sizeof(timers), _("off (0.00/%ld/%d)"), retr, timeout);
+        break;
+
+        case 1:
+        snprintf(timers, sizeof(timers), _("on (%2.2f/%ld/%d)"),
+             (double) time_len / clk_tck, retr, timeout);
+        break;
+
+        case 2:
+        snprintf(timers, sizeof(timers), _("keepalive (%2.2f/%ld/%d)"),
+             (double) time_len / clk_tck, retr, timeout);
+        break;
+
+        case 3:
+        snprintf(timers, sizeof(timers), _("timewait (%2.2f/%ld/%d)"),
+             (double) time_len / clk_tck, retr, timeout);
+        break;
+
+        case 4:
+        snprintf(timers, sizeof(timers), _("probe (%2.2f/%ld/%d)"),
+             (double) time_len / clk_tck, retr, timeout);
+        break;
+
+        default:
+        snprintf(timers, sizeof(timers), _("unkn-%d (%2.2f/%ld/%d)"),
+             timer_run, (double) time_len / clk_tck, retr, timeout);
+        break;
+        }
+
+    printf("%-4s  %6ld %6ld %-*s %-*s %-11s",
+           prot, rxq, txq, (int)netmax(23,strlen(local_addr)), local_addr, (int)netmax(23,strlen(rem_addr)), rem_addr, _(tcp_state[state]));
+
+    finish_this_one(uid,inode,timers);
+}
+
+FILE *f = fopen(TCP_FILE_NAME, "r");
+    if(f)
+    {
+        //print its contents
+        while(fgets(buffer, sizeof(buffer), f))
+            printf("%s", buffer);
+        fclose(f);
+
+    }
+#endif
+/*    procinfo = proc_fopen((TCP_FILE_NAME));			\
+    if (procinfo == NULL) {				\
+      if (errno != ENOENT && errno != EACCES) {		\
+        perror((file));					\
+        return -1;					\
+      }							\
+      if (!flag_noprot && (flag_arg || flag_ver))		\
+        ESYSNOT("netstat", (name));			\
+      if (!flag_noprot && flag_arg)			\
+        rc = 1;						\
+    } else {						\
+      do {						\
+        if (fgets(buffer, sizeof(buffer), procinfo))	\
+          (proc)(lnr++, buffer,prot);			\
+      } while (!feof(procinfo));				\
+      fclose(procinfo);					\
+    }
+
+  */
+
+   // IpSocket::InitSockets();
 
     IPADDRESS_TYPE teloIP = 0;
     ListenerSocket sniffer;

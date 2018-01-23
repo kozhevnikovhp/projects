@@ -1,19 +1,11 @@
 #ifndef __SNIFFER_H_INCLUDED__
 #define __SNIFFER_H_INCLUDED__
 
+#include "misc.h"
 #include "ip.h"
-
-#if (SOCKETS_BSD)
-#include <net/if.h>
-#endif
-
-namespace common {
-
-namespace network {
 
 class SnifferSocket
 {
-//Attributes
 public:
     SnifferSocket();
     virtual ~SnifferSocket();
@@ -51,8 +43,5 @@ protected:
     struct ifreq ifaceDesc_;
 #endif
 };
-
-}
-}
 
 #endif // __SNIFFER_H_INCLUDED__

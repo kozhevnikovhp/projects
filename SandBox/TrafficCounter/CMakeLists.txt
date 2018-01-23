@@ -2,39 +2,27 @@ cmake_minimum_required(VERSION 2.8)
 
 project(TrafficCounter)
 
-INCLUDE_DIRECTORIES("../common")
-
-SET (NETWORK_SRCS_DIR "../common/network")
-SET (NETWORK_SRCS
-    ${NETWORK_SRCS_DIR}/ip.cpp
-    ${NETWORK_SRCS_DIR}/misc.cpp
-    ${NETWORK_SRCS_DIR}/sniffer.cpp
- )
-
-IF (WIN32)
-SET (NETWORK_SRCS
-    ${NETWORK_SRCS}
-    ${NETWORK_SRCS_DIR}/IpHelper.cpp
-)
-ENDIF (WIN32)
-
-
-SET (PORTABLE_SRCS_DIR "../common/portable")
-SET (PORTABLE_SRCS
-    ${PORTABLE_SRCS_DIR}/portable.cpp
-)
+#INCLUDE_DIRECTORIES("../common")
 
 SET (SRCS
-    ${NETWORK_SRCS}
-    ${PORTABLE_SRCS}
     main.cpp
+    misc.cpp
+    portable.cpp
+    sniffer.cpp
 )
+IF (WIN32)
+SET (SRCS
+    ${SRCS}
+    IpHelper.cpp
+)
+ENDIF (WIN32)
 
 IF (WIN32)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOS_WINDOWS -DSOCKETS_WSA")
 ELSEIF (UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOS_UNIX -DSOCKETS_BSD")
 ENDIF(UNIX)
+
 #C++11 support
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 

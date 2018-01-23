@@ -15,10 +15,6 @@
 #include <stdio.h>
 
 
-namespace common {
-
-namespace network {
-
 SnifferSocket::SnifferSocket()
 {
 #ifdef SOCKETS_WSA
@@ -146,6 +142,3 @@ bool SnifferSocket::waitForPacket()
 
     return true; // successfully read and processed
 }
-
-} //namespace network
-} //namespace common
