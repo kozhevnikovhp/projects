@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(TrafficCounter)
 
-#INCLUDE_DIRECTORIES("../common")
+SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 SET (SRCS
     main.cpp
@@ -30,7 +30,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
 
 IF (WIN32)
-  TARGET_LINK_LIBRARIES(TrafficCounter wsock32 ws2_32 iphlpapi)
+  TARGET_LINK_LIBRARIES(${PROJECT_NAME} wsock32 ws2_32 iphlpapi)
 ENDIF(WIN32)
 
-#SET(CMAKE_EXE_LINKER_FLAGS " -static")
+IF (WIN32)
+  SET(CMAKE_EXE_LINKER_FLAGS
+      "${CMAKE_EXE_LINKER_FLAGS} -static")
+ENDIF(WIN32)
+
