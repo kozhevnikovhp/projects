@@ -45,6 +45,16 @@ void setIP(sockaddr *pSockAddr, IPADDRESS_TYPE IP)
 #endif
 }
 
+void setIP(sockaddr_in *pSockAddr, IPADDRESS_TYPE IP)
+{
+#ifdef SOCKETS_WSA
+    pSockAddr->sin_addr.S_un.S_addr = IP;
+#endif
+#ifdef SOCKETS_BSD
+    pSockAddr->sin_addr.s_addr = IP;
+#endif
+}
+
 void setIP(in_addr *pAddr, IPADDRESS_TYPE IP)
 {
 #ifdef SOCKETS_WSA
@@ -109,18 +119,41 @@ std::string addressToHostName(IPADDRESS_TYPE IP)
     addr.sa_family = AF_INET;
     char hbuf[NI_MAXHOST];
     memset(hbuf, 0, sizeof(hbuf));
-    char sbuf[NI_MAXSERV];
-    memset(sbuf, 0, sizeof(sbuf));
 
     bool bSuccess = (getnameinfo(&addr, addrlen,
                                  hbuf, sizeof(hbuf),
-                                 sbuf, sizeof(sbuf),
+                                 NULL, 0,
                                  0) == 0); // CRASHES HERE under LINUX!!! IN CASE OF STATIC LINK
-    printf("resolved as %s and %s\n", hbuf, sbuf);
     if (bSuccess)
         hostName.append(hbuf);
 
     return hostName;
+}
+
+std::string getServiceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUDP)
+{
+    std::string serviceName;
+    sockaddr_in addr;
+    socklen_t addrlen = sizeof(addr);
+    memset(&addr, 0, sizeof(addr));
+    setIP(&addr, IP);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(portNo);
+    char sbuf[NI_MAXSERV];
+    memset(sbuf, 0, sizeof(sbuf));
+
+    int flags = 0;
+    if (bUDP)
+        flags |= NI_DGRAM;
+    bool bSuccess = (getnameinfo((sockaddr *)&addr, addrlen,
+                                 NULL, 0,
+                                 sbuf, sizeof(sbuf),
+                                 flags) == 0); // CRASHES HERE under LINUX!!! IN CASE OF STATIC LINK
+    printf("bSuccess = %d, service = %s\n", bSuccess, sbuf);
+    if (bSuccess)
+        serviceName.append(sbuf);
+
+    return serviceName;
 }
 
 std::string getFullName(IPADDRESS_TYPE IP)
