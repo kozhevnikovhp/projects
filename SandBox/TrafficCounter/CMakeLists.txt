@@ -5,6 +5,7 @@ project(TrafficCounter)
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 SET (SRCS
+    counter.cpp
     main.cpp
     misc.cpp
     portable.cpp

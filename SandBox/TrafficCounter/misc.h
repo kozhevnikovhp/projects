@@ -11,6 +11,7 @@ IPADDRESS_TYPE getIP(const sockaddr *pSockAddr);
 IPADDRESS_TYPE getIP(const in_addr *pAddr);
 
 void setIP(sockaddr *pSockAddr, IPADDRESS_TYPE IP);
+void setIP(sockaddr_in *pSockAddr, IPADDRESS_TYPE IP);
 void setIP(in_addr *pAddr, IPADDRESS_TYPE IP);
 
 IPADDRESS_TYPE dotNotationToAddress(const std::string &str);
@@ -38,5 +39,6 @@ void printIpHeader(const SIpHeader *pHeader);
 void printIcmpHeader(const SIcmpHeader *pHeader);
 void printTcpHeader(const STcpHeader *pHeader);
 void printUdpHeader(const SUdpHeader *pHeader);
+void printPacketPayload(char *data , int size);
 
 #endif // __MISC_H_INCLUDED__

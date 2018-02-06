@@ -149,7 +149,6 @@ std::string getServiceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUDP)
                                  NULL, 0,
                                  sbuf, sizeof(sbuf),
                                  flags) == 0); // CRASHES HERE under LINUX!!! IN CASE OF STATIC LINK
-    printf("bSuccess = %d, service = %s\n", bSuccess, sbuf);
     if (bSuccess)
         serviceName.append(sbuf);
 
@@ -166,6 +165,7 @@ std::string getFullName(IPADDRESS_TYPE IP)
         hostName += strSymbolicName;
         hostName += ')';
     }
+    return hostName;
 }
 
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask)
@@ -509,4 +509,39 @@ void printUdpHeader(const SUdpHeader *pHeader)
     printf(" ============================\n");
 }
 
+void printPacketPayload(char *data , int size)
+{
+    char a , line[17] , c;
+    int j;
 
+    //loop over each character and print
+    for (int i=0 ; i < size ; i++)
+    {
+        c = data[i];
+
+        //Print the hex value for every character , with a space. Important to make unsigned
+        printf(" %.2x", (unsigned char) c);
+
+        //Add the character to data line. Important to make unsigned
+        a = ( c >=32 && c <=128) ? (unsigned char) c : '.';
+
+        line[i%16] = a;
+
+        //if last character of a line , then print the line - 16 characters in 1 line
+        if( (i!=0 && (i+1)%16==0) || i == size - 1)
+        {
+            line[i%16 + 1] = '\0';
+
+            //print a big gap of 10 characters between hex and characters
+            printf("          ");
+
+            //Print additional spaces for last lines which might be less than 16 characters in length
+            for ( j = strlen(line) ; j < 16; j++)
+            {
+                printf("   ");
+            }
+
+            printf("%s \n" , line);
+        }
+    }
+}
