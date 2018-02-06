@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <dirent.h>
+#include <fcntl.h>
 #include <vector>
 #include <map>
 #include <tuple>
@@ -13,7 +15,7 @@ class ServiceStat
 {
 public:
     ServiceStat()
-        : nPackets_(0), nOctets_(0), bTriedToResolve_(false)
+        : nPackets_(0), nOctets_(0), bTriedToResolveHostName_(false), bTriedToResolveServiceName_(false)
     {
     }
 
@@ -21,17 +23,26 @@ public:
     {
         ++nPackets_;
         nOctets_ += nPacketSize;
-        //print();
     }
 
     std::string &hostName(IPADDRESS_TYPE IP)
     {
-        if (!bTriedToResolve_)
+        if (!bTriedToResolveHostName_)
         {
-            hostName_ = addressToHostName(IP); //CRASH on LINUX!
-            bTriedToResolve_ = true;
+            hostName_ = addressToHostName(IP);
+            bTriedToResolveHostName_ = true;
         }        
         return hostName_;
+    }
+
+    std::string &serviceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUDP)
+    {
+        if (!bTriedToResolveServiceName_)
+        {
+            serviceName_ = ::getServiceName(IP, portNo, bUDP);
+            bTriedToResolveServiceName_ = true;
+        }
+        return serviceName_;
     }
 
     long long getPackets() const { return nPackets_; }
@@ -45,8 +56,10 @@ public:
 protected:
     long long nPackets_;
     long long nOctets_;
-    bool bTriedToResolve_; // try only once, can be time consuming
+    bool bTriedToResolveHostName_; // try only once, can be time consuming
+    bool bTriedToResolveServiceName_; // try only once, can be time consuming
     std::string hostName_;
+    std::string serviceName_;
 };
 
 class ProtocolStat
@@ -110,16 +123,20 @@ bool compareTalkers(const Talker &t1, const Talker &t2)
     return t1.second->getOctets() > t2.second->getOctets();
 }
 
+typedef unsigned long INODE;
+
+typedef std::map<INODE, std::string> InodeToAppCache;
+
 class ListenerSocket : public SnifferSocket
 {
-//Attributes
 public:
     ListenerSocket()
     {
         bInputPacket_ = false;
         teloIP_ = 0;
         subnetMask_ = 0;
-        lastStatTime_ = 0;
+        lastStatTime_ = portableGetCurrentTimeSec() - 60*60; // an hour ago
+        updateInodeAppCache();
     }
 
     bool listenTo(const std::string &ifaceName)
@@ -145,7 +162,7 @@ public:
             destroy();
         }
         reportStatistics();
-
+        return bSuccess;
     }
 
     bool listenTo(IPADDRESS_TYPE teloIP)
@@ -174,6 +191,7 @@ public:
             destroy();
         }
         reportStatistics();
+        return bSuccess;
     }
 
 
@@ -215,10 +233,12 @@ protected:
         FILE *pFile = fopen("top_talkers.txt", "w");
         if (pFile)
         {
+            // header
             if (servicesStat_.size() > N_MAX_REPORTED_TALKERS)
                 fprintf(pFile, "%d top talkers to TELO (of totally %d talkers)\n", N_MAX_REPORTED_TALKERS, servicesStat_.size());
             else
                 fprintf(pFile, "Top talkers to TELO\n");
+            fprintf(pFile, "Rank\tPACKETS\tOCTETS\tIP\tPROTO\tPORT\tURL\tSERVICE\tAPPLICATION\n");
 
             topTalkers_.clear();
             topTalkers_.reserve(servicesStat_.size());
@@ -233,7 +253,6 @@ protected:
             int nReported = 0;
             for (std::vector<Talker>::iterator talkerIt = topTalkers_.begin(); talkerIt != topTalkers_.end(); ++talkerIt)
             {
-                //printf("%d reported\n", nReported);
                 if (nReported >= N_MAX_REPORTED_TALKERS)
                     break;
 
@@ -247,22 +266,26 @@ protected:
                 if (proto == IPPROTO_UDP)
                     pszProtoName = "UDP";
                 else if (proto == IPPROTO_TCP)
-                        pszProtoName = "TCP";
+                    pszProtoName = "TCP";
                 else if (proto == IPPROTO_ICMP)
-                        pszProtoName = "ICMP";
+                    pszProtoName = "ICMP";
+                else if (proto == IPPROTO_IGMP)
+                    pszProtoName = "IGMP";
 
                 std::string strHostAddress = addressToDotNotation(IP);
-                //printf("%s ", strHostAddress.c_str());
-                std::string strHostName = pStat->hostName(IP);
-                //printf("%s\n", strHostName.c_str());
+                std::string URL = pStat->hostName(IP);
+                std::string service;
+                if ((proto == IPPROTO_UDP) || (proto == IPPROTO_TCP))
+                    service = pStat->serviceName(IP, portNo, (proto == IPPROTO_UDP));
 
                 ++nReported;
-                fprintf(pFile, "%d.\t%s\t%d\t%s\t%8lld packets, %10lld octets\t%s\n",
+                fprintf(pFile, "%d\t%lld\t%lld\t%s\t%s\t%d\t%s\t%s\n",
                         nReported,
-                        pszProtoName, portNo,
-                        strHostAddress.c_str(),
                         pStat->getPackets(), pStat->getOctets(),
-                        strHostName.c_str()
+                        strHostAddress.c_str(),
+                        pszProtoName, portNo,
+                        URL.c_str(),
+                        service.c_str()
                         );
             }
             fclose(pFile);
@@ -285,9 +308,10 @@ protected:
     {
         if (!bPacketOfInterest_)
             return;
-        printf("ICMP\tlen = %5d (from %s\t to %s)\n", pIpHeader->getPacketLen(),
-                addressToDotNotation(pIpHeader->sourceIP).c_str(),
-                addressToDotNotation(pIpHeader->destIP).c_str());
+        printf("ICMP packet: %s -> %s\tlength = %d\n",
+               addressToDotNotation(pIpHeader->sourceIP).c_str(),
+               addressToDotNotation(pIpHeader->destIP).c_str(),
+               pIpHeader->getPacketLen());
         IcmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printIcmpHeader(pIcmpHeader);
         IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
@@ -300,18 +324,21 @@ protected:
     {
         if (!bPacketOfInterest_)
             return;
-        printf("IGMP\tlen = %5d (from %s\t to %s)\n", pIpHeader->getPacketLen(),
+        printf("IGMP packet: %s -> %s\tlength = %d\n",
                addressToDotNotation(pIpHeader->sourceIP).c_str(),
-               addressToDotNotation(pIpHeader->destIP).c_str());
+               addressToDotNotation(pIpHeader->destIP).c_str(),
+               pIpHeader->getPacketLen());
         IgmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
     }
     virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
     {
         if (!bPacketOfInterest_)
             return;
-        printf("TCP:%5d/%5d len = %5d (from %s\t to %s)\n", pTcpHeader->getSrcPortNo(), pTcpHeader->getDstPortNo(), pIpHeader->getPacketLen(),
-               addressToDotNotation(pIpHeader->sourceIP).c_str(),
-               addressToDotNotation(pIpHeader->destIP).c_str());
+        printf("TCP packet: %s:%d -> %s:%d\tlength = %d \n",
+               addressToDotNotation(pIpHeader->sourceIP).c_str(), pTcpHeader->getSrcPortNo(),
+               addressToDotNotation(pIpHeader->destIP).c_str(), pTcpHeader->getDstPortNo(),
+               pIpHeader->getPacketLen());
+        printTcpHeader(pTcpHeader);
         TcpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printTcpHeader(pTcpHeader);
         IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
@@ -327,9 +354,10 @@ protected:
     {
         if (!bPacketOfInterest_)
             return;
-        printf("UDP:%5d/%5d len = %5d (from %s\t to %s)\n", pUdpHeader->getSrcPortNo(), pUdpHeader->getDstPortNo(), pIpHeader->getPacketLen(),
-               addressToDotNotation(pIpHeader->sourceIP).c_str(),
-               addressToDotNotation(pIpHeader->destIP).c_str());
+        printf("UDP packet: %s:%d -> %s:%d\tlength = %d \n",
+               addressToDotNotation(pIpHeader->sourceIP).c_str(), pUdpHeader->getSrcPortNo(),
+               addressToDotNotation(pIpHeader->destIP).c_str(), pUdpHeader->getDstPortNo(),
+               pIpHeader->getPacketLen());
         UdpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
         //printUdpHeader(pUdpHeader);
 
@@ -351,11 +379,75 @@ protected:
                addressToDotNotation(pIpHeader->destIP).c_str());
     }
 
+    INODE getInode(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader)
+    {
+        const char *TCP_FILE_NAME = "/proc/net/tcp";
+        const char *UDP_FILE_NAME = "/proc/net/udp";
+
+        INODE iNode = 0; // not found yet
+
+        const char *pszFileName = NULL;
+        if (pIpHeader->proto == IPPROTO_TCP)
+            pszFileName = TCP_FILE_NAME;
+        else if (pIpHeader->proto == IPPROTO_UDP)
+            pszFileName = UDP_FILE_NAME;
+
+        if (pszFileName)
+        {
+            FILE *pFile = fopen(pszFileName, "r");
+            if (pFile)
+            {
+                char buffer[8192];
+                int no;
+                IPADDRESS_TYPE localIP, remoteIP;
+                IPPORT localPort, remotePort;
+                unsigned long rxq, txq, time_len, retr;
+                int state, uid, timer_run, timeout;
+                while (fgets(buffer, sizeof(buffer), pFile))
+                {
+                    iNode = 0;
+                    if (sscanf(buffer, "%d: %X:%X %X:%X %X %lX:%lX %X:%lX %lX %d %d %lu %*s\n", &no, &localIP, &localPort, &remoteIP, &remotePort, &state,
+                               &txq, &rxq, &timer_run, &time_len, &retr, &uid, &timeout, &iNode) >= 12)
+                    {
+                        if (remoteIP == serviceIP && remotePort == servicePort)
+                        {
+                            //printf("\tlocal %s:%d remote %s:%d, inode = %d\n", addressToDotNotation(localIP).c_str(), localPort,  addressToDotNotation(remoteIP).c_str(), remotePort, iNode);
+                            break;
+                        }
+                    }
+                }
+                fclose(pFile);
+            }
+            else
+                printf("cannot open file %s\n", pszFileName);
+        }
+        return iNode;
+    }
+
     void updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader)
     {
+        INODE iNode = getInode(serviceIP, servicePort, pIpHeader);
+        if (iNode > 0)
+        {
+            auto appIt = inodeToAppCache_.find(iNode);
+            if (inodeToAppCache_.end() == appIt)
+            {
+                this->updateInodeAppCache();
+                appIt = inodeToAppCache_.find(iNode);
+            }
+            if (inodeToAppCache_.end() != appIt)
+            {
+                printf("inode %d application %s\n", iNode, appIt->second.c_str());
+            }
+        }
+        else
+        {
+            printf("inode not found\n");
+        }
+
         ServiceType service(serviceIP, servicePort, pIpHeader->proto);
-        auto it = servicesStat_.find(service);
-        if (servicesStat_.end() == it)
+        auto serviceIt = servicesStat_.find(service);
+        if (servicesStat_.end() == serviceIt)
         { // not found, create new entry
             ServiceStat stat;
             stat.update(pIpHeader->getPacketLen());
@@ -363,9 +455,155 @@ protected:
         }
         else
         { // update statistics of the service
-            ServiceStat &stat = it->second;
+            ServiceStat &stat = serviceIt->second;
             stat.update(pIpHeader->getPacketLen());
         }
+    }
+
+#define PRG_INODE	 "inode"
+#define PRG_SOCKET_PFX    "socket:["
+#define PRG_SOCKET_PFXl (strlen(PRG_SOCKET_PFX))
+#define PRG_SOCKET_PFX2   "[0000]:"
+#define PRG_SOCKET_PFX2l  (strlen(PRG_SOCKET_PFX2))
+    static int extract_type_1_socket_inode(const char lname[], INODE * inode_p)
+    {
+        /* If lname is of the form "socket:[12345]", extract the "12345"
+           as *inode_p.  Otherwise, return -1 as *inode_p.
+           */
+
+        if (strlen(lname) < PRG_SOCKET_PFXl+3)
+            return(-1);
+
+        if (memcmp(lname, PRG_SOCKET_PFX, PRG_SOCKET_PFXl))
+            return(-1);
+        if (lname[strlen(lname)-1] != ']')
+            return(-1);
+
+        char inode_str[strlen(lname + 1)];  /* e.g. "12345" */
+        const int inode_str_len = strlen(lname) - PRG_SOCKET_PFXl - 1;
+        char *serr;
+
+        strncpy(inode_str, lname+PRG_SOCKET_PFXl, inode_str_len);
+        inode_str[inode_str_len] = '\0';
+        *inode_p = strtoul(inode_str, &serr, 0);
+        if (!serr || *serr || *inode_p == ~0)
+            return(-1);
+
+        return(0);
+    }
+
+    static int extract_type_2_socket_inode(const char lname[], INODE *inode_p)
+    {
+        /* If lname is of the form "[0000]:12345", extract the "12345"
+           as *inode_p.  Otherwise, return -1 as *inode_p.
+           */
+
+        if (strlen(lname) < PRG_SOCKET_PFX2l+1)
+            return(-1);
+        if (memcmp(lname, PRG_SOCKET_PFX2, PRG_SOCKET_PFX2l))
+            return(-1);
+
+        char *serr;
+        *inode_p = strtoul(lname + PRG_SOCKET_PFX2l, &serr, 0);
+        if (!serr || *serr || *inode_p == ~0)
+                return(-1);
+
+        return(0);
+    }
+
+#define PATH_PROC           "/proc"
+#define PATH_FD_SUFF        "fd"
+#define PATH_FD_SUFFl       strlen(PATH_FD_SUFF)
+#define PATH_PROC_X_FD      PATH_PROC "/%s/" PATH_FD_SUFF
+#define PATH_CMDLINE        "cmdline"
+#define PATH_CMDLINEl       strlen(PATH_CMDLINE)
+    void updateInodeAppCache()
+    {
+        //inodeToAppCache_.clear();
+
+        char line[4096], eacces=0;
+        int procfdlen, fd, cmdllen, lnamelen;
+        char lname[30], cmdlbuf[512];
+        INODE inode;
+        const char *cs, *cmdlp;
+        DIR *dirproc = NULL, *dirfd = NULL;
+        struct dirent *direproc, *direfd;
+
+        cmdlbuf[sizeof(cmdlbuf) - 1] = '\0';
+        if (!(dirproc=opendir(PATH_PROC)))
+            return;
+        while (errno = 0, direproc = readdir(dirproc))
+        {
+            for (cs = direproc->d_name; *cs; cs++)
+                if (!isdigit(*cs))
+                break;
+            if (*cs)
+                continue;
+            procfdlen = snprintf(line, sizeof(line),PATH_PROC_X_FD,direproc->d_name);
+            if (procfdlen <= 0 || procfdlen >= sizeof(line) - 5)
+                continue;
+            errno = 0;
+            dirfd = opendir(line);
+            if (!dirfd)
+            {
+                if (errno == EACCES)
+                    eacces = 1;
+                continue;
+            }
+            line[procfdlen] = '/';
+            cmdlp = NULL;
+            while ((direfd = readdir(dirfd)))
+            {
+                /* Skip . and .. */
+                if (!isdigit(direfd->d_name[0]))
+                    continue;
+                if (procfdlen + 1 + strlen(direfd->d_name) + 1 > sizeof(line))
+                    continue;
+                memcpy(line + procfdlen - PATH_FD_SUFFl, PATH_FD_SUFF "/", PATH_FD_SUFFl + 1);
+                strncpy(line + procfdlen + 1, direfd->d_name, sizeof(line) - procfdlen - 1);
+                lnamelen = readlink(line, lname, sizeof(lname) - 1);
+                if (lnamelen == -1)
+                    continue;
+
+                lname[lnamelen] = '\0';  // make it a null-terminated string
+
+                if (extract_type_1_socket_inode(lname, &inode) < 0)
+                    if (extract_type_2_socket_inode(lname, &inode) < 0)
+                        continue;
+
+                if (!cmdlp)
+                {
+                    if (procfdlen - PATH_FD_SUFFl + PATH_CMDLINEl >= sizeof(line) - 5)
+                        continue;
+                    strncpy(line + procfdlen - PATH_FD_SUFFl, PATH_CMDLINE, sizeof(line) - procfdlen + PATH_FD_SUFFl);
+                    fd = open(line, O_RDONLY);
+                    if (fd < 0)
+                        continue;
+                    cmdllen = read(fd, cmdlbuf, sizeof(cmdlbuf) - 1);
+                    if (close(fd))
+                        continue;
+                    if (cmdllen == -1)
+                        continue;
+                    if (cmdllen < sizeof(cmdlbuf) - 1)
+                        cmdlbuf[cmdllen]='\0';
+                    if (cmdlbuf[0] == '/' && (cmdlp = strrchr(cmdlbuf, '/')))
+                        cmdlp++;
+                    else
+                        cmdlp = cmdlbuf;
+                }
+
+                //ProcessID pid = 0;
+                std::string name(cmdlp);
+                //Application app(pid, name);
+                inodeToAppCache_[inode] = name;
+            }
+            closedir(dirfd);
+            dirfd = NULL;
+        }
+        if (dirproc)
+            closedir(dirproc);
+        if (dirfd)
+            closedir(dirfd);
     }
 
 // Protected members
@@ -379,6 +617,8 @@ protected:
 
     std::map<ServiceType, ServiceStat> servicesStat_;
     std::vector<Talker> topTalkers_;
+
+    InodeToAppCache inodeToAppCache_;
 
     unsigned int lastStatTime_;
     bool bPacketOfInterest_;

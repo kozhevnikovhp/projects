@@ -18,6 +18,7 @@ IPADDRESS_TYPE dotNotationToAddress(const char *pszStr);
 
 std::string addressToDotNotation(IPADDRESS_TYPE IP);
 std::string addressToHostName(IPADDRESS_TYPE IP);
+std::string getServiceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUDP);
 std::string getFullName(IPADDRESS_TYPE IP);
 
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask);

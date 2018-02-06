@@ -23,9 +23,9 @@ SnifferSocket::SnifferSocket()
 #ifdef SOCKETS_BSD
     m_Socket = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 #endif
-    printf("Socket = %d\n", m_Socket);
+    //printf("Socket = %d\n", m_Socket);
     if (m_Socket == INVALID_SOCKET)
-        perror("socket");
+        perror("Sniffer socket creation");
 }
 
 //virtual
