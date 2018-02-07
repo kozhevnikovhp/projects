@@ -18,12 +18,12 @@ public:
 
     std::string &serviceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUDP);
 
-    long long getPackets() const { return nPackets_; }
-    long long getOctets() const { return nOctets_; }
+    int getPackets() const { return nPackets_; }
+    int getOctets() const { return nOctets_; }
 
 protected:
-    long long nPackets_;
-    long long nOctets_;
+    int nPackets_;
+    int nOctets_;
     bool bTriedToResolveHostName_; // try only once, can be time consuming
     bool bTriedToResolveServiceName_; // try only once, can be time consuming
     std::string hostName_;
@@ -40,10 +40,10 @@ public:
     void update(unsigned int nPacketSize, bool bInput);
 
 protected:
-    long long nInputPackets_;
-    long long nOutputPackets_;
-    long long nInputOctets_;
-    long long nOutputOctets_;
+    int nInputPackets_;
+    int nOutputPackets_;
+    int nInputOctets_;
+    int nOutputOctets_;
 };
 
 typedef unsigned long INODE;

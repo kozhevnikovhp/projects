@@ -72,10 +72,10 @@ void ProtocolStat::report(const char *pszFileName, ProtocolStat &prev, unsigned 
 
         strftime(strTime, sizeof(strTime), "%d.%m.%Y %H:%M:%S", pTimeInfo);
         // Absolute numbers
-        fprintf(pFile, "%s\t\t%lld\t%lld\t%lld\t%lld", strTime, nInputPackets_, nInputOctets_, nOutputPackets_, nOutputOctets_);
-        //fprintf(stdout, "%s\t\t%lld\t%lld\t%lld\t%lld", strTime, nInputPackets_, nInputOctets_, nOutputPackets_, nOutputOctets_);
+        fprintf(pFile, "%s\t\t%d\t%d\t%d\t%d", strTime, nInputPackets_, nInputOctets_, nOutputPackets_, nOutputOctets_);
+        //fprintf(stdout, "%s\t\t%d\t%d\t%d\t%d", strTime, nInputPackets_, nInputOctets_, nOutputPackets_, nOutputOctets_);
         // Difference with previous one
-        fprintf(pFile, "\t\t%lld\t%lld\t%lld\t%lld", nInputPackets_-prev.nInputPackets_, nInputOctets_-prev.nInputOctets_, nOutputPackets_-prev.nOutputPackets_, nOutputOctets_-prev.nOutputOctets_);
+        fprintf(pFile, "\t\t%d\t%d\t%d\t%d", nInputPackets_-prev.nInputPackets_, nInputOctets_-prev.nInputOctets_, nOutputPackets_-prev.nOutputPackets_, nOutputOctets_-prev.nOutputOctets_);
         // Speed (/sec)
         fprintf(pFile, "\t\t%.2f\t%.2f\t%.2f\t%.2f", (nInputPackets_-prev.nInputPackets_)/double(deltaTime), (nInputOctets_-prev.nInputOctets_)/double(deltaTime), (nOutputPackets_-prev.nOutputPackets_)/double(deltaTime), (nOutputOctets_-prev.nOutputOctets_)/double(deltaTime));
 
@@ -296,8 +296,8 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                     iRankW          = std::max(iRankW, sprintf(szTmp, "%d", nReported));
                     iApplicationW   = std::max(iApplicationW, sprintf(szTmp, "%s", appName.c_str()));
                     iServiceW       = std::max(iServiceW, sprintf(szTmp, "%s", service.c_str()));
-                    iPacketsW       = std::max(iPacketsW, sprintf(szTmp, "%lld", pStat->getPackets()));
-                    iBytesW         = std::max(iBytesW, sprintf(szTmp, "%lld", pStat->getPackets()));
+                    iPacketsW       = std::max(iPacketsW, sprintf(szTmp, "%d", pStat->getPackets()));
+                    iBytesW         = std::max(iBytesW, sprintf(szTmp, "%d", pStat->getOctets()));
                     iIpAddressW     = std::max(iIpAddressW, sprintf(szTmp, "%s", hostAddress.c_str()));
                     iProtoW         = std::max(iProtoW, sprintf(szTmp, "%s", pszProtoName));
                     iPortW          = std::max(iPortW, sprintf(szTmp, "%d", portNo));
@@ -308,8 +308,8 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                     nSpaces = iRankW - fprintf(pFile, "%d", nReported);                 putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iApplicationW - fprintf(pFile, "%s", appName.c_str());    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iServiceW - fprintf(pFile, "%s", service.c_str());        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iPacketsW - fprintf(pFile, "%lld", pStat->getPackets());  putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iBytesW - fprintf(pFile, "%lld", pStat->getPackets());    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iPacketsW - fprintf(pFile, "%d", pStat->getPackets());  putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iBytesW - fprintf(pFile, "%d", pStat->getOctets());    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iIpAddressW - fprintf(pFile, "%s", hostAddress.c_str());  putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iProtoW - fprintf(pFile, "%s", pszProtoName);             putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iPortW - fprintf(pFile, "%d", portNo);                    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
@@ -435,7 +435,9 @@ INODE TrafficCounter::getInode(IPADDRESS_TYPE serviceIP, IPPORT servicePort, con
     Service service(serviceIP, servicePort);
     auto inodeIt = serviceToInodeCache_.find(service);
     if (serviceToInodeCache_.end() != inodeIt)
+    {
         resultINode = inodeIt->second;
+    }
     else
     {
         const char *pszFileName = NULL;
@@ -503,7 +505,7 @@ void TrafficCounter::updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePo
     }
     else
     {
-        printf("inode not found\n");
+        //printf("inode not found\n");
     }
 
     ServiceApp serviceApp(serviceIP, servicePort, pIpHeader->proto, appName);
@@ -526,7 +528,7 @@ void TrafficCounter::updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePo
 #define PRG_SOCKET_PFXl (strlen(PRG_SOCKET_PFX))
 #define PRG_SOCKET_PFX2   "[0000]:"
 #define PRG_SOCKET_PFX2l  (strlen(PRG_SOCKET_PFX2))
-static int extract_type_1_socket_inode(const char lname[], INODE inode)
+static int extract_type_1_socket_inode(const char lname[], INODE *pInode)
 {
     /* If lname is of the form "socket:[12345]", extract the "12345"
        as inode.  Otherwise, return -1 as inode.
@@ -546,14 +548,14 @@ static int extract_type_1_socket_inode(const char lname[], INODE inode)
 
     strncpy(inode_str, lname+PRG_SOCKET_PFXl, inode_str_len);
     inode_str[inode_str_len] = '\0';
-    inode = strtoul(inode_str, &serr, 0);
-    if (!serr || *serr || inode == (INODE)(~0))
+    *pInode = strtoul(inode_str, &serr, 0);
+    if (!serr || *serr || *pInode == (INODE)(~0))
         return(-1);
 
     return(0);
 }
 
-static int extract_type_2_socket_inode(const char lname[], INODE &inode)
+static int extract_type_2_socket_inode(const char lname[], INODE *pInode)
 {
     /* If lname is of the form "[0000]:12345", extract the "12345"
        as inode.  Otherwise, return -1 as inode.
@@ -565,8 +567,8 @@ static int extract_type_2_socket_inode(const char lname[], INODE &inode)
         return(-1);
 
     char *serr;
-    inode = strtoul(lname + PRG_SOCKET_PFX2l, &serr, 0);
-    if (!serr || *serr || inode == (INODE)(~0))
+    *pInode = strtoul(lname + PRG_SOCKET_PFX2l, &serr, 0);
+    if (!serr || *serr || *pInode == (INODE)(~0))
             return(-1);
 
     return(0);
@@ -624,8 +626,8 @@ void TrafficCounter::updateInodeAppCache()
 
             lname[lnamelen] = '\0';  // make it a null-terminated string
 
-            if (extract_type_1_socket_inode(lname, inode) < 0)
-                if (extract_type_2_socket_inode(lname, inode) < 0)
+            if (extract_type_1_socket_inode(lname, &inode) < 0)
+                if (extract_type_2_socket_inode(lname, &inode) < 0)
                     continue;
 
             if (!cmdlp)
@@ -651,7 +653,7 @@ void TrafficCounter::updateInodeAppCache()
 
             std::string name(cmdlp);
             inodeToAppCache_[inode] = name;
-        }
+       }
         closedir(dirfd);
         dirfd = NULL;
     }
