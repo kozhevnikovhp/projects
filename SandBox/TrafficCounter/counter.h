@@ -19,11 +19,11 @@ public:
     std::string &serviceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUDP);
 
     int getPackets() const { return nPackets_; }
-    int getOctets() const { return nOctets_; }
+    int getBytes() const { return nBytes_; }
 
 protected:
     int nPackets_;
-    int nOctets_;
+    int nBytes_;
     bool bTriedToResolveHostName_; // try only once, can be time consuming
     bool bTriedToResolveServiceName_; // try only once, can be time consuming
     std::string hostName_;
@@ -39,11 +39,14 @@ public:
 
     void update(unsigned int nPacketSize, bool bInput);
 
+    int getInputBytes() const { return nInputBytes_; }
+    int getOutputBytes() const { return nOutputBytes_; }
+
 protected:
     int nInputPackets_;
     int nOutputPackets_;
-    int nInputOctets_;
-    int nOutputOctets_;
+    int nInputBytes_;
+    int nOutputBytes_;
 };
 
 typedef unsigned long INODE;
@@ -99,6 +102,7 @@ protected:
     ServiceToInodeCache serviceToInodeCache_;
 
     unsigned int lastStatTime_;
+    unsigned int startTime_;
     bool bPacketOfInterest_;
     bool bInputPacket_;
 };

@@ -9,14 +9,14 @@
 // ServiceStat
 
 ServiceStat::ServiceStat()
-    : nPackets_(0), nOctets_(0), bTriedToResolveHostName_(false), bTriedToResolveServiceName_(false)
+    : nPackets_(0), nBytes_(0), bTriedToResolveHostName_(false), bTriedToResolveServiceName_(false)
 {
 }
 
 void ServiceStat::update(int nPacketSize)
 {
     ++nPackets_;
-    nOctets_ += nPacketSize;
+    nBytes_ += nPacketSize;
 }
 
 std::string &ServiceStat::hostName(IPADDRESS_TYPE IP)
@@ -44,7 +44,7 @@ std::string &ServiceStat::serviceName(IPADDRESS_TYPE IP, IPPORT portNo, bool bUD
 // ProtocolStat
 
 ProtocolStat::ProtocolStat()
-    : nInputPackets_(0), nOutputPackets_(0), nInputOctets_(0), nOutputOctets_()
+    : nInputPackets_(0), nOutputPackets_(0), nInputBytes_(0), nOutputBytes_(0)
 {
 }
 
@@ -72,12 +72,18 @@ void ProtocolStat::report(const char *pszFileName, ProtocolStat &prev, unsigned 
 
         strftime(strTime, sizeof(strTime), "%d.%m.%Y %H:%M:%S", pTimeInfo);
         // Absolute numbers
-        fprintf(pFile, "%s\t\t%d\t%d\t%d\t%d", strTime, nInputPackets_, nInputOctets_, nOutputPackets_, nOutputOctets_);
-        //fprintf(stdout, "%s\t\t%d\t%d\t%d\t%d", strTime, nInputPackets_, nInputOctets_, nOutputPackets_, nOutputOctets_);
+        fprintf(pFile, "%s\t\t%d\t%d\t%d\t%d", strTime, nInputPackets_, nInputBytes_, nOutputPackets_, nOutputBytes_);
+        //fprintf(stdout, "%s\t\t%d\t%d\t%d\t%d", strTime, nInputPackets_, nInputBytes_, nOutputPackets_, nOutputBytes_);
         // Difference with previous one
-        fprintf(pFile, "\t\t%d\t%d\t%d\t%d", nInputPackets_-prev.nInputPackets_, nInputOctets_-prev.nInputOctets_, nOutputPackets_-prev.nOutputPackets_, nOutputOctets_-prev.nOutputOctets_);
+        fprintf(pFile, "\t\t%d\t%d\t%d\t%d",
+                nInputPackets_-prev.nInputPackets_, nInputBytes_-prev.nInputBytes_,
+                nOutputPackets_-prev.nOutputPackets_, nOutputBytes_-prev.nOutputBytes_);
         // Speed (/sec)
-        fprintf(pFile, "\t\t%.2f\t%.2f\t%.2f\t%.2f", (nInputPackets_-prev.nInputPackets_)/double(deltaTime), (nInputOctets_-prev.nInputOctets_)/double(deltaTime), (nOutputPackets_-prev.nOutputPackets_)/double(deltaTime), (nOutputOctets_-prev.nOutputOctets_)/double(deltaTime));
+        fprintf(pFile, "\t\t%.2f\t%.2f\t%.2f\t%.2f",
+                (nInputPackets_-prev.nInputPackets_)/double(deltaTime),
+                (nInputBytes_-prev.nInputBytes_)/double(deltaTime),
+                (nOutputPackets_-prev.nOutputPackets_)/double(deltaTime),
+                (nOutputBytes_-prev.nOutputBytes_)/double(deltaTime));
 
         fprintf(pFile, "\n");
         //fprintf(stdout, "\n");
@@ -90,12 +96,12 @@ void ProtocolStat::update(unsigned int nPacketSize, bool bInput)
     if (bInput)
     {
         ++nInputPackets_;
-        nInputOctets_ += nPacketSize;
+        nInputBytes_ += nPacketSize;
     }
     else
     {
         ++nOutputPackets_;
-        nOutputOctets_ += nPacketSize;
+        nOutputBytes_ += nPacketSize;
     }
 }
 
@@ -108,7 +114,8 @@ TrafficCounter::TrafficCounter()
     bInputPacket_ = false;
     teloIP_ = 0;
     subnetMask_ = 0;
-    lastStatTime_ = portableGetCurrentTimeSec() - 60*60; // an hour ago
+    startTime_ = portableGetCurrentTimeSec();
+    lastStatTime_ = startTime_ - 60*60; // an hour ago
     updateInodeAppCache();
 }
 
@@ -176,11 +183,6 @@ bool TrafficCounter::isPacketOfInterest(const SIpHeader *pIpHeader) const
     return true;
 }
 
-static bool compareTalkers(const Talker &t1, const Talker &t2)
-{
-    return t1.second->getOctets() > t2.second->getOctets();
-}
-
 static void putSpaces(FILE *pFile, int nSpaces)
 {
     if (!pFile)
@@ -191,21 +193,25 @@ static void putSpaces(FILE *pFile, int nSpaces)
 
 void TrafficCounter::reportStatistics(bool bFirstTime)
 {
-    const char *pszRank = "Rank";                int iRankW = strlen(pszRank);
-    const char *pszApplication = "Application";  int iApplicationW = strlen(pszApplication);
-    const char *pszService = "Service";          int iServiceW = strlen(pszService);
-    const char *pszPackets = "Packets";          int iPacketsW = strlen(pszPackets);
-    const char *pszBytes = "Bytes";              int iBytesW = strlen(pszBytes);
-    const char *pszIpAddress = "IP-address";     int iIpAddressW = strlen(pszIpAddress);
-    const char *pszProto = "Proto";              int iProtoW = strlen(pszProto);
-    const char *pszPort = "Port";                int iPortW = strlen(pszPort);
-    const char *pszUrl = "URL";                  int iUrlW = strlen(pszUrl);
+    const char *pszRank = "Rank";                   int iRankW = strlen(pszRank);
+    const char *pszApplication = "Application";     int iApplicationW = strlen(pszApplication);
+    const char *pszService = "Service";             int iServiceW = strlen(pszService);
+    const char *pszPackets = "Packets";             int iPacketsW = strlen(pszPackets);
+    const char *pszBytes = "Bytes";                 int iBytesW = strlen(pszBytes);
+    const char *pszIpAddress = "IP-address";        int iIpAddressW = strlen(pszIpAddress);
+    const char *pszProto = "Proto";                 int iProtoW = strlen(pszProto);
+    const char *pszPort = "Port";                   int iPortW = strlen(pszPort);
+    const char *pszUrl = "URL";                     int iUrlW = strlen(pszUrl);
+    const char *pszKBytesPerHour = "KB/hour";       int iKBytesPerHourW = strlen(pszKBytesPerHour);
+    const char *pszMBytesPerDay = "MB/day";         int iMBytesPerDayW = strlen(pszMBytesPerDay);
+    const char *pszGBytesPerMonth = "GB/month";     int iGBytesPerMonthW = strlen(pszGBytesPerMonth);
     const int nSpacesBetweenColumns = 2;
 
     unsigned int currentTime = portableGetCurrentTimeSec();
     unsigned int deltaTime = currentTime - lastStatTime_;
     if (deltaTime < 60*1) // every 1 min
         return; // too early to do something
+    double totalTime = currentTime - startTime_;
     IpStatTotal_.report("ip.txt", IpStatLast_, deltaTime, bFirstTime);
     IcmpStatTotal_.report("icmp.txt", IcmpStatLast_, deltaTime, bFirstTime);
     IgmpStatTotal_.report("igmp.txt", IgmpStatLast_, deltaTime, bFirstTime);
@@ -224,11 +230,19 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
     FILE *pFile = fopen("top_talkers.txt", "w");
     if (pFile)
     {
+        if (totalTime != 0)
+        {
+            fprintf(pFile, "Total measurement time = %.0f seconds\n", totalTime);
+            fprintf(pFile, "Averaged inbound traffic: %.3f GB/month\n", IpStatTotal_.getInputBytes()/1.E9*3600.*24.*30./totalTime);
+            fprintf(pFile, "Averaged outbound traffic: %.3f GB/month\n", IpStatTotal_.getOutputBytes()/1.E9*3600.*24.*30./totalTime);
+            fprintf(pFile, "\n");
+        }
+
         // header
         if (servicesStat_.size() > N_MAX_REPORTED_TALKERS)
-            fprintf(pFile, "%d top talkers to TELO (of totally %d talkers)\n", N_MAX_REPORTED_TALKERS, (int)servicesStat_.size());
+            fprintf(pFile, "%d top talkers to TELO (of totally %d talkers):\n", N_MAX_REPORTED_TALKERS, (int)servicesStat_.size());
         else
-            fprintf(pFile, "Top talkers to TELO\n");
+            fprintf(pFile, "Top talkers to TELO:\n");
 
         topTalkers_.clear();
         topTalkers_.reserve(servicesStat_.size());
@@ -239,7 +253,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
             Talker talker(&serviceApp, &stat);
             topTalkers_.emplace_back(talker);
         }
-        std::sort(topTalkers_.begin(), topTalkers_.end(), compareTalkers);
+        std::sort(topTalkers_.begin(), topTalkers_.end(), [](const Talker &t1, const Talker &t2){ return t1.second->getBytes() > t2.second->getBytes(); });
 
         int nSpaces;
         for (int iPass = 1; iPass <= 2; ++iPass)
@@ -247,15 +261,18 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
             // a little bit stupid but..... :-)
             if (iPass == 2)
             {
-                nSpaces = iRankW        - fprintf(pFile, "%s", pszRank);        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iApplicationW - fprintf(pFile, "%s", pszApplication); putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iServiceW     - fprintf(pFile, "%s", pszService);     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iPacketsW     - fprintf(pFile, "%s", pszPackets);     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iBytesW       - fprintf(pFile, "%s", pszBytes);       putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iIpAddressW   - fprintf(pFile, "%s", pszIpAddress);   putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iProtoW       - fprintf(pFile, "%s", pszProto);       putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iPortW        - fprintf(pFile, "%s", pszPort);        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                nSpaces = iUrlW         - fprintf(pFile, "%s", pszUrl);         //putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iRankW            - fprintf(pFile, "%s", pszRank);           putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iApplicationW     - fprintf(pFile, "%s", pszApplication);    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iServiceW         - fprintf(pFile, "%s", pszService);        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iPacketsW         - fprintf(pFile, "%s", pszPackets);        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iBytesW           - fprintf(pFile, "%s", pszBytes);          putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iIpAddressW       - fprintf(pFile, "%s", pszIpAddress);      putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iProtoW           - fprintf(pFile, "%s", pszProto);          putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iPortW            - fprintf(pFile, "%s", pszPort);           putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iUrlW             - fprintf(pFile, "%s", pszUrl);            putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iKBytesPerHourW   - fprintf(pFile, "%s", pszKBytesPerHour);  putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iMBytesPerDayW    - fprintf(pFile, "%s", pszMBytesPerDay);   putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iGBytesPerMonthW  - fprintf(pFile, "%s", pszGBytesPerMonth); //putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                 fprintf(pFile, "\n");
             }
             int nReported = 0;
@@ -293,27 +310,33 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                 if (iPass == 1)
                 {
                     char szTmp[512];
-                    iRankW          = std::max(iRankW, sprintf(szTmp, "%d", nReported));
-                    iApplicationW   = std::max(iApplicationW, sprintf(szTmp, "%s", appName.c_str()));
-                    iServiceW       = std::max(iServiceW, sprintf(szTmp, "%s", service.c_str()));
-                    iPacketsW       = std::max(iPacketsW, sprintf(szTmp, "%d", pStat->getPackets()));
-                    iBytesW         = std::max(iBytesW, sprintf(szTmp, "%d", pStat->getOctets()));
-                    iIpAddressW     = std::max(iIpAddressW, sprintf(szTmp, "%s", hostAddress.c_str()));
-                    iProtoW         = std::max(iProtoW, sprintf(szTmp, "%s", pszProtoName));
-                    iPortW          = std::max(iPortW, sprintf(szTmp, "%d", portNo));
-                    iUrlW           = std::max(iUrlW, sprintf(szTmp, "%s", URL.c_str()));
+                    iRankW            = std::max(iRankW, sprintf(szTmp, "%d.", nReported));
+                    iApplicationW     = std::max(iApplicationW, sprintf(szTmp, "%s", appName.c_str()));
+                    iServiceW         = std::max(iServiceW, sprintf(szTmp, "%s", service.c_str()));
+                    iPacketsW         = std::max(iPacketsW, sprintf(szTmp, "%d", pStat->getPackets()));
+                    iBytesW           = std::max(iBytesW, sprintf(szTmp, "%d", pStat->getBytes()));
+                    iIpAddressW       = std::max(iIpAddressW, sprintf(szTmp, "%s", hostAddress.c_str()));
+                    iProtoW           = std::max(iProtoW, sprintf(szTmp, "%s", pszProtoName));
+                    iPortW            = std::max(iPortW, sprintf(szTmp, "%d", portNo));
+                    iUrlW             = std::max(iUrlW, sprintf(szTmp, "%s", URL.c_str()));
+                    iKBytesPerHourW   = std::max(iKBytesPerHourW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E3*3600./totalTime));
+                    iMBytesPerDayW    = std::max(iMBytesPerDayW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E6*3600.*24./totalTime));
+                    iGBytesPerMonthW  = std::max(iMBytesPerDayW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E9*3600.*24.*30./totalTime));
                 }
                 else
                 {
-                    nSpaces = iRankW - fprintf(pFile, "%d", nReported);                 putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iApplicationW - fprintf(pFile, "%s", appName.c_str());    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iServiceW - fprintf(pFile, "%s", service.c_str());        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iPacketsW - fprintf(pFile, "%d", pStat->getPackets());  putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iBytesW - fprintf(pFile, "%d", pStat->getOctets());    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iIpAddressW - fprintf(pFile, "%s", hostAddress.c_str());  putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iProtoW - fprintf(pFile, "%s", pszProtoName);             putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iPortW - fprintf(pFile, "%d", portNo);                    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
-                    nSpaces = iUrlW - fprintf(pFile, "%s", URL.c_str());                //putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iRankW - fprintf(pFile, "%d.", nReported);                                                 putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iApplicationW - fprintf(pFile, "%s", appName.c_str());                                     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iServiceW - fprintf(pFile, "%s", service.c_str());                                         putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iPacketsW - fprintf(pFile, "%d", pStat->getPackets());                                     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iBytesW - fprintf(pFile, "%d", pStat->getBytes());                                         putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iIpAddressW - fprintf(pFile, "%s", hostAddress.c_str());                                   putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iProtoW - fprintf(pFile, "%s", pszProtoName);                                              putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iPortW - fprintf(pFile, "%d", portNo);                                                     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iUrlW - fprintf(pFile, "%s", URL.c_str());                                                 putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iKBytesPerHourW - fprintf(pFile, "%.3f", pStat->getBytes()/1.E3*3600./totalTime);          putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iMBytesPerDayW - fprintf(pFile, "%.3f", pStat->getBytes()/1.E6*3600.*24./totalTime);       putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iGBytesPerMonthW - fprintf(pFile, "%.3f", pStat->getBytes()/1.E9*3600.*24.*30./totalTime); //putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     fprintf(pFile, "\n");
                 }
             }
@@ -598,10 +621,10 @@ void TrafficCounter::updateInodeAppCache()
     {
         for (cs = direproc->d_name; *cs; cs++)
             if (!isdigit(*cs))
-            break;
+                break;
         if (*cs)
             continue;
-        procfdlen = snprintf(line, sizeof(line),PATH_PROC_X_FD,direproc->d_name);
+        procfdlen = snprintf(line, sizeof(line), PATH_PROC_X_FD, direproc->d_name);
         if (procfdlen <= 0 || procfdlen >= (int)sizeof(line) - 5)
             continue;
         errno = 0;
@@ -650,9 +673,7 @@ void TrafficCounter::updateInodeAppCache()
                 else
                     cmdlp = cmdlbuf;
             }
-
-            std::string name(cmdlp);
-            inodeToAppCache_[inode] = name;
+            inodeToAppCache_[inode] = std::string(cmdlp);
        }
         closedir(dirfd);
         dirfd = NULL;
