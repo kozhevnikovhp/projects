@@ -106,13 +106,30 @@ bool SnifferSocket::waitForPacket()
         return false;
     }
 
+
+    SIpHeader *pIpHeader = NULL;
 #if (SOCKETS_WSA)
-    SIpHeader *pIpHeader = (SIpHeader *)bufferForPackets_;
+    IpHeader = (SIpHeader *)bufferForPackets_;
 #elif (SOCKETS_BSD)
     struct ethhdr *pEthernetHeader = (struct ethhdr *)bufferForPackets_;
-    SIpHeader *pIpHeader = (SIpHeader *)(pEthernetHeader+1);
-    nPacketSize -= sizeof(struct ethhdr);
+    //printf("Ethernet proto = 0x%04X\n", pEthernetHeader->h_proto);
+    if (pEthernetHeader->h_proto == htons(ETH_P_IP))
+    {
+        pIpHeader = (SIpHeader *)(pEthernetHeader+1);
+        nPacketSize -= sizeof(struct ethhdr);
+    }
+    else if (pEthernetHeader->h_proto == htons(ETH_P_ARP))
+    {
+        //printf("ARP\n");
+    }
+    else if (pEthernetHeader->h_proto == htons(ETH_P_RARP))
+    {
+        //printf("RARP\n");
+    }
 #endif
+    if (!pIpHeader)
+        return true; // APR, RARP etc, but not IP
+
     unsigned short nIpHdrLen = pIpHeader->getHeaderLen();
     int nPayloadLen = nPacketSize - nIpHdrLen;
     unsigned char *pPayload = (unsigned char *)pIpHeader + nIpHdrLen;

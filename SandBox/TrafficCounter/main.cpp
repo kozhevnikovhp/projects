@@ -53,11 +53,13 @@ int main(int argc, char* argv[])
     if (!bListenSuccess)
         return 1;
 
+    counter.reportStatistics(true);
     while (1)
     {
         if (counter.waitForPacket())
         {
         }
+        counter.reportStatistics(false);
     }
 
 #ifdef SOCKETS_WSA

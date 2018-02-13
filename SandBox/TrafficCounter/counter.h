@@ -65,11 +65,12 @@ public:
 
     bool listenTo(const std::string &ifaceName);
     bool listenTo(IPADDRESS_TYPE teloIP);
+    void reportStatistics(bool bFirstTime);
 
 // Protected methods
 protected:
-    bool isPacketOfInterest(const SIpHeader *pIpHeader) const;
-    void reportStatistics(bool bFirstTime);
+    bool isTeloPacket(const SIpHeader *pIpHeader) const;
+    bool isLanPacket(const SIpHeader *pIpHeader) const;
 
 // Protected overridables
 protected:
@@ -78,12 +79,10 @@ protected:
     virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen);
     virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen);
     virtual void udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen);
-    virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload, int nPayloadLen);
+    virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload, int nPayloadLen);
 
     INODE getInode(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader);
-
     void updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader);
-
     void updateInodeAppCache();
 
 // Protected members
@@ -94,6 +93,7 @@ protected:
     ProtocolStat TcpStatTotal_, TcpStatLast_;
     ProtocolStat IcmpStatTotal_, IcmpStatLast_;
     ProtocolStat IgmpStatTotal_, IgmpStatLast_;
+    ProtocolStat LanStatTotal_, LanStatLast_;
 
     std::map<ServiceApp, ServiceStat> servicesStat_;
     std::vector<Talker> topTalkers_;
@@ -103,8 +103,6 @@ protected:
 
     unsigned int lastStatTime_;
     unsigned int startTime_;
-    bool bPacketOfInterest_;
-    bool bInputPacket_;
 };
 
 #endif // COUNTER_H

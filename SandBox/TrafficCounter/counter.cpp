@@ -111,7 +111,6 @@ void ProtocolStat::update(unsigned int nPacketSize, bool bInput)
 
 TrafficCounter::TrafficCounter()
 {
-    bInputPacket_ = false;
     teloIP_ = 0;
     subnetMask_ = 0;
     startTime_ = portableGetCurrentTimeSec();
@@ -141,7 +140,6 @@ bool TrafficCounter::listenTo(const std::string &ifaceName)
         printf("ERROR: interface %s does not exist\n", ifaceName.c_str());
         destroy();
     }
-    reportStatistics(true);
     return bSuccess;
 }
 
@@ -170,17 +168,17 @@ bool TrafficCounter::listenTo(IPADDRESS_TYPE teloIP)
         printf("ERROR: could not find appropriate interface for listening %s\n", addressToDotNotation(teloIP_).c_str());
         destroy();
     }
-    reportStatistics(true);
     return bSuccess;
 }
 
-bool TrafficCounter::isPacketOfInterest(const SIpHeader *pIpHeader) const
+bool TrafficCounter::isTeloPacket(const SIpHeader *pIpHeader) const
 {
-    if ((pIpHeader->sourceIP != teloIP_) && (pIpHeader->destIP != teloIP_))
-        return false; // Telo traffic only
-    if (isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_))
-        return false; // Skip LAN traffic
-    return true;
+    return (pIpHeader->sourceIP == teloIP_) || (pIpHeader->destIP == teloIP_);
+}
+
+bool TrafficCounter::isLanPacket(const SIpHeader *pIpHeader) const
+{
+    return isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_);
 }
 
 static void putSpaces(FILE *pFile, int nSpaces)
@@ -217,6 +215,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
     IgmpStatTotal_.report("igmp.txt", IgmpStatLast_, deltaTime, bFirstTime);
     TcpStatTotal_.report("tcp.txt", TcpStatLast_, deltaTime, bFirstTime);
     UdpStatTotal_.report("udp.txt", UdpStatLast_, deltaTime, bFirstTime);
+    LanStatTotal_.report("lan.txt", LanStatLast_, deltaTime, bFirstTime);
 
     lastStatTime_ = currentTime;
     memcpy(&IpStatLast_, &IpStatTotal_, sizeof(ProtocolStat));
@@ -224,6 +223,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
     memcpy(&IgmpStatLast_, &IgmpStatTotal_, sizeof(ProtocolStat));
     memcpy(&TcpStatLast_, &TcpStatTotal_, sizeof(ProtocolStat));
     memcpy(&UdpStatLast_, &UdpStatTotal_, sizeof(ProtocolStat));
+    memcpy(&LanStatLast_, &LanStatTotal_, sizeof(ProtocolStat));
 
     // print out top-talkers to us
     const int N_MAX_REPORTED_TALKERS = 20;
@@ -232,17 +232,30 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
     {
         if (totalTime != 0)
         {
-            fprintf(pFile, "Total measurement time = %.0f seconds\n", totalTime);
-            fprintf(pFile, "Averaged inbound traffic: %.3f GB/month\n", IpStatTotal_.getInputBytes()/1.E9*3600.*24.*30./totalTime);
-            fprintf(pFile, "Averaged outbound traffic: %.3f GB/month\n", IpStatTotal_.getOutputBytes()/1.E9*3600.*24.*30./totalTime);
-            fprintf(pFile, "\n");
+            fprintf(pFile, "Total measurement time = %.0f seconds\n\n", totalTime);
+            fprintf(pFile, "Averaged inbound WAN traffic: %.3f KB/hour, %.3f MB/day, %.3f GB/month\n",
+                    IpStatTotal_.getInputBytes()/1.E3*3600./totalTime,
+                    IpStatTotal_.getInputBytes()/1.E6*3600.*24./totalTime,
+                    IpStatTotal_.getInputBytes()/1.E9*3600.*24.*30./totalTime);
+            fprintf(pFile, "Averaged outbound WAN traffic: %.3f KB/hour, %.3f MB/day, %.3f GB/month\n\n",
+                    IpStatTotal_.getOutputBytes()/1.E3*3600./totalTime,
+                    IpStatTotal_.getOutputBytes()/1.E6*3600.*24./totalTime,
+                    IpStatTotal_.getOutputBytes()/1.E9*3600.*24.*30./totalTime);
+            fprintf(pFile, "Averaged inbound LAN traffic: %.3f KB/hour, %.3f MB/day, %.3f GB/month\n",
+                    LanStatTotal_.getInputBytes()/1.E3*3600./totalTime,
+                    LanStatTotal_.getInputBytes()/1.E6*3600.*24./totalTime,
+                    LanStatTotal_.getInputBytes()/1.E9*3600.*24.*30./totalTime);
+            fprintf(pFile, "Averaged outbound LAN traffic: %.3f KB/hour, %.3f MB/day, %.3f GB/month\n\n",
+                    LanStatTotal_.getOutputBytes()/1.E3*3600./totalTime,
+                    LanStatTotal_.getOutputBytes()/1.E6*3600.*24./totalTime,
+                    LanStatTotal_.getOutputBytes()/1.E9*3600.*24.*30./totalTime);
         }
 
         // header
         if (servicesStat_.size() > N_MAX_REPORTED_TALKERS)
-            fprintf(pFile, "%d top talkers to TELO (of totally %d talkers):\n", N_MAX_REPORTED_TALKERS, (int)servicesStat_.size());
+            fprintf(pFile, "%d top WAN-talkers to TELO (of totally %d talkers):\n", N_MAX_REPORTED_TALKERS, (int)servicesStat_.size());
         else
-            fprintf(pFile, "Top talkers to TELO:\n");
+            fprintf(pFile, "Top WAN-talkers to TELO:\n");
 
         topTalkers_.clear();
         topTalkers_.reserve(servicesStat_.size());
@@ -321,7 +334,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                     iUrlW             = std::max(iUrlW, sprintf(szTmp, "%s", URL.c_str()));
                     iKBytesPerHourW   = std::max(iKBytesPerHourW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E3*3600./totalTime));
                     iMBytesPerDayW    = std::max(iMBytesPerDayW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E6*3600.*24./totalTime));
-                    iGBytesPerMonthW  = std::max(iMBytesPerDayW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E9*3600.*24.*30./totalTime));
+                    iGBytesPerMonthW  = std::max(iGBytesPerMonthW, sprintf(szTmp, "%.3f", pStat->getBytes()/1.E9*3600.*24.*30./totalTime));
                 }
                 else
                 {
@@ -348,49 +361,55 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
 //virtual
 void TrafficCounter::ipPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload,  int nPayloadLen)
 {
-    reportStatistics(false);
-    bPacketOfInterest_ = isPacketOfInterest(pIpHeader);
-    if (!bPacketOfInterest_)
+    if (!isTeloPacket(pIpHeader))
         return;
-    bInputPacket_ = (pIpHeader->destIP == teloIP_);
-    IpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
+    if (isLanPacket(pIpHeader))
+        LanStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+    else
+        IpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printIpHeader(pIpHeader);
 }
 
 //virtual
 void TrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!bPacketOfInterest_)
+    if (!isTeloPacket(pIpHeader))
+        return;
+    if (isLanPacket(pIpHeader))
         return;
     /*printf("ICMP packet: %s -> %s\tlength = %d\n",
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
             pIpHeader->getPacketLen());*/
-    IcmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
+    IcmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printIcmpHeader(pIcmpHeader);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
-    IPPORT servicePort = 0;
-    if (bInputPacket_)
+    if (pIpHeader->destIP == teloIP_)
         serviceIP = pIpHeader->sourceIP;
-     this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
+    IPPORT servicePort = 0;
+    this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
 }
 
 //virtual
 void TrafficCounter::igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!bPacketOfInterest_)
+    if (!isTeloPacket(pIpHeader))
+        return;
+    if (isLanPacket(pIpHeader))
         return;
     /*printf("IGMP packet: %s -> %s\tlength = %d\n",
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
             pIpHeader->getPacketLen());*/
-    IgmpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
+    IgmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
 }
 
 //virtual
 void TrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!bPacketOfInterest_)
+    if (!isTeloPacket(pIpHeader))
+        return;
+    if (isLanPacket(pIpHeader))
         return;
     /*printf("TCP packet: %s:%d -> %s:%d\tlength = %d \n",
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pTcpHeader->getSrcPortNo(),
@@ -405,10 +424,10 @@ void TrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *p
         portableSwitchContext(); // let system refresh its files
         portableSwitchContext(); // let system refresh its files
     }
-    TcpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
+    TcpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
     IPPORT servicePort = pTcpHeader->getDstPortNo();
-    if (bInputPacket_)
+    if (pIpHeader->destIP == teloIP_)
     {
         serviceIP = pIpHeader->sourceIP;
         servicePort = pTcpHeader->getSrcPortNo();
@@ -419,18 +438,20 @@ void TrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *p
 //virtual
 void TrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!bPacketOfInterest_)
+    if (!isTeloPacket(pIpHeader))
+        return;
+    if (isLanPacket(pIpHeader))
         return;
     /*printf("UDP packet: %s:%d -> %s:%d\tlength = %d \n",
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pUdpHeader->getSrcPortNo(),
             addressToDotNotation(pIpHeader->destIP).c_str(), pUdpHeader->getDstPortNo(),
             pIpHeader->getPacketLen());*/
-    UdpStatTotal_.update(pIpHeader->getPacketLen(), bInputPacket_);
+    UdpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printUdpHeader(pUdpHeader);
 
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
     IPPORT servicePort = pUdpHeader->getDstPortNo();
-    if (bInputPacket_)
+    if (pIpHeader->destIP == teloIP_)
     {
         serviceIP = pIpHeader->sourceIP;
         servicePort = pUdpHeader->getSrcPortNo();
@@ -439,9 +460,11 @@ void TrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *p
 }
 
 //virtual
-void TrafficCounter::unknownProtoPacketCaptured(const SIpHeader *pIpHeader, int nPacketLen, const unsigned char *pPayload, int nPayloadLen)
+void TrafficCounter::unknownProtoPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!bPacketOfInterest_)
+    if (!isTeloPacket(pIpHeader))
+        return;
+    if (isLanPacket(pIpHeader))
         return;
     /*printf("UNKNOWN packet: PROTO = %d, %s -> %s\n", pIpHeader->proto,
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
