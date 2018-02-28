@@ -13,17 +13,17 @@ SET (SRCS
 )
 
 IF (WIN32)
-SET (SRCS
-    ${SRCS}
-    IpHelper.cpp
-)
+    SET (SRCS
+        ${SRCS}
+        IpHelper.cpp
+        )
 ENDIF (WIN32)
 
 IF (WIN32)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOS_WINDOWS -DSOCKETS_WSA")
 ELSEIF (UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOS_UNIX -DSOCKETS_BSD")
-ENDIF(UNIX)
+ENDIF (WIN32)
 
 #C++11 support
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")

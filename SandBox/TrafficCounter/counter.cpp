@@ -109,8 +109,9 @@ void ProtocolStat::update(unsigned int nPacketSize, bool bInput)
 ////////////////////////////////////////////////////////////////////////////////////////////
 // TrafficCounter
 
-TrafficCounter::TrafficCounter()
+TrafficCounter::TrafficCounter(const std::string &ifaceName)
 {
+    ifaceName_ = ifaceName;
     teloIP_ = 0;
     subnetMask_ = 0;
     startTime_ = portableGetCurrentTimeSec();
@@ -118,54 +119,19 @@ TrafficCounter::TrafficCounter()
     updateInodeAppCache();
 }
 
-bool TrafficCounter::listenTo(const std::string &ifaceName)
+bool TrafficCounter::listen()
 {
-    bool bSuccess = getInterfaceAddressAndMask(ifaceName, teloIP_, subnetMask_);
+    bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
     {
-#if (SOCKETS_WSA)
-        /*printf("Listening local interface %s to figure out traffic of Telo %s...\n",
-               addressToDotNotation(ifaceIP).c_str(),
-               addressToDotNotation(teloIP_).c_str());
-        promiscModeOn(teloIP_);*/
-#elif (SOCKETS_BSD)
         printf("Listening local interface %s to figure out traffic of Telo %s...\n",
-               ifaceName.c_str(),
+               ifaceName_.c_str(),
                addressToDotNotation(teloIP_).c_str());
-        promiscModeOn(ifaceName.c_str());
-#endif
+        promiscModeOn(ifaceName_.c_str());
     }
     else
     {
-        printf("ERROR: interface %s does not exist\n", ifaceName.c_str());
-        destroy();
-    }
-    return bSuccess;
-}
-
-bool TrafficCounter::listenTo(IPADDRESS_TYPE teloIP)
-{
-    teloIP_ = teloIP;
-    IPADDRESS_TYPE ifaceIP;
-    std::string ifaceName; // not used so far for Windows, Linux only
-    bool bSuccess = findBestInterface(teloIP, ifaceIP, subnetMask_, ifaceName);
-    if (bSuccess)
-    {
-#if (SOCKETS_WSA)
-        printf("Listening local interface %s to figure out traffic of Telo %s...\n",
-               addressToDotNotation(ifaceIP).c_str(),
-               addressToDotNotation(teloIP_).c_str());
-        promiscModeOn(ifaceIP);
-#elif (SOCKETS_BSD)
-      printf("Listening local interface %s to figure out traffic of Telo %s...\n",
-             ifaceName.c_str(),
-             addressToDotNotation(teloIP_).c_str());
-      promiscModeOn(ifaceName.c_str());
-#endif
-    }
-    else
-    {
-        printf("ERROR: could not find appropriate interface for listening %s\n", addressToDotNotation(teloIP_).c_str());
+        printf("ERROR: interface %s does not exist\n", ifaceName_.c_str());
         destroy();
     }
     return bSuccess;
@@ -192,6 +158,7 @@ static void putSpaces(FILE *pFile, int nSpaces)
 void TrafficCounter::reportStatistics(bool bFirstTime)
 {
     const char *pszRank = "Rank";                   int iRankW = strlen(pszRank);
+    const char *pszInterface = "Interface";         int iInterfaceW = strlen(pszInterface);
     const char *pszApplication = "Application";     int iApplicationW = strlen(pszApplication);
     const char *pszService = "Service";             int iServiceW = strlen(pszService);
     const char *pszPackets = "Packets";             int iPacketsW = strlen(pszPackets);
@@ -275,6 +242,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
             if (iPass == 2)
             {
                 nSpaces = iRankW            - fprintf(pFile, "%s", pszRank);           putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                nSpaces = iInterfaceW       - fprintf(pFile, "%s", pszInterface);      putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                 nSpaces = iApplicationW     - fprintf(pFile, "%s", pszApplication);    putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                 nSpaces = iServiceW         - fprintf(pFile, "%s", pszService);        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                 nSpaces = iPacketsW         - fprintf(pFile, "%s", pszPackets);        putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
@@ -297,10 +265,12 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                 const ServiceApp *pServiceApp = talkerIt->first;
                 ServiceStat *pStat = talkerIt->second;
 
-                IPADDRESS_TYPE IP = std::get<0>(*pServiceApp);
-                IPPORT portNo = std::get<1>(*pServiceApp);
-                unsigned char proto = std::get<2>(*pServiceApp);
-                const std::string &appName = std::get<3>(*pServiceApp);
+                const std::string &ifaceName = std::get<0>(*pServiceApp);
+                IPADDRESS_TYPE IP            = std::get<1>(*pServiceApp);
+                IPPORT portNo                = std::get<2>(*pServiceApp);
+                unsigned char proto          = std::get<3>(*pServiceApp);
+                const std::string &appName   = std::get<4>(*pServiceApp);
+
                 const char *pszProtoName = "UNKNOWN";
                 if (proto == IPPROTO_UDP)
                     pszProtoName = "UDP";
@@ -324,6 +294,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                 {
                     char szTmp[512];
                     iRankW            = std::max(iRankW, sprintf(szTmp, "%d.", nReported));
+                    iInterfaceW       = std::max(iInterfaceW, sprintf(szTmp, "%s", ifaceName.c_str()));
                     iApplicationW     = std::max(iApplicationW, sprintf(szTmp, "%s", appName.c_str()));
                     iServiceW         = std::max(iServiceW, sprintf(szTmp, "%s", service.c_str()));
                     iPacketsW         = std::max(iPacketsW, sprintf(szTmp, "%d", pStat->getPackets()));
@@ -339,6 +310,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
                 else
                 {
                     nSpaces = iRankW - fprintf(pFile, "%d.", nReported);                                                 putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
+                    nSpaces = iInterfaceW - fprintf(pFile, "%s", ifaceName.c_str());                                     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iApplicationW - fprintf(pFile, "%s", appName.c_str());                                     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iServiceW - fprintf(pFile, "%s", service.c_str());                                         putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
                     nSpaces = iPacketsW - fprintf(pFile, "%d", pStat->getPackets());                                     putSpaces(pFile, nSpacesBetweenColumns + nSpaces);
@@ -387,7 +359,7 @@ void TrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIcmpHeader 
     if (pIpHeader->destIP == teloIP_)
         serviceIP = pIpHeader->sourceIP;
     IPPORT servicePort = 0;
-    this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
+    updateTopTalkers(serviceIP, servicePort, pIpHeader);
 }
 
 //virtual
@@ -432,7 +404,7 @@ void TrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *p
         serviceIP = pIpHeader->sourceIP;
         servicePort = pTcpHeader->getSrcPortNo();
     }
-    this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
+    updateTopTalkers(serviceIP, servicePort, pIpHeader);
 }
 
 //virtual
@@ -456,7 +428,7 @@ void TrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *p
         serviceIP = pIpHeader->sourceIP;
         servicePort = pUdpHeader->getSrcPortNo();
     }
-    this->updateTopTalkers(serviceIP, servicePort, pIpHeader);
+    updateTopTalkers(serviceIP, servicePort, pIpHeader);
 }
 
 //virtual
@@ -554,11 +526,12 @@ void TrafficCounter::updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePo
         //printf("inode not found\n");
     }
 
-    ServiceApp serviceApp(serviceIP, servicePort, pIpHeader->proto, appName);
+    ServiceApp serviceApp(ifaceName_, serviceIP, servicePort, pIpHeader->proto, appName);
     auto serviceIt = servicesStat_.find(serviceApp);
     if (servicesStat_.end() == serviceIt)
     { // not found, create new entry
         ServiceStat stat;
+        stat.setIfaceName(ifaceName_);
         stat.update(pIpHeader->getPacketLen());
         servicesStat_[serviceApp] = stat;
     }

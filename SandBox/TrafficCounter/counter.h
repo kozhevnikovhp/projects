@@ -12,6 +12,7 @@ class ServiceStat
 public:
     ServiceStat();
 
+    void setIfaceName(const std::string &ifaceName) { ifaceName_ = ifaceName; }
     void update(int nPacketSize);
 
     std::string &hostName(IPADDRESS_TYPE IP);
@@ -26,6 +27,7 @@ protected:
     int nBytes_;
     bool bTriedToResolveHostName_; // try only once, can be time consuming
     bool bTriedToResolveServiceName_; // try only once, can be time consuming
+    std::string ifaceName_;
     std::string hostName_;
     std::string serviceName_;
 };
@@ -55,16 +57,15 @@ typedef std::map<INODE, std::string> InodeToAppCache;
 typedef std::pair<IPADDRESS_TYPE, IPPORT> Service;
 typedef std::map<Service, INODE> ServiceToInodeCache;
 
-typedef std::tuple<IPADDRESS_TYPE, IPPORT, unsigned char, std::string> ServiceApp;
+typedef std::tuple<std::string, IPADDRESS_TYPE, IPPORT, unsigned char, std::string> ServiceApp;
 typedef std::pair<const ServiceApp *, ServiceStat *> Talker;
 
 class TrafficCounter : public SnifferSocket
 {
 public:
-    TrafficCounter();
+    TrafficCounter(const std::string &ifaceName);
 
-    bool listenTo(const std::string &ifaceName);
-    bool listenTo(IPADDRESS_TYPE teloIP);
+    bool listen();
     void reportStatistics(bool bFirstTime);
 
 // Protected methods
@@ -94,6 +95,7 @@ protected:
     ProtocolStat IcmpStatTotal_, IcmpStatLast_;
     ProtocolStat IgmpStatTotal_, IgmpStatLast_;
     ProtocolStat LanStatTotal_, LanStatLast_;
+    std::string ifaceName_;
 
     std::map<ServiceApp, ServiceStat> servicesStat_;
     std::vector<Talker> topTalkers_;
