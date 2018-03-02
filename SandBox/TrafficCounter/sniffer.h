@@ -10,8 +10,9 @@ public:
     SnifferSocket();
     virtual ~SnifferSocket();
 
-    bool isCreated() const { return (m_Socket != INVALID_SOCKET); }
-    bool isDestroyed() const { return (m_Socket == INVALID_SOCKET); }
+    SOCKET getSocket() const { return socket_; }
+    bool isCreated() const { return (socket_ != INVALID_SOCKET); }
+    bool isDestroyed() const { return (socket_ == INVALID_SOCKET); }
     void destroy();
 
 // Public members
@@ -37,7 +38,7 @@ protected:
 
 // Protected members
 protected:
-    SOCKET m_Socket;
+    SOCKET socket_;
     char bufferForPackets_[0xFFFF];
 #if (SOCKETS_BSD)
     struct ifreq ifaceDesc_;

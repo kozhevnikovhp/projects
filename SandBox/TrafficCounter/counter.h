@@ -37,7 +37,7 @@ class ProtocolStat
 public:
     ProtocolStat();
 
-    void report(const char *pszFileName, ProtocolStat &prev, unsigned int deltaTime, bool bFirstTime) const;
+    void report(const std::string &ifaceName, const char *pszFileName, ProtocolStat &prev, unsigned int deltaTime, bool bFirstTime) const;
 
     void update(unsigned int nPacketSize, bool bInput);
 
@@ -60,13 +60,15 @@ typedef std::map<Service, INODE> ServiceToInodeCache;
 typedef std::tuple<std::string, IPADDRESS_TYPE, IPPORT, unsigned char, std::string> ServiceApp;
 typedef std::pair<const ServiceApp *, ServiceStat *> Talker;
 
-class TrafficCounter : public SnifferSocket
+class InterfaceTrafficCounter : public SnifferSocket
 {
 public:
-    TrafficCounter(const std::string &ifaceName);
+    InterfaceTrafficCounter(const std::string &ifaceName);
 
     bool listen();
-    void reportStatistics(bool bFirstTime);
+    void reportStatistics(bool bFirstTime, unsigned int deltaTime);
+    void reportOverallStat(FILE *pFile, unsigned int totalTime);
+    void fillTopTalkers(std::vector<Talker> &topTalkers);
 
 // Protected methods
 protected:
@@ -98,13 +100,26 @@ protected:
     std::string ifaceName_;
 
     std::map<ServiceApp, ServiceStat> servicesStat_;
-    std::vector<Talker> topTalkers_;
 
     InodeToAppCache inodeToAppCache_;
     ServiceToInodeCache serviceToInodeCache_;
+};
 
-    unsigned int lastStatTime_;
+class TrafficCounter
+{
+public:
+    TrafficCounter();
+
+    void addInterface(const char *pszInterfaceName);
+    int doJob();
+
+protected:
+    void reportStatistics(bool bFirstTime);
+
+    std::vector<InterfaceTrafficCounter> interfaces_;
     unsigned int startTime_;
+    unsigned int lastStatTime_;
+    std::vector<Talker> topTalkers_;
 };
 
 #endif // COUNTER_H

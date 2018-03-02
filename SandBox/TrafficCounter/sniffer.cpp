@@ -18,13 +18,13 @@
 SnifferSocket::SnifferSocket()
 {
 #ifdef SOCKETS_WSA
-    m_Socket = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
+    socket_ = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
 #endif
 #ifdef SOCKETS_BSD
-    m_Socket = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    socket_ = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 #endif
-    //printf("Socket = %d\n", m_Socket);
-    if (m_Socket == INVALID_SOCKET)
+    //printf("Socket = %d\n", socket_);
+    if (!isCreated())
         perror("Sniffer socket creation");
 }
 
@@ -39,13 +39,13 @@ void SnifferSocket::destroy()
         return; // do nothing
 
 #ifdef SOCKETS_WSA
-    ::shutdown(m_Socket, SD_BOTH);
-    ::closesocket(m_Socket);
+    ::shutdown(socket_, SD_BOTH);
+    ::closesocket(socket_);
 #endif
 
 #ifdef SOCKETS_BSD
-    ::shutdown(m_Socket, SHUT_RDWR);
-    if (::close(m_Socket) != 0) // success = 0, fail = -1
+    ::shutdown(socket_, SHUT_RDWR);
+    if (::close(socket_) != 0) // success = 0, fail = -1
     {
         perror("close");
     }
@@ -59,14 +59,14 @@ bool SnifferSocket::promiscModeOn(IPADDRESS_TYPE ifaceIP)
     local.sin_family = AF_INET;
     local.sin_addr.s_addr = ifaceIP;
     local.sin_port = 0;
-    if (::bind(m_Socket, (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
+    if (::bind(socket_, (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
     {
         perror("bind");
         return false;
     }
 
     unsigned long flag = 1;  // flag PROMISC ON/OFF
-    ioctlsocket(m_Socket, SIO_RCVALL, &flag);
+    ioctlsocket(socket_, SIO_RCVALL, &flag);
     return true;
 }
 #elif (SOCKETS_BSD)
@@ -74,9 +74,9 @@ bool SnifferSocket::promiscModeOn(const char *pszIfaceName)
 {
     memset(&ifaceDesc_, 0, sizeof(ifaceDesc_));
     strcpy(ifaceDesc_.ifr_name, pszIfaceName);
-    ioctl(m_Socket, SIOCGIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCGIFFLAGS, &ifaceDesc_);
     ifaceDesc_.ifr_flags |= IFF_PROMISC;
-    ioctl(m_Socket, SIOCSIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCSIFFLAGS, &ifaceDesc_);
     return true;
 }
 #endif
@@ -85,12 +85,12 @@ bool SnifferSocket::promiscModeOff()
 {
 #if (SOCKETS_WSA)
     unsigned long flag = 0;  // flag PROMISC ON/OFF
-    ioctlsocket(m_Socket, SIO_RCVALL, &flag);
+    ioctlsocket(socket_, SIO_RCVALL, &flag);
     return true;
 #elif (SOCKETS_BSD)
-    ioctl(m_Socket, SIOCGIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCGIFFLAGS, &ifaceDesc_);
     ifaceDesc_.ifr_flags &= ~IFF_PROMISC;
-    ioctl(m_Socket, SIOCSIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCSIFFLAGS, &ifaceDesc_);
     return true;
 #endif
 }
@@ -99,13 +99,13 @@ bool SnifferSocket::waitForPacket()
 {
     struct sockaddr src;
     socklen_t fromlen = sizeof(src);
-    int nPacketSize = recvfrom(m_Socket, bufferForPackets_, sizeof(bufferForPackets_), 0, &src, &fromlen);
+    int nPacketSize = recvfrom(socket_, bufferForPackets_, sizeof(bufferForPackets_), 0, &src, &fromlen);
     if (nPacketSize == SOCKET_ERROR)
     {
         perror("recvfrom");
         return false;
     }
-
+    //printf("Packet %d bytes\n", nPacketSize);
 
     SIpHeader *pIpHeader = NULL;
 #if (SOCKETS_WSA)
@@ -117,6 +117,7 @@ bool SnifferSocket::waitForPacket()
     {
         pIpHeader = (SIpHeader *)(pEthernetHeader+1);
         nPacketSize -= sizeof(struct ethhdr);
+        //printf("\tIP-Packet %d bytes\n", nPacketSize);
     }
     else if (pEthernetHeader->h_proto == htons(ETH_P_ARP))
     {
@@ -129,6 +130,7 @@ bool SnifferSocket::waitForPacket()
 #endif
     if (!pIpHeader)
         return true; // APR, RARP etc, but not IP
+    //printf("Header %p\n", pIpHeader);
 
     unsigned short nIpHdrLen = pIpHeader->getHeaderLen();
     int nPayloadLen = nPacketSize - nIpHdrLen;
