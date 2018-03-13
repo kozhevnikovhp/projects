@@ -60,7 +60,7 @@ typedef std::map<Service, INODE> ServiceToInodeCache;
 typedef std::tuple<std::string, IPADDRESS_TYPE, IPPORT, unsigned char, std::string> ServiceApp;
 typedef std::pair<const ServiceApp *, ServiceStat *> Talker;
 
-class InterfaceTrafficCounter : public SnifferSocket
+class InterfaceTrafficCounter : public Sniffer
 {
 public:
     InterfaceTrafficCounter(const std::string &ifaceName);
@@ -97,7 +97,6 @@ protected:
     ProtocolStat IcmpStatTotal_, IcmpStatLast_;
     ProtocolStat IgmpStatTotal_, IgmpStatLast_;
     ProtocolStat LanStatTotal_, LanStatLast_;
-    std::string ifaceName_;
 
     std::map<ServiceApp, ServiceStat> servicesStat_;
 

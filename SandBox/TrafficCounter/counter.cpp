@@ -116,8 +116,8 @@ void ProtocolStat::update(unsigned int nPacketSize, bool bInput)
 // TrafficCounter
 
 InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName)
+    : Sniffer(ifaceName)
 {
-    ifaceName_ = ifaceName;
     teloIP_ = 0;
     subnetMask_ = 0;
     updateInodeAppCache();
@@ -138,6 +138,7 @@ bool InterfaceTrafficCounter::listen()
         printf("ERROR: interface %s does not exist\n", ifaceName_.c_str());
         destroy();
     }
+
     return bSuccess;
 }
 
@@ -219,10 +220,10 @@ void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIc
         return;
     if (isLanPacket(pIpHeader))
         return;
-    /*printf("%s ICMP packet: %s -> %s\tlength = %d\n", ifaceName_.c_str(),
+    printf("%s ICMP packet: %s -> %s\tlength = %d\n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
-            pIpHeader->getPacketLen());*/
+            pIpHeader->getPacketLen());
     IcmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printIcmpHeader(pIcmpHeader);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
@@ -284,10 +285,10 @@ void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdp
         return;
     if (isLanPacket(pIpHeader))
         return;
-    /*printf("%s UDP packet: %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
+    printf("%s UDP packet: %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pUdpHeader->getSrcPortNo(),
             addressToDotNotation(pIpHeader->destIP).c_str(), pUdpHeader->getDstPortNo(),
-            pIpHeader->getPacketLen());*/
+            pIpHeader->getPacketLen());
     UdpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printUdpHeader(pUdpHeader);
 
@@ -593,7 +594,7 @@ int TrafficCounter::doJob()
 
     for (auto &iface : interfaces_)
     {
-        fds[nfds].fd = iface.getSocket();
+        fds[nfds].fd = pcap_get_selectable_fd(iface.getHandle());//iface.getHandle()->fd;
         fds[nfds].events = POLLIN;
         ++nfds;
     }

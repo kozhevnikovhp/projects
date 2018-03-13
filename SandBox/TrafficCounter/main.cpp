@@ -1,7 +1,10 @@
 #include "counter.h"
 
+#include <pcap.h>
+
 int main(int argc, char* argv[])
 {
+
     TrafficCounter counter;
 
     if (argc > 1)
