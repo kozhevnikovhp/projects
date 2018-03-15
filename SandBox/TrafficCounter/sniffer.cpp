@@ -131,30 +131,32 @@ bool Sniffer::waitForPacket()
     if (ec == 1)
     {
         nPacketSize = pHeader->len;
-        printf("%s: packet with length of %d\n", ifaceName_.c_str(), nPacketSize);
+        //printf("%s: packet with length of %d\n", ifaceName_.c_str(), nPacketSize);
         if (bHasEthernetHeader_)
         {
             struct ethhdr *pEthernetHeader = (struct ethhdr *)pPacket;
             //printf("Ethernet proto = 0x%04X\n", pEthernetHeader->h_proto);
-            if (pEthernetHeader->h_proto == htons(ETH_P_IP))
+            switch (ntohs(pEthernetHeader->h_proto))
             {
-                pIpHeader = (SIpHeader *)(pEthernetHeader+1);
-                nPacketSize -= sizeof(struct ethhdr);
-                printf("\tIP-Packet %d bytes\n", nPacketSize);
-            }
-            else if (pEthernetHeader->h_proto == htons(ETH_P_ARP))
-            {
-                printf("ARP\n");
-            }
-            else if (pEthernetHeader->h_proto == htons(ETH_P_RARP))
-            {
-                printf("RARP\n");
-            }
-            else
-            {
-                printf("Ethernet proto = %d\n", ntohs(pEthernetHeader->h_proto));
-            }
-         }
+                case ETH_P_IP:
+                    pIpHeader = (SIpHeader *)(pEthernetHeader+1);
+                    nPacketSize -= sizeof(struct ethhdr);
+                    //printf("\t%s: IP-Packet %d bytes\n", ifaceName_.c_str(), nPacketSize);
+                    break;
+                case ETH_P_IPV6:
+                    //printf("\t%s: IPv6\n", ifaceName_.c_str());
+                    break;
+                case ETH_P_ARP:
+                    //printf("\t%s: ARP\n", ifaceName_.c_str());
+                    break;
+                case ETH_P_RARP:
+                    //printf("\t%s: RARP\n", ifaceName_.c_str());
+                    break;
+                default:
+                    printf("\t%s: unknown ethernet proto = 0x%04X, refer to file linux/if_ether.h and add implementation if needed\n", ifaceName_.c_str(), ntohs(pEthernetHeader->h_proto));
+                    break;
+            } // switch
+         } //bHasEthernetHeader_
          else
             pIpHeader = (SIpHeader *)pPacket;
     }
@@ -163,17 +165,17 @@ bool Sniffer::waitForPacket()
 #elif (SOCKETS_BSD)
     struct ethhdr *pEthernetHeader = (struct ethhdr *)bufferForPackets_;
     //printf("Ethernet proto = 0x%04X\n", pEthernetHeader->h_proto);
-    if (pEthernetHeader->h_proto == htons(ETH_P_IP))
+    if (ntohs(pEthernetHeader->h_proto) == ETH_P_IP)
     {
         pIpHeader = (SIpHeader *)(pEthernetHeader+1);
         nPacketSize -= sizeof(struct ethhdr);
         //printf("\tIP-Packet %d bytes\n", nPacketSize);
     }
-    else if (pEthernetHeader->h_proto == htons(ETH_P_ARP))
+    else if (ntohs(pEthernetHeader->h_proto) == ETH_P_ARP)
     {
         //printf("ARP\n");
     }
-    else if (pEthernetHeader->h_proto == htons(ETH_P_RARP))
+    else if (ntohs(pEthernetHeader->h_proto) == ETH_P_RARP)
     {
         //printf("RARP\n");
     }

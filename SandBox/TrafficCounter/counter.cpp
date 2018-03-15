@@ -220,10 +220,10 @@ void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIc
         return;
     if (isLanPacket(pIpHeader))
         return;
-    printf("%s ICMP packet: %s -> %s\tlength = %d\n", ifaceName_.c_str(),
+    /*printf("%s: ICMP packet %s -> %s\tlength = %d\n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
-            pIpHeader->getPacketLen());
+            pIpHeader->getPacketLen());*/
     IcmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printIcmpHeader(pIcmpHeader);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
@@ -240,7 +240,7 @@ void InterfaceTrafficCounter::igmpPacketCaptured(const SIpHeader *pIpHeader, SIg
         return;
     if (isLanPacket(pIpHeader))
         return;
-    /*printf("%s IGMP packet: %s -> %s\tlength = %d\n", ifaceName_.c_str(),
+    /*printf("%s: IGMP packet %s -> %s\tlength = %d\n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
             pIpHeader->getPacketLen());*/
@@ -254,7 +254,7 @@ void InterfaceTrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcp
         return;
     if (isLanPacket(pIpHeader))
         return;
-    /*printf("%s TCP packet: %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
+    /*printf("%s: TCP packet %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pTcpHeader->getSrcPortNo(),
             addressToDotNotation(pIpHeader->destIP).c_str(), pTcpHeader->getDstPortNo(),
             pIpHeader->getPacketLen());*/
@@ -285,10 +285,10 @@ void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdp
         return;
     if (isLanPacket(pIpHeader))
         return;
-    printf("%s UDP packet: %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
+    /*printf("%s: UDP packet %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pUdpHeader->getSrcPortNo(),
             addressToDotNotation(pIpHeader->destIP).c_str(), pUdpHeader->getDstPortNo(),
-            pIpHeader->getPacketLen());
+            pIpHeader->getPacketLen());*/
     UdpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
     //printUdpHeader(pUdpHeader);
 
