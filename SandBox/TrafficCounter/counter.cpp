@@ -115,11 +115,12 @@ void ProtocolStat::update(unsigned int nPacketSize, bool bInput)
 ////////////////////////////////////////////////////////////////////////////////////////////
 // TrafficCounter
 
-InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName)
+InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP)
     : Sniffer(ifaceName)
 {
     teloIP_ = 0;
     subnetMask_ = 0;
+    enforcedIP_ = IP;
     updateInodeAppCache();
 }
 
@@ -130,7 +131,7 @@ bool InterfaceTrafficCounter::listen()
     {
         printf("Listening local interface %s to figure out traffic of %s...\n",
                ifaceName_.c_str(),
-               addressToDotNotation(teloIP_).c_str());
+               addressToDotNotation(getIP()).c_str());
         promiscModeOn(ifaceName_.c_str());
     }
     else
@@ -193,12 +194,19 @@ void InterfaceTrafficCounter::fillTopTalkers(std::vector<Talker> &topTalkers)
 
 bool InterfaceTrafficCounter::isTeloPacket(const SIpHeader *pIpHeader) const
 {
-    return (pIpHeader->sourceIP == teloIP_) || (pIpHeader->destIP == teloIP_);
+    return (pIpHeader->sourceIP == getIP()) || (pIpHeader->destIP == getIP());
 }
 
 bool InterfaceTrafficCounter::isLanPacket(const SIpHeader *pIpHeader) const
 {
     return isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_);
+}
+
+IPADDRESS_TYPE InterfaceTrafficCounter::getIP() const
+{
+    if (enforcedIP_)
+        return enforcedIP_;
+    return teloIP_;
 }
 
 //virtual
@@ -207,9 +215,9 @@ void InterfaceTrafficCounter::ipPacketCaptured(const SIpHeader *pIpHeader, const
     if (!isTeloPacket(pIpHeader))
         return;
     if (isLanPacket(pIpHeader))
-        LanStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+        LanStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
     else
-        IpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+        IpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
     //printIpHeader(pIpHeader);
 }
 
@@ -224,10 +232,10 @@ void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIc
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
             pIpHeader->getPacketLen());*/
-    IcmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+    IcmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
     //printIcmpHeader(pIcmpHeader);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
-    if (pIpHeader->destIP == teloIP_)
+    if (pIpHeader->destIP == getIP())
         serviceIP = pIpHeader->sourceIP;
     IPPORT servicePort = pIcmpHeader->type;
     updateTopTalkers(serviceIP, servicePort, pIpHeader);
@@ -244,7 +252,7 @@ void InterfaceTrafficCounter::igmpPacketCaptured(const SIpHeader *pIpHeader, SIg
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
             pIpHeader->getPacketLen());*/
-    IgmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+    IgmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
 }
 
 //virtual
@@ -267,10 +275,10 @@ void InterfaceTrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcp
         portableSwitchContext(); // let system refresh its files
         portableSwitchContext(); // let system refresh its files
     }
-    TcpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+    TcpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
     IPPORT servicePort = pTcpHeader->getDstPortNo();
-    if (pIpHeader->destIP == teloIP_)
+    if (pIpHeader->destIP == getIP())
     {
         serviceIP = pIpHeader->sourceIP;
         servicePort = pTcpHeader->getSrcPortNo();
@@ -289,12 +297,12 @@ void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdp
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pUdpHeader->getSrcPortNo(),
             addressToDotNotation(pIpHeader->destIP).c_str(), pUdpHeader->getDstPortNo(),
             pIpHeader->getPacketLen());*/
-    UdpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == teloIP_);
+    UdpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
     //printUdpHeader(pUdpHeader);
 
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
     IPPORT servicePort = pUdpHeader->getDstPortNo();
-    if (pIpHeader->destIP == teloIP_)
+    if (pIpHeader->destIP == getIP())
     {
         serviceIP = pIpHeader->sourceIP;
         servicePort = pUdpHeader->getSrcPortNo();
@@ -563,14 +571,43 @@ TrafficCounter::TrafficCounter()
 
 void TrafficCounter::addInterface(const char *pszInterfaceName)
 {
-    if (!isItInterfaceName(pszInterfaceName))
-    {
-        printf("'%s' is not a valid interface name\n", pszInterfaceName);
-        return;
-    }
 
-    InterfaceTrafficCounter iface(pszInterfaceName);
-    interfaces_.push_back(iface);
+    if (strchr(pszInterfaceName, '[') && strchr(pszInterfaceName, '['))
+    {
+        char *pszDup = strdup(pszInterfaceName);
+        char *pcBackBracket = strchr(pszDup, ']');
+        *pcBackBracket = 0;
+        char *pcFrontBracket = strchr(pszDup, '[');
+        *pcFrontBracket = 0;
+        if (!isItInterfaceName(pszDup))
+        {
+            printf("'%s' is not a valid interface name\n", pszDup);
+            return;
+        }
+
+        char *pszIpAddress = pcFrontBracket+1;
+        IPADDRESS_TYPE IP = dotNotationToAddress(pszIpAddress);
+        if (!IP)
+        {
+            printf("'%s' is not a valid IP-address\n", pszIpAddress);
+            return;
+        }
+
+        InterfaceTrafficCounter iface(pszDup, IP);
+        interfaces_.push_back(iface);
+        free(pszDup);
+    }
+    else
+    {
+        if (!isItInterfaceName(pszInterfaceName))
+        {
+            printf("'%s' is not a valid interface name\n", pszInterfaceName);
+            return;
+        }
+
+        InterfaceTrafficCounter iface(pszInterfaceName);
+        interfaces_.push_back(iface);
+    }
 }
 
 int TrafficCounter::doJob()

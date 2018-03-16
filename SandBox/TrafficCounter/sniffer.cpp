@@ -153,7 +153,7 @@ bool Sniffer::waitForPacket()
                     //printf("\t%s: RARP\n", ifaceName_.c_str());
                     break;
                 default:
-                    printf("\t%s: unknown ethernet proto = 0x%04X, refer to file linux/if_ether.h and add implementation if needed\n", ifaceName_.c_str(), ntohs(pEthernetHeader->h_proto));
+                    //printf("\t%s: unknown ethernet proto = 0x%04X, refer to file linux/if_ether.h and add implementation if needed\n", ifaceName_.c_str(), ntohs(pEthernetHeader->h_proto));
                     break;
             } // switch
          } //bHasEthernetHeader_

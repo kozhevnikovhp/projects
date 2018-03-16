@@ -63,7 +63,7 @@ typedef std::pair<const ServiceApp *, ServiceStat *> Talker;
 class InterfaceTrafficCounter : public Sniffer
 {
 public:
-    InterfaceTrafficCounter(const std::string &ifaceName);
+    InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP = 0);
 
     bool listen();
     void reportStatistics(bool bFirstTime, unsigned int deltaTime);
@@ -74,6 +74,7 @@ public:
 protected:
     bool isTeloPacket(const SIpHeader *pIpHeader) const;
     bool isLanPacket(const SIpHeader *pIpHeader) const;
+    IPADDRESS_TYPE getIP() const;
 
 // Protected overridables
 protected:
@@ -102,6 +103,7 @@ protected:
 
     InodeToAppCache inodeToAppCache_;
     ServiceToInodeCache serviceToInodeCache_;
+    IPADDRESS_TYPE enforcedIP_;
 };
 
 class TrafficCounter
