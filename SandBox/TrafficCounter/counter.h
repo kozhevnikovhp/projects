@@ -68,7 +68,7 @@ public:
     bool listen();
     void reportStatistics(bool bFirstTime, unsigned int deltaTime);
     void reportOverallStat(FILE *pFile, unsigned int totalTime);
-    void fillTopTalkers(std::vector<Talker> &topTalkers);
+    void fillTopTalkers(std::vector<Talker> &topTalkers, bool bLAN);
 
 // Protected methods
 protected:
@@ -86,7 +86,7 @@ protected:
     virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload, int nPayloadLen);
 
     INODE getInode(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader);
-    void updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader);
+    void updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT servicePort, const SIpHeader *pIpHeader, bool bLAN);
     void updateInodeAppCache();
 
 // Protected members
@@ -99,7 +99,8 @@ protected:
     ProtocolStat IgmpStatTotal_, IgmpStatLast_;
     ProtocolStat LanStatTotal_, LanStatLast_;
 
-    std::map<ServiceApp, ServiceStat> servicesStat_;
+    std::map<ServiceApp, ServiceStat> servicesStatWAN_;
+    std::map<ServiceApp, ServiceStat> servicesStatLAN_;
 
     InodeToAppCache inodeToAppCache_;
     ServiceToInodeCache serviceToInodeCache_;
@@ -116,6 +117,7 @@ public:
 
 protected:
     void reportStatistics(bool bFirstTime);
+    void reportTopTalkers(FILE *pFile, double totalTime, bool bLAN);
 
     std::vector<InterfaceTrafficCounter> interfaces_;
     unsigned int startTime_;
