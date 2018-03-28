@@ -129,7 +129,7 @@ bool InterfaceTrafficCounter::listen()
     bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
     {
-        printf("Listening local interface %s to figure out traffic of %s...\n",
+        printf("Listening local interface '%s' to figure out traffic of %s...\n",
                ifaceName_.c_str(),
                addressToDotNotation(getIP()).c_str());
         promiscModeOn(ifaceName_.c_str());
@@ -183,36 +183,20 @@ void InterfaceTrafficCounter::reportOverallStat(FILE *pFile, unsigned int totalT
 
 void InterfaceTrafficCounter::fillTopTalkers(std::vector<Talker> &topTalkers, bool bLAN)
 {
+    for (auto &serviceStat : getStatistics(bLAN))
+    {
+        const ServiceApp &serviceApp = serviceStat.first;
+        ServiceStat &stat = serviceStat.second;
+        Talker talker(&serviceApp, &stat);
+        topTalkers.emplace_back(talker);
+    }
+}
+
+std::map<ServiceApp, ServiceStat> &InterfaceTrafficCounter::getStatistics(bool bLAN)
+{
     if (bLAN)
-    {
-        for (auto &serviceStat : servicesStatLAN_)
-        {
-            const ServiceApp &serviceApp = serviceStat.first;
-            ServiceStat &stat = serviceStat.second;
-            Talker talker(&serviceApp, &stat);
-            topTalkers.emplace_back(talker);
-        }
-    }
-    else
-    {
-        for (auto &serviceStat : servicesStatWAN_)
-        {
-            const ServiceApp &serviceApp = serviceStat.first;
-            ServiceStat &stat = serviceStat.second;
-            Talker talker(&serviceApp, &stat);
-            topTalkers.emplace_back(talker);
-        }
-    }
-}
-
-bool InterfaceTrafficCounter::isTeloPacket(const SIpHeader *pIpHeader) const
-{
-    return (pIpHeader->sourceIP == getIP()) || (pIpHeader->destIP == getIP());
-}
-
-bool InterfaceTrafficCounter::isLanPacket(const SIpHeader *pIpHeader) const
-{
-    return isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_);
+        return servicesStatLAN_;
+    return servicesStatWAN_;
 }
 
 IPADDRESS_TYPE InterfaceTrafficCounter::getIP() const
@@ -225,19 +209,19 @@ IPADDRESS_TYPE InterfaceTrafficCounter::getIP() const
 //virtual
 void InterfaceTrafficCounter::ipPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload,  int nPayloadLen)
 {
-    if (!isTeloPacket(pIpHeader))
+    if (!isMyPacket(pIpHeader))
         return;
     if (isLanPacket(pIpHeader))
-        LanStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
+        LanStatTotal_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
     else
-        IpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
+        IpStatTotal_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
     //printIpHeader(pIpHeader);
 }
 
 //virtual
 void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!isTeloPacket(pIpHeader))
+    if (!isMyPacket(pIpHeader))
         return;
     /*printf("%s: ICMP packet %s -> %s\tlength = %d\n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
@@ -245,7 +229,7 @@ void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIc
             pIpHeader->getPacketLen());*/
    //printIcmpHeader(pIcmpHeader);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
-    if (pIpHeader->destIP == getIP())
+    if (isPacketToMe(pIpHeader))
         serviceIP = pIpHeader->sourceIP;
     IPPORT servicePort = pIcmpHeader->type;
     if (isLanPacket(pIpHeader))
@@ -254,7 +238,7 @@ void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIc
     }
     else
     {
-        IcmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
+        IcmpStatTotal_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
         updateTopTalkers(serviceIP, servicePort, pIpHeader, false);
     }
 }
@@ -262,13 +246,13 @@ void InterfaceTrafficCounter::icmpPacketCaptured(const SIpHeader *pIpHeader, SIc
 //virtual
 void InterfaceTrafficCounter::igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!isTeloPacket(pIpHeader))
+    if (!isMyPacket(pIpHeader))
         return;
     /*printf("%s: IGMP packet %s -> %s\tlength = %d\n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(),
             addressToDotNotation(pIpHeader->destIP).c_str(),
             pIpHeader->getPacketLen());*/
-    IgmpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
+    IgmpStatTotal_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
     if (isLanPacket(pIpHeader))
     {
         //updateTopTalkers(serviceIP, servicePort, pIpHeader, true);
@@ -282,7 +266,7 @@ void InterfaceTrafficCounter::igmpPacketCaptured(const SIpHeader *pIpHeader, SIg
 //virtual
 void InterfaceTrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!isTeloPacket(pIpHeader))
+    if (!isMyPacket(pIpHeader))
         return;
     /*printf("%s: TCP packet %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pTcpHeader->getSrcPortNo(),
@@ -291,7 +275,7 @@ void InterfaceTrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcp
     //printTcpHeader(pTcpHeader);
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
     IPPORT servicePort = pTcpHeader->getDstPortNo();
-    if (pIpHeader->destIP == getIP())
+    if (isPacketToMe(pIpHeader))
     {
         serviceIP = pIpHeader->sourceIP;
         servicePort = pTcpHeader->getSrcPortNo();
@@ -310,7 +294,7 @@ void InterfaceTrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcp
             portableSwitchContext(); // let system refresh its files
             portableSwitchContext(); // let system refresh its files
         }
-        TcpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
+        TcpStatTotal_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
         updateTopTalkers(serviceIP, servicePort, pIpHeader, false);
     }
 }
@@ -318,7 +302,7 @@ void InterfaceTrafficCounter::tcpPacketCaptured(const SIpHeader *pIpHeader, STcp
 //virtual
 void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!isTeloPacket(pIpHeader))
+    if (!isMyPacket(pIpHeader))
         return;
     /*printf("%s: UDP packet %s:%d -> %s:%d\tlength = %d \n", ifaceName_.c_str(),
             addressToDotNotation(pIpHeader->sourceIP).c_str(), pUdpHeader->getSrcPortNo(),
@@ -328,7 +312,7 @@ void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdp
 
     IPADDRESS_TYPE serviceIP = pIpHeader->destIP;
     IPPORT servicePort = pUdpHeader->getDstPortNo();
-    if (pIpHeader->destIP == getIP())
+    if (isPacketToMe(pIpHeader))
     {
         serviceIP = pIpHeader->sourceIP;
         servicePort = pUdpHeader->getSrcPortNo();
@@ -339,7 +323,7 @@ void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdp
     }
     else
     {
-        UdpStatTotal_.update(pIpHeader->getPacketLen(), pIpHeader->destIP == getIP());
+        UdpStatTotal_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
         updateTopTalkers(serviceIP, servicePort, pIpHeader, false);
     }
 }
@@ -347,7 +331,7 @@ void InterfaceTrafficCounter::udpPacketCaptured(const SIpHeader *pIpHeader, SUdp
 //virtual
 void InterfaceTrafficCounter::unknownProtoPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload, int nPayloadLen)
 {
-    if (!isTeloPacket(pIpHeader))
+    if (!isMyPacket(pIpHeader))
         return;
     /*printf("%s UNKNOWN packet: PROTO = %d, %s -> %s\n", ifaceName_.c_str(),
             pIpHeader->proto,
@@ -439,38 +423,18 @@ void InterfaceTrafficCounter::updateTopTalkers(IPADDRESS_TYPE serviceIP, IPPORT 
     }
 
     ServiceApp serviceApp(ifaceName_, serviceIP, servicePort, pIpHeader->proto, appName);
-    if (bLAN)
-    {
-        auto serviceIt = servicesStatLAN_.find(serviceApp);
-        if (servicesStatLAN_.end() == serviceIt)
-        { // not found, create new entry
-            ServiceStat stat;
-            stat.setIfaceName(ifaceName_);
-            stat.update(pIpHeader->getPacketLen());
-            servicesStatLAN_[serviceApp] = stat;
-        }
-        else
-        { // update statistics of the service
-            ServiceStat &stat = serviceIt->second;
-            stat.update(pIpHeader->getPacketLen());
-        }
-
+    auto serviceIt = getStatistics(bLAN).find(serviceApp);
+    if (getStatistics(bLAN).end() == serviceIt)
+    { // not found, create new entry
+        ServiceStat stat;
+        stat.setIfaceName(ifaceName_);
+        stat.update(pIpHeader->getPacketLen());
+        getStatistics(bLAN)[serviceApp] = stat;
     }
     else
-    {
-        auto serviceIt = servicesStatWAN_.find(serviceApp);
-        if (servicesStatWAN_.end() == serviceIt)
-        { // not found, create new entry
-            ServiceStat stat;
-            stat.setIfaceName(ifaceName_);
-            stat.update(pIpHeader->getPacketLen());
-            servicesStatWAN_[serviceApp] = stat;
-        }
-        else
-        { // update statistics of the service
-            ServiceStat &stat = serviceIt->second;
-            stat.update(pIpHeader->getPacketLen());
-        }
+    { // update statistics of the service
+        ServiceStat &stat = serviceIt->second;
+        stat.update(pIpHeader->getPacketLen());
     }
 }
 
@@ -896,4 +860,5 @@ void TrafficCounter::reportTopTalkers(FILE *pFile, double totalTime, bool bLAN)
         }
     }
 }
+
 

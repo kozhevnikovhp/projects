@@ -70,10 +70,14 @@ public:
     void reportOverallStat(FILE *pFile, unsigned int totalTime);
     void fillTopTalkers(std::vector<Talker> &topTalkers, bool bLAN);
 
+    std::map<ServiceApp, ServiceStat> &getStatistics(bool bLAN);
+
 // Protected methods
 protected:
-    bool isTeloPacket(const SIpHeader *pIpHeader) const;
-    bool isLanPacket(const SIpHeader *pIpHeader) const;
+    bool isMyPacket(const SIpHeader *pIpHeader) const { return (isPacketFromMe(pIpHeader) || isPacketToMe(pIpHeader)); }
+    bool isLanPacket(const SIpHeader *pIpHeader) const { return isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_); }
+    bool isPacketToMe(const SIpHeader *pIpHeader) const { return (getIP() == pIpHeader->destIP); }
+    bool isPacketFromMe(const SIpHeader *pIpHeader) const { return (getIP() == pIpHeader->sourceIP); }
     IPADDRESS_TYPE getIP() const;
 
 // Protected overridables

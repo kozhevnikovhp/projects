@@ -20,7 +20,10 @@ Sniffer::Sniffer(const std::string &ifaceName)
     ifaceName_ = ifaceName;
     pHandle_ = pcap_open_live(ifaceName.c_str(), BUFSIZ, 1, 1000, error_buffer_);
     if (pHandle_ == NULL)
-        fprintf(stderr, "Couldn't open device %s: %s\n", ifaceName.c_str(), error_buffer_);
+    {
+        fprintf(stderr, "pcap_open_live %s\n", error_buffer_);
+        return;
+    }
 
     bHasEthernetHeader_ = false;
     if (pcap_datalink(pHandle_) == DLT_EN10MB)
