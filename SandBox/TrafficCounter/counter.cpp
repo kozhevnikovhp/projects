@@ -129,14 +129,14 @@ bool InterfaceTrafficCounter::listen()
     bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
     {
-        printf("Listening local interface '%s' to figure out traffic of %s...\n",
+        fprintf(stdout, "Listening local interface '%s' to figure out traffic of %s...\n",
                ifaceName_.c_str(),
                addressToDotNotation(getIP()).c_str());
         promiscModeOn(ifaceName_.c_str());
     }
     else
     {
-        printf("ERROR: interface %s does not exist\n", ifaceName_.c_str());
+        fprintf(stdout, "ERROR: interface '%s' does not exist\n", ifaceName_.c_str());
         destroy();
     }
 
@@ -583,6 +583,7 @@ TrafficCounter::TrafficCounter()
 {
     startTime_ = portableGetCurrentTimeSec();
     lastStatTime_ = portableGetCurrentTimeSec() - 60*60; // an hour ago
+    duration_ = 60; // one hour
 }
 
 void TrafficCounter::addInterface(const char *pszInterfaceName)
@@ -626,6 +627,12 @@ void TrafficCounter::addInterface(const char *pszInterfaceName)
     }
 }
 
+void TrafficCounter::setDuration(int duration)
+{
+    if (duration > 0)
+        duration_ = duration;
+}
+
 int TrafficCounter::doJob()
 {
     const int OK = 0;
@@ -640,6 +647,7 @@ int TrafficCounter::doJob()
         if (!iface.listen())
             return NotOK;
     }
+    fprintf(stdout, "Will be listening for %d minutes, Ctrl+C stops listening too.\n", duration_);
 
     struct pollfd fds[256];
     int nfds = 0;
@@ -653,8 +661,8 @@ int TrafficCounter::doJob()
     }
     int timeout = (0.5 * 1000); // half-second
 
-    reportStatistics(true);
-    while (1)
+    bool bWorkIsDone = reportStatistics(true);
+    while (!bWorkIsDone)
     {
         int rc = poll(fds, nfds, timeout); // 0 means "timeout expired -> do nothing, but probably, report statistics if there is no packet there
         if (rc > 0)
@@ -671,7 +679,7 @@ int TrafficCounter::doJob()
           perror("  poll() failed");
           break;
         }
-        reportStatistics(false);
+        bWorkIsDone = reportStatistics(false);
     }
     return OK;
 }
@@ -684,15 +692,15 @@ static void putSpaces(FILE *pFile, int nSpaces)
         fprintf(pFile, " ");
 }
 
-void TrafficCounter::reportStatistics(bool bFirstTime)
+bool TrafficCounter::reportStatistics(bool bFirstTime)
 {
     unsigned int currentTime = portableGetCurrentTimeSec();
     unsigned int deltaTime = currentTime - lastStatTime_;
     if (deltaTime < 60*1) // every 1 min
-        return; // too early to do something
-    for (auto it = interfaces_.begin(); it != interfaces_.end(); ++it)
+        return false; // too early to do something
+    for (auto &iface : interfaces_)
     {
-        it->reportStatistics(bFirstTime, deltaTime);
+        iface.reportStatistics(bFirstTime, deltaTime);
     }
 
     double totalTime = currentTime - startTime_;
@@ -700,7 +708,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
     FILE *pFile = fopen("top_talkers.txt", "w");
     if (pFile)
     {
-        fprintf(pFile, "Total measurement time = %.0f seconds\n\n", totalTime);
+        fprintf(pFile, "Total measurement time = %.0f seconds (%.0f minutes)\n\n", totalTime, totalTime/60);
         if (totalTime != 0)
         {
             for (auto &iface : interfaces_)
@@ -712,6 +720,7 @@ void TrafficCounter::reportStatistics(bool bFirstTime)
 
         fclose(pFile);
     }
+    return (totalTime/60. >= duration_); // duration in minutes, totalTime in seconds
 }
 
 void TrafficCounter::reportTopTalkers(FILE *pFile, double totalTime, bool bLAN)

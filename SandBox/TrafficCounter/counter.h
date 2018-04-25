@@ -117,16 +117,19 @@ public:
     TrafficCounter();
 
     void addInterface(const char *pszInterfaceName);
+    void setDuration(int duration);
+    bool hasJob() const { return !interfaces_.empty(); }
     int doJob();
 
 protected:
-    void reportStatistics(bool bFirstTime);
+    bool reportStatistics(bool bFirstTime);  // returns true if work is done
     void reportTopTalkers(FILE *pFile, double totalTime, bool bLAN);
 
     std::vector<InterfaceTrafficCounter> interfaces_;
     unsigned int startTime_;
     unsigned int lastStatTime_;
     std::vector<Talker> topTalkers_;
+    int duration_;
 };
 
 #endif // COUNTER_H
