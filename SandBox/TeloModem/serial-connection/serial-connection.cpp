@@ -1,128 +1,177 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/poll.h>
-#include <fcntl.h>
-#include <termios.h>
 #include <errno.h>
 #include <ctype.h>
 
-int runSerialDeviceCommand(const char *pszDevice, const char *pszCommand)
+#include <fcntl.h>
+
+#include <sys/ioctl.h>
+#include <sys/poll.h>
+
+#include <linux/usbdevice_fs.h>
+
+#include "serial-connection.h"
+
+SerialConnection::SerialConnection()
 {
-    struct termios old_termios;
-    struct termios new_termios;
+    fd_ = -1; // invalid value
+}
 
-    printf("1\n");
-    int fd = open(pszDevice, O_RDWR | O_NOCTTY);
-    printf("1.5 fd = %d\n", fd);
-    if (fd < 0)
+//virtual
+SerialConnection::~SerialConnection()
+{
+    close();
+}
+
+bool SerialConnection::open(const char *pszDeviceName)
+{
+    fd_ = ::open(pszDeviceName, O_RDWR | O_NOCTTY);
+    if (fd_ < 0)
     {
-        fprintf(stderr, "error, counldn't open file %s\n", pszDevice);
+        fprintf(stderr, "error, counldn't open file %s\n", pszDeviceName);
         perror("open");
-        return 1;
+        return false;
     }
-    printf("2\n");
 
-    if (tcgetattr(fd, &old_termios) != 0)
+    if (tcgetattr(fd_, &old_termios_) != 0)
     {
         fprintf(stderr, "tcgetattr(fd, &old_termios) failed: %s\n", strerror(errno));
         perror("tcgetattr");
-        return 1;
+        close();
+        return false;
     }
-    printf("3\n");
 
-    memset(&new_termios, 0, sizeof(new_termios));
-    new_termios.c_iflag = IGNPAR;
-    new_termios.c_oflag = 0;
-    new_termios.c_cflag = CS8 | CREAD | CLOCAL | HUPCL;
-    new_termios.c_lflag = 0;
-    new_termios.c_cc[VINTR]    = 0;
-    new_termios.c_cc[VQUIT]    = 0;
-    new_termios.c_cc[VERASE]   = 0;
-    new_termios.c_cc[VKILL]    = 0;
-    new_termios.c_cc[VEOF]     = 4;
-    new_termios.c_cc[VTIME]    = 0;
-    new_termios.c_cc[VMIN]     = 1;
-    new_termios.c_cc[VSWTC]    = 0;
-    new_termios.c_cc[VSTART]   = 0;
-    new_termios.c_cc[VSTOP]    = 0;
-    new_termios.c_cc[VSUSP]    = 0;
-    new_termios.c_cc[VEOL]     = 0;
-    new_termios.c_cc[VREPRINT] = 0;
-    new_termios.c_cc[VDISCARD] = 0;
-    new_termios.c_cc[VWERASE]  = 0;
-    new_termios.c_cc[VLNEXT]   = 0;
-    new_termios.c_cc[VEOL2]    = 0;
-    if (cfsetispeed(&new_termios, B115200) != 0)
-    {
-        fprintf(stderr, "cfsetispeed(&new_termios, B57600) failed: %s\n", strerror(errno));
-        perror("cfsetispeed");
-        return 1;
-    }
-    printf("4\n");
+    memset(&new_termios_, 0, sizeof(new_termios_));
+    new_termios_.c_iflag = IGNPAR;
+    new_termios_.c_oflag = 0;
+    new_termios_.c_cflag = CS8 | CREAD | CLOCAL | HUPCL;
+    new_termios_.c_lflag = 0;
+    new_termios_.c_cc[VINTR]    = 0;
+    new_termios_.c_cc[VQUIT]    = 0;
+    new_termios_.c_cc[VERASE]   = 0;
+    new_termios_.c_cc[VKILL]    = 0;
+    new_termios_.c_cc[VEOF]     = 4;
+    new_termios_.c_cc[VTIME]    = 0;
+    new_termios_.c_cc[VMIN]     = 1;
+    new_termios_.c_cc[VSWTC]    = 0;
+    new_termios_.c_cc[VSTART]   = 0;
+    new_termios_.c_cc[VSTOP]    = 0;
+    new_termios_.c_cc[VSUSP]    = 0;
+    new_termios_.c_cc[VEOL]     = 0;
+    new_termios_.c_cc[VREPRINT] = 0;
+    new_termios_.c_cc[VDISCARD] = 0;
+    new_termios_.c_cc[VWERASE]  = 0;
+    new_termios_.c_cc[VLNEXT]   = 0;
+    new_termios_.c_cc[VEOL2]    = 0;
 
-    if (cfsetospeed(&new_termios, B115200) != 0)
-    {
-        fprintf(stderr, "cfsetospeed(&new_termios, B57600) failed: %s\n", strerror(errno));
-        perror("cfsetospeed");
-        return 1;
-    }
-    printf("5\n");
-
-    if (tcsetattr(fd, TCSANOW, &new_termios) != 0)
+    if (tcsetattr(fd_, TCSANOW, &new_termios_) != 0)
     {
         fprintf(stderr, "tcsetattr(fd, TCSANOW, &new_termios) failed: %s\n", strerror(errno));
         perror("tcsetattr");
-        return 1;
+        close();
+        return false;
     }
-    printf("6\n");
 
-    int nWritten = write(fd, pszCommand, strlen(pszCommand));
-    printf("%d bytes written\n", nWritten);
-    perror("write");
-    const char *pszCRLF = "\r\n";
-    nWritten = write(fd, pszCRLF, strlen(pszCRLF));
-    printf("%d bytes written\n", nWritten);
-    perror("write");
+    return true;
+}
+
+bool SerialConnection::resetUSB()
+{
+    if (!isOpen())
+        return false;
+    int ec = ioctl(fd_, USBDEVFS_RESET, 0);
+    if (ec < 0)
+    {
+        perror("Error in ioctl (resetUSB)");
+        return false;
+    }
+    return true;
+}
+
+bool SerialConnection::close()
+{
+    if (isOpen())
+    {
+        // Before leaving, reset the old serial settings.
+        tcsetattr(fd_, TCSANOW, &old_termios_);
+        ::close(fd_);
+    }
+    fd_ = -1;
+    return true;
+}
+
+bool SerialConnection::setSpeed(speed_t speed)
+{
+    if (cfsetispeed(&new_termios_, speed) != 0)
+    {
+        fprintf(stderr, "cfsetispeed(&new_termios, B57600) failed: %s\n", strerror(errno));
+        perror("cfsetispeed");
+        return false;
+    }
+
+    if (cfsetospeed(&new_termios_, speed) != 0)
+    {
+        fprintf(stderr, "cfsetospeed(&new_termios, B57600) failed: %s\n", strerror(errno));
+        perror("cfsetospeed");
+        return false;
+    }
+
+    if (tcsetattr(fd_, TCSANOW, &new_termios_) != 0)
+    {
+        fprintf(stderr, "tcsetattr(fd, TCSANOW, &new_termios) failed: %s\n", strerror(errno));
+        perror("tcsetattr");
+        return false;
+    }
+    return true;
+}
+
+bool SerialConnection::write(const void *pBuffer, int nBytes)
+{
+    if (!isOpen())
+        return false;
+    int nWritten = ::write(fd_, pBuffer, nBytes);
+    return (nWritten == nBytes);
+}
+
+bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout, int &nBytesReadTotal)
+{
+    if (!isOpen())
+        return false;
 
     struct pollfd fds;
     memset(&fds, 0, sizeof(fds));
-    fds.fd = fd;
+    fds.fd = fd_;
     fds.events = POLLIN;
-    int timeout = (3 * 1000); // 3 seconds
-    printf("7\n");
 
     int nRead = 0;
-    char c;
+    char *pCurrentPos = (char *)pBuffer;
     do
     {
         nRead = 0;
-        int rc = poll(&fds, 1, timeout); // 0 means "timeout expired" -> do nothing
-        if (rc > 0)
+        int ec = poll(&fds, 1, timeout); // 0 means "timeout expired" -> do nothing
+        if (ec > 0)
         {
             if (fds.revents == POLLIN)
             {
-                nRead = read(fds.fd, &c, sizeof(c));
+                nRead = ::read(fds.fd, pCurrentPos, 1);
                 if (nRead)
                 {
-                    if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
-                        printf("%c", c);
+                    pCurrentPos += nRead;
+                    nBytesReadTotal += nRead;
                 }
                 fds.revents = 0;
             }
         }
-        else if (rc < 0)
+        else if (ec < 0)
         {
           perror("  poll() failed");
           break;
         }
-    } while (nRead);
-    printf("8\n");
-
-    // Before leaving, reset the old serial settings.
-    tcsetattr(fd, TCSANOW, &old_termios);
-    printf("9\n");
-    close(fd);
-    printf("10\n");
-    return 0;
+    } while (nRead && (nBytesReadTotal < nBufferSize));
+    return true;
 }
+
+
+
+
