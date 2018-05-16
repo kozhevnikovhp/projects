@@ -1,10 +1,7 @@
 #include "modem-gct.h"
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <algorithm>
 
-#define REAL_MODEM 0 // 1 means work with real modem, 0 means pre-memorized raw output form modem
+#define REAL_MODEM 1 // 1 means work with real modem, 0 means pre-memorized raw output form modem
 
 const char *pszErrorJSON = "{\n\tERROR\n}\n";
 
@@ -59,20 +56,24 @@ bool ModemGCT::getManufacturerInfoRaw(std::string &raw)
 #endif
 }
 
-bool ModemGCT::getManufacturerInfoJSON(std::string &json)
+bool ModemGCT::getManufacturerInfo(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "Manufacturer", "Model", "Revision", "MEID", "IMEI", "IMEI", "FSN",  "+GCAP" };
     std::string raw;
-    printf("1\n");
-    bool bSuccess = getManufacturerInfoRaw(raw);
-    printf("2\n");
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getManufacturerInfoRaw(raw))
         return false;
-    }
-    printf("3\n");
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getManufacturerInfo(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getManufacturerInfo(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getBandRaw(std::string &raw)
@@ -84,39 +85,56 @@ bool ModemGCT::getBandRaw(std::string &raw)
 #endif
 }
 
-bool ModemGCT::getBandJSON(std::string &json)
+bool ModemGCT::getBand(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "a" };
     std::string raw;
-    bool bSuccess = getBandRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getBandRaw(raw))
         return false;
-    }
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getBand(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getBand(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getCopsRaw(std::string &raw)
 {
 #if REAL_MODEM
     return execute("at+cops?", raw);
-#else
+#else    
+    raw = "+COPS: 0,0,""Sprint"",7\n\
+    \n\
+    OK\n";
     return true;
 #endif
 }
 
-bool ModemGCT::getCopsJSON(std::string &json)
+bool ModemGCT::getCops(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "+COPS" };
     std::string raw;
-    bool bSuccess = getCopsRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getCopsRaw(raw))
         return false;
-    }
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getCops(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getCops(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getCgdContRaw(std::string &raw)
@@ -124,21 +142,39 @@ bool ModemGCT::getCgdContRaw(std::string &raw)
 #if REAL_MODEM
     return execute("at+cgdcont?", raw);
 #else
+    raw ="\n\
+    +CGDCONT: 1,""IPV4V6"",""r.ispsn"","""",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 2,""IPV4V6"",""otasn"","""",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 3,""IPV4V6"","","""",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 4,""IP"","","",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 5,""IP"","","",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 6,""IP"","","",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 7,""IP"","","",0,0,0,0,0,0,0,0,0\n\
+    +CGDCONT: 8,""IP"","","",0,0,0,0,0,0,0,0,0\n\
+    \n\
+    OK\n";
     return true;
 #endif
 }
 
-bool ModemGCT::getCgdContJSON(std::string &json)
+bool ModemGCT::getCgdCont(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "+CGDCONT" };
     std::string raw;
-    bool bSuccess = getCgdContRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getCgdContRaw(raw))
         return false;
-    }
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getCgdCont(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getCgdCont(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getAttStatusRaw(std::string &raw)
@@ -146,26 +182,33 @@ bool ModemGCT::getAttStatusRaw(std::string &raw)
 #if REAL_MODEM
     return execute("at+cgatt?", raw);
 #else
-    raw = "+CGATT:1\n\
+    raw = "\n\
+           +CGATT:1\n\
             \n\
             OK\n\
-            \n\
-    ";
+            \n";
     return true;
 #endif
 }
 
-bool ModemGCT::getAttStatusJSON(std::string &json)
+bool ModemGCT::getAttStatus(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "+CGATT" };
     std::string raw;
-    bool bSuccess = getAttStatusRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getAttStatusRaw(raw))
         return false;
-    }
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getAttStatus(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getAttStatus(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getActStatusRaw(std::string &raw)
@@ -173,26 +216,41 @@ bool ModemGCT::getActStatusRaw(std::string &raw)
 #if REAL_MODEM
     return execute("at+cgact?", raw);
 #else
-    raw = "+CGATT:1\n\
-            \n\
-            OK\n\
-            \n\
-    ";
+    raw = "\
+at+cgact?\n\
+\n\
++CGACT: 1,1\n\
++CGACT: 2,0\n\
++CGACT: 3,0\n\
++CGACT: 4,0\n\
++CGACT: 5,0\n\
++CGACT: 6,0\n\
++CGACT: 7,0\n\
++CGACT: 8,0\n\
+\n\
+OK\n";
     return true;
 #endif
 }
 
-bool ModemGCT::getActStatusJSON(std::string &json)
+bool ModemGCT::getActStatus(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "+CGACT" };
     std::string raw;
-    bool bSuccess = getActStatusRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getActStatusRaw(raw))
         return false;
-    }
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getActStatus(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getActStatus(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getCgpAddrRaw(std::string &raw)
@@ -200,21 +258,32 @@ bool ModemGCT::getCgpAddrRaw(std::string &raw)
 #if REAL_MODEM
     return execute("at+cgpaddr", raw);
 #else
+    raw = "\n\
+    +CGPADDR: 1,""173.139.108.55"",""38.0.0.1.154.112.2.25.0.0.0.68.248.43.239.1""\n\
+    \n\
+    OK\n";
     return true;
 #endif
 }
 
-bool ModemGCT::getCgpAddrJSON(std::string &json)
+bool ModemGCT::getCgpAddr(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "+CGPADDR" };
     std::string raw;
-    bool bSuccess = getCgpAddrRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getCgpAddrRaw(raw))
         return false;
-    }
+    return parseToContent(raw, content, dictionary);
+}
 
-    return parseToJSON(raw, json);
+bool ModemGCT::getCgpAddr(std::string &json)
+{
+    JsonContent content;
+    bool bSuccess = getCgpAddr(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool ModemGCT::getStatusRaw(std::string &raw)
@@ -241,85 +310,26 @@ bool ModemGCT::getStatusRaw(std::string &raw)
 #endif
 }
 
-bool ModemGCT::getStatusJSON(std::string &json)
+bool ModemGCT::getStatus(JsonContent &content)
 {
+    std::vector<const char *> dictionary = { "Mode", "System mode", "PS state", "LTE band", "LTE bw", "LTE Rx chan",
+                                             "LTE Tx chan", "EMM state", "RRC state", "IMS reg state", "RSSI (dBm)",
+                                             "Tx Power", "RSRP (dBm)", "RSRP (dBm)", "TAC ", "RSRQ (dBm)", "RSRQ (dBm)", "SINR (dB)" };
     std::string raw;
-    bool bSuccess = getStatusRaw(raw);
-    if (!bSuccess)
-    {
-        json = pszErrorJSON;
+    if (!getStatusRaw(raw))
         return false;
-    }
-
-    return parseToJSON(raw, json);
+    return parseToContent(raw, content, dictionary);
 }
 
-// trim from start (in place) (leading spaces)
-static inline void ltrim(std::string &s)
+bool ModemGCT::getStatus(std::string &json)
 {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) { return !isspace(c); }));
-}
-
-// trim from end (in place)
-static inline void rtrim(std::string &s)
-{
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int c) { return !isspace(c); }).base(), s.end());
-}
-
-//static
-bool ModemGCT::parseToJSON(const std::string &input, std::string &output)
-{
-    //printf("input: %s\n", input.c_str());
-    std::string key, value;
-    char *pszInput = strdup(input.c_str()); // TODO: do something better to avoid strdup/free
-    const char *pszSeparator = ":\n\r\t";
-    // replace two subsequent blanks with tab - new separator
-    for (int i = 1; i < strlen(pszInput); ++i)
-        if (pszInput[i-1] == ' ' && pszInput[i] == ' ')
-            pszInput[i-1] = pszInput[i] = '\t';
-
-    output = "{\n";
-    char *pszToken = strtok(pszInput, pszSeparator);
-    bool bFirst = true;
-    while (pszToken)
-    {
-        //printf("token %s, length = %d\n", pszToken, strlen(pszToken));
-        key = pszToken;
-        ltrim(key);
-        rtrim(key);
-        if (!key.empty())
-        {
-            //printf("key = %s\n", key.c_str());
-            pszToken = strtok(NULL, "\n\r\t");
-            if (pszToken)
-            {
-                //printf("\ttoken %s, length = %d\n", pszToken, strlen(pszToken));
-                value = pszToken;
-                ltrim(value);
-                rtrim(value);
-                if (!value.empty())
-                {
-                    //printf("\tvalue = %s\n", value.c_str());
-                    if (!bFirst)
-                    {
-                        output += ",";
-                    }
-                    output += "\n\t";
-                    output += "\"";
-                    output += key;
-                    output += "\" : \"";
-                    output += value;
-                    output += "\"";
-                    bFirst = false;
-                }
-            }
-        }
-        pszToken = strtok(NULL, pszSeparator);
-    }
-    output += "\n}\n";
-
-    free(pszInput);
-    return true;
+    JsonContent content;
+    bool bSuccess = getCgpAddr(content);
+    if (bSuccess)
+        bSuccess = toJSON(content, json);
+    if (!bSuccess)
+        json = pszErrorJSON;
+    return bSuccess;
 }
 
 bool getStatusGTC(const char *pszDevice, std::string &status)
