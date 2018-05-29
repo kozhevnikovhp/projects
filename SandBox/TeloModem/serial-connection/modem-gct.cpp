@@ -1,7 +1,7 @@
 #include "modem-gct.h"
 #include <string.h>
 
-#define REAL_MODEM 1 // 1 means work with real modem, 0 means pre-memorized raw output form modem
+#define REAL_MODEM 0 // 1 means work with real modem, 0 means pre-memorized raw output form modem
 
 const char *pszErrorJSON = "{\n\tERROR\n}\n";
 
@@ -25,12 +25,14 @@ bool ModemGCT::execute(const std::string &command, std::string &reply)
 
     int nRead = 0;
     char szReply[1024];
-    if (!connection_.read(szReply, sizeof(szReply), 3000, nRead))
+    if (!connection_.read(szReply, sizeof(szReply), 2000, nRead))
         return false;
     szReply[nRead] = 0;
     for (int i = 0; i < nRead; ++i)
     {
         char c = szReply[i];
+        if (c == '"')
+            continue; // skip all quotation marks
         if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
             reply += c;
     }
