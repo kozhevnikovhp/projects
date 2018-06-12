@@ -25,7 +25,7 @@ bool parseToContent(const std::string &raw, JsonContent &content, const Dictiona
     // replace two subsequent blanks with tab - new separator
     for (int i = 1; i < strlen(pszInput); ++i)
         if (pszInput[i-1] == ' ' && pszInput[i] == ' ')
-            pszInput[i-1] = pszInput[i] = '\t';
+            pszInput[i-1] = pszInput[i] = '\n';
 
     char *pszToken = strtok(pszInput, pszSeparator);
     while (pszToken)
@@ -44,11 +44,11 @@ bool parseToContent(const std::string &raw, JsonContent &content, const Dictiona
 
                 // find key value in dictionary. It is assumed that the dictionary would be very short, 1-5 items, so linear search is implemented
                 const char *pszFoundInDictionary = NULL;
-                for (auto &pszItem : dictionary)
+                for (auto &dictionaryEntry : dictionary)
                 {
-                    if (key.find(pszItem) != std::string::npos)
+                    if (key.find(dictionaryEntry.first) != std::string::npos)
                     {
-                        pszFoundInDictionary = pszItem;
+                        pszFoundInDictionary = dictionaryEntry.second;
                         break;
                     }
                 }

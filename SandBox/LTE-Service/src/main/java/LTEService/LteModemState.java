@@ -8,57 +8,69 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 
 
 public class LteModemState {
     public LteModemState() {  }
 
-    public String getParamValue(String paramName) {
-        return paramName+" "+paramName;
+    public void newValue(String paramName, String value)
+    {
+        if (paramName.equalsIgnoreCase("sent_bytes_telo" ) ||
+            paramName.equalsIgnoreCase("received_bytes_telo") ||
+            paramName.equalsIgnoreCase("sent_bytes_user" ) ||
+            paramName.equalsIgnoreCase("received_bytes_user")
+            )
+        { // special processing! Bytes are being sent incrementally, we cannot replace, but have to increment
+            String oldValue = stateHolder_.get(paramName);
+            if (oldValue == null)
+            { // not found, just put it there
+                stateHolder_.put(paramName, value);
+            }
+            else
+            { // convert to integer, increment, and put it back
+                int valueInDB = Integer.parseInt(oldValue);
+                int increment = Integer.parseInt(value);
+                valueInDB += increment;
+                stateHolder_.put(paramName, Integer.toString(valueInDB));
+           }
+        }
+        else
+            stateHolder_.put(paramName, value); //easy star all star
     }
 
-    public void newValue(String paramName, String value) {
-        stateHolder_.put(paramName, value);
-    }
-
-    public String getValue(String paramName) {
+    public String getValue(String paramName)
+    {
         String value = stateHolder_.get(paramName);
         if (value == null)
-            return "NotFound";
+            return "not found";
         return value;
     }
 
     // paramNames is comma-separated set of parameter names
-    public String getValues(String paramNamesJSON) throws IOException {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        byte[] bytes = paramNamesJSON.getBytes();
-        JsonNode rootNode = objectMapper.readTree(bytes);
+    public JSONObject getValues(JsonNode rootNode)
+    {
         List<String> params = new ArrayList<String>();
         JsonNode parametersNode = rootNode.path("parameters");
-        Iterator<JsonNode> elements = parametersNode.elements();
-        while (elements.hasNext()) {
-            JsonNode paramNode = elements.next();
-            System.out.println(" param = " + paramNode.asText());
-            params.add(paramNode.asText());
+        if (parametersNode != null)
+        {
+            Iterator<JsonNode> elements = parametersNode.elements();
+            while (elements.hasNext()) {
+                JsonNode paramNode = elements.next();
+                params.add(paramNode.asText());
+            }
         }
 
         return getValues(params);
     }
 
-    public String getValues(List<String> params) {
+    public JSONObject getValues(List<String> params) {
         boolean bFirst = true;
-        String retValue = "    parameters:" + System.lineSeparator() + "    {";
+        JSONObject json = new JSONObject();
         for (String param : params) {
-            if (!bFirst)
-                retValue += ", ";
-            bFirst = false;
-            retValue += System.lineSeparator();
-            retValue += "        " + param + ":";
-            retValue += getValue(param);
+            json.put(param, getValue(param));
         }
-        retValue += System.lineSeparator() + "    }" + System.lineSeparator();
-        return retValue;
+        return json;
     }
 
     protected HashMap<String,String> stateHolder_ = new HashMap<String,String>();

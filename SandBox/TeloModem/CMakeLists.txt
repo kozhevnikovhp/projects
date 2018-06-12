@@ -7,3 +7,4 @@ project (TELO-MODEM)
 
 add_subdirectory (serial-connection)
 add_subdirectory (lte-status)
+add_subdirectory (lte-manager)
