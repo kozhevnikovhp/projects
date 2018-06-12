@@ -12,6 +12,8 @@ class ModemGCT
 public:
     ModemGCT(const char *pszDevice);
 
+    bool isControllable();
+
     bool getManufacturerInfoRaw(std::string &raw);
     bool getManufacturerInfo(JsonContent &content);
     bool getManufacturerInfo(std::string &json);
