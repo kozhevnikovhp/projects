@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h> //atoi
 
 #include <modem-gct.h>
 #define GTC 1 // 1 means "using helper class", 0 means "using raw communication"
 
-/*int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+    printf("argc = %d\n", argc);
     if (argc < 2)
     {
-        printf("USAGE: %s <UsbDeviceName>\n", argv[0]);
+        printf("USAGE: %s <UsbDeviceName> timeout\n", argv[0]);
         return 1;
     }
 
     char *pszDevice = argv[1];
+    int timeout = 1;
+    if (argc > 2)
+        timeout = atoi(argv[2]);
 
     int nCount = 0;
     bool bSuccess = true;
@@ -29,22 +34,23 @@
             return 1;
         }
         printf("done successfully\n");
-
-        sleep(1);
+        printf("sleeping %d seconds before closing\n", timeout);
+        sleep(timeout);
 
         printf("closing...");
         ::close(fd);
         printf("closed\n");
 
         printf("\t***** %d times done *****\n", ++nCount);
-        sleep(3);
+        printf("sleeping %d seconds before re-opening\n", timeout);
+        sleep(timeout);
     }
 
     return 0;
 }
-*/
 
-int main(int argc, char *argv[])
+
+/*int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
@@ -94,18 +100,6 @@ int main(int argc, char *argv[])
         bSuccess |= toJSON(content, json);
         printf("%s", json.c_str());
 
-      /*  bSuccess = modem.getStatusJSON(reply);
-        printf("%s", reply.c_str());
-        modem.getCgdContJSON(reply);
-        printf("%s", reply.c_str());
-        modem.getBandJSON(reply);
-        printf("%s", reply.c_str());
-        modem.getAttStatusJSON(reply);
-        printf("%s", reply.c_str());
-        modem.getActStatusJSON(reply);
-        printf("%s", reply.c_str());
-        */
-
 #else
         bSuccess = getStatusGTC(pszDevice, reply);
         printf("%s", reply.c_str());
@@ -118,4 +112,4 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
+*/
