@@ -1,4 +1,5 @@
 #include <sys/time.h>
+
 #include "lte-parameters.h"
 
 unsigned int getCurrentTimeSec()
@@ -12,9 +13,8 @@ unsigned int getCurrentTimeSec()
 /// \brief LteParameterGroup::LteParameterGroup
 ///
 LteParameterGroup::LteParameterGroup()
-    : bForceQuery_(true)
+    : actualTime_(0), bForceQuery_(true)
 {
-    actualTime_ = 0;
 }
 
 bool LteParameterGroup::get(JsonContent &allReport)
@@ -73,9 +73,9 @@ bool LteParameterGroup::get(JsonContent &allReport)
 
 
 ///////////////////////////////////////////////////////////////////
-/// \brief ModemControlParameterGroup::ModemControlParameterGroup
+/// ModemControlParameterGroup
 ///
-ModemControlParameterGroup::ModemControlParameterGroup(ModemGCT &modem)
+ModemControlParameterGroup::ModemControlParameterGroup(ModemGTC &modem)
     : modem_(modem)
 {
 }
@@ -87,13 +87,14 @@ bool ModemControlParameterGroup::doGet(JsonContent &content)
     if (modem_.isControllable())
         status = "active";
     content.emplace_back(KeyValue("lte_dongle", status));
+    return true;
 }
 
 
 ///////////////////////////////////////////////////////////////////
 /// \brief ConstantModemParameterGroup::ConstantModemParameterGroup
 ///
-ConstantModemParameterGroup::ConstantModemParameterGroup(ModemGCT &modem)
+ConstantModemParameterGroup::ConstantModemParameterGroup(ModemGTC &modem)
     : modem_(modem)
 {
 }
@@ -103,18 +104,25 @@ bool ConstantModemParameterGroup::doGet(JsonContent &content)
 {
     bool bSuccess = true;
     bSuccess *= modem_.getManufacturerInfo(content);
+    bSuccess *= modem_.getFirmwareVersionInfo(content);
+    bSuccess *= modem_.getImei(content);
+    bSuccess *= modem_.getIccId(content);
+    bSuccess *= modem_.getCarrier(content);
+    std::string SPN;
+    modem_.getSPN(SPN);
+    if (!SPN.empty())
+        content.emplace_back(KeyValue("spn", SPN));
     return bSuccess;
 }
 
 
 ///////////////////////////////////////////////////////////////////
-/// \brief VariableModemParameterGroup::VariableModemParameterGroup
-///
-VariableModemParameterGroup::VariableModemParameterGroup(ModemGCT &modem)
+/// VariableModemParameterGroup
+
+VariableModemParameterGroup::VariableModemParameterGroup(ModemGTC &modem)
     : modem_(modem)
 {
 }
-
 
 //virtual
 bool VariableModemParameterGroup::doGet(JsonContent &content)
@@ -126,7 +134,7 @@ bool VariableModemParameterGroup::doGet(JsonContent &content)
 
 
 ///////////////////////////////////////////////////////////////////
-/// \brief NetworkParameterGroup::NetworkParameterGroup
+/// NetworkParameterGroup
 ///
 NetworkParameterGroup::NetworkParameterGroup(const std::string &iFaceName)
     : ifaceName_(iFaceName)
@@ -155,7 +163,7 @@ bool NetworkParameterGroup::doGet(JsonContent &content)
 
 
 ///////////////////////////////////////////////////////////////////
-/// \brief VariableModemParameterGroup::VariableModemParameterGroup
+/// VariableModemParameterGroup
 ///
 TrafficParameterGroup::TrafficParameterGroup(TrafficCounter &counter)
     : counter_(counter)

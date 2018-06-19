@@ -1,7 +1,7 @@
 #ifndef LTEPARAMETERS_H
 #define LTEPARAMETERS_H
 
-#include "modem-gct.h"
+#include "modem-gtc.h"
 #include "traffic-counter.h"
 #include "json.h"
 
@@ -17,13 +17,16 @@ public:
 
 public:
     LteParameterGroup();
+    virtual ~LteParameterGroup()
+    {
+    }
 
 public:
     bool get(JsonContent &allReport);
 
 protected:
-    virtual int getMinExpirationTime() const = 0;
-    virtual int getMaxExpirationTime() const = 0;
+    virtual unsigned int getMinExpirationTime() const = 0;
+    virtual unsigned int getMaxExpirationTime() const = 0;
     virtual bool doGet(JsonContent &content) = 0;
     virtual bool isValueChanged(const KeyValue &lastEntry, const KeyValue entry) const
     {
@@ -39,42 +42,43 @@ protected:
 class ModemControlParameterGroup : public LteParameterGroup
 {
 public:
-    ModemControlParameterGroup(ModemGCT &modem);
+    ModemControlParameterGroup(ModemGTC &modem);
 
 protected:
-    virtual int getMinExpirationTime() const { return 1*60; }
-    virtual int getMaxExpirationTime() const { return 5*60; }
+    virtual unsigned int getMinExpirationTime() const { return 5*60; }
+    virtual unsigned int getMaxExpirationTime() const { return 10*60; }
     virtual bool doGet(JsonContent &content);
 
-    ModemGCT &modem_;
+    ModemGTC &modem_;
 };
 
 
+// ManufacturesInfo, SPN
 class ConstantModemParameterGroup : public LteParameterGroup
 {
 public:
-    ConstantModemParameterGroup(ModemGCT &modem);
+    ConstantModemParameterGroup(ModemGTC &modem);
 
 protected:
-    virtual int getMinExpirationTime() const { return 1*60; }
-    virtual int getMaxExpirationTime() const { return 5*60; }
+    virtual unsigned int getMinExpirationTime() const { return 5*60; }
+    virtual unsigned int getMaxExpirationTime() const { return 10*60; }
     virtual bool doGet(JsonContent &content);
 
-    ModemGCT &modem_;
+    ModemGTC &modem_;
 };
 
 
 class VariableModemParameterGroup : public LteParameterGroup
 {
 public:
-    VariableModemParameterGroup(ModemGCT &modem);
+    VariableModemParameterGroup(ModemGTC &modem);
 
 protected:
-    virtual int getMinExpirationTime() const { return 1*60; }
-    virtual int getMaxExpirationTime() const { return 2*60; }
+    virtual unsigned int getMinExpirationTime() const { return 1*60; }
+    virtual unsigned int getMaxExpirationTime() const { return 2*60; }
     virtual bool doGet(JsonContent &content);
 
-    ModemGCT &modem_;
+    ModemGTC &modem_;
 };
 
 class NetworkParameterGroup : public LteParameterGroup
@@ -83,8 +87,8 @@ public:
     NetworkParameterGroup(const std::string &ifaceName);
 
 protected:
-    virtual int getMinExpirationTime() const { return 5*60; }
-    virtual int getMaxExpirationTime() const { return 10*60; }
+    virtual unsigned int getMinExpirationTime() const { return 5*60; }
+    virtual unsigned int getMaxExpirationTime() const { return 10*60; }
     virtual bool doGet(JsonContent &content);
 
     std::string ifaceName_;
@@ -97,8 +101,8 @@ public:
     TrafficParameterGroup(TrafficCounter &counter);
 
 protected:
-    virtual int getMinExpirationTime() const { return 5; }
-    virtual int getMaxExpirationTime() const { return 10; }
+    virtual unsigned int getMinExpirationTime() const { return 1*60; }
+    virtual unsigned int getMaxExpirationTime() const { return 5*60; }
     virtual bool doGet(JsonContent &content);
     virtual bool isValueChanged(const KeyValue &lastEntry, const KeyValue &entry) const { return true; }
 

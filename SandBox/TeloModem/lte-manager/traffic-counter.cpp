@@ -13,7 +13,6 @@
 TrafficStatistics::TrafficStatistics()
     : nInputPackets_(0), nOutputPackets_(0), nInputBytes_(0), nOutputBytes_(0)
 {
-
 }
 
 void TrafficStatistics::update(unsigned int nPacketSize, bool bInput)

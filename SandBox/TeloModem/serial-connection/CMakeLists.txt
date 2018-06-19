@@ -3,7 +3,7 @@
 
 add_library (serial-connection
     json.cpp
-    modem-gct.cpp
+    modem-gtc.cpp
     serial-connection.cpp
     )
 

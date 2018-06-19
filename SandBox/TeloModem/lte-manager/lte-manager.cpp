@@ -1,58 +1,50 @@
 #include <stdio.h>
-//#include <fcntl.h>
-
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include <unistd.h>
-//#include <arpa/inet.h>
 
 #include <librdkafka/rdkafkacpp.h>
-//#include <iostream>
-
 #include "lte-parameters.h"
 #include "traffic-counter.h"
 
-//const char *PSZ_IDENTIFICATION = "2267EE";
 const char *PSZ_VERSION = "1";
-const char *PSZ_MYX_ID_INTERFACE = "enp0s3"; // eth0 at TELO
-
 int main(int argc, char *argv[])
 {
-    if (argc < 3)
+    if (argc < 5)
     {
-        printf("USAGE: %s <UsbDeviceName> <Interface>\n", argv[0]);
+        printf("USAGE: %s <LteModemDeviceName> <LteNetworkInterfaceName> <myxInterfaceName> <KafkaClusterIP>\n", argv[0]);
         return 1;
     }
 
     // get myxID
+    char *pszMyxInterface = argv[3];
     unsigned char ucMacAddress[8];
-    if (!getInterfaceMacAddress(PSZ_MYX_ID_INTERFACE, ucMacAddress))
+    if (!getInterfaceMacAddress(pszMyxInterface, ucMacAddress))
     {
-        printf("Cannot get MYX_ID as MAC-address of interface %s\n", PSZ_MYX_ID_INTERFACE);
+        printf("Cannot get MYX_ID as MAC-address of interface %s\n", pszMyxInterface);
         return 1;
     }
     std::string myxID;
-    for (int i = 3; i < 6; i++)
-    {
-        char szTmp[8];
-        sprintf(szTmp, "%X", ucMacAddress[i]);
-        myxID += szTmp;
-    }
+    char szTmp[8];
+    sprintf(szTmp, "%X", ucMacAddress[3]);
+    myxID += szTmp;
+    sprintf(szTmp, "%X", ucMacAddress[4]);
+    myxID += szTmp;
+    sprintf(szTmp, "%X", ucMacAddress[5]-1);
+    myxID += szTmp;
 
     char *pszDevice = argv[1];
-    ModemGCT modem(pszDevice);
+    ModemGTC modem(pszDevice);
 
     char *pszInterface = argv[2];
     TrafficCounter trafficCounter;
     trafficCounter.addInterface(pszInterface);
     if (!trafficCounter.startListening())
     {
-        printf("cannot start listening traffic\n");
+        printf("Cannot start listening traffic\n");
         return 1;
     }
 
-    std::string brokers = "10.0.2.15";
+    std::string brokers = argv[4];
+    printf("Kafka brokers: %s\n", brokers.c_str());
     std::string errstr;
     std::string topic_str = "lte-service";
     int32_t partition = RdKafka::Topic::PARTITION_UA;
@@ -72,7 +64,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    printf("% Created producer\n", producer->name().c_str());
+    printf("Created producer %s\n", producer->name().c_str());
 
     /*
     * Create topic handle.
@@ -83,7 +75,6 @@ int main(int argc, char *argv[])
         printf("Failed to create topic: %s\n", errstr.c_str());
         return 1;
     }
-
 
     std::vector<LteParameterGroup *> allGroups;
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
@@ -112,7 +103,7 @@ int main(int argc, char *argv[])
             toJSON(queryResult, json);
             printf("%s\n", json.c_str());
             producer->produce(topic, partition,
-                    RdKafka::Producer::RK_MSG_COPY, // Copy payload
+                    RdKafka::Producer::RK_MSG_COPY,
                     (char *)json.c_str(), json.size(),
                     NULL, NULL);
         }

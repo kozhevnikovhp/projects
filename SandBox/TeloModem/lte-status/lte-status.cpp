@@ -9,13 +9,13 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-//#include <librdkafka/rdkafkacpp.h>
+#include <librdkafka/rdkafkacpp.h>
 #include <iostream>
 
-#include <modem-gct.h>
+#include <modem-gtc.h>
 #define GTC 1 // 1 means "using helper class", 0 means "using raw communication"
 
-int main(int argc, char *argv[])
+/*int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
@@ -28,9 +28,6 @@ int main(int argc, char *argv[])
     std::string topic_str = "lte-service";
     int32_t partition = RdKafka::Topic::PARTITION_UA;
 
-    /*
-    * Create configuration objects
-    */
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
@@ -44,9 +41,6 @@ int main(int argc, char *argv[])
 
     std::cout << "% Created producer " << producer->name() << std::endl;
 
-    /*
-    * Create topic handle.
-    */
     RdKafka::Topic *topic = NULL;
     if (!topic_str.empty())
     {
@@ -63,7 +57,7 @@ int main(int argc, char *argv[])
     {
         sprintf(szString, "%d: hello, Kafka, from C++!", i+1);
         RdKafka::ErrorCode resp = producer->produce(topic, partition,
-           RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
+           RdKafka::Producer::RK_MSG_COPY,
            szString, strlen(szString),
            NULL, NULL);
         //printf("Error code %d\n", resp);
@@ -99,7 +93,7 @@ int main(int argc, char *argv[])
         printf("%s", json.c_str());
 
         RdKafka::ErrorCode resp = producer->produce(topic, partition,
-           RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
+           RdKafka::Producer::RK_MSG_COPY,
            (char *)json.c_str(), strlen(json.c_str()),
            NULL, NULL);
 
@@ -111,7 +105,7 @@ int main(int argc, char *argv[])
 
         sprintf(szString, "\t***** %d times done *****\n", ++nCount);
         producer->produce(topic, partition,
-           RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
+           RdKafka::Producer::RK_MSG_COPY,
            (char *)szString, strlen(szString),
            NULL, NULL);
 
@@ -123,16 +117,17 @@ int main(int argc, char *argv[])
     delete topic;
     delete producer;
     return 0;
-}
+}*/
+
 // statistics
 //https://stackoverflow.com/questions/4951257/using-c-code-to-get-same-info-as-ifconfig?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 //
-/*int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     printf("argc = %d\n", argc);
     if (argc < 2)
     {
-        printf("USAGE: %s <UsbDeviceName> timeout\n", argv[0]);
+        printf("USAGE: %s <UsbDeviceName> <timeout_in_seconsd>\n", argv[0]);
         return 1;
     }
 
@@ -168,7 +163,7 @@ int main(int argc, char *argv[])
     }
 
     return 0;
-} */
+}
 
 
 /*int main(int argc, char *argv[])
