@@ -1,4 +1,11 @@
-// Class SnifferSocket implementation
+/*
+ *  sniffer.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
+// Class Sniffer implementation
 
 #include "sniffer.h"
 

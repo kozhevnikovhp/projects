@@ -1,3 +1,10 @@
+/*
+ *  serial-connection.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -134,7 +141,7 @@ bool SerialConnection::write(const void *pBuffer, int nBytes)
     return (nWritten == nBytes);
 }
 
-bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout, int &nBytesReadTotal)
+bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout, size_t &nBytesReadTotal)
 {
     if (!isOpen())
         return false;

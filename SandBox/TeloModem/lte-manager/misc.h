@@ -1,5 +1,11 @@
-#ifndef __MISC_H_INCLUDED__
-#define __MISC_H_INCLUDED__
+/*
+ *  misc.h
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
+#pragma once
 
 #include <string>
 #include "ip.h"
@@ -43,5 +49,3 @@ void printIcmpHeader(const SIcmpHeader *pHeader);
 void printTcpHeader(const STcpHeader *pHeader);
 void printUdpHeader(const SUdpHeader *pHeader);
 void printPacketPayload(char *data , int size);
-
-#endif // __MISC_H_INCLUDED__

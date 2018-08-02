@@ -1,5 +1,11 @@
-#ifndef __IP_H_INCLUDED__
-#define __IP_H_INCLUDED__
+/*
+ *  ip.h
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
+#pragma once
 
 typedef int SOCKET;
 const int INVALID_SOCKET  = (~0);
@@ -137,6 +143,3 @@ typedef struct
 
 #pragma pack(pop)
 
-
-
-#endif // __IP_H_INCLUDED__

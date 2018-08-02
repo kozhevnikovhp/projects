@@ -1,7 +1,12 @@
-#ifndef __SNIFFER_H_INCLUDED__
-#define __SNIFFER_H_INCLUDED__
+/*
+ *  sniffer.h
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
 
-//#include "misc.h"
+#pragma once
+
 #include "ip.h"
 
 #include <pcap.h>
@@ -44,4 +49,3 @@ protected:
     char error_buffer_[PCAP_ERRBUF_SIZE];
 };
 
-#endif // __SNIFFER_H_INCLUDED__

@@ -5,6 +5,4 @@
 cmake_minimum_required (VERSION 2.8)
 project (TELO-MODEM)
 
-add_subdirectory (serial-connection)
-add_subdirectory (lte-status)
 add_subdirectory (lte-manager)

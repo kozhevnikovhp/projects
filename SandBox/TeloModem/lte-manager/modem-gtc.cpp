@@ -1,10 +1,16 @@
+/*
+ *  modem-gtc.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
 #include <string.h>
 #include <regex>
 #include <iostream>
 #include <fstream>
 #include "modem-gtc.h"
-
-#define REAL_MODEM 1 // 1 means work with real modem, 0 means pre-memorized raw output form modem
+#include "log.h"
 
 ModemGTC::ModemGTC(const std::string &deviceName)
 {
@@ -24,12 +30,12 @@ bool ModemGTC::execute(const std::string &command)
     if (!connection_.write(pszCRLF, strlen(pszCRLF)))
         return false;
 
-    int nRead = 0;
+    size_t nRead = 0;
     char szReply[1024];
-    if (!connection_.read(szReply, sizeof(szReply), 2000, nRead))
+    if (!connection_.read(szReply, sizeof(szReply), 3000, nRead))
         return false;
     szReply[nRead] = 0;
-    for (int i = 0; i < nRead; ++i)
+    for (size_t i = 0; i < nRead; ++i)
     {
         char c = szReply[i];
         if (c == '"')
@@ -37,12 +43,13 @@ bool ModemGTC::execute(const std::string &command)
         if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
             raw_ += c;
     }
+    //printf("\t%s\n", raw_.c_str());
     return true;
 }
 
 bool ModemGTC::isControllable()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT");
 #else
     return true;
@@ -55,7 +62,7 @@ bool ModemGTC::isControllable()
 
 bool ModemGTC::getManufacturerInfoRaw()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT%SYSCMD=\"device --s\"");
 #else
     raw_ = "\
@@ -105,7 +112,6 @@ bool ModemGTC::getManufacturerInfoRaw()
 bool ModemGTC::getManufacturerInfo(JsonContent &content)
 {
     const std::string garbage = "%SYSCMD: ";
-    //printf("GetManufacturerInfo\n");
     Dictionary dictionary = { DictionaryEntry("Board version", "board_version"),
                               DictionaryEntry("Board serial", "board_sn"),
                               DictionaryEntry("Board name", "board_name"),
@@ -114,13 +120,15 @@ bool ModemGTC::getManufacturerInfo(JsonContent &content)
                             };
     if (!getManufacturerInfoRaw())
         return false;
-    // remove garbage (sub-string %SYSCMD: iappears in every line)
+
+    // remove garbage (sub-string %SYSCMD: appears in every line)
     std::string::size_type i = raw_.find(garbage);
     while (i != std::string::npos)
     {
       raw_.erase(i, garbage.length());
       i = raw_.find(garbage, i);
     }
+
     return parseToContent(raw_, content, dictionary);
 }
 
@@ -129,7 +137,7 @@ bool ModemGTC::getManufacturerInfo(JsonContent &content)
 
 bool ModemGTC::getFirmwareVersionRaw()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT+CGMR");
 #else
     raw_ = "FW_VER: 0.3.2.4\nOK\n";
@@ -150,7 +158,7 @@ bool ModemGTC::getFirmwareVersionInfo(JsonContent &content)
 
 bool ModemGTC::getImeiRaw()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT%GIMEISV?");
 #else
     raw_ = "%GIMEISV: 8623430390034200\nOK\n";
@@ -171,7 +179,7 @@ bool ModemGTC::getImei(JsonContent &content)
 
 bool ModemGTC::getIccIdRaw()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT%GICCID");
 #else
     raw_ = "%GICCID: 89011202000218997994\nOK\n";
@@ -192,7 +200,7 @@ bool ModemGTC::getIccId(JsonContent &content)
 
 bool ModemGTC::getCarrierRaw()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT%GSERNETWORK");
 #else
     raw_ = "%GSERNETWORK: RegistrationState 1, CSDomain 0, PSDomain 1, Roaming 0, MCC 310, MNC 120, namesize 6, name Sprint, VOLTE 1\nOK\n";
@@ -224,9 +232,7 @@ bool ModemGTC::getCarrier(JsonContent &content)
                 if (sscanf(pszToken, "%s %s", szKey, szValue) == 2)
                 {
                     if (strcasecmp(szKey, "name") == 0)
-                    {
                         content.emplace_back(KeyValue(PSZ_CARRIER, szValue));
-                    }
                 }
                 pszToken = strtok(NULL, ",");
             }
@@ -237,10 +243,10 @@ bool ModemGTC::getCarrier(JsonContent &content)
 
 bool ModemGTC::getStatusRaw()
 {
-#if REAL_MODEM
+#ifndef PSEUDO_MODEM
     return execute("AT!GSTATUS");
 #else
-    raw = "\                                                                         \n\
+    raw_ = "                                                                         \n\
     Current Time : 0        Mode : ONLINE                                            \n\
     System mode : LTE       PS state : Attached                                      \n\
     LTE band : B25  LTE bw : 5MHz                                                    \n\
@@ -272,9 +278,11 @@ bool ModemGTC::getStatus(JsonContent &content)
                             };
     if (!getStatusRaw())
         return false;
-    JsonContent modemValues;
+    //printf("Raw = %s\n", raw_.c_str());
+    JsonContent modemValues;    
     if (!parseToContent(raw_, modemValues, dictionary))
         return false;
+
     std::string mode, PSState, SINR;
     for (auto &entry : modemValues)
     {
@@ -282,14 +290,14 @@ bool ModemGTC::getStatus(JsonContent &content)
         if (!entry.first.compare(pszMode))
         {
             mode = entry.second;
-            content.emplace_back(KeyValue(pszMode, mode));
             std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
+            content.emplace_back(KeyValue(pszMode, mode));
         }
         else if (!entry.first.compare(pszPSState))
         {
             PSState = entry.second;
-            content.emplace_back(KeyValue(pszPSState, PSState));
             std::transform(PSState.begin(), PSState.end(), PSState.begin(), ::tolower);
+            content.emplace_back(KeyValue(pszPSState, PSState));
         }
         else if (!entry.first.compare(pszRSSI))
             content.emplace_back(KeyValue(pszRSSI, entry.second));
@@ -322,16 +330,17 @@ bool ModemGTC::getSPN(std::string &SPN)
 {
     SPN.clear();
     std::string line;
-#if REAL_MODEM
-    std::ifstream mdmFile("/etc/ooma/mdm.cfg");
+#ifndef PSEUDO_MODEM
+    const std::string mdmCfgFile("/etc/ooma/mdm.cfg");
 #else
-    std::ifstream mdmFile("mdm.cfg");
+    const std::string mdmCfgFile("./mdm.cfg");
 #endif
-    if (mdmFile.is_open())
+    std::ifstream file(mdmCfgFile);
+    if (file.is_open())
     {
-        while (!mdmFile.eof())
+        while (!file.eof())
         {
-            std::getline(mdmFile, line);
+            std::getline(file, line);
             const char *pszKey = strtok((char *)line.c_str(), "=");
             if (pszKey && !strcmp(pszKey, "MY_SPN"))
             {
@@ -341,10 +350,10 @@ bool ModemGTC::getSPN(std::string &SPN)
                 break;
             }
         }
-        mdmFile.close();
+        file.close();
     }
     else
-        printf("Cannot open file\n");
+        log_info("Cannot open file %s", mdmCfgFile.c_str());
     return true;
 }
 

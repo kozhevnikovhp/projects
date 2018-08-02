@@ -1,3 +1,10 @@
+/*
+ *  traffic-counter.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
 #include <string.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -8,7 +15,7 @@
 #include "traffic-counter.h"
 
 /////////////////////////////////////////////////////////////////////////
-/// \brief TrafficStatistics::TrafficStatistics
+/// TrafficStatistics::TrafficStatistics
 ///
 TrafficStatistics::TrafficStatistics()
     : nInputPackets_(0), nOutputPackets_(0), nInputBytes_(0), nOutputBytes_(0)
@@ -45,9 +52,9 @@ bool InterfaceTrafficCounter::listen()
     bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
     {
-        fprintf(stdout, "Listening local interface '%s' to figure out traffic of %s...\n",
+        /*fprintf(stdout, "Listening local interface '%s' to figure out traffic of %s...\n",
                ifaceName_.c_str(),
-               addressToDotNotation(getIP()).c_str());
+               addressToDotNotation(getIP()).c_str());*/
         promiscModeOn(ifaceName_.c_str());
     }
     else
@@ -142,6 +149,7 @@ bool TrafficCounter::startListening()
 
 int TrafficCounter::doJob()
 {
+    //printf("TrafficCounter::doJob... ");
     const int OK = 0;
     const int NotOK = 1;
     // initial check
@@ -154,11 +162,11 @@ int TrafficCounter::doJob()
 
     for (auto &iface : interfaces_)
     {
-        fds[nfds].fd = pcap_get_selectable_fd(iface.getHandle());//iface.getHandle()->fd;
+        fds[nfds].fd = pcap_get_selectable_fd(iface.getHandle());
         fds[nfds].events = POLLIN;
         ++nfds;
     }
-    const int timeout = (1 * 1000); // 10 seconds
+    const int timeout = (10); // 10 msec
 
     bool bContinue = true;
     while (bContinue)
@@ -182,6 +190,7 @@ int TrafficCounter::doJob()
         else
             bContinue = false; // 0 means "timeout expired -> do nothing and exit
     }
+    //printf("done\n");
     return OK;
 }
 

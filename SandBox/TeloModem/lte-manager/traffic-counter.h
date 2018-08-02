@@ -1,5 +1,11 @@
-#ifndef __COUNTER_H_INCLUDED__
-#define __COUNTER_H_INCLUDED__
+/*
+ *  traffic-counter.h
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
+#pragma once
 
 #include <string>
 #include <vector>
@@ -32,7 +38,7 @@ public:
 
     bool listen();
     int getUserInputBytes() const { return UserStat_.getInputBytes(); }
-    int getUserOutputBytes() const { return UserStat_.getOutputBytes(); };
+    int getUserOutputBytes() const { return UserStat_.getOutputBytes(); }
     int getTeloInputBytes() const { return TeloStat_.getInputBytes(); }
     int getTeloOutputBytes() const { return TeloStat_.getOutputBytes(); }
     void clearStatistics();
@@ -71,4 +77,3 @@ protected:
     std::vector<InterfaceTrafficCounter> interfaces_;
 };
 
-#endif // COUNTER_H

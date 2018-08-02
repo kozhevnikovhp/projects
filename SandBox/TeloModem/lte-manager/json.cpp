@@ -1,3 +1,10 @@
+/*
+ *  json.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
 #include "json.h"
 
 #include <string.h>

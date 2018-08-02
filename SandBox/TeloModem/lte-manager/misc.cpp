@@ -1,3 +1,10 @@
+/*
+ *  misc.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
+
 #include <string.h>
 #include <stdio.h>
 

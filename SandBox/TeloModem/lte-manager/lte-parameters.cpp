@@ -1,5 +1,11 @@
-#include <sys/time.h>
+/*
+ *  lte-parameters.cpp
+ *
+ *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
+ *
+ */
 
+#include <sys/time.h>
 #include "lte-parameters.h"
 
 unsigned int getCurrentTimeSec()
@@ -10,34 +16,36 @@ unsigned int getCurrentTimeSec()
 }
 
 //////////////////////////////////////////////////////////////////
-/// \brief LteParameterGroup::LteParameterGroup
+/// LteParameterGroup::LteParameterGroup
 ///
 LteParameterGroup::LteParameterGroup()
     : actualTime_(0), bForceQuery_(true)
 {
 }
 
-bool LteParameterGroup::get(JsonContent &allReport)
+bool LteParameterGroup::get(unsigned int basicDelay, JsonContent &allReport)
 {
-    ReportAction action = REPORT_NOTHING;
+    //printf("get %s\n", getName());
+    ReportAction action = REPORT_CHANGED_ONLY;
     if (bForceQuery_)
         action = REPORT_EVERYTHING;
     else
     {
         unsigned int elapsedTime = ::getCurrentTimeSec() - actualTime_;
-        if (elapsedTime < getMinExpirationTime())
+        if (elapsedTime < getMinExpirationTime()*basicDelay)
             action = REPORT_NOTHING; // never(!) query too frequently
-        else if (elapsedTime > getMaxExpirationTime())
+        else if (elapsedTime > getMaxExpirationTime()*basicDelay)
             action = REPORT_EVERYTHING; // data received is obsolete
     }
     if (action == REPORT_NOTHING)
         return true;
 
     thisQueryResult_.clear();
+    //printf("\tdoGet %s\n", getName());
     bool bSuccess = doGet(thisQueryResult_);
+    bForceQuery_ = !bSuccess;
     if (bSuccess)
     {
-        bForceQuery_ = false;
         actualTime_ = ::getCurrentTimeSec();
 
         for (auto &entry : thisQueryResult_)
@@ -63,7 +71,7 @@ bool LteParameterGroup::get(JsonContent &allReport)
                 bNeedToAdd = !bFound || bChanged;
             }
             if (bNeedToAdd)
-                allReport.push_back(entry);
+                allReport.emplace_back(entry);
         }
 
         lastQueryResult_.swap(thisQueryResult_);
@@ -92,7 +100,7 @@ bool ModemControlParameterGroup::doGet(JsonContent &content)
 
 
 ///////////////////////////////////////////////////////////////////
-/// \brief ConstantModemParameterGroup::ConstantModemParameterGroup
+///  ConstantModemParameterGroup::ConstantModemParameterGroup
 ///
 ConstantModemParameterGroup::ConstantModemParameterGroup(ModemGTC &modem)
     : modem_(modem)
@@ -158,18 +166,16 @@ bool NetworkParameterGroup::doGet(JsonContent &content)
         content.emplace_back(KeyValue("gateway", addressToDotNotation(GW)));
     }
     return bSuccess;
-
 }
 
 
 ///////////////////////////////////////////////////////////////////
-/// VariableModemParameterGroup
+/// TrafficParameterGroup
 ///
 TrafficParameterGroup::TrafficParameterGroup(TrafficCounter &counter)
     : counter_(counter)
 {
 }
-
 
 //virtual
 bool TrafficParameterGroup::doGet(JsonContent &content)
@@ -180,15 +186,15 @@ bool TrafficParameterGroup::doGet(JsonContent &content)
     if (counter_.getTeloOutputBytes())
     {
         sprintf(szString, FORMAT_STRING, counter_.getTeloOutputBytes());
-        content.emplace_back(KeyValue("sent_bytes_telo", szString));
+        content.emplace_back(KeyValue("telo_ooma_apps_lte_sent_bytes", szString));
     }
     if (counter_.getTeloInputBytes())
     {
         sprintf(szString, FORMAT_STRING, counter_.getTeloInputBytes());
-        content.emplace_back(KeyValue("received_bytes_telo", szString));
+        content.emplace_back(KeyValue("telo_ooma_apps_lte_received_bytes", szString));
     }
 
-    if (counter_.getUserOutputBytes())
+    /*if (counter_.getUserOutputBytes())
     {
         sprintf(szString, FORMAT_STRING, counter_.getUserOutputBytes());
         content.emplace_back(KeyValue("sent_bytes_user", szString));
@@ -197,7 +203,7 @@ bool TrafficParameterGroup::doGet(JsonContent &content)
     {
         sprintf(szString, FORMAT_STRING, counter_.getUserInputBytes());
         content.emplace_back(KeyValue("received_bytes_user", szString));
-    }
+    }*/
 
     counter_.clearStatistics();
 
