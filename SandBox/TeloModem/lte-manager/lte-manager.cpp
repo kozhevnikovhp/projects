@@ -17,11 +17,43 @@
 #include "const.h"
 #include "log.h"
 
-const char *PSZ_VERSION = "1";
+#include "messaging-https.h"
+
+static const char *PSZ_VERSION = "1";
 
 int main(int argc, char *argv[])
 {
-    log_init(1);
+    HttpsMessanger &https = HttpsMessanger::instance();
+    https.post("https://curl.haxx.se/libcurl/c/https.html");
+    // to daemonize myself, or not to daemonize?
+    // quick and dirty - just iterate through the list of cmd-line args looking for -d option, meaning daemonizing.
+    // TODO: make something better with ehhanced and sophisticated cmd-line processing
+    bool bDaemonize = false;
+    bool bVerbose = false;
+    for (int i = 1; i < argc; ++i)
+    {
+        const char *pszArg = argv[i];
+        if (!strcasecmp(pszArg, "--daemon"))
+            bDaemonize = true;
+        if (!strcasecmp(pszArg, "--verbose"))
+            bVerbose = true;
+        //  many options together like -abcdefghstuvwxyz possible in the future
+        if (pszArg[0] == '-')
+        {
+            if (strchr(pszArg, 'd') || strchr(pszArg, 'D'))
+                bDaemonize = true;
+            if (strchr(pszArg, 'v') || strchr(pszArg, 'V'))
+                bVerbose = true;
+        }
+    }
+    if (bDaemonize)
+        bVerbose = false; // silent in daemon mode
+
+    int logToStderr = 0;
+    if (bVerbose)
+        logToStderr = 1;
+
+    log_init(logToStderr);
     log_level(1);
 
     Configuration cfg(PSZ_CFG_FILE_PATH);
@@ -72,45 +104,30 @@ int main(int argc, char *argv[])
     log_info("Kafka topic: %s\n", kafkaTopic.c_str());
     int32_t partition = RdKafka::Topic::PARTITION_UA;
 
-    RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-    RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
+    RdKafka::Conf *pConf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
+    RdKafka::Conf *pTCconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
-    conf->set("metadata.broker.list", kafkaBrokers, errstr);
+    pConf->set("metadata.broker.list", kafkaBrokers, errstr);
 
-    RdKafka::Producer *producer = RdKafka::Producer::create(conf, errstr);
-    if (!producer)
+    RdKafka::Producer *pProducer = RdKafka::Producer::create(pConf, errstr);
+    if (!pProducer)
     {
         log_error("Failed to create producer: %s\n", errstr.c_str());
         return 1;
     }
 
-    RdKafka::Topic *pTopic = RdKafka::Topic::create(producer, kafkaTopic, tconf, errstr);
+    RdKafka::Topic *pTopic = RdKafka::Topic::create(pProducer, kafkaTopic, pTCconf, errstr);
     if (!pTopic)
     {
         log_error("Failed to create topic: %s", errstr.c_str());
         return 1;
     }
 
-    // to daemonize myself, or not to daemonize?
-    // quick and dirty - just iterate through the list of cmd-lene args looking for -d option, meaning daemonizing.
-    // TODO: make something better with ehhanced and sophisticated cmd-line processing
-    bool bDaemonize = false;
-    for (int i = 1; i < argc; ++i)
-    {
-        if (strcasecmp(argv[i], "-d") == 0)
-            bDaemonize = true;
-        else
-        { //  many options together like -abcdefgh possible in the future
-            if (argv[i][0] == '-')
-            {
-                if (strchr(argv[i], 'd') || strchr(argv[i], 'D'))
-                    bDaemonize = true;
-            }
-        }
-    }
     if (bDaemonize)
     {
-        int errorCode = daemon(1, 1); // first '1' - do not change working dir, second '1' - leave standard file descriptors "as is"
+        // first '0' - change working dir to ~/, '1' - do not change, leave it "as is",
+        // second '0' - nullify standard file descriptors, '1' - leave them "as is"
+        int errorCode = daemon(1, 0);
         if (errorCode != 0)
         {
             log_error("Failed to daemonise itself");
@@ -120,12 +137,13 @@ int main(int argc, char *argv[])
     // else ordinary program
 
 
-    std::vector<LteParameterGroup *> allGroups;
+    std::vector<LteValuesGroup *> allGroups;
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
     allGroups.emplace_back(new ConstantModemParameterGroup(modem));
     allGroups.emplace_back(new VariableModemParameterGroup(modem));
     allGroups.emplace_back(new NetworkParameterGroup(trafficInterfaceName));
     allGroups.emplace_back(new TrafficParameterGroup(trafficCounter));
+    allGroups.emplace_back(new WanSwitchStateGroup());
 
     bool bNeedToContinue = true;
     JsonContent queryResult;
@@ -145,11 +163,16 @@ int main(int argc, char *argv[])
             queryResult.emplace_back(KeyValue("myx_id", myxID));
             std::string json;
             toJSON(queryResult, json);
-            printf("%s\n", json.c_str());
-            producer->produce(pTopic, partition,
+
+            if (bVerbose)
+                fprintf(stderr, "%s\n", json.c_str());
+
+            pProducer->produce(pTopic, partition,
                     RdKafka::Producer::RK_MSG_COPY,
-                    (char *)json.c_str(), json.size(),
-                    NULL, NULL);
+                    (char *)json.c_str(),
+                    json.size(),
+                    NULL,
+                    NULL);
         }
         sleep(10);
         bNeedToContinue = true; // TODO: check for interruption

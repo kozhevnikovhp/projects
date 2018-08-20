@@ -7,12 +7,14 @@
 
 #pragma once
 
+#include <dbus/dbus.h>
+
 #include "modem-gtc.h"
 #include "traffic-counter.h"
 #include "json.h"
 
 
-class LteParameterGroup
+class LteValuesGroup
 {
 public:
     typedef enum {
@@ -22,8 +24,8 @@ public:
     } ReportAction;
 
 public:
-    LteParameterGroup();
-    virtual ~LteParameterGroup()
+    LteValuesGroup();
+    virtual ~LteValuesGroup()
     {
     }
 
@@ -47,7 +49,7 @@ protected:
 
 
 //
-class ModemControlParameterGroup : public LteParameterGroup
+class ModemControlParameterGroup : public LteValuesGroup
 {
 public:
     ModemControlParameterGroup(ModemGTC &modem);
@@ -63,7 +65,7 @@ protected:
 
 
 // ManufacturesInfo, FirmwareVersion, IMEI, ICCD, Carrier, SPN
-class ConstantModemParameterGroup : public LteParameterGroup
+class ConstantModemParameterGroup : public LteValuesGroup
 {
 public:
     ConstantModemParameterGroup(ModemGTC &modem);
@@ -78,7 +80,7 @@ protected:
 };
 
 // Status (RSSI, S/N, signal quality)
-class VariableModemParameterGroup : public LteParameterGroup
+class VariableModemParameterGroup : public LteValuesGroup
 {
 public:
     VariableModemParameterGroup(ModemGTC &modem);
@@ -93,7 +95,7 @@ protected:
 };
 
 // IP-address, subnet mask, gateway
-class NetworkParameterGroup : public LteParameterGroup
+class NetworkParameterGroup : public LteValuesGroup
 {
 public:
     NetworkParameterGroup(const std::string &ifaceName);
@@ -108,7 +110,7 @@ protected:
 };
 
 
-class TrafficParameterGroup : public LteParameterGroup
+class TrafficParameterGroup : public LteValuesGroup
 {
 public:
     TrafficParameterGroup(TrafficCounter &counter);
@@ -122,4 +124,24 @@ protected:
 
     TrafficCounter &counter_;
 };
+
+class WanSwitchStateGroup : public LteValuesGroup
+{
+public:
+    WanSwitchStateGroup();
+    virtual ~WanSwitchStateGroup();
+
+protected:
+    virtual const char *getName() { return "WanSwitch state"; }
+    virtual unsigned int getMinExpirationTime() const { return 1; }
+    virtual unsigned int getMaxExpirationTime() const { return 10; }
+    virtual bool doGet(JsonContent &content);
+
+    void reportDbusError();
+    std::string getDbusValue(const char *pszMethodName);
+
+    DBusError DbusError_;
+    DBusConnection *pDbusConnection_;
+};
+
 

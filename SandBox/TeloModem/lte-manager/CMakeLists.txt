@@ -5,6 +5,7 @@ add_executable (lte-manager
     log.cpp
     lte-manager.cpp
     lte-parameters.cpp
+    messaging-https.cpp
     misc.cpp
     modem-gtc.cpp
     serial-connection.cpp
@@ -15,9 +16,10 @@ add_executable (lte-manager
 #C++11 support
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-#real or pseudo-modem (if real-modem, remove this line)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPSEUDO_MODEM")
+#real or pseudo-modem (if real modem, remove this line)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPSEUDO_MODEM")
 
-target_link_libraries(lte-manager LINK_PUBLIC pcap rdkafka++)
+target_link_libraries(lte-manager LINK_PUBLIC pcap rdkafka++ dbus-1 curl)
 
+ADD_SUBDIRECTORY(unit_tests)
 

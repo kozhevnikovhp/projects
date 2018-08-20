@@ -14,10 +14,13 @@
 
 ModemGTC::ModemGTC(const std::string &deviceName)
 {
+#ifndef PSEUDO_MODEM
     connection_.open(deviceName.c_str());
     connection_.setSpeed(B115200);
+#endif
 }
 
+#ifndef PSEUDO_MODEM
 bool ModemGTC::execute(const std::string &command)
 {
     raw_.clear();
@@ -46,6 +49,7 @@ bool ModemGTC::execute(const std::string &command)
     //printf("\t%s\n", raw_.c_str());
     return true;
 }
+#endif
 
 bool ModemGTC::isControllable()
 {
@@ -103,7 +107,6 @@ bool ModemGTC::getManufacturerInfoRaw()
     %SYSCMD:    Soft version       : V1.0.0 PACK 0 (Ver.1379) Build on: May 31 2018\n\
     \n\
     OK\n";
-
 
     return true;
 #endif
@@ -307,22 +310,32 @@ bool ModemGTC::getStatus(JsonContent &content)
             content.emplace_back(KeyValue(pszSINR, SINR));
         }
     }
-    std::string signalQuality = "0";
-    double SN = atof(SINR.c_str());
-    if (SN >= 20)
-        signalQuality = "4";
-    else if (SN >= 15)
-        signalQuality = "3";
-    else if (SN >= 10)
-        signalQuality = "2";
-    else if (SN >= 5)
-        signalQuality = "1";
-    content.emplace_back(KeyValue("signal_quality", signalQuality));
 
-    std::string status = "down";
-    if (mode.compare("online") == 0 && PSState.compare("attached") == 0)
+    // if "PS state" is not "attached" and "mode" is not "online", it does not matter how strong the signal/noise ratio is, signal quality is "BAD" (==0)
+    std::string signalQuality;
+    std::string status;
+    double SN = atof(SINR.c_str());
+    if (SN < 5 || mode.compare("online") != 0 || PSState.compare("attached") != 0)
+    {
+        signalQuality = "0";
+        status = "down";
+    }
+    else
+    {
+        if (SN >= 20)
+            signalQuality = "4";
+        else if (SN >= 15)
+            signalQuality = "3";
+        else if (SN >= 10)
+            signalQuality = "2";
+        else if (SN >= 5)
+            signalQuality = "1";
         status = "up";
+    }
+
+    content.emplace_back(KeyValue("signal_quality", signalQuality));
     content.emplace_back(KeyValue("lte_status", status));
+
     return true;
 }
 
@@ -330,11 +343,7 @@ bool ModemGTC::getSPN(std::string &SPN)
 {
     SPN.clear();
     std::string line;
-#ifndef PSEUDO_MODEM
     const std::string mdmCfgFile("/etc/ooma/mdm.cfg");
-#else
-    const std::string mdmCfgFile("./mdm.cfg");
-#endif
     std::ifstream file(mdmCfgFile);
     if (file.is_open())
     {
@@ -346,7 +355,15 @@ bool ModemGTC::getSPN(std::string &SPN)
             {
                 char *pszValue = strtok(NULL, "=");
                 if (pszValue)
-                    SPN = std::string(pszValue);
+                {
+                    //SPN = std::string(pszValue);
+                    // \r\n issue with local mdm.cfg file (Windows?), anyway, copy only digits and letters one by one
+                    while (*pszValue != 0 && isalnum(*pszValue))
+                    {
+                        SPN += *pszValue;
+                        ++pszValue;
+                    }
+                }
                 break;
             }
         }
@@ -354,6 +371,7 @@ bool ModemGTC::getSPN(std::string &SPN)
     }
     else
         log_info("Cannot open file %s", mdmCfgFile.c_str());
+
     return true;
 }
 

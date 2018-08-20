@@ -9,7 +9,9 @@
 
 #include <string>
 #include <vector>
+#ifndef PSEUDO_MODEM
 #include "serial-connection.h"
+#endif
 #include "json.h"
 
 void convertKeyValuePairTo(JsonContent &content, std::string &json);
@@ -42,9 +44,13 @@ public:
     bool getSPN(std::string &SPN);
 
 protected:
+
+#ifndef PSEUDO_MODEM
     bool execute(const std::string &command);
 
     SerialConnection connection_;
+#endif
+
     std::string raw_; // to avoid memory fragmentation
     JsonContent tmpContent_; // to avoid memory fragmentation
 };

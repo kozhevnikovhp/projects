@@ -7,6 +7,7 @@
 
 #include <sys/time.h>
 #include "lte-parameters.h"
+#include "log.h"
 
 unsigned int getCurrentTimeSec()
 {
@@ -16,14 +17,14 @@ unsigned int getCurrentTimeSec()
 }
 
 //////////////////////////////////////////////////////////////////
-/// LteParameterGroup::LteParameterGroup
+/// LteValuesGroup::LteParameterGroup
 ///
-LteParameterGroup::LteParameterGroup()
+LteValuesGroup::LteValuesGroup()
     : actualTime_(0), bForceQuery_(true)
 {
 }
 
-bool LteParameterGroup::get(unsigned int basicDelay, JsonContent &allReport)
+bool LteValuesGroup::get(unsigned int basicDelay, JsonContent &allReport)
 {
     //printf("get %s\n", getName());
     ReportAction action = REPORT_CHANGED_ONLY;
@@ -143,7 +144,7 @@ bool VariableModemParameterGroup::doGet(JsonContent &content)
 
 ///////////////////////////////////////////////////////////////////
 /// NetworkParameterGroup
-///
+
 NetworkParameterGroup::NetworkParameterGroup(const std::string &iFaceName)
     : ifaceName_(iFaceName)
 {
@@ -171,7 +172,7 @@ bool NetworkParameterGroup::doGet(JsonContent &content)
 
 ///////////////////////////////////////////////////////////////////
 /// TrafficParameterGroup
-///
+
 TrafficParameterGroup::TrafficParameterGroup(TrafficCounter &counter)
     : counter_(counter)
 {
@@ -209,4 +210,114 @@ bool TrafficParameterGroup::doGet(JsonContent &content)
 
     return true;
 }
+
+
+///////////////////////////////////////////////////////////////////
+/// WanSwitchStateGroup
+///
+const char *const WANSWITCH_DBUS_OBJECT_PATH_NAME = "/org/ooma/wanswitch";
+const char *const WANSWITCH_DBUS_INTERFACE_NAME = "org.ooma.wanswitch";
+const char *const WANSWITCH_DBUS_GET_SERVICE_METHOD_NAME = "GetService";
+const char *const WANSWITCH_DBUS_ISWANCONNECTED_METHOD_NAME = "isWANConnected";
+
+WanSwitchStateGroup::WanSwitchStateGroup()
+{
+    dbus_error_init(&DbusError_);
+    pDbusConnection_ = dbus_bus_get(DBUS_BUS_SYSTEM, &DbusError_);
+    if (!pDbusConnection_)
+    {
+        reportDbusError();
+    }
+}
+
+//virtual
+WanSwitchStateGroup::~WanSwitchStateGroup()
+{
+    if (pDbusConnection_)
+    {
+        dbus_connection_close(pDbusConnection_);
+        dbus_connection_unref(pDbusConnection_);
+    }
+}
+
+
+//virtual
+bool WanSwitchStateGroup::doGet(JsonContent &content)
+{
+    if (!pDbusConnection_)
+        return true;
+
+    content.emplace_back(KeyValue("wan_connected", getDbusValue(WANSWITCH_DBUS_ISWANCONNECTED_METHOD_NAME)));
+    content.emplace_back(KeyValue("connection_type", getDbusValue(WANSWITCH_DBUS_GET_SERVICE_METHOD_NAME)));
+
+    return true;
+}
+
+std::string WanSwitchStateGroup::getDbusValue(const char *pszMethodName)
+{
+    std::string retValue;
+    DBusMessage *pRequest = dbus_message_new_method_call(NULL, WANSWITCH_DBUS_OBJECT_PATH_NAME,
+                                                     WANSWITCH_DBUS_INTERFACE_NAME, pszMethodName);
+    if (!pRequest)
+        return retValue;
+
+    dbus_message_set_auto_start(pRequest, TRUE);
+    dbus_message_set_destination(pRequest, WANSWITCH_DBUS_INTERFACE_NAME);
+
+    DBusMessageIter iter;
+    dbus_message_iter_init_append(pRequest, &iter);
+
+    dbus_error_init(&DbusError_);
+    DBusMessage *pReply = dbus_connection_send_with_reply_and_block(pDbusConnection_,
+                                                                    pRequest,
+                                                                    2000, // timeout in msecs
+                                                                    &DbusError_);
+
+    if (pReply)
+    {
+        //printf("sent with reply %s = OK\n", pszMethod);
+        int message_type = dbus_message_get_type(pReply);
+        if (message_type == DBUS_MESSAGE_TYPE_METHOD_RETURN)
+        {
+            dbus_message_iter_init(pReply, &iter);
+            int type = dbus_message_iter_get_arg_type(&iter);
+            switch (type)
+            {
+                case DBUS_TYPE_STRING:
+                {
+                    char *pszValue;
+                    dbus_message_iter_get_basic(&iter, &pszValue);
+                    retValue = std::string(pszValue);
+                    break;
+                }
+                case DBUS_TYPE_BOOLEAN:
+                {
+                    dbus_bool_t bValue;
+                    dbus_message_iter_get_basic (&iter, &bValue);
+                    retValue = bValue ? "true" : "false";
+                    break;
+                }
+            }
+        }
+    }
+    else
+        reportDbusError();
+
+    if (pReply)
+        dbus_message_unref(pReply);
+    if (pRequest)
+        dbus_message_unref(pRequest);
+
+    return retValue;
+}
+
+void WanSwitchStateGroup::reportDbusError()
+{
+    if (dbus_error_is_set(&DbusError_))
+    {
+        log_error(DbusError_.message);
+        dbus_error_free(&DbusError_);
+    }
+}
+
 

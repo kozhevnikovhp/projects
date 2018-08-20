@@ -1,8 +1,4 @@
-# CMakeLists files in this project can
-# refer to the root source directory of the project as ${HELLO_SOURCE_DIR} and
-# to the root binary directory of the project as ${HELLO_BINARY_DIR}.
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(TELO-MODEM)
 
-cmake_minimum_required (VERSION 2.8)
-project (TELO-MODEM)
-
-add_subdirectory (lte-manager)
+ADD_SUBDIRECTORY(lte-manager)
