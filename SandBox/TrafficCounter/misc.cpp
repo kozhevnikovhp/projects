@@ -173,7 +173,6 @@ bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnet
     return ((a1 & subnetMask) == (a2 & subnetMask));
 }
 
-#ifdef SOCKETS_BSD
 bool isItInterfaceName(const std::string &ifaceName)
 {
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -213,7 +212,6 @@ bool isItInterfaceName(const std::string &ifaceName, int sock)
     }
     return false;
 }
-#endif
 
 bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName)
 {

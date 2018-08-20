@@ -19,7 +19,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #real or pseudo-modem (if real modem, remove this line)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPSEUDO_MODEM")
 
-TARGET_LINK_LIBRARIES(lte-manager-unit-tests gtest gtest_main)
+TARGET_LINK_LIBRARIES(lte-manager-unit-tests gtest gtest_main pthread)
 
 ADD_TEST(lte-manager-unit-tests lte-manager-unit-tests)
 
