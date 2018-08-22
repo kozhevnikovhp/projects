@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <regex>
 #include "config.h"
 #include "const.h"
 #include "log.h"
@@ -17,8 +18,19 @@ Configuration::Configuration(const std::string configFile)
     params_.emplace_back(ConfigurationParam(PSZ_DEVICE_NAME, "/dev/ttyACM0", "Serial device name, something like /dev/ttyACM0"));
     params_.emplace_back(ConfigurationParam(PSZ_TRAFFIC_INTERFACE, "eth0", "Whose traffic statistics is being accounted"));
     params_.emplace_back(ConfigurationParam(PSZ_MYXID_INTERFACE, "eth0", "Whose MAC-address is used as myx_id"));
-    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_BROKERS, "13.57.155.153:9092,13.56.27.92:9092", "Comma-separated list of Kafka-brokers (no blanks, please!)"));
+
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_ENABLED, "true", "Conventional Kafka enabled or not?"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_BROKERS, "52.53.80.222:9092", "Comma-separated list of Kafka-brokers (no blanks, please!)"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_TOPIC, "lte-service", "Kafka topic"));
+
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_URL, "https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com", "Kafka REST proxy URL"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_ENABLED, "true", "Kafka REST Proxy enabled or not?"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_CERT, "<path>", "Certificate file for access to Kafka REST proxy"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_KEY, "<path>", "User key file for access to Kafka REST proxy"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_PASSWORD, "<password>", "User password for access to Kafka REST proxy"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_VERIFY_PEER, "false", "To verify Kafka REST proxy server or not?"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_VERBOSE, "false", "For debug purposes"));
+
     params_.emplace_back(ConfigurationParam(PSZ_BASIC_QUERY_DELAY, "60", "Basic delay between subsequent queries (seconds)"));
 }
 
@@ -84,7 +96,7 @@ bool Configuration::load()
     return true;
 }
 
-std::string Configuration::get(const char *pszKey, const char *pszDefaultValue)
+std::string Configuration::get(const char *pszKey, const char *pszDefaultValue) const
 {
     // linear search as there is no millions of enties there
     for (auto param : params_)
@@ -96,4 +108,12 @@ std::string Configuration::get(const char *pszKey, const char *pszDefaultValue)
             return std::get<1>(param);
     }
     return std::string(pszDefaultValue);
+}
+
+bool Configuration::getBoolean(const char *pszKey, const char *pszDefaultValue) const
+{
+    std::string value = get(pszKey, pszDefaultValue);
+    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+    return (value.compare("enable") || value.compare("true"));
+
 }

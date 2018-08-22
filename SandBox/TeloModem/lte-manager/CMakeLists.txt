@@ -2,10 +2,10 @@
 add_executable (lte-manager
     config.cpp
     json.cpp
+    kafka-rest-proxy.cpp
     log.cpp
     lte-manager.cpp
     lte-parameters.cpp
-    messaging-https.cpp
     misc.cpp
     modem-gtc.cpp
     serial-connection.cpp

@@ -19,7 +19,8 @@ public:
     bool createDefaultFile();
     bool save();
     bool load();
-    std::string get(const char *pszKey, const char *pszDefaultValue);
+    std::string get(const char *pszKey, const char *pszDefaultValue) const;
+    bool getBoolean(const char *pszKey, const char *pszDefaultValue) const;
 
 protected:
     std::string configFile_;

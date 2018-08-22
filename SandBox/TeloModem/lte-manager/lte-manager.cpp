@@ -17,20 +17,15 @@
 #include "const.h"
 #include "log.h"
 
-#include "messaging-https.h"
+#include "kafka-rest-proxy.h"
 
 static const char *PSZ_VERSION = "1";
 
 int main(int argc, char *argv[])
 {
-    HttpsMessanger &https = HttpsMessanger::instance();
-    https.setVerbose(true);
-    https.setCertKeyFiles("/home/evgeny/cert/user.crt", "/home/evgeny/cert/user.key");
-    https.setPassPhrase("\!hello123");
-    https.setVerifyPeer(false);
-    //https.setHeader("Content-Type: application/vnd.kafka.json.v1+json"); // v2 is not supported
-   // https.get("https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com/topics");
-    https.post("https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com/topics/test", "{""aa"":""bb""}");
+    //char *p = " { \"records\":[{\"value\":{\"foo\":\"bar\"}}]}";
+    //char *p = "{ \"aa\" : \"bb\" }";
+    //printf("%s\n", p);
 
     // to daemonize myself, or not to daemonize?
     // quick and dirty - just iterate through the list of cmd-line args looking for -d option, meaning daemonizing.
@@ -83,14 +78,9 @@ int main(int argc, char *argv[])
         log_error("Cannot get MYX_ID as MAC-address of interface %s", myxInterfaceName.c_str());
         return 1;
     }
-    std::string myxID;
-    char szTmp[8];
-    sprintf(szTmp, "%X", ucMacAddress[3]);
-    myxID += szTmp;
-    sprintf(szTmp, "%X", ucMacAddress[4]);
-    myxID += szTmp;
-    sprintf(szTmp, "%X", ucMacAddress[5]-1);
-    myxID += szTmp;
+    char szTmp[32];
+    sprintf(szTmp, "%02X%02X%02X", ucMacAddress[3], ucMacAddress[4], ucMacAddress[5]-1);
+    std::string myxID(szTmp);
 
     std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
     ModemGTC modem(deviceName);
@@ -104,12 +94,15 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    KafkaRestProxy &kafkaRestProxy = KafkaRestProxy::instance();
+    kafkaRestProxy.configure(cfg);
+
+    bool bKafkaConventionalEbabled = cfg.getBoolean(PSZ_KAFKA_ENABLED, "true");
     std::string kafkaBrokers = cfg.get(PSZ_KAFKA_BROKERS, "13.57.155.153:9092");
     log_info("Kafka brokers: %s", kafkaBrokers.c_str());
     std::string errstr;
     std::string kafkaTopic = cfg.get(PSZ_KAFKA_TOPIC, "lte-service");
     log_info("Kafka topic: %s\n", kafkaTopic.c_str());
-    int32_t partition = RdKafka::Topic::PARTITION_UA;
 
     RdKafka::Conf *pConf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *pTCconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
@@ -174,12 +167,24 @@ int main(int argc, char *argv[])
             if (bVerbose)
                 fprintf(stderr, "%s\n", json.c_str());
 
-            pProducer->produce(pTopic, partition,
+            if (kafkaRestProxy.isEnabled()) // kafka REST proxy
+            {
+                std::string kafkaProxyJson = "{\"records\":[{\"value\":";
+                kafkaProxyJson += json;
+                kafkaProxyJson += "}]}";
+                //printf("%s\n", kafkaJson.c_str());
+                kafkaRestProxy.post(kafkaProxyJson);
+            }
+
+            if (bKafkaConventionalEbabled) // conventional kafka
+            {
+                pProducer->produce(pTopic, RdKafka::Topic::PARTITION_UA,
                     RdKafka::Producer::RK_MSG_COPY,
                     (char *)json.c_str(),
                     json.size(),
-                    NULL,
-                    NULL);
+                    nullptr,
+                    nullptr);
+            }
         }
         sleep(10);
         bNeedToContinue = true; // TODO: check for interruption
