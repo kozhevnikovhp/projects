@@ -24,7 +24,14 @@ static const char *PSZ_VERSION = "1";
 int main(int argc, char *argv[])
 {
     HttpsMessanger &https = HttpsMessanger::instance();
-    https.post("https://curl.haxx.se/libcurl/c/https.html");
+    https.setVerbose(true);
+    https.setCertKeyFiles("/home/evgeny/cert/user.crt", "/home/evgeny/cert/user.key");
+    https.setPassPhrase("\!hello123");
+    https.setVerifyPeer(false);
+    //https.setHeader("Content-Type: application/vnd.kafka.json.v1+json"); // v2 is not supported
+   // https.get("https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com/topics");
+    https.post("https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com/topics/test", "{""aa"":""bb""}");
+
     // to daemonize myself, or not to daemonize?
     // quick and dirty - just iterate through the list of cmd-line args looking for -d option, meaning daemonizing.
     // TODO: make something better with ehhanced and sophisticated cmd-line processing
