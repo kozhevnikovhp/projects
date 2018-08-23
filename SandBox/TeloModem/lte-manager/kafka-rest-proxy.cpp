@@ -73,26 +73,28 @@ void KafkaRestProxy::setCommonOptions(CURL *pCurl)
     curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
 
     // CERT
-    printf("CERT = %s\n", certFile_.c_str());
+    //printf("CERT = %s\n", certFile_.c_str());
     if (!certFile_.empty())
         curl_easy_setopt(pCurl, CURLOPT_SSLCERT, certFile_.c_str());
 
     // KEY
-    printf("KEY = %s\n", keyFile_.c_str());
+    //printf("KEY = %s\n", keyFile_.c_str());
     if (!keyFile_.empty())
         curl_easy_setopt(pCurl, CURLOPT_SSLKEY, keyFile_.c_str());
 
     // PassPhrase
-    printf("PASS = %s\n", passPhrase_.c_str());
+    //printf("PASS = %s\n", passPhrase_.c_str());
     if (!passPhrase_.empty())
         curl_easy_setopt(pCurl, CURLOPT_KEYPASSWD, passPhrase_.c_str());
 
     // CA path (if enabled)
     //curl_easy_setopt(pCurl, CURLOPT_CAPATH, pPath);
-    //curl_easy_setopt(curl, CURLOPT_CAINFO, "/etc/certs/cabundle.pem");
+    if (CAcertFile_.empty())
+        curl_easy_setopt(pCurl, CURLOPT_CAINFO, CAcertFile_.c_str());
 
-    curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, 0);
-   // curl_easy_setopt(pCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+    curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, bVerifyPeer_);
+
+    curl_easy_setopt(pCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 }
 
 void KafkaRestProxy::configure(const Configuration &cfg)
@@ -106,6 +108,7 @@ void KafkaRestProxy::configure(const Configuration &cfg)
     certFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_CERT, "");
     keyFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_KEY, "");
     passPhrase_ = cfg.get(PSZ_KAFKA_REST_PROXY_PASSWORD, "");
+    CAcertFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_CACERT, "");
     bVerifyPeer_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_VERIFY_PEER, "false");
 
     bVerbose_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_VERBOSE, "false");

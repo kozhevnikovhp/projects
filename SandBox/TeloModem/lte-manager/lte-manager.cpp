@@ -23,10 +23,6 @@ static const char *PSZ_VERSION = "1";
 
 int main(int argc, char *argv[])
 {
-    //char *p = " { \"records\":[{\"value\":{\"foo\":\"bar\"}}]}";
-    //char *p = "{ \"aa\" : \"bb\" }";
-    //printf("%s\n", p);
-
     // to daemonize myself, or not to daemonize?
     // quick and dirty - just iterate through the list of cmd-line args looking for -d option, meaning daemonizing.
     // TODO: make something better with ehhanced and sophisticated cmd-line processing
@@ -97,8 +93,8 @@ int main(int argc, char *argv[])
     KafkaRestProxy &kafkaRestProxy = KafkaRestProxy::instance();
     kafkaRestProxy.configure(cfg);
 
-    bool bKafkaConventionalEbabled = cfg.getBoolean(PSZ_KAFKA_ENABLED, "true");
-    std::string kafkaBrokers = cfg.get(PSZ_KAFKA_BROKERS, "13.57.155.153:9092");
+    bool bKafkaConventionalEnabled = cfg.getBoolean(PSZ_KAFKA_ENABLED, "false");
+    std::string kafkaBrokers = cfg.get(PSZ_KAFKA_BROKERS, "52.53.80.222:9092");
     log_info("Kafka brokers: %s", kafkaBrokers.c_str());
     std::string errstr;
     std::string kafkaTopic = cfg.get(PSZ_KAFKA_TOPIC, "lte-service");
@@ -176,7 +172,7 @@ int main(int argc, char *argv[])
                 kafkaRestProxy.post(kafkaProxyJson);
             }
 
-            if (bKafkaConventionalEbabled) // conventional kafka
+            if (bKafkaConventionalEnabled) // conventional kafka
             {
                 pProducer->produce(pTopic, RdKafka::Topic::PARTITION_UA,
                     RdKafka::Producer::RK_MSG_COPY,

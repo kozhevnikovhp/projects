@@ -19,16 +19,17 @@ Configuration::Configuration(const std::string configFile)
     params_.emplace_back(ConfigurationParam(PSZ_TRAFFIC_INTERFACE, "eth0", "Whose traffic statistics is being accounted"));
     params_.emplace_back(ConfigurationParam(PSZ_MYXID_INTERFACE, "eth0", "Whose MAC-address is used as myx_id"));
 
-    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_ENABLED, "true", "Conventional Kafka enabled or not?"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_ENABLED, "false", "Conventional Kafka enabled or not?"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_BROKERS, "52.53.80.222:9092", "Comma-separated list of Kafka-brokers (no blanks, please!)"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_TOPIC, "lte-service", "Kafka topic"));
 
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_URL, "https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com", "Kafka REST proxy URL"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_ENABLED, "true", "Kafka REST Proxy enabled or not?"));
-    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_CERT, "<path>", "Certificate file for access to Kafka REST proxy"));
-    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_KEY, "<path>", "User key file for access to Kafka REST proxy"));
-    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_PASSWORD, "<password>", "User password for access to Kafka REST proxy"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_CERT, "", "Certificate file for access to Kafka REST proxy"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_KEY, "", "User key file for access to Kafka REST proxy"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_PASSWORD, "", "User password for access to Kafka REST proxy"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_VERIFY_PEER, "false", "To verify Kafka REST proxy server or not?"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_CACERT, "", "CA Certificate file for access to Kafka REST proxy"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_VERBOSE, "false", "For debug purposes"));
 
     params_.emplace_back(ConfigurationParam(PSZ_BASIC_QUERY_DELAY, "60", "Basic delay between subsequent queries (seconds)"));
@@ -114,6 +115,6 @@ bool Configuration::getBoolean(const char *pszKey, const char *pszDefaultValue) 
 {
     std::string value = get(pszKey, pszDefaultValue);
     std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-    return (value.compare("enable") || value.compare("true"));
+    return (!value.compare("enable") || !value.compare("true"));
 
 }

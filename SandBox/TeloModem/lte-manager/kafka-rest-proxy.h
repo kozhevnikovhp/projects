@@ -18,9 +18,7 @@ class KafkaRestProxy
     static KafkaRestProxy &instance();
 
     bool post(const std::string &data);
-
     bool isEnabled() const { return bEnabled_; }
-
     void configure(const Configuration &config);
 
   private:
@@ -40,7 +38,7 @@ protected:
     std::string certFile_;
     std::string keyFile_;
     std::string passPhrase_;
-    std::string CAPath_;
+    std::string CAcertFile_;
     bool bEnabled_;
     bool bVerifyPeer_;
     bool bVerbose_;
