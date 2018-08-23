@@ -62,27 +62,6 @@ std::string addressToDotNotation(IPADDRESS_TYPE IP)
     return hostName;
 }
 
-/*std::string addressToHostName(IPADDRESS_TYPE IP)
-{
-    std::string hostName;
-    sockaddr addr;
-    socklen_t addrlen = sizeof(addr);
-    memset(&addr, 0, sizeof(addr));
-    setIP(&addr, IP);
-    addr.sa_family = AF_INET;
-    char hbuf[NI_MAXHOST];
-    memset(hbuf, 0, sizeof(hbuf));
-
-    bool bSuccess = (getnameinfo(&addr, addrlen,
-                                 hbuf, sizeof(hbuf),
-                                 NULL, 0,
-                                 0) == 0); // CRASHES HERE under LINUX!!! IN CASE OF STATIC LINK
-    if (bSuccess)
-        hostName.append(hbuf);
-
-    return hostName;
-}*/
-
 bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnetMask)
 {
     return ((a1 & subnetMask) == (a2 & subnetMask));
@@ -103,7 +82,6 @@ bool isItInterfaceName(const std::string &ifaceName)
 
 bool isItInterfaceName(const std::string &ifaceName, int sock)
 {
-    // http://forum.sources.ru/index.php?showtopic=78789
     char buf[2048];
     struct ifconf ifc;
     // Query available interfaces.
@@ -184,8 +162,8 @@ bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &if
 // application must provide at least 6 bytes for the return value
 bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress)
 {
-    char buf[2048];
-    struct ifconf ifc;
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
     {
@@ -193,38 +171,22 @@ bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress)
         return false;
     }
 
-    // Query available interfaces.
-    ifc.ifc_len = sizeof(buf);
-    ifc.ifc_buf = buf;
-    if (ioctl(sock, SIOCGIFCONF, &ifc) < 0)
-    {
-        perror("ioctl(SIOCGIFCONF)");
-        close(sock);
-        return false;
-    }
-
-    // Iterate through the list of interfaces.
     bool bSuccess = false;
-    int nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
-    for (int i = 0; i < nInterfaces; i++)
+    struct ifreq iface;
+    strcpy(iface.ifr_name, ifaceName.c_str());
+    int ec = ioctl(sock, SIOCGIFHWADDR, &iface);
+    if (ec >= 0)
     {
-        struct ifreq *pInterface = &ifc.ifc_req[i];
-        //printf("Iface %d = %s\n", i, pInterface->ifr_name);
-
-        // device name
-        if (ifaceName.compare(pInterface->ifr_name))
-            continue;
-        if (ioctl(sock, SIOCGIFHWADDR, pInterface) >= 0)
-        {
-            memcpy(pAddress,  pInterface->ifr_hwaddr.sa_data, 6);
-            bSuccess = true;
-            break;
-        }
-        else
-        {
-            perror("ioctl(SIOCGIFHWADDR)");
-        }
+        memcpy(pAddress,  iface.ifr_hwaddr.sa_data, 6);
+        bSuccess = true;
     }
+    else
+    {
+        std::string strError = "ioctl(SIOCGIFHWADDR) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+    }
+
     close(sock);
     return bSuccess;
 }
