@@ -21,6 +21,15 @@
 
 static const char *PSZ_VERSION = "1";
 
+static bool needToContinue(int nCycles)
+{
+#ifdef VALGRIND
+    return (nCycles < 1000);
+#else
+    return true;
+#endif
+}
+
 int main(int argc, char *argv[])
 {
     // to daemonize myself, or not to daemonize?
@@ -132,7 +141,6 @@ int main(int argc, char *argv[])
     }
     // else ordinary program
 
-
     std::vector<LteValuesGroup *> allGroups;
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
     allGroups.emplace_back(new ConstantModemParameterGroup(modem));
@@ -141,10 +149,10 @@ int main(int argc, char *argv[])
     allGroups.emplace_back(new TrafficParameterGroup(trafficCounter));
     allGroups.emplace_back(new WanSwitchStateGroup());
 
-    bool bNeedToContinue = true;
     JsonContent queryResult;
+    int nCyclesDone = 0;
 
-    while (bNeedToContinue)
+    while (needToContinue(nCyclesDone))
     {
         trafficCounter.doJob();
 
@@ -183,13 +191,27 @@ int main(int argc, char *argv[])
             }
         }
         sleep(10);
-        bNeedToContinue = true; // TODO: check for interruption
+#if VALGRIND
+        ++nCyclesDone;
+        printf("VALGRIND: %d cycles done\n", nCyclesDone);
+#endif
     }
 
     for (auto pGroup : allGroups)
         delete pGroup;
 
     allGroups.clear();
+
+    // clear all Kafka stuff
+    if (pProducer)
+        delete pProducer;
+    if (pTCconf)
+        delete pTCconf;
+    if (pConf)
+        delete pConf;
+    if (pTopic)
+        delete pTopic;
+
 
     return 0;
 }
