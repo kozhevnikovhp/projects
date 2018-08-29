@@ -8,6 +8,7 @@ add_executable (lte-manager
     lte-parameters.cpp
     misc.cpp
     modem-gtc.cpp
+    myxid.cpp
     serial-connection.cpp
     sniffer.cpp
     traffic-counter.cpp

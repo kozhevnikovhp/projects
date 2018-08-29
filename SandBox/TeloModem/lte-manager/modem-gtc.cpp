@@ -271,11 +271,13 @@ bool ModemGTC::getStatus(JsonContent &content)
 {
     const char *pszMode = "mode";
     const char *pszPSState = "ps_state";
+    const char *pszRSRP = "rsrp";
     const char *pszRSSI = "rssi";
     const char *pszSINR = "sinr";
 
     Dictionary dictionary = { DictionaryEntry("Mode", pszMode),
                               DictionaryEntry("PS state", pszPSState),
+                              DictionaryEntry("RSRP (dBm)", pszRSRP),
                               DictionaryEntry("RSSI (dBm)", pszRSSI),
                               DictionaryEntry("SINR (dB)", pszSINR)
                             };
@@ -286,7 +288,7 @@ bool ModemGTC::getStatus(JsonContent &content)
     if (!parseToContent(raw_, modemValues, dictionary))
         return false;
 
-    std::string mode, PSState, SINR;
+    std::string mode, PSState, SINR, strRSRP;
     for (auto &entry : modemValues)
     {
         //printf("%s:%s\n", entry.first.c_str(), entry.second.c_str());
@@ -302,6 +304,11 @@ bool ModemGTC::getStatus(JsonContent &content)
             std::transform(PSState.begin(), PSState.end(), PSState.begin(), ::tolower);
             content.emplace_back(KeyValue(pszPSState, PSState));
         }
+        else if (!entry.first.compare(pszRSRP))
+        {
+            strRSRP = entry.second;
+            content.emplace_back(KeyValue(pszRSRP, entry.second));
+        }
         else if (!entry.first.compare(pszRSSI))
             content.emplace_back(KeyValue(pszRSSI, entry.second));
         else if (!entry.first.compare(pszSINR))
@@ -314,7 +321,40 @@ bool ModemGTC::getStatus(JsonContent &content)
     // if "PS state" is not "attached" and "mode" is not "online", it does not matter how strong the signal/noise ratio is, signal quality is "BAD" (==0)
     std::string signalQuality;
     std::string status;
-    double SN = atof(SINR.c_str());
+    // Status
+    if (mode.compare("online") != 0 || PSState.compare("attached") != 0)
+         status = "down";
+    else
+        status = "up";
+
+    // Signal quality (http://devcon.corp.ooma.com/display/~rama.kamarajugadda/Signal+Strength+Vs+Bars)
+   /* -50 to -79 dBm, then it's generally considered great signal  (4 to 5 bars).
+
+·         -80 to -89 dBm, then it's generally considered good signal (3 to 4 bars).
+
+·         -90 to -99 dBm, then it's generally considered average signal (2 to 3 bars).
+
+·         -100 to -109 dBm, then it's generally considered poor signal (1 to 2 bars).
+
+·         -110 to -120 dBm, then it's generally considered very poor signal (0 to 1 bar).*/
+    if (strRSRP.empty())
+        signalQuality = "";
+    else
+    {
+        double fRSRP = atof(strRSRP.c_str());
+        if (fRSRP <= -110)
+            signalQuality = "0";
+        else if (fRSRP <= -100)
+            signalQuality = "1";
+        else if (fRSRP <= -90)
+            signalQuality = "2";
+        else if (fRSRP <= -80)
+            signalQuality = "3";
+        else
+            signalQuality = "4";
+    }
+
+    /*double SN = atof(SINR.c_str());
     if (SN < 5 || mode.compare("online") != 0 || PSState.compare("attached") != 0)
     {
         signalQuality = "0";
@@ -331,7 +371,7 @@ bool ModemGTC::getStatus(JsonContent &content)
         else if (SN >= 5)
             signalQuality = "1";
         status = "up";
-    }
+    }*/
 
     content.emplace_back(KeyValue("signal_quality", signalQuality));
     content.emplace_back(KeyValue("lte_status", status));

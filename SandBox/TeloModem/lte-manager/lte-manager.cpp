@@ -16,6 +16,7 @@
 #include "config.h"
 #include "const.h"
 #include "log.h"
+#include "myxid.h"
 
 #include "kafka-rest-proxy.h"
 
@@ -76,7 +77,7 @@ int main(int argc, char *argv[])
     log_info("Basic delay %d seconds", basicDelay);
 
     // get myxID
-    std::string myxInterfaceName = cfg.get(PSZ_MYXID_INTERFACE, "eth0");
+    /*std::string myxInterfaceName = cfg.get(PSZ_MYXID_INTERFACE, "eth0");
     unsigned char ucMacAddress[8];
     if (!getInterfaceMacAddress(myxInterfaceName, ucMacAddress))
     {
@@ -85,10 +86,12 @@ int main(int argc, char *argv[])
     }
     char szTmp[32];
     sprintf(szTmp, "%02X%02X%02X", ucMacAddress[3], ucMacAddress[4], ucMacAddress[5]-1);
-    std::string myxID(szTmp);
+    std::string myxID(szTmp);*/
+    std::string myxID = getMyxID();
 
     std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
     ModemGTC modem(deviceName);
+
 
     std::string trafficInterfaceName = cfg.get(PSZ_TRAFFIC_INTERFACE, "usbnet0");
     TrafficCounter trafficCounter;
@@ -109,23 +112,36 @@ int main(int argc, char *argv[])
     std::string kafkaTopic = cfg.get(PSZ_KAFKA_TOPIC, "lte-service");
     log_info("Kafka topic: %s\n", kafkaTopic.c_str());
 
-    RdKafka::Conf *pConf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-    RdKafka::Conf *pTCconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
+    RdKafka::Conf *pConf = nullptr;
+    if (bKafkaConventionalEnabled)
+        pConf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
+    RdKafka::Conf *pTCconf = nullptr;
+    if (bKafkaConventionalEnabled)
+        pTCconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
-    pConf->set("metadata.broker.list", kafkaBrokers, errstr);
+    if (pConf)
+        pConf->set("metadata.broker.list", kafkaBrokers, errstr);
 
-    RdKafka::Producer *pProducer = RdKafka::Producer::create(pConf, errstr);
-    if (!pProducer)
+    RdKafka::Producer *pProducer = nullptr;
+    if (bKafkaConventionalEnabled)
     {
-        log_error("Failed to create producer: %s\n", errstr.c_str());
-        return 1;
+        pProducer = RdKafka::Producer::create(pConf, errstr);
+        if (!pProducer)
+        {
+            log_error("Failed to create producer: %s\n", errstr.c_str());
+            return 1;
+        }
     }
 
-    RdKafka::Topic *pTopic = RdKafka::Topic::create(pProducer, kafkaTopic, pTCconf, errstr);
-    if (!pTopic)
+    RdKafka::Topic *pTopic = nullptr;
+    if (bKafkaConventionalEnabled)
     {
-        log_error("Failed to create topic: %s", errstr.c_str());
-        return 1;
+        pTopic = RdKafka::Topic::create(pProducer, kafkaTopic, pTCconf, errstr);
+        if (!pTopic)
+        {
+            log_error("Failed to create topic: %s", errstr.c_str());
+            return 1;
+        }
     }
 
     if (bDaemonize)
@@ -182,12 +198,13 @@ int main(int argc, char *argv[])
 
             if (bKafkaConventionalEnabled) // conventional kafka
             {
-                pProducer->produce(pTopic, RdKafka::Topic::PARTITION_UA,
-                    RdKafka::Producer::RK_MSG_COPY,
-                    (char *)json.c_str(),
-                    json.size(),
-                    nullptr,
-                    nullptr);
+                if (pProducer)
+                    pProducer->produce(pTopic, RdKafka::Topic::PARTITION_UA,
+                       RdKafka::Producer::RK_MSG_COPY,
+                       (char *)json.c_str(),
+                       json.size(),
+                       nullptr,
+                       nullptr);
             }
         }
         sleep(10);
