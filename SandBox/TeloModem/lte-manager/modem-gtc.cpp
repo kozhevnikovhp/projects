@@ -257,7 +257,7 @@ bool ModemGTC::getStatusRaw()
     EMM state : 0   RRC state : RRC IDLE                                             \n\
     IMS reg state : No Srv                                                           \n\
     RSSI (dBm) : -78        Tx Power : -550                                          \n\
-    RSRP (dBm) : -100       TAC : 84(3)                                              \n\
+    RSRP (dBm) : -99        TAC : 84(3)                                              \n\
     RSRQ (dBm) : -8.0       Cell ID : 176233235                                      \n\
     SINR (dB) : 15                                                                   \n\
                                                                                      \n\
@@ -288,21 +288,21 @@ bool ModemGTC::getStatus(JsonContent &content)
     if (!parseToContent(raw_, modemValues, dictionary))
         return false;
 
-    std::string mode, PSState, SINR, strRSRP;
+    std::string strMode, strPSState, strSINR, strRSRP;
     for (auto &entry : modemValues)
     {
         //printf("%s:%s\n", entry.first.c_str(), entry.second.c_str());
         if (!entry.first.compare(pszMode))
         {
-            mode = entry.second;
-            std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
-            content.emplace_back(KeyValue(pszMode, mode));
+            strMode = entry.second;
+            std::transform(strMode.begin(), strMode.end(), strMode.begin(), ::tolower);
+            content.emplace_back(KeyValue(pszMode, strMode));
         }
         else if (!entry.first.compare(pszPSState))
         {
-            PSState = entry.second;
-            std::transform(PSState.begin(), PSState.end(), PSState.begin(), ::tolower);
-            content.emplace_back(KeyValue(pszPSState, PSState));
+            strPSState = entry.second;
+            std::transform(strPSState.begin(), strPSState.end(), strPSState.begin(), ::tolower);
+            content.emplace_back(KeyValue(pszPSState, strPSState));
         }
         else if (!entry.first.compare(pszRSRP))
         {
@@ -313,68 +313,71 @@ bool ModemGTC::getStatus(JsonContent &content)
             content.emplace_back(KeyValue(pszRSSI, entry.second));
         else if (!entry.first.compare(pszSINR))
         {
-            SINR = entry.second;
-            content.emplace_back(KeyValue(pszSINR, SINR));
+            strSINR = entry.second;
+            content.emplace_back(KeyValue(pszSINR, strSINR));
         }
     }
 
-    // if "PS state" is not "attached" and "mode" is not "online", it does not matter how strong the signal/noise ratio is, signal quality is "BAD" (==0)
-    std::string signalQuality;
-    std::string status;
-    // Status
-    if (mode.compare("online") != 0 || PSState.compare("attached") != 0)
-         status = "down";
+    // LTEstate
+    // if "PS state" is not "attached", and "mode" is not "online", it does not matter how strong the signal/noise ratio is, signal quality is "BAD" (==0)
+    std::string LTEstate;
+    if (strMode.compare("online") != 0 || strPSState.compare("attached") != 0)
+        LTEstate = "down";
     else
-        status = "up";
+        LTEstate = "up";
 
-    // Signal quality (http://devcon.corp.ooma.com/display/~rama.kamarajugadda/Signal+Strength+Vs+Bars)
-   /* -50 to -79 dBm, then it's generally considered great signal  (4 to 5 bars).
-
-·         -80 to -89 dBm, then it's generally considered good signal (3 to 4 bars).
-
-·         -90 to -99 dBm, then it's generally considered average signal (2 to 3 bars).
-
-·         -100 to -109 dBm, then it's generally considered poor signal (1 to 2 bars).
-
-·         -110 to -120 dBm, then it's generally considered very poor signal (0 to 1 bar).*/
+    // signal quality
+    std::string signalQuality;
+#if 1
+    // Calculations based on RSRP value according to RamaK (http://devcon.corp.ooma.com/display/~rama.kamarajugadda/Signal+Strength+Vs+Bars)
+    // -50 to -79 dBm, then it's generally considered great signal  (4 to 5 bars)
+    // -80 to -89 dBm, then it's generally considered good signal (3 to 4 bars)
+    // -90 to -99 dBm, then it's generally considered average signal (2 to 3 bars)
+    // -100 to -109 dBm, then it's generally considered poor signal (1 to 2 bars)
+    // -110 to -120 dBm, then it's generally considered very poor signal (0 to 1 bar)
     if (strRSRP.empty())
-        signalQuality = "";
+        signalQuality = "0";
     else
     {
-        double fRSRP = atof(strRSRP.c_str());
-        if (fRSRP <= -110)
+        int RSRP = atoi(strRSRP.c_str());
+        if (RSRP == 0)
+        {
             signalQuality = "0";
-        else if (fRSRP <= -100)
+            log_info("Invalid value for RSRP (%s)", strRSRP.c_str());
+        }
+        else if (RSRP <= -110)
+            signalQuality = "0";
+        else if (RSRP <= -100)
             signalQuality = "1";
-        else if (fRSRP <= -90)
+        else if (RSRP <= -90)
             signalQuality = "2";
-        else if (fRSRP <= -80)
+        else if (RSRP <= -80)
             signalQuality = "3";
         else
             signalQuality = "4";
     }
-
-    /*double SN = atof(SINR.c_str());
-    if (SN < 5 || mode.compare("online") != 0 || PSState.compare("attached") != 0)
-    {
+#else
+    // calculations based on signal/noise ratio
+    if (strSINR.empty())
         signalQuality = "0";
-        status = "down";
-    }
     else
     {
-        if (SN >= 20)
-            signalQuality = "4";
-        else if (SN >= 15)
-            signalQuality = "3";
-        else if (SN >= 10)
-            signalQuality = "2";
-        else if (SN >= 5)
+        int SN = atoi(strSINR.c_str());
+        if (SN < 5)
+            signalQuality = "0";
+        else if (SN < 10)
             signalQuality = "1";
-        status = "up";
-    }*/
+        else if (SN < 15)
+            signalQuality = "2";
+        else if (SN < 20)
+            signalQuality = "3";
+        else
+            signalQuality = "4";
+    }
+#endif
 
     content.emplace_back(KeyValue("signal_quality", signalQuality));
-    content.emplace_back(KeyValue("lte_status", status));
+    content.emplace_back(KeyValue("lte_state", LTEstate));
 
     return true;
 }

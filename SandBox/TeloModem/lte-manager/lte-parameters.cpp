@@ -9,10 +9,10 @@
 #include "lte-parameters.h"
 #include "log.h"
 
-unsigned int getCurrentTimeSec()
+time_t getCurrentTimeSec()
 {
     timeval t;
-    gettimeofday(&t, NULL);
+    gettimeofday(&t, nullptr);
     return t.tv_sec;
 }
 
@@ -24,7 +24,12 @@ LteValuesGroup::LteValuesGroup()
 {
 }
 
-bool LteValuesGroup::get(unsigned int basicDelay, JsonContent &allReport)
+//virtual
+LteValuesGroup::~LteValuesGroup()
+{
+}
+
+bool LteValuesGroup::get(time_t basicDelay, JsonContent &allReport)
 {
     //printf("get %s\n", getName());
     ReportAction action = REPORT_CHANGED_ONLY;
@@ -32,7 +37,7 @@ bool LteValuesGroup::get(unsigned int basicDelay, JsonContent &allReport)
         action = REPORT_EVERYTHING;
     else
     {
-        unsigned int elapsedTime = ::getCurrentTimeSec() - actualTime_;
+        time_t elapsedTime = ::getCurrentTimeSec() - actualTime_;
         if (elapsedTime < getMinExpirationTime()*basicDelay)
             action = REPORT_NOTHING; // never(!) query too frequently
         else if (elapsedTime > getMaxExpirationTime()*basicDelay)
@@ -181,7 +186,7 @@ TrafficParameterGroup::TrafficParameterGroup(TrafficCounter &counter)
 //virtual
 bool TrafficParameterGroup::doGet(JsonContent &content)
 {
-    const char *FORMAT_STRING = "%d";
+    const char *const FORMAT_STRING = "%d";
     char szString[128];
 
     if (counter_.getTeloOutputBytes())
@@ -256,7 +261,7 @@ bool WanSwitchStateGroup::doGet(JsonContent &content)
 std::string WanSwitchStateGroup::getDbusValue(const char *pszMethodName)
 {
     std::string retValue;
-    DBusMessage *pRequest = dbus_message_new_method_call(NULL, WANSWITCH_DBUS_OBJECT_PATH_NAME,
+    DBusMessage *pRequest = dbus_message_new_method_call(nullptr, WANSWITCH_DBUS_OBJECT_PATH_NAME,
                                                      WANSWITCH_DBUS_INTERFACE_NAME, pszMethodName);
     if (!pRequest)
         return retValue;
@@ -293,7 +298,7 @@ std::string WanSwitchStateGroup::getDbusValue(const char *pszMethodName)
                 case DBUS_TYPE_BOOLEAN:
                 {
                     dbus_bool_t bValue;
-                    dbus_message_iter_get_basic (&iter, &bValue);
+                    dbus_message_iter_get_basic(&iter, &bValue);
                     retValue = bValue ? "true" : "false";
                     break;
                 }

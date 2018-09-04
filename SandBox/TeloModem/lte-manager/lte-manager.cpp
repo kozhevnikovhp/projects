@@ -20,8 +20,6 @@
 
 #include "kafka-rest-proxy.h"
 
-static const char *PSZ_VERSION = "1";
-
 static bool needToContinue(int nCycles)
 {
 #ifdef VALGRIND
@@ -69,31 +67,35 @@ int main(int argc, char *argv[])
         cfg.createDefaultFile();
 
     std::string basicDelayString = cfg.get(PSZ_BASIC_QUERY_DELAY, "60");
-    unsigned int basicDelay = (unsigned int)atoi(basicDelayString.c_str());
+    time_t basicDelay = atol(basicDelayString.c_str());
     if (basicDelay < 10)
+    {
         basicDelay = 10;
+        log_info("Incorrect or wrong value for basic delay (%s), corrected automatically", basicDelayString.c_str());
+    }
     if (basicDelay > 7200)
+    {
         basicDelay = 7200;
-    log_info("Basic delay %d seconds", basicDelay);
+        log_info("Incorrect or wrong value for basic delay (%s), corrected automatically", basicDelayString.c_str());
+    }
+    log_info("Basic delay: %d seconds", basicDelay);
 
     // get myxID
-    /*std::string myxInterfaceName = cfg.get(PSZ_MYXID_INTERFACE, "eth0");
-    unsigned char ucMacAddress[8];
-    if (!getInterfaceMacAddress(myxInterfaceName, ucMacAddress))
+    std::string myxID = getMyxID();
+    if (myxID.empty())
     {
-        log_error("Cannot get MYX_ID as MAC-address of interface %s", myxInterfaceName.c_str());
+        log_error("Cannot get MYX_ID");
         return 1;
     }
-    char szTmp[32];
-    sprintf(szTmp, "%02X%02X%02X", ucMacAddress[3], ucMacAddress[4], ucMacAddress[5]-1);
-    std::string myxID(szTmp);*/
-    std::string myxID = getMyxID();
 
     std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
     ModemGTC modem(deviceName);
 
-
-    std::string trafficInterfaceName = cfg.get(PSZ_TRAFFIC_INTERFACE, "usbnet0");
+#ifndef PSEUDO_MODEM
+    std::string trafficInterfaceName("usbnet0");
+#else
+    std::string trafficInterfaceName("enp0s3");    // my CENTOS/Debian laptop. TODO: set as compiler option, for example, by means of -D option (define directive), another than PSEUDO_MODEM
+#endif
     TrafficCounter trafficCounter;
     trafficCounter.addInterface(trafficInterfaceName.c_str());
     if (!trafficCounter.startListening())
@@ -106,10 +108,11 @@ int main(int argc, char *argv[])
     kafkaRestProxy.configure(cfg);
 
     bool bKafkaConventionalEnabled = cfg.getBoolean(PSZ_KAFKA_ENABLED, "false");
-    std::string kafkaBrokers = cfg.get(PSZ_KAFKA_BROKERS, "52.53.80.222:9092");
-    log_info("Kafka brokers: %s", kafkaBrokers.c_str());
+    std::string kafkaBrokers = cfg.get(PSZ_KAFKA_BROKERS, PSZ_KAFKA_BROKERS_DEFAULT);
+    if (bKafkaConventionalEnabled)
+        log_info("Kafka brokers: %s", kafkaBrokers.c_str());
     std::string errstr;
-    std::string kafkaTopic = cfg.get(PSZ_KAFKA_TOPIC, "lte-service");
+    std::string kafkaTopic = cfg.get(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT);
     log_info("Kafka topic: %s\n", kafkaTopic.c_str());
 
     RdKafka::Conf *pConf = nullptr;
@@ -146,8 +149,8 @@ int main(int argc, char *argv[])
 
     if (bDaemonize)
     {
-        // first '0' - change working dir to ~/, '1' - do not change, leave it "as is",
-        // second '0' - nullify standard file descriptors, '1' - leave them "as is"
+        // first param: '0' - change working dir to ~/, '1' - do not change, leave it "as is",
+        // second param: '0' - nullify standard file descriptors, '1' - leave them "as is"
         int errorCode = daemon(1, 0);
         if (errorCode != 0)
         {
@@ -179,7 +182,7 @@ int main(int argc, char *argv[])
 
         if (!queryResult.empty())
         {
-            queryResult.emplace_back(KeyValue("version", PSZ_VERSION));
+            queryResult.emplace_back(KeyValue("version", PSZ_JSON_VERSION));
             queryResult.emplace_back(KeyValue("myx_id", myxID));
             std::string json;
             toJSON(queryResult, json);
@@ -208,7 +211,7 @@ int main(int argc, char *argv[])
             }
         }
         sleep(10);
-#if VALGRIND
+#ifdef VALGRIND
         ++nCyclesDone;
         printf("VALGRIND: %d cycles done\n", nCyclesDone);
 #endif
@@ -229,53 +232,6 @@ int main(int argc, char *argv[])
     if (pTopic)
         delete pTopic;
 
-
     return 0;
 }
-
-// TELO KILLER
-/*
-int main(int argc, char *argv[])
-{
-    printf("argc = %d\n", argc);
-    if (argc < 2)
-    {
-        printf("USAGE: %s <UsbDeviceName> <timeout_in_seconds>\n", argv[0]);
-        return 1;
-    }
-
-    char *pszDevice = argv[1];
-    int timeout = 1;
-    if (argc > 2)
-        timeout = atoi(argv[2]);
-
-    int nCount = 0;
-    bool bSuccess = true;
-
-    while (bSuccess)
-    {
-        printf("opening...");
-        int fd = ::open(pszDevice, O_RDWR | O_NOCTTY);
-        if (fd < 0)
-        {
-            fprintf(stderr, "error, counldn't open file %s\n", pszDevice);
-            perror("open");
-            return 1;
-        }
-        printf("done successfully\n");
-        printf("sleeping %d seconds before closing\n", timeout);
-        sleep(timeout);
-
-        printf("closing...");
-        ::close(fd);
-        printf("closed\n");
-
-        printf("\t***** %d times done *****\n", ++nCount);
-        printf("sleeping %d seconds before re-opening\n", timeout);
-        sleep(timeout);
-    }
-
-    return 0;
-}
-*/
 

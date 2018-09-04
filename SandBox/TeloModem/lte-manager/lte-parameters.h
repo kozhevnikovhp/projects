@@ -25,24 +25,22 @@ public:
 
 public:
     LteValuesGroup();
-    virtual ~LteValuesGroup()
-    {
-    }
+    virtual ~LteValuesGroup();
 
 public:
-    bool get(unsigned int basicDelay, JsonContent &allReport);
+    bool get(time_t basicDelay, JsonContent &allReport);
 
 protected:
     virtual const char *getName() = 0;
-    virtual unsigned int getMinExpirationTime() const = 0; // factor, multiplying basic query delay
-    virtual unsigned int getMaxExpirationTime() const = 0; // factor, multiplying basic query delay
+    virtual time_t getMinExpirationTime() const = 0; // factor, multiplying basic query delay
+    virtual time_t getMaxExpirationTime() const = 0; // factor, multiplying basic query delay
     virtual bool doGet(JsonContent &content) = 0;
     virtual bool isValueChanged(const KeyValue &lastEntry, const KeyValue entry) const
     {
         return (lastEntry.second.compare(entry.second) != 0);
     }
 
-    unsigned int actualTime_;
+    time_t actualTime_;
     bool bForceQuery_;
     JsonContent thisQueryResult_, lastQueryResult_;
 };
@@ -56,8 +54,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Modem control parameters"; }
-    virtual unsigned int getMinExpirationTime() const { return 2; }
-    virtual unsigned int getMaxExpirationTime() const { return 60; }
+    virtual time_t getMinExpirationTime() const { return 2; }
+    virtual time_t getMaxExpirationTime() const { return 60; }
     virtual bool doGet(JsonContent &content);
 
     ModemGTC &modem_;
@@ -72,8 +70,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Constant parameters"; }
-    virtual unsigned int getMinExpirationTime() const { return 3; }
-    virtual unsigned int getMaxExpirationTime() const { return 60; }
+    virtual time_t getMinExpirationTime() const { return 3; }
+    virtual time_t getMaxExpirationTime() const { return 60; }
     virtual bool doGet(JsonContent &content);
 
     ModemGTC &modem_;
@@ -87,8 +85,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Variable parameters"; }
-    virtual unsigned int getMinExpirationTime() const { return 1; }
-    virtual unsigned int getMaxExpirationTime() const { return 10; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 10; }
     virtual bool doGet(JsonContent &content);
 
     ModemGTC &modem_;
@@ -102,8 +100,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Network parameters"; }
-    virtual unsigned int getMinExpirationTime() const { return 1; }
-    virtual unsigned int getMaxExpirationTime() const { return 10; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 10; }
     virtual bool doGet(JsonContent &content);
 
     std::string ifaceName_;
@@ -117,8 +115,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Traffic parameters"; }
-    virtual unsigned int getMinExpirationTime() const { return 1; }
-    virtual unsigned int getMaxExpirationTime() const { return 1; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 1; }
     virtual bool doGet(JsonContent &content);
     virtual bool isValueChanged(const KeyValue &lastEntry, const KeyValue &entry) const { return true; }
 
@@ -133,8 +131,8 @@ public:
 
 protected:
     virtual const char *getName() { return "WanSwitch state"; }
-    virtual unsigned int getMinExpirationTime() const { return 1; }
-    virtual unsigned int getMaxExpirationTime() const { return 10; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 10; }
     virtual bool doGet(JsonContent &content);
 
     void reportDbusError();

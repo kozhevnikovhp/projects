@@ -1,6 +1,7 @@
 # Add executable called "lte-manager" that is built from the source files
 add_executable (lte-manager
     config.cpp
+    const.cpp
     json.cpp
     kafka-rest-proxy.cpp
     log.cpp

@@ -7,6 +7,7 @@
 
 #include "kafka-rest-proxy.h"
 #include "const.h"
+#include "log.h"
 
 //static
 KafkaRestProxy &KafkaRestProxy::instance()
@@ -49,9 +50,11 @@ bool KafkaRestProxy::post(const std::string &data)
         curl_easy_setopt(pCurl, CURLOPT_HTTPHEADER, pCurlHeader);
 
         /* Perform the request, res will get the return code */
-        int res = curl_easy_perform(pCurl);
+        CURLcode res = curl_easy_perform(pCurl);
         bSuccess = (res == CURLE_OK);
         // Check for errors
+        if (!bSuccess)
+            log_error("Kafka REST proxy failed (%s)", curl_easy_strerror(res));
 
         curl_easy_cleanup(pCurl);
         curl_slist_free_all(pCurlHeader);
@@ -64,7 +67,7 @@ CURL *KafkaRestProxy::initCurl()
 {
     CURL *pCurl = curl_easy_init();
     if (!pCurl)
-        fprintf(stderr, "couldn't init curl\n");
+        log_error("Kafka REST proxy failed :could not init curl");
     return pCurl;
 }
 
@@ -101,9 +104,10 @@ void KafkaRestProxy::configure(const Configuration &cfg)
 {
     bEnabled_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_ENABLED, "true");
 
-    URL_ = cfg.get(PSZ_KAFKA_REST_PROXY_URL, "https://ec2-50-18-80-93.us-west-1.compute.amazonaws.com");
+    URL_ = cfg.get(PSZ_KAFKA_REST_PROXY_URL, PSZ_KAFKA_REST_PROXY_URL_DEFAULT);
+    log_info("Kafka REST proxy: %s", URL_.c_str());
     URL_ += "/topics/";
-    URL_ += cfg.get(PSZ_KAFKA_TOPIC, "lte-manager");
+    URL_ += cfg.get(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT);
 
     certFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_CERT, "");
     keyFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_KEY, "");
