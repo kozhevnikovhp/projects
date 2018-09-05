@@ -7,6 +7,7 @@
 
 #include "kafka-rest-proxy.h"
 #include "const.h"
+#include "config.h"
 #include "log.h"
 
 //static
@@ -21,7 +22,7 @@ KafkaRestProxy::KafkaRestProxy()
     bEnabled_ = true;
     bVerbose_ = false;
     bVerifyPeer_ = false;
-    curl_global_init(CURL_GLOBAL_SSL);
+    curl_global_init(CURL_GLOBAL_ALL);
 }
 
 //virtual
@@ -49,7 +50,7 @@ bool KafkaRestProxy::post(const std::string &data)
         pCurlHeader = curl_slist_append(pCurlHeader, "Content-Type: application/vnd.kafka.json.v1+json");
         curl_easy_setopt(pCurl, CURLOPT_HTTPHEADER, pCurlHeader);
 
-        /* Perform the request, res will get the return code */
+        // Perform the request, res will get the return code
         CURLcode res = curl_easy_perform(pCurl);
         bSuccess = (res == CURLE_OK);
         // Check for errors
@@ -60,6 +61,56 @@ bool KafkaRestProxy::post(const std::string &data)
         curl_slist_free_all(pCurlHeader);
         //fprintf(stderr, "res = %d\n", res);
     }
+    return bSuccess;
+}
+
+bool KafkaRestProxy::putFileTFTP(const std::string &fileFullPath, const std::string &tftpServer)
+{
+    bool bSuccess = false;
+    CURL *pCurl = initCurl();
+    if (pCurl)
+    {
+        FILE *fd = fopen(fileFullPath.c_str(), "rb"); // open file to upload
+        if (!fd)
+        {
+            log_error("Cannot open file %s\n", fileFullPath.c_str());
+            return false; // can't continue
+        }
+
+        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(pCurl, CURLOPT_READDATA, fd);
+
+        // set timeout not to wait too long
+        curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, 10L);
+        // binary transfer mode
+        curl_easy_setopt(pCurl, CURLOPT_TRANSFERTEXT, 0L);
+        // enable uploading
+        curl_easy_setopt(pCurl, CURLOPT_UPLOAD, 1L);
+
+        // specify target
+        std::string remoteURL = "tftp://";
+        remoteURL += tftpServer;
+        remoteURL += "/";
+        std::size_t pos = fileFullPath.find_last_of("/");
+        if (pos == std::string::npos)
+            remoteURL += fileFullPath;
+        else
+            remoteURL += fileFullPath.substr(pos+1);
+        printf("RemoteURL = %s\n", remoteURL.c_str());
+        curl_easy_setopt(pCurl, CURLOPT_URL, remoteURL.c_str());
+
+        // Perform the request, res will get the return code
+        CURLcode res = curl_easy_perform(pCurl);
+        bSuccess = (res == CURLE_OK);
+        // Check for errors
+        if (!bSuccess)
+            log_error("TFTP transfer failed (%s)", curl_easy_strerror(res));
+
+        curl_easy_cleanup(pCurl);
+        //fprintf(stderr, "res = %d\n", res);
+        fclose(fd);
+    }
+
     return bSuccess;
 }
 

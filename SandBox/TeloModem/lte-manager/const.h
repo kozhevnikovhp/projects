@@ -8,6 +8,7 @@
 #pragma once
 
 extern const char *PSZ_CFG_FILE_PATH;
+extern const char *PSZ_FW_UPGRADE_PATH;
 
 extern const char *PSZ_DEVICE_NAME;
 

@@ -9,7 +9,9 @@
 
 #include <string>
 #include <curl/curl.h>
-#include "config.h"
+
+// forward declarations
+class Configuration;
 
 // singleton
 class KafkaRestProxy
@@ -18,6 +20,7 @@ class KafkaRestProxy
     static KafkaRestProxy &instance();
 
     bool post(const std::string &data);
+    bool putFileTFTP(const std::string &fileFullPath, const std::string &tftpServer);
     bool isEnabled() const { return bEnabled_; }
     void configure(const Configuration &config);
 
@@ -26,9 +29,9 @@ class KafkaRestProxy
     ~KafkaRestProxy();
 
     // disable copy constructor...
-    KafkaRestProxy(KafkaRestProxy const&) = delete;
+    KafkaRestProxy(KafkaRestProxy const &) = delete;
     // ... and operator =
-    KafkaRestProxy & operator= (KafkaRestProxy const&) = delete;
+    KafkaRestProxy & operator= (KafkaRestProxy const &) = delete;
 
 protected:
     CURL *initCurl();

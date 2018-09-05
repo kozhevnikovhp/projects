@@ -17,7 +17,7 @@
 #include "const.h"
 #include "log.h"
 #include "myxid.h"
-
+#include "fw-upgrade.h"
 #include "kafka-rest-proxy.h"
 
 static bool needToContinue(int nCycles)
@@ -62,6 +62,8 @@ int main(int argc, char *argv[])
     log_init(logToStderr);
     log_level(1);
 
+    log_info("Started");
+
     Configuration cfg(PSZ_CFG_FILE_PATH);
     if (!cfg.load())
         cfg.createDefaultFile();
@@ -79,6 +81,9 @@ int main(int argc, char *argv[])
         log_info("Incorrect or wrong value for basic delay (%s), corrected automatically", basicDelayString.c_str());
     }
     log_info("Basic delay: %d seconds", basicDelay);
+
+    FirmwareUpgrader &FWupgrader = FirmwareUpgrader::instance();
+    FWupgrader.configure(cfg);
 
     // get myxID
     std::string myxID = getMyxID();
@@ -170,6 +175,7 @@ int main(int argc, char *argv[])
 
     JsonContent queryResult;
     int nCyclesDone = 0;
+    std::string fwUpdateFilePath;
 
     while (needToContinue(nCyclesDone))
     {
@@ -196,7 +202,7 @@ int main(int argc, char *argv[])
                 kafkaProxyJson += json;
                 kafkaProxyJson += "}]}";
                 //printf("%s\n", kafkaJson.c_str());
-                kafkaRestProxy.post(kafkaProxyJson);
+                //kafkaRestProxy.post(kafkaProxyJson);
             }
 
             if (bKafkaConventionalEnabled) // conventional kafka
@@ -210,6 +216,12 @@ int main(int argc, char *argv[])
                        nullptr);
             }
         }
+
+        if (FWupgrader.checkForUpdate(fwUpdateFilePath))
+        {
+            FWupgrader.upgrade(modem, fwUpdateFilePath);
+        }
+
         sleep(10);
 #ifdef VALGRIND
         ++nCyclesDone;
@@ -231,6 +243,8 @@ int main(int argc, char *argv[])
         delete pConf;
     if (pTopic)
         delete pTopic;
+
+    log_info("Finished");
 
     return 0;
 }

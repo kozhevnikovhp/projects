@@ -2,6 +2,7 @@
 add_executable (lte-manager
     config.cpp
     const.cpp
+    fw-upgrade.cpp
     json.cpp
     kafka-rest-proxy.cpp
     log.cpp
