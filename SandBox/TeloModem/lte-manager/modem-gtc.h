@@ -43,6 +43,8 @@ public:
 
     bool getSPN(std::string &SPN);
 
+    bool firmwareUpgrade(const std::string &fileName);
+
 protected:
 
 #ifndef PSEUDO_MODEM

@@ -418,4 +418,29 @@ bool ModemGTC::getSPN(std::string &SPN)
     return true;
 }
 
-
+// Described here: http://devcon.corp.ooma.com/pages/viewpage.action?pageId=21728633
+bool ModemGTC::firmwareUpgrade(const std::string &fileName)
+{
+    // file is assumed to be uploaded to modem's internal memory (via TFTProtocol)
+#ifndef PSEUDO_MODEM
+    bool bOK = true;
+    std::string cmd = "at%syscmd=";
+    cmd += '"';
+    cmd += "superload -l /var/update/";
+    cmd += fileName;
+    cmd += '"';
+    printf("command = %s\n", cmd.c_str());
+    //bOK = execute(cmd);    // Takes around 25 seconds to upgrade according to RamaK.
+    //if (!bOK)
+       // return false;
+    // reboot dongle
+    cmd = "at%syscmd=";
+    cmd += '"';
+    cmd += "reboot -f";
+    cmd += '"';
+    bOK = execute(cmd);
+    return bOK;
+#else
+    return true;
+#endif
+ }

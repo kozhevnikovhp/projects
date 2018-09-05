@@ -34,7 +34,7 @@ FirmwareUpgrader::FirmwareUpgrader()
     watchDesc_ = inotify_add_watch(eventDescs_, PSZ_FW_UPGRADE_PATH, IN_MODIFY | IN_CREATE | IN_DELETE);
     if (watchDesc_ < 0)
     {
-        log_error("Error adding watch with inotify (Errno: %d)", errno);
+        log_error("Cannot monitor %s for firmware upgrade (Errno: %d)", errno);
         close(watchDesc_);
         eventDescs_ = -1;
     }
@@ -91,7 +91,7 @@ bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
                 if (event->len)
                 {
                     printf("event of length %d\n", event->len);
-                    if (event->mask & IN_CREATE)
+                    if (event->mask & IN_CLOSE_WRITE)
                     {
                         // event->name is newly created file name
                         // chech it, it can be not FW upgrade file but stranger
@@ -121,18 +121,33 @@ bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
 
 bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
 {
+    bool bOK = true;
     // 1. unpack .tgz
 
     // 2. upload .prg file to modem's memory by TFTP protocol
     KafkaRestProxy &kafkaRestProxy = KafkaRestProxy::instance();
     std::string fwFileFullPath = PSZ_FW_UPGRADE_PATH;
     fwFileFullPath += fwFileName;
-    bool bTftpOK = kafkaRestProxy.putFileTFTP(fwFileFullPath, "10.0.2.15");
-    if (!bTftpOK)
+#ifndef PSEUDO_MODEM
+    const char *PSZ_TFTP_SERVER = "192.168.0.1";
+#else
+    const char *PSZ_TFTP_SERVER = "10.0.2.15"; // my laptop
+#endif
+    bOK = kafkaRestProxy.putFileTFTP(fwFileFullPath, PSZ_TFTP_SERVER);
+    if (!bOK)
     {
-        log_error("FW upgrade: could not upload file %s to LTE-dongle over TFTP", fwFileFullPath.c_str());
+        log_error("FW upgrade: could not upload file %s to LTE-dongle over TFTP (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
         return false;
     }
+
+    // 3. Upgrade modem FW
+    bOK = modem.firmwareUpgrade(fwFileName);
+    if (!bOK)
+    {
+        log_error("FW upgrade: could not upgrade firmware %s", fwFileName.c_str());
+        return false;
+    }
+
 
     return true;
 }
