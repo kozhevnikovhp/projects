@@ -48,7 +48,7 @@ public:
 protected:
 
 #ifndef PSEUDO_MODEM
-    bool execute(const std::string &command);
+    bool execute(const std::string &command, int timeout);
 
     SerialConnection connection_;
 #endif

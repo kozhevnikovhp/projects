@@ -31,7 +31,7 @@ FirmwareUpgrader::FirmwareUpgrader()
     eventDescs_ = inotify_init();
     if (eventDescs_ < 0)
         log_error("Error initializing inotify (Errno: %d)", errno);
-    watchDesc_ = inotify_add_watch(eventDescs_, PSZ_FW_UPGRADE_PATH, IN_MODIFY | IN_CREATE | IN_DELETE);
+    watchDesc_ = inotify_add_watch(eventDescs_, PSZ_FW_UPGRADE_PATH, IN_CLOSE_WRITE);
     if (watchDesc_ < 0)
     {
         log_error("Cannot monitor %s for firmware upgrade (Errno: %d)", errno);
@@ -133,10 +133,11 @@ bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
 #else
     const char *PSZ_TFTP_SERVER = "10.0.2.15"; // my laptop
 #endif
+    log_info("FW upgrade: uploading file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
     bOK = kafkaRestProxy.putFileTFTP(fwFileFullPath, PSZ_TFTP_SERVER);
     if (!bOK)
     {
-        log_error("FW upgrade: could not upload file %s to LTE-dongle over TFTP (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
+        log_error("FW upgrade: could not upload file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
         return false;
     }
 

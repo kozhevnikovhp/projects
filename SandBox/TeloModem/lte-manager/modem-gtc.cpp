@@ -21,7 +21,7 @@ ModemGTC::ModemGTC(const std::string &deviceName)
 }
 
 #ifndef PSEUDO_MODEM
-bool ModemGTC::execute(const std::string &command)
+bool ModemGTC::execute(const std::string &command, int timeout)
 {
     raw_.clear();
 
@@ -35,7 +35,7 @@ bool ModemGTC::execute(const std::string &command)
 
     size_t nRead = 0;
     char szReply[1024];
-    if (!connection_.read(szReply, sizeof(szReply), 3000, nRead))
+    if (!connection_.read(szReply, sizeof(szReply), timeout, nRead))
         return false;
     szReply[nRead] = 0;
     for (size_t i = 0; i < nRead; ++i)
@@ -54,7 +54,7 @@ bool ModemGTC::execute(const std::string &command)
 bool ModemGTC::isControllable()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT");
+    return execute("AT", 3000);
 #else
     return true;
 #endif
@@ -67,7 +67,7 @@ bool ModemGTC::isControllable()
 bool ModemGTC::getManufacturerInfoRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%SYSCMD=\"device --s\"");
+    return execute("AT%SYSCMD=\"device --s\"", 3000);
 #else
     raw_ = "\
     %SYSCMD: The device hardware info:\n\
@@ -141,7 +141,7 @@ bool ModemGTC::getManufacturerInfo(JsonContent &content)
 bool ModemGTC::getFirmwareVersionRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT+CGMR");
+    return execute("AT+CGMR", 3000);
 #else
     raw_ = "FW_VER: 0.3.2.4\nOK\n";
     return true;
@@ -162,7 +162,7 @@ bool ModemGTC::getFirmwareVersionInfo(JsonContent &content)
 bool ModemGTC::getImeiRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%GIMEISV?");
+    return execute("AT%GIMEISV?", 3000);
 #else
     raw_ = "%GIMEISV: 8623430390034200\nOK\n";
     return true;
@@ -183,7 +183,7 @@ bool ModemGTC::getImei(JsonContent &content)
 bool ModemGTC::getIccIdRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%GICCID");
+    return execute("AT%GICCID", 3000);
 #else
     raw_ = "%GICCID: 89011202000218997994\nOK\n";
     return true;
@@ -204,7 +204,7 @@ bool ModemGTC::getIccId(JsonContent &content)
 bool ModemGTC::getCarrierRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%GSERNETWORK");
+    return execute("AT%GSERNETWORK", 3000);
 #else
     raw_ = "%GSERNETWORK: RegistrationState 1, CSDomain 0, PSDomain 1, Roaming 0, MCC 310, MNC 120, namesize 6, name Sprint, VOLTE 1\nOK\n";
     return true;
@@ -247,7 +247,7 @@ bool ModemGTC::getCarrier(JsonContent &content)
 bool ModemGTC::getStatusRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT!GSTATUS");
+    return execute("AT!GSTATUS", 3000);
 #else
     raw_ = "                                                                         \n\
     Current Time : 0        Mode : ONLINE                                            \n\
@@ -421,6 +421,7 @@ bool ModemGTC::getSPN(std::string &SPN)
 // Described here: http://devcon.corp.ooma.com/pages/viewpage.action?pageId=21728633
 bool ModemGTC::firmwareUpgrade(const std::string &fileName)
 {
+    log_info("Upgrading dongle's firmware with file %s", fileName.c_str());
     // file is assumed to be uploaded to modem's internal memory (via TFTProtocol)
 #ifndef PSEUDO_MODEM
     bool bOK = true;
@@ -430,15 +431,21 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
     cmd += fileName;
     cmd += '"';
     printf("command = %s\n", cmd.c_str());
-    //bOK = execute(cmd);    // Takes around 25 seconds to upgrade according to RamaK.
-    //if (!bOK)
-       // return false;
+    bOK = execute(cmd, 30*1000);    // Takes around 25 seconds to upgrade according to RamaK.
+    if (!bOK)
+    {
+        log_error("Could not upgrade dongle's firmware");
+        return false;
+    }
+    log_info("Dongle's firmware has been successfully upgraded");
     // reboot dongle
+    log_info("Rebooting dongle");
     cmd = "at%syscmd=";
     cmd += '"';
     cmd += "reboot -f";
     cmd += '"';
-    bOK = execute(cmd);
+    printf("command = %s\n", cmd.c_str());
+    bOK = execute(cmd, 3000);
     return bOK;
 #else
     return true;
