@@ -21,6 +21,10 @@ class ModemGTC
 public:
     ModemGTC(const std::string &deviceName);
 
+    bool connect();
+    bool disconnect();
+    bool isConnected() const;
+
     bool isControllable();
 
     bool getManufacturerInfoRaw();
@@ -53,6 +57,7 @@ protected:
     SerialConnection connection_;
 #endif
 
+    std::string deviceName_;
     std::string raw_; // to avoid memory fragmentation
     JsonContent tmpContent_; // to avoid memory fragmentation
 };

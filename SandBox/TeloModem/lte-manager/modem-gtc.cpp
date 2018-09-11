@@ -6,6 +6,7 @@
  */
 
 #include <string.h>
+#include <unistd.h>
 #include <regex>
 #include <iostream>
 #include <fstream>
@@ -13,11 +14,40 @@
 #include "log.h"
 
 ModemGTC::ModemGTC(const std::string &deviceName)
+    : deviceName_(deviceName)
+{
+}
+
+bool ModemGTC::connect()
 {
 #ifndef PSEUDO_MODEM
-    connection_.open(deviceName.c_str());
+    if (!connection_.open(deviceName_.c_str()))
+        return false;
     connection_.setSpeed(B115200);
+    return true;
+#else
+    return true;
 #endif
+}
+
+bool ModemGTC::disconnect()
+{
+#ifndef PSEUDO_MODEM
+    connection_.close();
+    return true;
+#else
+    return true;
+#endif
+}
+
+bool ModemGTC::isConnected() const
+{
+#ifndef PSEUDO_MODEM
+    return connection_.isOpen();
+#else
+    return true;
+#endif
+
 }
 
 #ifndef PSEUDO_MODEM
@@ -446,6 +476,9 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
     cmd += '"';
     printf("command = %s\n", cmd.c_str());
     bOK = execute(cmd, 3000);
+    log_info("disconnecting %s", deviceName_.c_str());
+    disconnect();
+    sleep(60); // wait while modem is rebooting
     return bOK;
 #else
     return true;

@@ -83,7 +83,9 @@ int main(int argc, char *argv[])
     log_info("Basic delay: %d seconds", basicDelay);
 
     FirmwareUpgrader &FWupgrader = FirmwareUpgrader::instance();
+    printf("1\n");
     FWupgrader.configure(cfg);
+    printf("2\n");
 
     // get myxID
     std::string myxID = getMyxID();
@@ -92,9 +94,19 @@ int main(int argc, char *argv[])
         log_error("Cannot get MYX_ID");
         return 1;
     }
+    log_info("MyxID = %s", myxID.c_str());
 
     std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
     ModemGTC modem(deviceName);
+    if (modem.connect())
+    {
+        log_info("Connected to the dongle through %s", deviceName.c_str());
+    }
+    else
+    {
+        log_error("Could not open device %s", deviceName.c_str());
+        return 1;
+    }
 
 #ifndef PSEUDO_MODEM
     std::string trafficInterfaceName("usbnet0");
@@ -103,7 +115,11 @@ int main(int argc, char *argv[])
 #endif
     TrafficCounter trafficCounter;
     trafficCounter.addInterface(trafficInterfaceName.c_str());
-    if (!trafficCounter.startListening())
+    if (trafficCounter.startListening())
+    {
+        log_info("Listening traffic of %s", trafficInterfaceName.c_str());
+    }
+    else
     {
         log_error("Cannot start listening traffic of %s", trafficInterfaceName.c_str());
         return 1;
@@ -183,6 +199,16 @@ int main(int argc, char *argv[])
 
         queryResult.clear();
 
+        if (!modem.isConnected())
+        {
+            // try to reconnect
+            printf("trying to reconnect %s...", deviceName.c_str());
+            if (modem.connect())
+                log_info("Reconnected to device %s", deviceName.c_str());
+            else
+                log_error("Could not connect to device %s", deviceName.c_str());
+        }
+
         for (auto pGroup : allGroups)
             pGroup->get(basicDelay, queryResult);
 
@@ -202,7 +228,7 @@ int main(int argc, char *argv[])
                 kafkaProxyJson += json;
                 kafkaProxyJson += "}]}";
                 //printf("%s\n", kafkaJson.c_str());
-                //kafkaRestProxy.post(kafkaProxyJson);
+                kafkaRestProxy.post(kafkaProxyJson);
             }
 
             if (bKafkaConventionalEnabled) // conventional kafka

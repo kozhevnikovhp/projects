@@ -81,7 +81,8 @@ bool KafkaRestProxy::putFileTFTP(const std::string &fileFullPath, const std::str
         curl_easy_setopt(pCurl, CURLOPT_READDATA, fd);
 
         // set timeout not to wait too long
-        curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, 10L);
+        //curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, 10L);
+
         // binary transfer mode
         curl_easy_setopt(pCurl, CURLOPT_TRANSFERTEXT, 0L);
         // enable uploading
@@ -101,13 +102,13 @@ bool KafkaRestProxy::putFileTFTP(const std::string &fileFullPath, const std::str
 
         // Perform the request, res will get the return code
         CURLcode res = curl_easy_perform(pCurl);
+        fprintf(stderr, "res = %d\n", res);
         bSuccess = (res == CURLE_OK);
         // Check for errors
         if (!bSuccess)
             log_error("TFTP transfer failed (%s)", curl_easy_strerror(res));
 
         curl_easy_cleanup(pCurl);
-        //fprintf(stderr, "res = %d\n", res);
         fclose(fd);
     }
 

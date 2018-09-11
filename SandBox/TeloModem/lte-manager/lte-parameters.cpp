@@ -97,6 +97,9 @@ ModemControlParameterGroup::ModemControlParameterGroup(ModemGTC &modem)
 //virtual
 bool ModemControlParameterGroup::doGet(JsonContent &content)
 {
+    if (!modem_.isConnected())
+        return false;
+
     std::string status = "inactive";
     if (modem_.isControllable())
         status = "active";
@@ -116,6 +119,9 @@ ConstantModemParameterGroup::ConstantModemParameterGroup(ModemGTC &modem)
 //virtual
 bool ConstantModemParameterGroup::doGet(JsonContent &content)
 {
+    if (!modem_.isConnected())
+        return false;
+
     bool bSuccess = true;
     bSuccess *= modem_.getManufacturerInfo(content);
     bSuccess *= modem_.getFirmwareVersionInfo(content);
@@ -141,6 +147,9 @@ VariableModemParameterGroup::VariableModemParameterGroup(ModemGTC &modem)
 //virtual
 bool VariableModemParameterGroup::doGet(JsonContent &content)
 {
+    if (!modem_.isConnected())
+        return false;
+
     bool bSuccess = true;
     bSuccess *= modem_.getStatus(content);
     return bSuccess;
