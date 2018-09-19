@@ -19,17 +19,14 @@ public:
     virtual ~Sniffer();
 
     pcap_t *getHandle() const { return pHandle_; }
-    bool isCreated() const { return (pHandle_ != NULL); }
-    bool isDestroyed() const { return (pHandle_ == NULL); }
-    void destroy();
 
-// Public members
-   bool promiscModeOn(const char *pszIfaceName);
-   bool promiscModeOff();
-   bool waitForPacket();
+    bool promiscModeOn();
+    bool promiscModeOff();
+    bool waitForPacket();
 
 // Protected methods
 protected:
+    void destroy();
 
 // Protected overridables
 protected:

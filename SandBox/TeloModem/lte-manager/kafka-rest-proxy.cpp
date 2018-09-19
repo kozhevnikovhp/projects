@@ -11,13 +11,13 @@
 #include "log.h"
 
 //static
-KafkaRestProxy &KafkaRestProxy::instance()
+CurlLib &CurlLib::instance()
 {
-    static KafkaRestProxy s;
+    static CurlLib s;
     return s;
 }
 
-KafkaRestProxy::KafkaRestProxy()
+CurlLib::CurlLib()
 {
     bEnabled_ = true;
     bVerbose_ = false;
@@ -26,12 +26,12 @@ KafkaRestProxy::KafkaRestProxy()
 }
 
 //virtual
-KafkaRestProxy::~KafkaRestProxy()
+CurlLib::~CurlLib()
 {
     curl_global_cleanup();
 }
 
-bool KafkaRestProxy::post(const std::string &data)
+bool CurlLib::post(const std::string &data)
 {
     bool bSuccess = false;
     CURL *pCurl = initCurl();
@@ -64,7 +64,7 @@ bool KafkaRestProxy::post(const std::string &data)
     return bSuccess;
 }
 
-bool KafkaRestProxy::putFileTFTP(const std::string &fileFullPath, const std::string &tftpServer)
+bool CurlLib::putFileTFTP(const std::string &fileFullPath, const std::string &tftpServer)
 {
     bool bSuccess = false;
     CURL *pCurl = initCurl();
@@ -97,15 +97,16 @@ bool KafkaRestProxy::putFileTFTP(const std::string &fileFullPath, const std::str
             remoteURL += fileFullPath;
         else
             remoteURL += fileFullPath.substr(pos+1);
-        printf("RemoteURL = %s\n", remoteURL.c_str());
+        //printf("RemoteURL = %s\n", remoteURL.c_str());
         curl_easy_setopt(pCurl, CURLOPT_URL, remoteURL.c_str());
 
         // Perform the request, res will get the return code
         CURLcode res = curl_easy_perform(pCurl);
-        fprintf(stderr, "res = %d\n", res);
         bSuccess = (res == CURLE_OK);
         // Check for errors
-        if (!bSuccess)
+        if (bSuccess)
+            log_info("TFTP transfer suceeded");
+        else
             log_error("TFTP transfer failed (%s)", curl_easy_strerror(res));
 
         curl_easy_cleanup(pCurl);
@@ -115,7 +116,7 @@ bool KafkaRestProxy::putFileTFTP(const std::string &fileFullPath, const std::str
     return bSuccess;
 }
 
-CURL *KafkaRestProxy::initCurl()
+CURL *CurlLib::initCurl()
 {
     CURL *pCurl = curl_easy_init();
     if (!pCurl)
@@ -123,7 +124,7 @@ CURL *KafkaRestProxy::initCurl()
     return pCurl;
 }
 
-void KafkaRestProxy::setCommonOptions(CURL *pCurl)
+void CurlLib::setCommonOptions(CURL *pCurl)
 {
     curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
 
@@ -152,7 +153,7 @@ void KafkaRestProxy::setCommonOptions(CURL *pCurl)
     curl_easy_setopt(pCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 }
 
-void KafkaRestProxy::configure(const Configuration &cfg)
+void CurlLib::configure(const Configuration &cfg)
 {
     bEnabled_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_ENABLED, "true");
 

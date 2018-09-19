@@ -6,10 +6,12 @@
  */
 
 #include <string.h>
+#include <algorithm>
+#include <regex>
+
 #include <stdio.h>
 
 #include "misc.h"
-
 
 ////////////////////////////////////////////////////////////////////////
 // Misc
@@ -197,3 +199,33 @@ bool getInterfaceGateway(const std::string &ifaceName, IPADDRESS_TYPE &GW)
     return true;
 }
 
+
+// std::string helpers
+void tolower(std::string &s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), [](int c) -> int { return std::tolower(c); });
+}
+
+void toupper(std::string &s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), [](int c) -> int { return std::toupper(c); });
+}
+
+// trim from start (in-place)
+static inline void ltrim(std::string &s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) { return !std::isspace(c); }));
+}
+
+// trim from end (in-place)
+static inline void rtrim(std::string &s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int c) { return !std::isspace(c); }).base(), s.end());
+}
+
+// trim from both ends (in-place)
+void trimBlanks(std::string &s)
+{
+    ltrim(s);
+    rtrim(s);
+}

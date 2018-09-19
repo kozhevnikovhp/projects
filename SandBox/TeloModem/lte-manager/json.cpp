@@ -5,28 +5,18 @@
  *
  */
 
-#include "json.h"
-
 #include <string.h>
 #include <ctype.h>
 #include <algorithm>
 
-// trim from start (in place) (leading spaces)
-static inline void ltrim(std::string &s)
-{
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) { return !isspace(c); }));
-}
-
-// trim from end (in place)
-static inline void rtrim(std::string &s)
-{
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int c) { return !isspace(c); }).base(), s.end());
-}
+#include "json.h"
+#include "misc.h"
 
 bool parseToContent(const std::string &raw, JsonContent &content, const Dictionary &dictionary)
 {
     //printf("raw: %s\n", raw.c_str());
     std::string key, value;
+    // TODO: get rid of strdup, strtok etc, use std::string and std::iostream stuff instead
     char *pszInput = strdup(raw.c_str()); // TODO: do something better to avoid strdup/free
     const char *pszSeparator = ":\t";
     // replace two subsequent blanks with tab - new separator
@@ -39,18 +29,17 @@ bool parseToContent(const std::string &raw, JsonContent &content, const Dictiona
     {
         //printf("token %s length = %d\n", pszToken, strlen(pszToken));
         key = pszToken;
-        ltrim(key);
-        rtrim(key);
+        trimBlanks(key);
         if (!key.empty())
         {
             //printf("key = %s\n", key.c_str());
-            pszToken = strtok(NULL, "\n\r\t");
+            pszToken = strtok(nullptr, "\n\r\t");
             if (pszToken)
             {
                 //printf("\ttoken %s length = %d\n", pszToken, strlen(pszToken));
 
                 // find key value in dictionary. It is assumed that the dictionary would be very short, 1-5 items, so linear search is implemented
-                const char *pszFoundInDictionary = NULL;
+                const char *pszFoundInDictionary = nullptr;
                 for (auto &dictionaryEntry : dictionary)
                 {
                     if (key.find(dictionaryEntry.first) != std::string::npos)
@@ -64,14 +53,13 @@ bool parseToContent(const std::string &raw, JsonContent &content, const Dictiona
                     //printf("\tpszFoundInDictionary = %s\n", pszFoundInDictionary);
                     key = pszFoundInDictionary;
                     value = pszToken;
-                    ltrim(value);
-                    rtrim(value);
+                    trimBlanks(value);
                     //printf("\tvalue = %s\n", value.c_str());
                     content.emplace_back(KeyValue(key, value));
                 }
             }
         }
-        pszToken = strtok(NULL, pszSeparator);
+        pszToken = strtok(nullptr, pszSeparator);
     }
 
     free(pszInput);

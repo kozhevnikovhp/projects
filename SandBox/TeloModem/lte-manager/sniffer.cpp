@@ -17,9 +17,24 @@
 
 
 Sniffer::Sniffer(const std::string &ifaceName)
+    : ifaceName_(ifaceName), pHandle_(nullptr), bHasEthernetHeader_(false)
 {
-    ifaceName_ = ifaceName;
-    pHandle_ = pcap_open_live(ifaceName.c_str(), BUFSIZ, 1, 1000, error_buffer_);
+}
+
+//virtual
+Sniffer::~Sniffer()
+{
+    destroy();
+}
+
+void Sniffer::destroy()
+{
+    promiscModeOff();
+}
+
+bool Sniffer::promiscModeOn()
+{
+    pHandle_ = pcap_open_live(ifaceName_.c_str(), BUFSIZ, 1, 1000, error_buffer_);
     if (pHandle_ != nullptr)
     {
         bHasEthernetHeader_ = false;
@@ -28,28 +43,13 @@ Sniffer::Sniffer(const std::string &ifaceName)
     }
     else
         fprintf(stderr, "pcap_open_live %s\n", error_buffer_);
-}
-
-//virtual
-Sniffer::~Sniffer()
-{
-    //if (pHandle_ != nullptr)
-    //    pcap_close(pHandle_);
-}
-
-void Sniffer::destroy()
-{
-    if (isDestroyed())
-        return; // do nothing
-}
-
-bool Sniffer::promiscModeOn(const char *pszIfaceName)
-{
-    return true;
+    return (pHandle_ != nullptr);
 }
 
 bool Sniffer::promiscModeOff()
 {
+    if (pHandle_ != nullptr)
+        pcap_close(pHandle_);
     return true;
 }
 

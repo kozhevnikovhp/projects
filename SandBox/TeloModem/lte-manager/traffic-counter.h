@@ -36,7 +36,8 @@ class InterfaceTrafficCounter : public Sniffer
 public:
     InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP = 0);
 
-    bool listen();
+    bool startListening();
+    bool stopListening();
     int getUserInputBytes() const { return UserStat_.getInputBytes(); }
     int getUserOutputBytes() const { return UserStat_.getOutputBytes(); }
     int getTeloInputBytes() const { return TeloStat_.getInputBytes(); }
@@ -62,9 +63,12 @@ class TrafficCounter
 public:
     TrafficCounter();
 
+    bool isListening() const { return bListening_; }
+
     void addInterface(const char *pszInterfaceName);
     bool hasJob() const { return !interfaces_.empty(); }
     bool startListening();
+    bool stopListening();
     int doJob();
 
     int getUserInputBytes() const;
@@ -75,5 +79,6 @@ public:
 
 protected:
     std::vector<InterfaceTrafficCounter> interfaces_;
+    bool bListening_;
 };
 

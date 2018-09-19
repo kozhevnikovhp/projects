@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define DUMP 0
+
 static int log_debug_messages = 0;
 
 void log_init(int to_stderr_also) 
@@ -28,7 +30,6 @@ void log_level(const int d)
     log_debug_messages = d;
 }
 
-
 void log_debug(const char *format, ...)
 {
     if (log_debug_messages)
@@ -41,16 +42,25 @@ void log_debug(const char *format, ...)
     }
 }
 
-
 void log_info(const char *format, ...)
 {
     va_list ap;
 
     va_start(ap, format);
     vsyslog(LOG_INFO, format, ap);
+
+#if DUMP
+    FILE *pFile = fopen("dump.txt", "a");
+    if (pFile)
+    {
+        vfprintf(pFile, format, ap);
+        fprintf(pFile, "\n");
+        fclose(pFile);
+    }
+#endif
+
     va_end(ap);
 }
-
 
 void log_error(const char *format, ...)
 {
@@ -58,5 +68,16 @@ void log_error(const char *format, ...)
 
     va_start(ap, format);
     vsyslog(LOG_ERR, format, ap);
+
+#if DUMP
+    FILE *pFile = fopen("dump.txt", "a");
+    if (pFile)
+    {
+        vfprintf(pFile, format, ap);
+        fprintf(pFile, "\n");
+        fclose(pFile);
+    }
+#endif
+
     va_end(ap);
 }

@@ -7,11 +7,13 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <algorithm>
 #include <regex>
 #include <iostream>
 #include <fstream>
 #include "modem-gtc.h"
 #include "log.h"
+#include "misc.h"
 
 ModemGTC::ModemGTC(const std::string &deviceName)
     : deviceName_(deviceName)
@@ -251,23 +253,28 @@ bool ModemGTC::getCarrier(JsonContent &content)
     tmpContent_.clear();
     if (!parseToContent(raw_, tmpContent_, dictionary))
         return false;
-    std::string strValue;
-    char szKey[32], szValue[32];
     for (auto &entry : tmpContent_)
     {
         if (!entry.first.compare(PSZ_CARRIER))
         {
-            strValue = entry.second;
-            // look for substring kind of name Sprint
-            char *pszToken = strtok((char *)strValue.c_str(), ",");
-            while (pszToken)
+            std::string strValue = entry.second;
+            std::string key_value, key, value;
+            std::stringstream ss(strValue);
+            while (!ss.eof() && !ss.bad() && !ss.fail())
             {
-                if (sscanf(pszToken, "%s %s", szKey, szValue) == 2)
-                {
-                    if (strcasecmp(szKey, "name") == 0)
-                        content.emplace_back(KeyValue(PSZ_CARRIER, szValue));
-                }
-                pszToken = strtok(NULL, ",");
+                std::getline(ss, key_value, ',');
+                if (key_value.empty())
+                    continue;
+                trimBlanks(key_value);
+                std::stringstream sss(key_value);
+                std::getline(sss, key, ' ');
+                trimBlanks(key);
+                tolower(key);
+                if (key.compare("name") != 0)
+                    continue;
+                std::getline(sss, value, ' ');
+                trimBlanks(value);
+                content.emplace_back(KeyValue(PSZ_CARRIER, value));
             }
         }
     }
@@ -325,13 +332,13 @@ bool ModemGTC::getStatus(JsonContent &content)
         if (!entry.first.compare(pszMode))
         {
             strMode = entry.second;
-            std::transform(strMode.begin(), strMode.end(), strMode.begin(), ::tolower);
+            tolower(strMode);
             content.emplace_back(KeyValue(pszMode, strMode));
         }
         else if (!entry.first.compare(pszPSState))
         {
             strPSState = entry.second;
-            std::transform(strPSState.begin(), strPSState.end(), strPSState.begin(), ::tolower);
+            tolower(strPSState);
             content.emplace_back(KeyValue(pszPSState, strPSState));
         }
         else if (!entry.first.compare(pszRSRP))
@@ -416,17 +423,19 @@ bool ModemGTC::getSPN(std::string &SPN)
 {
     SPN.clear();
     std::string line;
-    const std::string mdmCfgFile("/etc/ooma/mdm.cfg");
-    std::ifstream file(mdmCfgFile);
+    const char *PSZ_MDM_CFG_FILE = "/etc/ooma/mdm.cfg";
+    std::ifstream file(PSZ_MDM_CFG_FILE);
     if (file.is_open())
     {
-        while (!file.eof())
+        while (true)
         {
             std::getline(file, line);
+            if (file.eof() || file.bad() || file.fail())
+                break;
             const char *pszKey = strtok((char *)line.c_str(), "=");
             if (pszKey && !strcmp(pszKey, "MY_SPN"))
             {
-                char *pszValue = strtok(NULL, "=");
+                char *pszValue = strtok(nullptr, "=");
                 if (pszValue)
                 {
                     //SPN = std::string(pszValue);
@@ -443,7 +452,7 @@ bool ModemGTC::getSPN(std::string &SPN)
         file.close();
     }
     else
-        log_info("Cannot open file %s", mdmCfgFile.c_str());
+        log_info("Cannot open file %s", PSZ_MDM_CFG_FILE);
 
     return true;
 }
@@ -468,17 +477,27 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
         return false;
     }
     log_info("Dongle's firmware has been successfully upgraded");
+
     // reboot dongle
     log_info("Rebooting dongle");
+
+    // set "reset factory defaults" flag
+    // execute AT-command at%syscmd="ucfg add config ui restore_default 1"
+    cmd = "at%syscmd=";
+    cmd += '"';
+    cmd += "ucfg add config ui restore_default 1";
+    cmd += '"';
+    //printf("command = %s\n", cmd.c_str());
+    bOK = execute(cmd, 3000);
+
+    // reboot now
+    // execute AT-command at%syscmd="reboot -f"
     cmd = "at%syscmd=";
     cmd += '"';
     cmd += "reboot -f";
     cmd += '"';
-    printf("command = %s\n", cmd.c_str());
+    //printf("command = %s\n", cmd.c_str());
     bOK = execute(cmd, 3000);
-    log_info("disconnecting %s", deviceName_.c_str());
-    disconnect();
-    sleep(60); // wait while modem is rebooting
     return bOK;
 #else
     return true;

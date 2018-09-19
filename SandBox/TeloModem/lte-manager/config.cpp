@@ -8,9 +8,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <regex>
+#include <fstream>
+
 #include "config.h"
 #include "const.h"
 #include "log.h"
+#include "misc.h"
 
 Configuration::Configuration(const std::string configFile)
     : configFile_(configFile)
@@ -18,7 +21,7 @@ Configuration::Configuration(const std::string configFile)
     params_.emplace_back(ConfigurationParam(PSZ_DEVICE_NAME, "/dev/ttyACM0", "Serial device name, something like /dev/ttyACM0"));
 
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_ENABLED, "false", "Conventional Kafka enabled or not?"));
-    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_BROKERS, PSZ_KAFKA_BROKERS_DEFAULT, "Comma-separated list of Kafka-brokers (no blanks, please!)"));
+    params_.emplace_back(ConfigurationParam(PSZ_KAFKA_BROKERS, PSZ_KAFKA_BROKERS_DEFAULT, "Comma-separated list of Kafka-brokers"));
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT, "Kafka topic"));
 
     params_.emplace_back(ConfigurationParam(PSZ_KAFKA_REST_PROXY_URL, PSZ_KAFKA_REST_PROXY_URL_DEFAULT, "Kafka REST proxy URL"));
@@ -36,7 +39,7 @@ Configuration::Configuration(const std::string configFile)
 
 bool Configuration::createDefaultFile()
 {
-    log_debug("Writing default configuration file %s", configFile_.c_str());
+    log_info("Writing default configuration file %s", configFile_.c_str());
     return save();
 }
 
@@ -61,44 +64,61 @@ bool Configuration::save()
 
 bool Configuration::load()
 {
-    FILE *fd = fopen(configFile_.c_str(), "r");
-    if (!fd)
+    const char delimeter = '=';
+
+    std::ifstream f(configFile_);
+    if (!f.is_open())
     {
         log_error("Cannot read config file %s\n", configFile_.c_str());
         return false;
     }
+    if (f.eof() || f.bad() || f.fail())
+    {
+        log_error("Invalid config file %s\n", configFile_.c_str());
+        return false;
+    }
 
     std::vector<ConfigurationParam> params;
-    char szBuffer[1024];
+    std::string line;
     while (1)
     {
-        if (fscanf(fd, "%s\n", szBuffer) != 1)
+        std::getline(f, line);
+        if (f.eof() || f.bad() || f.fail())
             break;
-        char *pszEqual = strchr(szBuffer, '=');
-        if (!pszEqual)
+        if (line.find(delimeter) == std::string::npos)
+            continue; // does not match format key = value
+
+        // remove leading and heading blanks
+        trimBlanks(line);
+        if (line.empty())
             continue;
-        *pszEqual = 0;
-        char *pszKey = szBuffer;
-        char *pszValue = pszEqual+1;
+        if (line[0] == '#')
+            continue; // comment
+
+        std::stringstream ss(line);
+        std::string key, value;
+        std::getline(ss, key, '=');
+        trimBlanks(key);
+        std::getline(ss, value, '=');
+        trimBlanks(value);
+
         for (auto param : params_)
         {
             std::string &paramKey = std::get<0>(param);
-            if (!paramKey.compare(pszKey))
+            if (!paramKey.compare(key))
             {
-                const std::string paramValue = std::string(pszValue);
-                const std::string &paramDescription = std::get<2>(param);
-                params.emplace_back(ConfigurationParam(paramKey, paramValue, paramDescription));
+                const std::string &description = std::get<2>(param);
+                params.emplace_back(ConfigurationParam(key, value, description));
             }
         }
     }
     params.swap(params_);
-    fclose(fd);
     return true;
 }
 
 std::string Configuration::get(const char *pszKey, const char *pszDefaultValue) const
 {
-    // linear search as there is no millions of enties there
+    // linear search because no millions of enties assumed here
     for (auto param : params_)
     {
         const std::string &key = std::get<0>(param);
@@ -113,7 +133,6 @@ std::string Configuration::get(const char *pszKey, const char *pszDefaultValue) 
 bool Configuration::getBoolean(const char *pszKey, const char *pszDefaultValue) const
 {
     std::string value = get(pszKey, pszDefaultValue);
-    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+    tolower(value);
     return (!value.compare("enable") || !value.compare("true"));
-
 }

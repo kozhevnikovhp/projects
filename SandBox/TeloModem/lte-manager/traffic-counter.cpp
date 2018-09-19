@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include "traffic-counter.h"
+#include "log.h"
 
 /////////////////////////////////////////////////////////////////////////
 /// TrafficStatistics::TrafficStatistics
@@ -47,23 +48,23 @@ InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName, I
     enforcedIP_ = IP;
 }
 
-bool InterfaceTrafficCounter::listen()
+bool InterfaceTrafficCounter::startListening()
 {
+    log_info("Start listening to interface %s", ifaceName_.c_str());
     bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
-    {
-        /*fprintf(stdout, "Listening local interface '%s' to figure out traffic of %s...\n",
-               ifaceName_.c_str(),
-               addressToDotNotation(getIP()).c_str());*/
-        promiscModeOn(ifaceName_.c_str());
-    }
+        promiscModeOn();
     else
-    {
-        fprintf(stdout, "ERROR: interface '%s' does not exist\n", ifaceName_.c_str());
-        destroy();
-    }
+        log_error("Could not listen to interface %s\n", ifaceName_.c_str());
 
     return bSuccess;
+}
+
+bool InterfaceTrafficCounter::stopListening()
+{
+    log_info("Stop listening to interface %s", ifaceName_.c_str());
+    promiscModeOff();
+    return true;
 }
 
 IPADDRESS_TYPE InterfaceTrafficCounter::getIP() const
@@ -92,6 +93,7 @@ void InterfaceTrafficCounter::clearStatistics()
 // TrafficCounter
 
 TrafficCounter::TrafficCounter()
+    : bListening_(false)
 {
 }
 
@@ -139,17 +141,27 @@ bool TrafficCounter::startListening()
 {
     for (auto &iface : interfaces_)
     {
-        if (!iface.isCreated())
-            return false;
-        if (!iface.listen())
+        if (!iface.startListening())
             return false;
     }
+    bListening_ = true;
+    return true;
+}
+
+bool TrafficCounter::stopListening()
+{
+    for (auto &iface : interfaces_)
+    {
+        if (!iface.stopListening())
+            return false;
+    }
+    bListening_ = false;
     return true;
 }
 
 int TrafficCounter::doJob()
 {
-    //printf("TrafficCounter::doJob... ");
+    //log_info("TrafficCounter::doJob... ");
     const int OK = 0;
     const int NotOK = 1;
     // initial check
@@ -190,7 +202,7 @@ int TrafficCounter::doJob()
         else
             bContinue = false; // 0 means "timeout expired -> do nothing and exit
     }
-    //printf("done\n");
+    //log_info("TrafficCounter:: doJob done\n");
     return OK;
 }
 

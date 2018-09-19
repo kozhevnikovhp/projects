@@ -83,9 +83,7 @@ int main(int argc, char *argv[])
     log_info("Basic delay: %d seconds", basicDelay);
 
     FirmwareUpgrader &FWupgrader = FirmwareUpgrader::instance();
-    printf("1\n");
     FWupgrader.configure(cfg);
-    printf("2\n");
 
     // get myxID
     std::string myxID = getMyxID();
@@ -115,17 +113,10 @@ int main(int argc, char *argv[])
 #endif
     TrafficCounter trafficCounter;
     trafficCounter.addInterface(trafficInterfaceName.c_str());
-    if (trafficCounter.startListening())
-    {
-        log_info("Listening traffic of %s", trafficInterfaceName.c_str());
-    }
-    else
-    {
-        log_error("Cannot start listening traffic of %s", trafficInterfaceName.c_str());
+    if (!trafficCounter.startListening())
         return 1;
-    }
 
-    KafkaRestProxy &kafkaRestProxy = KafkaRestProxy::instance();
+    CurlLib &kafkaRestProxy = CurlLib::instance();
     kafkaRestProxy.configure(cfg);
 
     bool bKafkaConventionalEnabled = cfg.getBoolean(PSZ_KAFKA_ENABLED, "false");
@@ -195,19 +186,23 @@ int main(int argc, char *argv[])
 
     while (needToContinue(nCyclesDone))
     {
-        trafficCounter.doJob();
-
-        queryResult.clear();
-
         if (!modem.isConnected())
         {
             // try to reconnect
-            printf("trying to reconnect %s...", deviceName.c_str());
             if (modem.connect())
+            {
                 log_info("Reconnected to device %s", deviceName.c_str());
+                trafficCounter.startListening();
+            }
             else
                 log_error("Could not connect to device %s", deviceName.c_str());
         }
+
+        if (trafficCounter.isListening())
+            trafficCounter.doJob();
+
+        queryResult.clear();
+
 
         for (auto pGroup : allGroups)
             pGroup->get(basicDelay, queryResult);
@@ -246,6 +241,11 @@ int main(int argc, char *argv[])
         if (FWupgrader.checkForUpdate(fwUpdateFilePath))
         {
             FWupgrader.upgrade(modem, fwUpdateFilePath);
+            log_info("Firmware upgrade is done");
+            log_info("Disconnecting %s", deviceName.c_str());
+            modem.disconnect();
+            trafficCounter.stopListening();
+            sleep(60); // wait while modem is rebooting
         }
 
         sleep(10);

@@ -40,13 +40,15 @@ class FirmwareUpgrader
     FirmwareUpgrader();
     ~FirmwareUpgrader();
 
+    bool checkFileName(const char *pszFileName) const;
+
     // disable copy constructor...
     FirmwareUpgrader(FirmwareUpgrader const &) = delete;
     // ... and operator =
     FirmwareUpgrader &operator= (FirmwareUpgrader const &) = delete;
 
     FWU_STATE state_;
-    int eventDescs_;
+    int notifyDesc_;
     int watchDesc_;
     char events_[BUF_LEN];
 };

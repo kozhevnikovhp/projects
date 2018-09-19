@@ -82,13 +82,14 @@ TEST(ModemTests, Status)
     ModemGTC modem("");
     JsonContent content;
     modem.getStatus(content);
-    EXPECT_EQ(content.size(), 6);
+    EXPECT_EQ(content.size(), 7);
     check_key_value_many(content, "mode", "online", 0);
     check_key_value_many(content, "ps_state", "attached", 1);
     check_key_value_many(content, "rssi", "-78", 2);
-    check_key_value_many(content, "sinr", "15", 3);
-    check_key_value_many(content, "signal_quality", "3", 4);
-    check_key_value_many(content, "lte_status", "up", 5);
+    check_key_value_many(content, "rsrp", "-99", 3);
+    check_key_value_many(content, "sinr", "15", 4);
+    check_key_value_many(content, "signal_quality", "2", 5);
+    check_key_value_many(content, "lte_state", "up", 6);
 }
 
 int main(int argc, char *argv[])

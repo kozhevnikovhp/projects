@@ -14,10 +14,10 @@
 class Configuration;
 
 // singleton
-class KafkaRestProxy
+class CurlLib
 {
   public:
-    static KafkaRestProxy &instance();
+    static CurlLib &instance();
 
     bool post(const std::string &data);
     bool putFileTFTP(const std::string &fileFullPath, const std::string &tftpServer);
@@ -25,13 +25,13 @@ class KafkaRestProxy
     void configure(const Configuration &config);
 
   private:
-    KafkaRestProxy();
-    ~KafkaRestProxy();
+    CurlLib();
+    ~CurlLib();
 
     // disable copy constructor...
-    KafkaRestProxy(KafkaRestProxy const &) = delete;
+    CurlLib(CurlLib const &) = delete;
     // ... and operator =
-    KafkaRestProxy & operator= (KafkaRestProxy const &) = delete;
+    CurlLib & operator= (CurlLib const &) = delete;
 
 protected:
     CURL *initCurl();

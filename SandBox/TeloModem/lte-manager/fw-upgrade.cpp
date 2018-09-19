@@ -28,15 +28,15 @@ FirmwareUpgrader &FirmwareUpgrader::instance()
 FirmwareUpgrader::FirmwareUpgrader()
 {
     state_ = FWU_IDLE;
-    eventDescs_ = inotify_init();
-    if (eventDescs_ < 0)
+    notifyDesc_ = inotify_init();
+    if (notifyDesc_ < 0)
         log_error("Error initializing inotify (Errno: %d)", errno);
-    watchDesc_ = inotify_add_watch(eventDescs_, PSZ_FW_UPGRADE_PATH, IN_CLOSE_WRITE);
+    watchDesc_ = inotify_add_watch(notifyDesc_, PSZ_FW_UPGRADE_PATH, IN_CLOSE_WRITE);
     if (watchDesc_ < 0)
     {
-        log_error("Cannot monitor %s for firmware upgrade (Errno: %d)", errno);
-        close(watchDesc_);
-        eventDescs_ = -1;
+        log_error("Cannot monitor %s for firmware upgrade (Errno: %d)", PSZ_FW_UPGRADE_PATH, errno);
+        close(notifyDesc_);
+        notifyDesc_ = -1;
     }
     else
         log_info("Waiting for LTE-dongle firmware upgrade at %s", PSZ_FW_UPGRADE_PATH);
@@ -45,11 +45,11 @@ FirmwareUpgrader::FirmwareUpgrader()
 //virtual
 FirmwareUpgrader::~FirmwareUpgrader()
 {
-    if (watchDesc_ >= 0)
-        inotify_rm_watch(eventDescs_, watchDesc_);
+    if (watchDesc_ > 0)
+        inotify_rm_watch(notifyDesc_, watchDesc_);
 
-    if (eventDescs_ >= 0)
-        close(eventDescs_);
+    if (notifyDesc_ > 0)
+        close(notifyDesc_);
 }
 
 void FirmwareUpgrader::configure(const Configuration &cfg)
@@ -59,14 +59,12 @@ void FirmwareUpgrader::configure(const Configuration &cfg)
 bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
 {
     fwFileName.empty();
-    if (eventDescs_ < 0 || watchDesc_ < 0)
+    if (notifyDesc_ < 0 || watchDesc_ < 0)
         return false;
-
-    printf("Check for update....\n");
 
     struct pollfd fds;
     memset(&fds, 0, sizeof(fds));
-    fds.fd = eventDescs_;
+    fds.fd = notifyDesc_;
     fds.events = POLLIN;
 
     bool bUpdateAvailable = false;
@@ -75,8 +73,7 @@ bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
     {
         if (fds.revents == POLLIN)
         {
-            long length = ::read(eventDescs_, events_, BUF_LEN);
-            printf("%d bytes have been read\n", length);
+            long length = ::read(notifyDesc_, events_, BUF_LEN);
             if (length < 0)
             {
                 log_error("Error reading inotify file descriptor (Errno: %d)\n", errno);
@@ -86,23 +83,19 @@ bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
             long i = 0;
             while (!bUpdateAvailable && (i < length)) //until first file, matching file name rules, found
             {
-                printf("%d of %d\n", i, length);
                 struct inotify_event *event = (struct inotify_event *)(events_+i);
                 if (event->len)
                 {
-                    printf("event of length %d\n", event->len);
                     if (event->mask & IN_CLOSE_WRITE)
                     {
                         // event->name is newly created file name
-                        // chech it, it can be not FW upgrade file but stranger
+                        // check it, it can be not FW upgrade file but stranger
                         // TODO: specify file name format rules
-                        if (1)
+                        if (checkFileName(event->name))
                         {
                             fwFileName = event->name;
-                            log_debug("FW upgrade file '%s%s' created\n", PSZ_FW_UPGRADE_PATH, fwFileName.c_str());
                             bUpdateAvailable = true;
                         }
-
                     }
                 }
                 i += EVENT_SIZE + event->len;
@@ -115,8 +108,20 @@ bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
         perror("  poll() failed");
     }
 
-    printf("Upgrade %s%s is available = %d\n", PSZ_FW_UPGRADE_PATH, fwFileName.c_str(), bUpdateAvailable);
+    if (bUpdateAvailable)
+        log_info("FW upgrade %s%s is available\n", PSZ_FW_UPGRADE_PATH, fwFileName.c_str());
+
     return bUpdateAvailable;
+}
+
+bool FirmwareUpgrader::checkFileName(const char *pszFileName) const
+{
+    // dummy implementation, just seect for file extension and checks if it is .prg (case insensitively)
+    // TODO: invent something more sophisticated according to the file format, like version_number_date.prg, etc
+    const char *pszExtension = strchr(pszFileName, '.');
+    if (!pszExtension)
+        return false;
+    return (strcasecmp(pszExtension, ".prg") == 0);
 }
 
 bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
@@ -125,7 +130,7 @@ bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
     // 1. unpack .tgz
 
     // 2. upload .prg file to modem's memory by TFTP protocol
-    KafkaRestProxy &kafkaRestProxy = KafkaRestProxy::instance();
+    CurlLib &curl = CurlLib::instance();
     std::string fwFileFullPath = PSZ_FW_UPGRADE_PATH;
     fwFileFullPath += fwFileName;
 #ifndef PSEUDO_MODEM
@@ -133,11 +138,11 @@ bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
 #else
     const char *PSZ_TFTP_SERVER = "10.0.2.15"; // my laptop
 #endif
-    log_info("FW upgrade: uploading file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
-    bOK = kafkaRestProxy.putFileTFTP(fwFileFullPath, PSZ_TFTP_SERVER);
+    log_info("Uploading file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
+    bOK = curl.putFileTFTP(fwFileFullPath, PSZ_TFTP_SERVER);
     if (!bOK)
     {
-        log_error("FW upgrade: could not upload file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
+        log_error("Could not upload file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
         return false;
     }
 
@@ -145,10 +150,16 @@ bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
     bOK = modem.firmwareUpgrade(fwFileName);
     if (!bOK)
     {
-        log_error("FW upgrade: could not upgrade firmware %s", fwFileName.c_str());
+        log_error("Could not upgrade firmware %s", fwFileName.c_str());
         return false;
     }
 
+    // delete file
+    int bDeleted = (::remove(fwFileFullPath.c_str()) == 0);
+    if (bDeleted)
+        log_info("File %s deleted", fwFileFullPath.c_str());
+    else
+        log_info("Cannot delete file %s", fwFileFullPath.c_str());
 
     return true;
 }

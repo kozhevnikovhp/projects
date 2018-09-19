@@ -10,6 +10,7 @@ ADD_EXECUTABLE(lte-manager-unit-tests
     lte-manager-unit-tests.cpp
     ../json.cpp
     ../log.cpp
+    ../misc.cpp
     ../modem-gtc.cpp
     )
 
