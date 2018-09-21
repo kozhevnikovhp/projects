@@ -17,6 +17,7 @@
 #include "kafka-rest-proxy.h"
 #include "modem-gtc.h"
 #include "log.h"
+#include "misc.h"
 
 //static
 FirmwareUpgrader &FirmwareUpgrader::instance()
@@ -30,11 +31,17 @@ FirmwareUpgrader::FirmwareUpgrader()
     state_ = FWU_IDLE;
     notifyDesc_ = inotify_init();
     if (notifyDesc_ < 0)
-        log_error("Error initializing inotify (Errno: %d)", errno);
+        log_error("Error initializing inotify (%s)", strerror(errno));
+
+    // ensure that directory exists
+    bool bExists = makeDirRecursively(PSZ_FW_UPGRADE_PATH, S_IRWXU | S_IRWXG | S_IRWXO);
+    if (!bExists)
+        log_error("Cannot create directory %s (%s)", PSZ_FW_UPGRADE_PATH, strerror(errno));
+
     watchDesc_ = inotify_add_watch(notifyDesc_, PSZ_FW_UPGRADE_PATH, IN_CLOSE_WRITE);
     if (watchDesc_ < 0)
     {
-        log_error("Cannot monitor %s for firmware upgrade (Errno: %d)", PSZ_FW_UPGRADE_PATH, errno);
+        log_error("Cannot monitor %s for firmware upgrade (%s)", PSZ_FW_UPGRADE_PATH, strerror(errno));
         close(notifyDesc_);
         notifyDesc_ = -1;
     }
@@ -76,7 +83,7 @@ bool FirmwareUpgrader::checkForUpdate(std::string &fwFileName)
             long length = ::read(notifyDesc_, events_, BUF_LEN);
             if (length < 0)
             {
-                log_error("Error reading inotify file descriptor (Errno: %d)\n", errno);
+                log_error("Error reading inotify file descriptor (%s)\n", strerror(errno));
                 return false;
             }
 
@@ -145,6 +152,13 @@ bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
         log_error("Could not upload file %s to LTE-dongle's TFTP-server (%s)", fwFileFullPath.c_str(), PSZ_TFTP_SERVER);
         return false;
     }
+    // delete file
+    int bDeleted = (::remove(fwFileFullPath.c_str()) == 0);
+    if (bDeleted)
+        log_info("File %s deleted", fwFileFullPath.c_str());
+    else
+        log_info("Cannot delete file %s", fwFileFullPath.c_str());
+
 
     // 3. Upgrade modem FW
     bOK = modem.firmwareUpgrade(fwFileName);
@@ -153,13 +167,6 @@ bool FirmwareUpgrader::upgrade(ModemGTC &modem, const std::string &fwFileName)
         log_error("Could not upgrade firmware %s", fwFileName.c_str());
         return false;
     }
-
-    // delete file
-    int bDeleted = (::remove(fwFileFullPath.c_str()) == 0);
-    if (bDeleted)
-        log_info("File %s deleted", fwFileFullPath.c_str());
-    else
-        log_info("Cannot delete file %s", fwFileFullPath.c_str());
 
     return true;
 }

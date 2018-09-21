@@ -497,7 +497,7 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
     cmd += "reboot -f";
     cmd += '"';
     //printf("command = %s\n", cmd.c_str());
-    bOK = execute(cmd, 3000);
+    bOK = execute(cmd, 1000);
     return bOK;
 #else
     return true;

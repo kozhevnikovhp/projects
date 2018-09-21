@@ -62,11 +62,12 @@ int main(int argc, char *argv[])
     log_init(logToStderr);
     log_level(1);
 
-    log_info("Started");
-
     Configuration cfg(PSZ_CFG_FILE_PATH);
     if (!cfg.load())
-        cfg.createDefaultFile();
+    {
+        log_error("Cannot read cfg-file %s", PSZ_CFG_FILE_PATH);
+        return 1;
+    }
 
     std::string basicDelayString = cfg.get(PSZ_BASIC_QUERY_DELAY, "60");
     time_t basicDelay = atol(basicDelayString.c_str());
@@ -159,6 +160,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    log_info("Started");
+
     if (bDaemonize)
     {
         // first param: '0' - change working dir to ~/, '1' - do not change, leave it "as is",
@@ -203,7 +206,6 @@ int main(int argc, char *argv[])
 
         queryResult.clear();
 
-
         for (auto pGroup : allGroups)
             pGroup->get(basicDelay, queryResult);
 
@@ -240,12 +242,12 @@ int main(int argc, char *argv[])
 
         if (FWupgrader.checkForUpdate(fwUpdateFilePath))
         {
+            trafficCounter.stopListening();
             FWupgrader.upgrade(modem, fwUpdateFilePath);
             log_info("Firmware upgrade is done");
             log_info("Disconnecting %s", deviceName.c_str());
             modem.disconnect();
-            trafficCounter.stopListening();
-            sleep(60); // wait while modem is rebooting
+            sleep(300); // wait while modem is rebooting
         }
 
         sleep(10);

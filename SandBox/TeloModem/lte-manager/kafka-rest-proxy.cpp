@@ -39,7 +39,9 @@ bool CurlLib::post(const std::string &data)
     {
         curl_easy_setopt(pCurl, CURLOPT_POST, 1);
 
-        setCommonOptions(pCurl);
+        setSecurityOptions(pCurl);
+
+        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
 
         curl_easy_setopt(pCurl, CURLOPT_URL, URL_.c_str());
 
@@ -77,7 +79,7 @@ bool CurlLib::putFileTFTP(const std::string &fileFullPath, const std::string &tf
             return false; // can't continue
         }
 
-        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
         curl_easy_setopt(pCurl, CURLOPT_READDATA, fd);
 
         // set timeout not to wait too long
@@ -120,14 +122,12 @@ CURL *CurlLib::initCurl()
 {
     CURL *pCurl = curl_easy_init();
     if (!pCurl)
-        log_error("Kafka REST proxy failed :could not init curl");
+        log_error("Could not init curl library");
     return pCurl;
 }
 
-void CurlLib::setCommonOptions(CURL *pCurl)
+void CurlLib::setSecurityOptions(CURL *pCurl)
 {
-    curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
-
     // CERT
     //printf("CERT = %s\n", certFile_.c_str());
     if (!certFile_.empty())

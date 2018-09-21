@@ -8,16 +8,13 @@
 
 #include <string>
 #include <vector>
-#include <tuple>
 
-typedef std::tuple<std::string, std::string, std::string> ConfigurationParam;
+typedef std::pair<std::string, std::string> ConfigurationParam;
 
 class Configuration
 {
 public:
-    Configuration(const std::string configFile);
-    bool createDefaultFile();
-    bool save();
+    Configuration(const std::string &configFile);
     bool load();
     std::string get(const char *pszKey, const char *pszDefaultValue) const;
     bool getBoolean(const char *pszKey, const char *pszDefaultValue) const;

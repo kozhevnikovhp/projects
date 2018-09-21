@@ -30,3 +30,5 @@ bool getInterfaceGateway(const std::string &ifaceName, IPADDRESS_TYPE &GW);
 void tolower(std::string &s);
 void toupper(std::string &s);
 void trimBlanks(std::string &s);
+
+bool makeDirRecursively(const std::string &path, mode_t mode);

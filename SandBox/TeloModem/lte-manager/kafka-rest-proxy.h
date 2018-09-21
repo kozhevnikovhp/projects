@@ -35,7 +35,7 @@ class CurlLib
 
 protected:
     CURL *initCurl();
-    void setCommonOptions(CURL *pCurl);
+    void setSecurityOptions(CURL *pCurl);
 
     std::string URL_;
     std::string certFile_;

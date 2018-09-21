@@ -53,8 +53,8 @@ bool InterfaceTrafficCounter::startListening()
     log_info("Start listening to interface %s", ifaceName_.c_str());
     bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
-        promiscModeOn();
-    else
+        bSuccess = promiscModeOn();
+    if (!bSuccess)
         log_error("Could not listen to interface %s\n", ifaceName_.c_str());
 
     return bSuccess;
@@ -151,17 +151,13 @@ bool TrafficCounter::startListening()
 bool TrafficCounter::stopListening()
 {
     for (auto &iface : interfaces_)
-    {
-        if (!iface.stopListening())
-            return false;
-    }
+        iface.stopListening();
     bListening_ = false;
     return true;
 }
 
 int TrafficCounter::doJob()
 {
-    //log_info("TrafficCounter::doJob... ");
     const int OK = 0;
     const int NotOK = 1;
     // initial check
@@ -169,7 +165,7 @@ int TrafficCounter::doJob()
         return NotOK;
 
     struct pollfd fds[256];
-    int nfds = 0;
+    nfds_t nfds = 0;
     memset(fds, 0, sizeof(fds));
 
     for (auto &iface : interfaces_)
@@ -186,7 +182,7 @@ int TrafficCounter::doJob()
         int rc = poll(fds, nfds, timeout);
         if (rc > 0)
         {
-            for (int i = 0; i < nfds; ++i)
+            for (nfds_t i = 0; i < nfds; ++i)
             {
                 if (fds[i].revents == POLLIN)
                     interfaces_[i].waitForPacket();

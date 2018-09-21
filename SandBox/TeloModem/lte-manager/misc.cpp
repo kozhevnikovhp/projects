@@ -10,6 +10,7 @@
 #include <regex>
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 #include "misc.h"
 
@@ -229,3 +230,27 @@ void trimBlanks(std::string &s)
     ltrim(s);
     rtrim(s);
 }
+
+bool makeDirRecursively(const std::string &path, mode_t mode)
+{
+    const char separator = '/'; // on Unix/Linux
+    std::string fullDirName, dirName;
+
+    std::stringstream ss(path);
+    while (!ss.eof() && !ss.bad() && !ss.fail())
+    {
+        std::getline(ss, dirName, separator);
+        if (dirName.empty())
+            continue;
+        fullDirName += separator;
+        fullDirName += dirName;
+        int ec = ::mkdir(fullDirName.c_str(), mode);
+        if (ec != 0)
+        {
+            if (errno != EEXIST)
+                return false;
+        }
+    }
+    return true;
+}
+

@@ -14,7 +14,7 @@
 
 #include <string.h>
 #include <stdio.h>
-
+#include "log.h"
 
 Sniffer::Sniffer(const std::string &ifaceName)
     : ifaceName_(ifaceName), pHandle_(nullptr), bHasEthernetHeader_(false)
@@ -42,7 +42,7 @@ bool Sniffer::promiscModeOn()
             bHasEthernetHeader_ = true;
     }
     else
-        fprintf(stderr, "pcap_open_live %s\n", error_buffer_);
+        log_error("pcap_open_live %s\n", error_buffer_);
     return (pHandle_ != nullptr);
 }
 
@@ -50,12 +50,13 @@ bool Sniffer::promiscModeOff()
 {
     if (pHandle_ != nullptr)
         pcap_close(pHandle_);
+    pHandle_ = nullptr;
     return true;
 }
 
 bool Sniffer::waitForPacket()
 {
-    SIpHeader *pIpHeader = NULL;
+    SIpHeader *pIpHeader = nullptr;
     struct pcap_pkthdr *pHeader;	/* The header that pcap gives us */
     const u_char *pPacket;		/* The actual packet */
 
