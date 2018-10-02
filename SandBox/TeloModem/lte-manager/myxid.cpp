@@ -14,6 +14,7 @@
 
 std::string getMyxID()
 {
+#ifndef PSEUDO_MODEM
 #if 1
     // get myxID from hostname
     std::string hostID;
@@ -39,5 +40,8 @@ std::string getMyxID()
         log_error("Cannot get MYX_ID as MAC-address of interface %s", myxInterfaceName.c_str());
 
     return myxID;
+#endif
+#else //PSEUDO_MODEM
+    return std::string("000000");
 #endif
 }

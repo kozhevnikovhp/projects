@@ -41,7 +41,7 @@ void TrafficStatistics::update(unsigned int nPacketSize, bool bInput)
 // InterfaceTrafficCounter
 
 InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP)
-    : Sniffer(ifaceName)
+    : BaseSniffer(ifaceName)
 {
     teloIP_ = 0;
     subnetMask_ = 0;
@@ -75,7 +75,7 @@ IPADDRESS_TYPE InterfaceTrafficCounter::getIP() const
 }
 
 //virtual
-void InterfaceTrafficCounter::ipPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload,  int nPayloadLen)
+void InterfaceTrafficCounter::ipPacketCaptured(const SIpHeader *pIpHeader, const void *pIpPayload,  unsigned int nIpPayloadLen)
 {
     if (isMyPacket(pIpHeader))
         TeloStat_.update(pIpHeader->getPacketLen(), isPacketToMe(pIpHeader));
@@ -108,7 +108,7 @@ void TrafficCounter::addInterface(const char *pszInterfaceName)
         *pcFrontBracket = 0;
         if (!isItInterfaceName(pszDup))
         {
-            printf("'%s' is not a valid interface name\n", pszDup);
+            log_error("'%s' is not a valid interface name\n", pszDup);
             return;
         }
 
@@ -116,24 +116,22 @@ void TrafficCounter::addInterface(const char *pszInterfaceName)
         IPADDRESS_TYPE IP = dotNotationToAddress(pszIpAddress);
         if (!IP)
         {
-            printf("'%s' is not a valid IP-address\n", pszIpAddress);
+            log_error("'%s' is not a valid IP-address\n", pszIpAddress);
             return;
         }
 
-        InterfaceTrafficCounter iface(pszDup, IP);
-        interfaces_.push_back(iface);
+        interfaces_.emplace_back(pszDup, IP);
         free(pszDup);
     }
     else
     {
         if (!isItInterfaceName(pszInterfaceName))
         {
-            printf("'%s' is not a valid interface name\n", pszInterfaceName);
+            log_error("'%s' is not a valid interface name\n", pszInterfaceName);
             return;
         }
 
-        InterfaceTrafficCounter iface(pszInterfaceName);
-        interfaces_.push_back(iface);
+        interfaces_.emplace_back(pszInterfaceName);
     }
 }
 
@@ -170,11 +168,11 @@ int TrafficCounter::doJob()
 
     for (auto &iface : interfaces_)
     {
-        fds[nfds].fd = pcap_get_selectable_fd(iface.getHandle());
+        fds[nfds].fd = iface.getSelectableFd();
         fds[nfds].events = POLLIN;
         ++nfds;
     }
-    const int timeout = (10); // 10 msec
+    const int timeout = 10; // 10 msec
 
     bool bContinue = true;
     while (bContinue)
@@ -198,7 +196,6 @@ int TrafficCounter::doJob()
         else
             bContinue = false; // 0 means "timeout expired -> do nothing and exit
     }
-    //log_info("TrafficCounter:: doJob done\n");
     return OK;
 }
 

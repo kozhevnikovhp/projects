@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "ip.h"
-
-#include <pcap.h>
 #include <string>
+#include <linux/if_ether.h>
+
+#include "ip.h"
 
 class Sniffer
 {
@@ -18,31 +18,27 @@ public:
     Sniffer(const std::string &ifaceName);
     virtual ~Sniffer();
 
-    pcap_t *getHandle() const { return pHandle_; }
-
-    bool promiscModeOn();
-    bool promiscModeOff();
     bool waitForPacket();
+
+    virtual bool promiscModeOn() = 0;
+    virtual bool promiscModeOff() = 0;
+    virtual int getSelectableFd() = 0;
+    virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen) = 0;
 
 // Protected methods
 protected:
-    void destroy();
 
 // Protected overridables
 protected:
-    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload,  int nPayloadLen) { }
-    virtual void icmpPacketCaptured(const SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, const unsigned char *pPayload, int nPayloadLen) {}
-    virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const unsigned char *pPayload, int nPayloadLen) {}
-    virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const unsigned char *pPayload, int nPayloadLen) {}
-    virtual void udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const unsigned char *pPayload, int nPayloadLen) {}
-    virtual void unknownProtoPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload, int nPayloadLen) {}
+    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, const void *pIpPayload,  unsigned int nIpPayloadLen) {}
+    virtual void icmpPacketCaptured(const SIpHeader *pIpHeader, SIcmpHeader *pIcmpHeader, const void *pIcmpPayload, unsigned int nIcmpPayloadLen) {}
+    virtual void igmpPacketCaptured(const SIpHeader *pIpHeader, SIgmpHeader *pIgmpHeader, const void *pIgmpPayload, unsigned int nIgmpPayloadLen) {}
+    virtual void tcpPacketCaptured(const SIpHeader *pIpHeader, STcpHeader *pTcpHeader, const void *pTcpPayload, unsigned int nTcpPayloadLen) {}
+    virtual void udpPacketCaptured(const SIpHeader *pIpHeader, SUdpHeader *pUdpHeader, const void *pUdpPayload, unsigned int nUdpPayloadLen) {}
+    virtual void ipUnknownProtoPacketCaptured(const SIpHeader *pIpHeader, const void *pIpPayload, unsigned int nIpPayloadLen) {}
 
 // Protected members
 protected:
     std::string ifaceName_;
-    pcap_t *pHandle_;
-    bool bHasEthernetHeader_;
-    char bufferForPackets_[0xFFFF];
-    char error_buffer_[PCAP_ERRBUF_SIZE];
 };
 

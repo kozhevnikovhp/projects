@@ -5,6 +5,7 @@
  *
  */
 
+#include <fstream>
 #include <sys/time.h>
 #include "lte-parameters.h"
 #include "log.h"
@@ -254,7 +255,6 @@ WanSwitchStateGroup::~WanSwitchStateGroup()
     }
 }
 
-
 //virtual
 bool WanSwitchStateGroup::doGet(JsonContent &content)
 {
@@ -334,4 +334,39 @@ void WanSwitchStateGroup::reportDbusError()
     }
 }
 
+
+///////////////////////////////////////////////////////////////////
+/// OomaServiceStatusGroup
+///
+
+OomaServiceStatusGroup::OomaServiceStatusGroup()
+{
+}
+
+//virtual
+OomaServiceStatusGroup::~OomaServiceStatusGroup()
+{
+}
+
+//virtual
+bool OomaServiceStatusGroup::doGet(JsonContent &content)
+{
+    std::string status;;
+    std::ifstream f("/var/status/freeswitch");
+    if (f.is_open() && !f.bad() && !f.eof() && !f.fail())
+    {
+        std::string freeswitchStatus;
+        std::getline(f, freeswitchStatus);
+        tolower(freeswitchStatus);
+        if (freeswitchStatus.compare("ready") == 0)
+            status = std::string("live");
+        else
+            status = std::string("offline");
+    }
+    else
+        status = std::string("unknown");
+
+    content.emplace_back(KeyValue("ooma_service_status", status));
+    return true;
+}
 

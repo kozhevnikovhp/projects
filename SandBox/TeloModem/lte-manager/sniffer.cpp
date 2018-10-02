@@ -9,91 +9,90 @@
 
 #include "sniffer.h"
 
-#include <net/if.h>
-#include <linux/if_ether.h>
-
-#include <string.h>
-#include <stdio.h>
-#include "log.h"
-
 Sniffer::Sniffer(const std::string &ifaceName)
-    : ifaceName_(ifaceName), pHandle_(nullptr), bHasEthernetHeader_(false)
+    : ifaceName_(ifaceName)
 {
 }
 
 //virtual
 Sniffer::~Sniffer()
 {
-    destroy();
-}
-
-void Sniffer::destroy()
-{
-    promiscModeOff();
-}
-
-bool Sniffer::promiscModeOn()
-{
-    pHandle_ = pcap_open_live(ifaceName_.c_str(), BUFSIZ, 1, 1000, error_buffer_);
-    if (pHandle_ != nullptr)
-    {
-        bHasEthernetHeader_ = false;
-        if (pcap_datalink(pHandle_) == DLT_EN10MB)
-            bHasEthernetHeader_ = true;
-    }
-    else
-        log_error("pcap_open_live %s\n", error_buffer_);
-    return (pHandle_ != nullptr);
-}
-
-bool Sniffer::promiscModeOff()
-{
-    if (pHandle_ != nullptr)
-        pcap_close(pHandle_);
-    pHandle_ = nullptr;
-    return true;
 }
 
 bool Sniffer::waitForPacket()
 {
+    struct ethhdr *pEthernetHeader = nullptr;
+    void *pPayload = nullptr;
+    unsigned int nPayloadLen = 0;
+
+    if (!doWaitForPacket(pEthernetHeader, pPayload, nPayloadLen))
+        return false;
+
     SIpHeader *pIpHeader = nullptr;
-    struct pcap_pkthdr *pHeader;	/* The header that pcap gives us */
-    const u_char *pPacket;		/* The actual packet */
-
-    int nPacketSize = 0;
-    int ec = pcap_next_ex(getHandle(), &pHeader, &pPacket);
-    if (ec == 1)
+    if (pEthernetHeader)
     {
-        nPacketSize = pHeader->len;
-        //printf("%s: packet with length of %d\n", ifaceName_.c_str(), nPacketSize);
-        if (bHasEthernetHeader_)
+        unsigned short proto = ntohs(pEthernetHeader->h_proto);
+        if (proto == ETH_P_IP)
         {
-            struct ethhdr *pEthernetHeader = (struct ethhdr *)pPacket;
-            //printf("Ethernet proto = 0x%04X\n", pEthernetHeader->h_proto);
-            switch (ntohs(pEthernetHeader->h_proto))
-            {
-                case ETH_P_IP:
-                    pIpHeader = (SIpHeader *)(pEthernetHeader+1);
-                    nPacketSize -= sizeof(struct ethhdr);
-                    //printf("\t%s: IP-Packet %d bytes\n", ifaceName_.c_str(), nPacketSize);
-                    break;
-                default:
-                    //printf("\t%s: unknown ethernet proto = 0x%04X, refer to file linux/if_ether.h and add implementation if needed\n", ifaceName_.c_str(), ntohs(pEthernetHeader->h_proto));
-                    break;
-            } // switch
-         } //bHasEthernetHeader_
-         else
-            pIpHeader = (SIpHeader *)pPacket;
+            pIpHeader = (SIpHeader *)pPayload;
+        }
+        /*else if (proto == ETH_P_IPV6)
+        {
+            //printf("\t%s: IPv6\n", ifaceName_.c_str());
+        }
+        else if (proto == ETH_P_ARP)
+        {
+            //printf("\t%s: ARP\n", ifaceName_.c_str());
+        }
+        else if (proto == ETH_P_RARP)
+        {
+            //printf("\t%s: RARP\n", ifaceName_.c_str());
+        }
+        else
+        {
+            //printf("\t%s: unknown ethernet proto = 0x%04X, refer to file linux/if_ether.h and add implementation if needed\n", ifaceName_.c_str(), proto));
+        }*/
     }
-    if (!pIpHeader)
-        return true; // APR, RARP etc, but not IP
+    else
+    {
+        pIpHeader = (SIpHeader *)pPayload;
+    }
 
-    //printIpHeader(pIpHeader);
+    if (pIpHeader)
+    {
+        void *pIpPayload = (char *)pPayload + pIpHeader->getHeaderLen();
+        unsigned int nIpPayloadLen = nPayloadLen - pIpHeader->getHeaderLen();
+        ipPacketCaptured(pIpHeader, pIpPayload, nIpPayloadLen);
 
-    unsigned short nIpHdrLen = pIpHeader->getHeaderLen();
-    int nPayloadLen = nPacketSize - nIpHdrLen;
-    unsigned char *pPayload = (unsigned char *)pIpHeader + nIpHdrLen;
-    ipPacketCaptured(pIpHeader, pPayload, nPayloadLen);
+        /*switch (pIpHeader->proto)
+        {
+        case IPPROTO_TCP: {
+            //printf("TCP\n");
+            STcpHeader *pTcpHeader = (STcpHeader *)pIpPayload;
+            tcpPacketCaptured(pIpHeader, pTcpHeader, (char *)pTcpHeader+pTcpHeader->getHeaderLen(), nIpPayloadLen - pTcpHeader->getHeaderLen());
+            break; }
+        case IPPROTO_UDP: {
+            //printf("UDP\n");
+            SUdpHeader *pUdpHeader = (SUdpHeader *)pIpPayload;
+            udpPacketCaptured(pIpHeader, pUdpHeader, pUdpHeader+1, nIpPayloadLen - sizeof(SUdpHeader));
+            break; }
+        case IPPROTO_ICMP: {
+            //printf("ICMP\n");
+            SIcmpHeader *pIcmpHeader = (SIcmpHeader *)pIpPayload;
+            icmpPacketCaptured(pIpHeader, pIcmpHeader, pIcmpHeader+1, nIpPayloadLen - sizeof(SIcmpHeader));
+            break; }
+        case IPPROTO_IGMP: {
+            //printf("IGMP\n");
+            SIgmpHeader *pIgmpHeader = (SIgmpHeader *)pIpPayload;
+            igmpPacketCaptured(pIpHeader, pIgmpHeader, pIgmpHeader+1, nIpPayloadLen - sizeof(SIgmpHeader));
+            break; }
+        default:
+            //printf("UNKNOWN protocol 0x%04X\n", pIpHeader->proto);
+            ipUnknownProtoPacketCaptured(pIpHeader, pIpPayload, nIpPayloadLen);
+            break;
+        } // end of switch (pIpHeader->proto)
+        */
+    }
 
-    return true; // successfully read and processed
+    return true;
 }

@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         int errorCode = daemon(1, 0);
         if (errorCode != 0)
         {
-            log_error("Failed to daemonise itself");
+            log_error("Failed to daemonize itself");
             return 1;
         }
     }
@@ -182,6 +182,7 @@ int main(int argc, char *argv[])
     allGroups.emplace_back(new NetworkParameterGroup(trafficInterfaceName));
     allGroups.emplace_back(new TrafficParameterGroup(trafficCounter));
     allGroups.emplace_back(new WanSwitchStateGroup());
+    allGroups.emplace_back(new OomaServiceStatusGroup());
 
     JsonContent queryResult;
     int nCyclesDone = 0;

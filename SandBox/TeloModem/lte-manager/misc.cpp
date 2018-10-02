@@ -176,7 +176,7 @@ bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress)
 
     bool bSuccess = false;
     struct ifreq iface;
-    strcpy(iface.ifr_name, ifaceName.c_str());
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ-1);
     int ec = ioctl(sock, SIOCGIFHWADDR, &iface);
     if (ec >= 0)
     {
@@ -233,16 +233,16 @@ void trimBlanks(std::string &s)
 
 bool makeDirRecursively(const std::string &path, mode_t mode)
 {
-    const char separator = '/'; // on Unix/Linux
+    const char cSeparator = '/'; // on Unix/Linux
     std::string fullDirName, dirName;
 
     std::stringstream ss(path);
     while (!ss.eof() && !ss.bad() && !ss.fail())
     {
-        std::getline(ss, dirName, separator);
+        std::getline(ss, dirName, cSeparator);
         if (dirName.empty())
             continue;
-        fullDirName += separator;
+        fullDirName += cSeparator;
         fullDirName += dirName;
         int ec = ::mkdir(fullDirName.c_str(), mode);
         if (ec != 0)

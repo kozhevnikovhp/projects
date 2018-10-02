@@ -142,4 +142,16 @@ protected:
     DBusConnection *pDbusConnection_;
 };
 
+class OomaServiceStatusGroup : public LteValuesGroup
+{
+public:
+    OomaServiceStatusGroup();
+    virtual ~OomaServiceStatusGroup();
+
+protected:
+    virtual const char *getName() { return "OOMA service status"; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 10; }
+    virtual bool doGet(JsonContent &content);
+};
 

@@ -11,7 +11,8 @@
 #include <vector>
 #include <map>
 #include <tuple>
-#include "sniffer.h"
+#include "sniffer-pcap.h"
+#include "sniffer-raw-sockets.h"
 #include "misc.h"
 
 class TrafficStatistics
@@ -20,7 +21,10 @@ public:
     TrafficStatistics();
 
     void update(unsigned int nPacketSize, bool bInput);
-    void clear() { nInputPackets_ = nOutputPackets_ = nInputBytes_ = nOutputBytes_ = 0; }
+    void clear()
+    {
+        nInputPackets_ = nOutputPackets_ = nInputBytes_ = nOutputBytes_ = 0;
+    }
     int getInputBytes() const { return nInputBytes_; }
     int getOutputBytes() const { return nOutputBytes_; }
 
@@ -31,7 +35,13 @@ protected:
     int nOutputBytes_;
 };
 
-class InterfaceTrafficCounter : public Sniffer
+#ifdef USE_PCAP
+#define BaseSniffer SnifferPcap
+#else
+#define BaseSniffer SnifferRawSockets
+#endif
+
+class InterfaceTrafficCounter : public BaseSniffer
 {
 public:
     InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP = 0);
@@ -51,7 +61,7 @@ protected:
     bool isPacketFromMe(const SIpHeader *pIpHeader) const { return (getIP() == pIpHeader->sourceIP); }
     IPADDRESS_TYPE getIP() const;
 
-    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, const unsigned char *pPayload,  int nPayloadLen);
+    virtual void ipPacketCaptured(const SIpHeader *pIpHeader, const void *pPayload,  unsigned int nPayloadLen);
 
     IPADDRESS_TYPE subnetMask_, teloIP_;
     IPADDRESS_TYPE enforcedIP_;

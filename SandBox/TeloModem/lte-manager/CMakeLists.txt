@@ -13,6 +13,8 @@ add_executable (lte-manager
     myxid.cpp
     serial-connection.cpp
     sniffer.cpp
+    sniffer-pcap.cpp
+    sniffer-raw-sockets.cpp
     traffic-counter.cpp
     )
 
@@ -21,6 +23,10 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #real or pseudo-modem (if real modem, remove this line)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPSEUDO_MODEM")
+
+#how to listen to traffic? Use PCAP or raw sockets. If raw sockets, remove next line
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_PCAP")
+
 
 target_link_libraries(lte-manager LINK_PUBLIC pcap rdkafka++ dbus-1 curl)
 
