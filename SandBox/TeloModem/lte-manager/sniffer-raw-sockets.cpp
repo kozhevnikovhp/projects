@@ -16,7 +16,7 @@ SnifferRawSockets::SnifferRawSockets(const std::string &ifaceName)
 {
     socket_ = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (socket_ <= 0)
-        perror("Sniffer socket creation");
+        perror("Sniffer socket creation"); // TODO: to LOG!
 }
 
 //virtual
@@ -31,7 +31,7 @@ SnifferRawSockets::~SnifferRawSockets()
 }
 
 // virtual
-bool SnifferRawSockets::promiscModeOn()
+bool SnifferRawSockets::promiscModeOn(bool bLog)
 {
     if (socket_ <= 0)
         return false;
@@ -42,13 +42,15 @@ bool SnifferRawSockets::promiscModeOn()
     int ec = ioctl(socket_, SIOCGIFFLAGS, &iface);
     if (ec < 0)
     {
-        perror("ioctl SIOCGIFFLAGS");
+        if (bLog)
+            perror("ioctl SIOCGIFFLAGS"); // TODO: to LOG!
         return false;
     }
     iface.ifr_flags |= IFF_PROMISC;
     ec = ioctl(socket_, SIOCSIFFLAGS, &iface);
     if (ec < 0)
-        perror("ioctl SIOCSIFFLAGS");
+        if (bLog)
+            perror("ioctl SIOCSIFFLAGS"); // TODO: to LOG!
     return (ec >= 0);
 }
 
@@ -94,7 +96,7 @@ bool SnifferRawSockets::doWaitForPacket(ethhdr *&pEthernetHeader, void *&pPayloa
     }
 
     pEthernetHeader = (struct ethhdr *)bufferForPackets_;
-    pPayload = (unsigned char *)(pEthernetHeader + 1);
+    pPayload = (pEthernetHeader + 1);
     nPayloadLen = (unsigned int)nPacketSize - sizeof(struct ethhdr);
 
     return true; // successfully read and processed

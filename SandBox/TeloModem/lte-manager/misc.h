@@ -25,7 +25,7 @@ bool isItInterfaceName(const std::string &ifaceName, int sock);
 
 bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask);
 bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress);
-bool getInterfaceGateway(const std::string &ifaceName, IPADDRESS_TYPE &GW);
+bool getGateway(IPADDRESS_TYPE &GW);
 
 void tolower(std::string &s);
 void toupper(std::string &s);

@@ -44,7 +44,7 @@ protected:
 class InterfaceTrafficCounter : public BaseSniffer
 {
 public:
-    InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP = 0);
+    InterfaceTrafficCounter(const std::string &ifaceName);
 
     bool startListening();
     bool stopListening();
@@ -59,13 +59,14 @@ protected:
     bool isLanPacket(const SIpHeader *pIpHeader) const { return isTheSameSubnet(pIpHeader->sourceIP, pIpHeader->destIP, subnetMask_); }
     bool isPacketToMe(const SIpHeader *pIpHeader) const { return (getIP() == pIpHeader->destIP); }
     bool isPacketFromMe(const SIpHeader *pIpHeader) const { return (getIP() == pIpHeader->sourceIP); }
-    IPADDRESS_TYPE getIP() const;
+    IPADDRESS_TYPE getIP() const { return teloIP_; }
 
     virtual void ipPacketCaptured(const SIpHeader *pIpHeader, const void *pPayload,  unsigned int nPayloadLen);
 
     IPADDRESS_TYPE subnetMask_, teloIP_;
-    IPADDRESS_TYPE enforcedIP_;
     TrafficStatistics TeloStat_, UserStat_;
+    int nInterfaceDoesntExistReported_;
+    int nCouldntListenReported_;
 };
 
 class TrafficCounter

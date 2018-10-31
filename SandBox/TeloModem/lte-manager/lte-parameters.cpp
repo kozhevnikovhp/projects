@@ -160,30 +160,78 @@ bool VariableModemParameterGroup::doGet(JsonContent &content)
 ///////////////////////////////////////////////////////////////////
 /// NetworkParameterGroup
 
-NetworkParameterGroup::NetworkParameterGroup(const std::string &iFaceName)
-    : ifaceName_(iFaceName)
+NetworkParameterGroup::NetworkParameterGroup()
 {
 }
 
 //virtual
 bool NetworkParameterGroup::doGet(JsonContent &content)
 {
-    IPADDRESS_TYPE IP, subnetMask;
-    bool bSuccess = getInterfaceAddressAndMask(ifaceName_, IP, subnetMask);
-    if (bSuccess)
-    {
-        content.emplace_back(KeyValue("ip_address", addressToDotNotation(IP)));
-        content.emplace_back(KeyValue("mask", addressToDotNotation(subnetMask)));
-    }
-    IPADDRESS_TYPE GW;
-    bSuccess |= getInterfaceGateway(ifaceName_, GW);
-    if (bSuccess)
-    {
-        content.emplace_back(KeyValue("gateway", addressToDotNotation(GW)));
-    }
-    return bSuccess;
+    // get current connection
+    std::string ifaceName;
+    if (!getCurrentConnection(ifaceName))
+        return false;
+
+    std::string connectionType;
+    if (ifaceName.find("eth") != std::string::npos)
+        connectionType = std::string("ethernet");
+    else if (ifaceName.find("usbnet") != std::string::npos)
+        connectionType = std::string("lte");
+    else if (ifaceName.find("ra") != std::string::npos)
+        connectionType = std::string("wifi");
+    else
+        connectionType = std::string("unknown");
+    content.emplace_back(KeyValue("connection_type", connectionType));
+
+    IPADDRESS_TYPE IP = 0, subnetMask = 0;
+    if (!getInterfaceAddressAndMask(ifaceName, IP, subnetMask))
+        return false;
+    content.emplace_back(KeyValue("ip_address", addressToDotNotation(IP)));
+    content.emplace_back(KeyValue("mask", addressToDotNotation(subnetMask)));
+
+    IPADDRESS_TYPE GW = 0;
+    if (!getGateway(GW))
+        return false;
+    content.emplace_back(KeyValue("gateway", addressToDotNotation(GW)));
+
+    return true;
 }
 
+// to avoid including <linux/route.h>
+#ifndef RTF_GATEWAY
+#define	RTF_GATEWAY	0x0002		// destination is a gateway
+#endif
+bool NetworkParameterGroup::getCurrentConnection(std::string &ifaceName)
+{
+    std::ifstream f("/proc/net/route");
+    if (!f.is_open())
+        return false;
+
+    // Iface	Destination	Gateway 	Flags	RefCnt	Use	Metric	Mask	MTU	Window	IRTT
+    bool bSuccess = false;
+    std::string line;
+    char szName[IFNAMSIZ+1];
+    unsigned int uiDest, uiGW, uiFlags;
+    while (!f.eof() && !f.bad() && !f.fail())
+    {
+        std::getline(f, line);
+        trimBlanks(line);
+        if (line.empty())
+            continue;
+        int nScanfed = sscanf(line.c_str(), "%s %X %X %X", szName, &uiDest, &uiGW, &uiFlags);
+        if (nScanfed == 4)
+        {
+            if (uiFlags & RTF_GATEWAY)
+            {
+                ifaceName = std::string(szName);
+                bSuccess = true;
+                break;
+            }
+        }
+    }
+
+    return bSuccess;
+}
 
 ///////////////////////////////////////////////////////////////////
 /// TrafficParameterGroup

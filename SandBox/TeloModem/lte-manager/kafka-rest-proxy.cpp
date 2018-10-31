@@ -57,7 +57,7 @@ bool CurlLib::post(const std::string &data)
         bSuccess = (res == CURLE_OK);
         // Check for errors
         if (!bSuccess)
-            log_error("Kafka REST proxy failed (%s)", curl_easy_strerror(res));
+            log_error("REST proxy failed (%s)", curl_easy_strerror(res));
 
         curl_easy_cleanup(pCurl);
         curl_slist_free_all(pCurlHeader);
@@ -158,7 +158,7 @@ void CurlLib::configure(const Configuration &cfg)
     bEnabled_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_ENABLED, "true");
 
     URL_ = cfg.get(PSZ_KAFKA_REST_PROXY_URL, PSZ_KAFKA_REST_PROXY_URL_DEFAULT);
-    log_info("Kafka REST proxy: %s", URL_.c_str());
+    log_info("REST proxy: %s", URL_.c_str());
     URL_ += "/topics/";
     URL_ += cfg.get(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT);
 

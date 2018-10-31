@@ -96,7 +96,7 @@ protected:
 class NetworkParameterGroup : public LteValuesGroup
 {
 public:
-    NetworkParameterGroup(const std::string &ifaceName);
+    NetworkParameterGroup();
 
 protected:
     virtual const char *getName() { return "Network parameters"; }
@@ -104,7 +104,7 @@ protected:
     virtual time_t getMaxExpirationTime() const { return 10; }
     virtual bool doGet(JsonContent &content);
 
-    std::string ifaceName_;
+    bool getCurrentConnection(std::string &ifaceName);
 };
 
 

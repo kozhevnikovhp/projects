@@ -20,6 +20,8 @@
 #include "fw-upgrade.h"
 #include "kafka-rest-proxy.h"
 
+static const char *PSZ_VERSION = "1.1.1";
+
 static bool needToContinue(int nCycles)
 {
 #ifdef VALGRIND
@@ -62,6 +64,17 @@ int main(int argc, char *argv[])
     log_init(logToStderr);
     log_level(1);
 
+    log_info("Version %s, compiled on %s at %s", PSZ_VERSION, __DATE__, __TIME__);
+
+    // get myxID
+    std::string myxID = getMyxID();
+    if (myxID.empty())
+    {
+        log_error("Cannot get MYX_ID");
+        return 1;
+    }
+    log_info("MyxID = %s", myxID.c_str());
+
     Configuration cfg(PSZ_CFG_FILE_PATH);
     if (!cfg.load())
     {
@@ -86,15 +99,6 @@ int main(int argc, char *argv[])
     FirmwareUpgrader &FWupgrader = FirmwareUpgrader::instance();
     FWupgrader.configure(cfg);
 
-    // get myxID
-    std::string myxID = getMyxID();
-    if (myxID.empty())
-    {
-        log_error("Cannot get MYX_ID");
-        return 1;
-    }
-    log_info("MyxID = %s", myxID.c_str());
-
     std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
     ModemGTC modem(deviceName);
     if (modem.connect())
@@ -114,8 +118,6 @@ int main(int argc, char *argv[])
 #endif
     TrafficCounter trafficCounter;
     trafficCounter.addInterface(trafficInterfaceName.c_str());
-    if (!trafficCounter.startListening())
-        return 1;
 
     CurlLib &kafkaRestProxy = CurlLib::instance();
     kafkaRestProxy.configure(cfg);
@@ -160,8 +162,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    log_info("Started");
+    cfg.free(); // as we read mdm.cfg file, it is not very good idea to keep all its long list of parameters permanently
 
+    std::string startedAs("Started");
     if (bDaemonize)
     {
         // first param: '0' - change working dir to ~/, '1' - do not change, leave it "as is",
@@ -172,16 +175,18 @@ int main(int argc, char *argv[])
             log_error("Failed to daemonize itself");
             return 1;
         }
+        startedAs += " as a daemon";
     }
     // else ordinary program
+    log_info(startedAs.c_str());
 
     std::vector<LteValuesGroup *> allGroups;
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
     allGroups.emplace_back(new ConstantModemParameterGroup(modem));
     allGroups.emplace_back(new VariableModemParameterGroup(modem));
-    allGroups.emplace_back(new NetworkParameterGroup(trafficInterfaceName));
+    allGroups.emplace_back(new NetworkParameterGroup());
     allGroups.emplace_back(new TrafficParameterGroup(trafficCounter));
-    allGroups.emplace_back(new WanSwitchStateGroup());
+    //allGroups.emplace_back(new WanSwitchStateGroup());
     allGroups.emplace_back(new OomaServiceStatusGroup());
 
     JsonContent queryResult;
@@ -194,14 +199,13 @@ int main(int argc, char *argv[])
         {
             // try to reconnect
             if (modem.connect())
-            {
                 log_info("Reconnected to device %s", deviceName.c_str());
-                trafficCounter.startListening();
-            }
             else
                 log_error("Could not connect to device %s", deviceName.c_str());
         }
 
+        if (!trafficCounter.isListening())
+            trafficCounter.startListening();
         if (trafficCounter.isListening())
             trafficCounter.doJob();
 
@@ -225,7 +229,7 @@ int main(int argc, char *argv[])
                 std::string kafkaProxyJson = "{\"records\":[{\"value\":";
                 kafkaProxyJson += json;
                 kafkaProxyJson += "}]}";
-                //printf("%s\n", kafkaJson.c_str());
+                //printf("%s\n", kafkaProxyJson.c_str());
                 kafkaRestProxy.post(kafkaProxyJson);
             }
 

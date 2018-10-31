@@ -28,7 +28,7 @@ SnifferPcap::~SnifferPcap()
 }
 
 // virtual
-bool SnifferPcap::promiscModeOn()
+bool SnifferPcap::promiscModeOn(bool bLog)
 {
     pHandle_ = pcap_open_live(ifaceName_.c_str(), BUFSIZ, 1, 1000, error_buffer_);
     if (pHandle_ != nullptr)
@@ -38,7 +38,10 @@ bool SnifferPcap::promiscModeOn()
             bHasEthernetHeader_ = true;
     }
     else
-        log_error("pcap_open_live %s\n", error_buffer_);
+    {
+        if (bLog)
+            log_error("pcap_open_live %s\n", error_buffer_);
+    }
     return (pHandle_ != nullptr);
 }
 
@@ -51,6 +54,7 @@ bool SnifferPcap::promiscModeOff()
     return true;
 }
 
+//virtual
 bool SnifferPcap::doWaitForPacket(ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen)
 {
     pEthernetHeader = nullptr;

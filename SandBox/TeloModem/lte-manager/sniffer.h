@@ -20,7 +20,7 @@ public:
 
     bool waitForPacket();
 
-    virtual bool promiscModeOn() = 0;
+    virtual bool promiscModeOn(bool bLog) = 0;
     virtual bool promiscModeOff() = 0;
     virtual int getSelectableFd() = 0;
     virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen) = 0;

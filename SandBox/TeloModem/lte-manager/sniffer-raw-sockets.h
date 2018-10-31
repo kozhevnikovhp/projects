@@ -15,7 +15,7 @@ public:
     SnifferRawSockets(const std::string &ifaceName);
     virtual ~SnifferRawSockets();
 
-    virtual bool promiscModeOn();
+    virtual bool promiscModeOn(bool bLog);
     virtual bool promiscModeOff();
     virtual int getSelectableFd() { return socket_; }
     virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen);

@@ -7,7 +7,7 @@
 
 #include "const.h"
 
-const char *PSZ_CFG_FILE_PATH = "/opt/ooma/etc/lte-manager.cfg";
+const char *PSZ_CFG_FILE_PATH = "/etc/ooma/mdm.cfg";
 const char *PSZ_FW_UPGRADE_PATH = "/update/firmware/lte-dongle/";
 
 const char *PSZ_DEVICE_NAME = "device_name";

@@ -40,22 +40,38 @@ void TrafficStatistics::update(unsigned int nPacketSize, bool bInput)
 ////////////////////////////////////////////////////////////////////////////////////////////
 // InterfaceTrafficCounter
 
-InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName, IPADDRESS_TYPE IP)
+InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName)
     : BaseSniffer(ifaceName)
 {
     teloIP_ = 0;
     subnetMask_ = 0;
-    enforcedIP_ = IP;
+    nInterfaceDoesntExistReported_ = nCouldntListenReported_ = 0;
 }
 
 bool InterfaceTrafficCounter::startListening()
 {
-    log_info("Start listening to interface %s", ifaceName_.c_str());
+    if (!isItInterfaceName(ifaceName_))
+    {
+        if (nInterfaceDoesntExistReported_ < 5)
+            log_error("Interface '%s' does not exist\n", ifaceName_.c_str());
+        ++nInterfaceDoesntExistReported_;
+        return false;
+    }
+    nInterfaceDoesntExistReported_ = 0;
     bool bSuccess = getInterfaceAddressAndMask(ifaceName_, teloIP_, subnetMask_);
     if (bSuccess)
-        bSuccess = promiscModeOn();
-    if (!bSuccess)
-        log_error("Could not listen to interface %s\n", ifaceName_.c_str());
+        bSuccess = promiscModeOn(nCouldntListenReported_ < 5);
+    if (bSuccess)
+    {
+        log_info("Start listening to interface %s", ifaceName_.c_str());
+        nCouldntListenReported_ = 0;
+    }
+    else
+    {
+        if (nCouldntListenReported_ < 5)
+            log_error("Could not listen to interface %s\n", ifaceName_.c_str());
+        ++nCouldntListenReported_;
+    }
 
     return bSuccess;
 }
@@ -65,13 +81,6 @@ bool InterfaceTrafficCounter::stopListening()
     log_info("Stop listening to interface %s", ifaceName_.c_str());
     promiscModeOff();
     return true;
-}
-
-IPADDRESS_TYPE InterfaceTrafficCounter::getIP() const
-{
-    if (enforcedIP_)
-        return enforcedIP_;
-    return teloIP_;
 }
 
 //virtual
@@ -99,40 +108,7 @@ TrafficCounter::TrafficCounter()
 
 void TrafficCounter::addInterface(const char *pszInterfaceName)
 {
-    if (strchr(pszInterfaceName, '[') && strchr(pszInterfaceName, '['))
-    {
-        char *pszDup = strdup(pszInterfaceName);
-        char *pcBackBracket = strchr(pszDup, ']');
-        *pcBackBracket = 0;
-        char *pcFrontBracket = strchr(pszDup, '[');
-        *pcFrontBracket = 0;
-        if (!isItInterfaceName(pszDup))
-        {
-            log_error("'%s' is not a valid interface name\n", pszDup);
-            return;
-        }
-
-        char *pszIpAddress = pcFrontBracket+1;
-        IPADDRESS_TYPE IP = dotNotationToAddress(pszIpAddress);
-        if (!IP)
-        {
-            log_error("'%s' is not a valid IP-address\n", pszIpAddress);
-            return;
-        }
-
-        interfaces_.emplace_back(pszDup, IP);
-        free(pszDup);
-    }
-    else
-    {
-        if (!isItInterfaceName(pszInterfaceName))
-        {
-            log_error("'%s' is not a valid interface name\n", pszInterfaceName);
-            return;
-        }
-
-        interfaces_.emplace_back(pszInterfaceName);
-    }
+    interfaces_.emplace_back(pszInterfaceName);
 }
 
 bool TrafficCounter::startListening()

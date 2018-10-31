@@ -11,7 +11,6 @@
 #include <fstream>
 
 #include "config.h"
-#include "const.h"
 #include "log.h"
 #include "misc.h"
 
@@ -26,10 +25,8 @@ bool Configuration::load()
 
     std::ifstream f(configFile_);
     if (!f.is_open())
-    {
-        log_error("Cannot read config file %s\n", configFile_.c_str());
         return false;
-    }
+
     if (f.eof() || f.bad() || f.fail())
     {
         log_error("Invalid config file %s\n", configFile_.c_str());
@@ -63,6 +60,13 @@ bool Configuration::load()
     }
     return true;
 }
+
+void Configuration::free()
+{
+    ConfigurationParams empty;
+    params_.swap(empty);
+}
+
 
 std::string Configuration::get(const char *pszKey, const char *pszDefaultValue) const
 {

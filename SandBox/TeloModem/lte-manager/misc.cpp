@@ -8,6 +8,7 @@
 #include <string.h>
 #include <algorithm>
 #include <regex>
+#include <fstream>
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -194,10 +195,44 @@ bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress)
     return bSuccess;
 }
 
-bool getInterfaceGateway(const std::string &ifaceName, IPADDRESS_TYPE &GW)
+// to avoid including <linux/route.h>
+#ifndef RTF_GATEWAY
+#define	RTF_GATEWAY	0x0002		// destination is a gateway
+#endif
+
+bool getGateway(IPADDRESS_TYPE &GW)
 {
     GW = 0;
-    return true;
+    std::ifstream f("/proc/net/route");
+    if (!f.is_open())
+        return false;
+
+    // Iface	Destination	Gateway 	Flags	RefCnt	Use	Metric	Mask	MTU	Window	IRTT
+    bool bSuccess = false;
+    std::string line;
+    char szName[IFNAMSIZ+1];
+    unsigned int uiDest, uiGW, uiFlags;
+    while (!f.eof() && !f.bad() && !f.fail())
+    {
+        std::getline(f, line);
+        trimBlanks(line);
+        if (line.empty())
+            continue;
+        int nScanfed = sscanf(line.c_str(), "%s %X %X %X", szName, &uiDest, &uiGW, &uiFlags);
+        if (nScanfed == 4)
+        {
+            if (uiDest != 0)
+                continue; // probably gateway, but not default one
+            if (uiFlags & RTF_GATEWAY)
+            {
+                GW = uiGW;
+                bSuccess = true;
+                break;
+            }
+        }
+    }
+
+    return bSuccess;
 }
 
 

@@ -18,7 +18,7 @@ public:
 
     pcap_t *getHandle() const { return pHandle_; }
 
-    virtual bool promiscModeOn();
+    virtual bool promiscModeOn(bool bLog);
     virtual bool promiscModeOff();
     virtual int getSelectableFd() { return pcap_get_selectable_fd(pHandle_); }
     virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen);
