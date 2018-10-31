@@ -5,7 +5,7 @@
  *
  */
 
-#include "kafka-rest-proxy.h"
+#include "curl-lib.h"
 #include "const.h"
 #include "config.h"
 #include "log.h"

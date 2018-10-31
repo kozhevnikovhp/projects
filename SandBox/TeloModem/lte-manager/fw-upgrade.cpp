@@ -14,7 +14,7 @@
 #include "const.h"
 #include "fw-upgrade.h"
 #include "config.h"
-#include "kafka-rest-proxy.h"
+#include "curl-lib.h"
 #include "modem-gtc.h"
 #include "log.h"
 #include "misc.h"

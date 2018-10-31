@@ -18,7 +18,7 @@
 #include "log.h"
 #include "myxid.h"
 #include "fw-upgrade.h"
-#include "kafka-rest-proxy.h"
+#include "curl-lib.h"
 
 static const char *PSZ_VERSION = "1.1.1";
 

@@ -2,9 +2,9 @@
 add_executable (lte-manager
     config.cpp
     const.cpp
+    curl-lib.cpp
     fw-upgrade.cpp
     json.cpp
-    kafka-rest-proxy.cpp
     log.cpp
     lte-manager.cpp
     lte-parameters.cpp
