@@ -50,7 +50,7 @@ InterfaceTrafficCounter::InterfaceTrafficCounter(const std::string &ifaceName)
 
 bool InterfaceTrafficCounter::startListening()
 {
-    if (!isItInterfaceName(ifaceName_))
+    if (!checkForInterface())
     {
         if (nInterfaceDoesntExistReported_ < 5)
             log_error("Interface '%s' does not exist\n", ifaceName_.c_str());
@@ -98,11 +98,17 @@ void InterfaceTrafficCounter::clearStatistics()
     UserStat_.clear();
 }
 
+// checks for network interface, does it present in the system
+bool InterfaceTrafficCounter::checkForInterface() const
+{
+    return ::isItInterfaceName(ifaceName_);
+}
+
+
 ///////////////////////////////////////////////////////
 // TrafficCounter
 
 TrafficCounter::TrafficCounter()
-    : bListening_(false)
 {
 }
 
@@ -118,7 +124,6 @@ bool TrafficCounter::startListening()
         if (!iface.startListening())
             return false;
     }
-    bListening_ = true;
     return true;
 }
 
@@ -126,7 +131,6 @@ bool TrafficCounter::stopListening()
 {
     for (auto &iface : interfaces_)
         iface.stopListening();
-    bListening_ = false;
     return true;
 }
 
@@ -144,10 +148,24 @@ int TrafficCounter::doJob()
 
     for (auto &iface : interfaces_)
     {
+        if (iface.checkForInterface()) // probably it has died
+        {
+            if (!iface.isListening())
+                iface.startListening();
+        }
+        else
+        {
+            if (iface.isListening())
+                iface.stopListening();
+            continue;
+        }
         fds[nfds].fd = iface.getSelectableFd();
         fds[nfds].events = POLLIN;
         ++nfds;
     }
+    if (!nfds)
+        return OK;
+
     const int timeout = 10; // 10 msec
 
     bool bContinue = true;

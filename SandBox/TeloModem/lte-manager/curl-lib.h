@@ -1,5 +1,5 @@
 /*
- *  https-messenger.h
+ *  curl-lib.h
  *
  *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
  *

@@ -17,7 +17,7 @@ public:
     virtual ~SerialConnection();
 
     int getFileDescriptor() const { return fd_; }
-    bool open(const char *pszDeviceName);
+    bool open(const char *pszDeviceName, bool bNoResetOption);
     bool isOpen() const { return (fd_ > 0); }
     bool resetUSB();
     bool close();
@@ -30,6 +30,7 @@ protected:
     int fd_;
     struct termios old_termios_;
     struct termios new_termios_;
+    bool bNoResetOption_; // if set, do not restore termios structure
 };
 
 

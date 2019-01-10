@@ -30,6 +30,9 @@ public:
 public:
     bool get(time_t basicDelay, JsonContent &allReport);
 
+    static bool bFirmwareUpdated_; // if just updated - re-query everything
+    static bool bConnectionTypeChanged_;// if just changed - re-query everything
+
 protected:
     virtual const char *getName() = 0;
     virtual time_t getMinExpirationTime() const = 0; // factor, multiplying basic query delay
@@ -46,7 +49,7 @@ protected:
 };
 
 
-//
+// is modem connected and under control?
 class ModemControlParameterGroup : public LteValuesGroup
 {
 public:
@@ -54,8 +57,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Modem control parameters"; }
-    virtual time_t getMinExpirationTime() const { return 2; }
-    virtual time_t getMaxExpirationTime() const { return 60; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 10; }
     virtual bool doGet(JsonContent &content);
 
     ModemGTC &modem_;
@@ -105,6 +108,9 @@ protected:
     virtual bool doGet(JsonContent &content);
 
     bool getCurrentConnection(std::string &ifaceName);
+
+    std::string previousConnectionType_; // introduced to detect connection type change
+    std::string connectionType_; // made a member, not heap var, just to avoid memory fragmentation
 };
 
 

@@ -18,31 +18,16 @@
 ////////////////////////////////////////////////////////////////////////
 // Misc
 
-IPADDRESS_TYPE getIP(const sockaddr *pSockAddr)
+IPADDRESS_TYPE getIP(const sockaddr_in *pSockAddr)
 {
-    return ((sockaddr_in *)pSockAddr)->sin_addr.s_addr;
-}
-
-IPADDRESS_TYPE getIP(const in_addr *pAddr)
-{
-	return pAddr->s_addr;
-}
-
-void setIP(sockaddr *pSockAddr, IPADDRESS_TYPE IP)
-{
-    ((sockaddr_in *)pSockAddr)->sin_addr.s_addr = IP;
+    return pSockAddr->sin_addr.s_addr;
 }
 
 void setIP(sockaddr_in *pSockAddr, IPADDRESS_TYPE IP)
 {
+    pSockAddr->sin_family = AF_INET;
     pSockAddr->sin_addr.s_addr = IP;
 }
-
-void setIP(in_addr *pAddr, IPADDRESS_TYPE IP)
-{
-	pAddr->s_addr = IP;
-}
-
 
 // TODO: make it better
 // PROBLEM: gethostbyname(), inet_*() are declared UNSAFE and DEPRECATED in LINUX, but in Windows is OK
@@ -110,57 +95,227 @@ bool isItInterfaceName(const std::string &ifaceName, int sock)
     return false;
 }
 
-bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask)
+bool isInterfaceUp(const std::string &ifaceName, bool &bUp)
 {
-    ifaceIP = ifaceMask = 0;
-    // check all interfaces to find better pair Address/Mask to be in the same net as target IP
-    // http://forum.sources.ru/index.php?showtopic=78789
-    char buf[2048];
-    struct ifconf ifc;
-    int s = socket(AF_INET, SOCK_DGRAM, 0);
-    if (s < 0)
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
     {
         perror("socket");
         return false;
     }
 
-    // Query available interfaces.
-    ifc.ifc_len = sizeof(buf);
-    ifc.ifc_buf = buf;
-    if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
+    bool bSuccess = true;
+    struct ifreq iface;
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
+
+    if (ioctl(sock, SIOCGIFFLAGS, &iface) < 0)
     {
-        perror("ioctl(SIOCGIFCONF)");
-        close(s);
+        std::string strError = "ioctl(SIOCGIFFLAGS) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
+    }
+    else
+    {
+        bUp = ((IFF_UP & iface.ifr_flags) != 0);
+    }
+
+    close(sock);
+    return bSuccess;
+}
+
+bool putInterfaceDown(const std::string &ifaceName)
+{
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("socket");
         return false;
     }
 
-    // Iterate through the list of interfaces.
-    int nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
-    for (int i = 0; i < nInterfaces; i++)
+    bool bSuccess = true;
+    struct ifreq iface;
+    bzero(&iface, sizeof(iface));
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
+
+    if (ioctl(sock, SIOCGIFFLAGS, &iface) < 0)
     {
-        struct ifreq *pInterface = &ifc.ifc_req[i];
-        //printf("Iface %d = %s\n", i, pInterface->ifr_name);
-
-        // device name
-        if (ifaceName.compare(pInterface->ifr_name))
-            continue;
-        // IP address
-        ifaceIP = getIP(&pInterface->ifr_addr);
-        //printf("%s: IP %s", pInterface->ifr_name, addressToDotNotation(ifaceIP).c_str());
-
-        // SubnetMask
-        if(ioctl(s, SIOCGIFNETMASK, pInterface) < 0)
-        {
-            perror("ioctl SIOCGIFNETMASK");
-            close(s);
-            return false;
-        }
-        ifaceMask = getIP(&pInterface->ifr_netmask);
-        //printf(", MASK %s", addressToDotNotation(ifaceMask).c_str());
-        break;
+        std::string strError = "ioctl(SIOCGIFFLAGS) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
     }
-    close(s);
-    return (ifaceIP != 0 && ifaceMask != 0);
+    if (bSuccess)
+    {
+        iface.ifr_flags &= ~IFF_UP;
+        if (ioctl(sock, SIOCSIFFLAGS, &iface) < 0)
+        {
+            std::string strError = "ioctl(SIOCSIFFLAGS) for interface ";
+            strError += ifaceName;
+            perror(strError.c_str());
+            bSuccess = false;
+        }
+    }
+
+    close(sock);
+    return bSuccess;
+}
+
+bool setInterfaceUp(const std::string &ifaceName)
+{
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("socket");
+        return false;
+    }
+
+    bool bSuccess = true;
+    struct ifreq iface;
+    bzero(&iface, sizeof(iface));
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
+
+    if (ioctl(sock, SIOCGIFFLAGS, &iface) < 0)
+    {
+        std::string strError = "ioctl(SIOCGIFFLAGS) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
+    }
+    if (bSuccess)
+    {
+        iface.ifr_flags |= IFF_UP;
+        if (ioctl(sock, SIOCSIFFLAGS, &iface) < 0)
+        {
+            std::string strError = "ioctl(SIOCSIFFLAGS) for interface ";
+            strError += ifaceName;
+            perror(strError.c_str());
+            bSuccess = false;
+        }
+    }
+
+    close(sock);
+    return bSuccess;
+}
+
+bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask)
+{
+    ifaceIP = ifaceMask = 0;
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("socket");
+        return false;
+    }
+
+    bool bSuccess = true;
+    struct ifreq iface;
+    bzero(&iface, sizeof(iface));
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
+
+    // IP-address
+    if (ioctl(sock, SIOCGIFADDR, &iface) < 0)
+    {
+        std::string strError = "ioctl(SIOCGIFADDR) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
+    }
+    else
+    {
+        ifaceIP = getIP((sockaddr_in *)&iface.ifr_addr);
+    }
+
+    // SubnetMask
+    if (ioctl(sock, SIOCGIFNETMASK, &iface) < 0)
+    {
+        std::string strError = "ioctl(SIOCGIFNETMASK) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
+    }
+    else
+    {
+        ifaceMask = getIP((sockaddr_in *)&iface.ifr_netmask);
+    }
+
+    close(sock);
+    return bSuccess;
+}
+
+bool setInterfaceIpAddress(const std::string &ifaceName, IPADDRESS_TYPE ifaceIP)
+{
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("socket");
+        return false;
+    }
+
+    bool bSuccess = true;
+    struct ifreq iface;
+    bzero(&iface, sizeof(iface));
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
+
+    setIP((sockaddr_in *)&iface.ifr_addr, ifaceIP);
+
+    if (ioctl(sock, SIOCSIFADDR, &iface) < 0)
+    {
+        std::string strError = "ioctl(SIOCSIFADDR) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
+    }
+    close(sock);
+    return bSuccess;
+}
+
+bool setInterfaceMask(const std::string &ifaceName, IPADDRESS_TYPE mask)
+{
+    if (ifaceName.size() >= IFNAMSIZ)
+        return false; // wrong (too long) name
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("socket");
+        return false;
+    }
+
+    bool bSuccess = true;
+    struct ifreq iface;
+    bzero(&iface, sizeof(iface));
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
+
+    setIP((sockaddr_in *)&iface.ifr_netmask, mask);
+
+    if (ioctl(sock, SIOCSIFNETMASK, &iface) < 0)
+    {
+        std::string strError = "ioctl(SIOCSIFNETMASK) for interface ";
+        strError += ifaceName;
+        perror(strError.c_str());
+        bSuccess = false;
+    }
+    close(sock);
+    return bSuccess;
 }
 
 // application must provide at least 6 bytes for the return value
@@ -177,7 +332,9 @@ bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress)
 
     bool bSuccess = false;
     struct ifreq iface;
-    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ-1);
+    bzero(&iface, sizeof(iface));
+    iface.ifr_addr.sa_family = AF_INET;
+    strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
     int ec = ioctl(sock, SIOCGIFHWADDR, &iface);
     if (ec >= 0)
     {

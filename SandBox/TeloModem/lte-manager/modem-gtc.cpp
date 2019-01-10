@@ -18,14 +18,22 @@
 ModemGTC::ModemGTC(const std::string &deviceName)
     : deviceName_(deviceName)
 {
+    nCannotConnectReported_ = 0;
 }
 
 bool ModemGTC::connect()
 {
 #ifndef PSEUDO_MODEM
-    if (!connection_.open(deviceName_.c_str()))
+    if (!connection_.open(deviceName_.c_str(), true))
+    {
+        if (nCannotConnectReported_ < 5)
+            log_error("Could not connect to device %s\n", deviceName_.c_str());
+        ++nCannotConnectReported_;
         return false;
+    }
+    log_info("Connected to the device %s", deviceName_.c_str());
     connection_.setSpeed(B115200);
+    nCannotConnectReported_ = 0; // clear counter, can complain again
     return true;
 #else
     return true;
@@ -49,7 +57,6 @@ bool ModemGTC::isConnected() const
 #else
     return true;
 #endif
-
 }
 
 #ifndef PSEUDO_MODEM
@@ -78,9 +85,11 @@ bool ModemGTC::execute(const std::string &command, int timeout)
         if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
             raw_ += c;
     }
-    //printf("\t%s\n", raw_.c_str());
-    return true;
+    //printf("%s\n", raw_.c_str());
+    bool bSuccess = (raw_.find("ERROR") == std::string::npos);
+    return bSuccess;
 }
+
 #endif
 
 bool ModemGTC::isControllable()
@@ -99,7 +108,7 @@ bool ModemGTC::isControllable()
 bool ModemGTC::getManufacturerInfoRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%SYSCMD=\"device --s\"", 3000);
+    return execute("AT%SYSCMD=\"device --s\"", 5000);
 #else
     raw_ = "\
     %SYSCMD: The device hardware info:\n\
@@ -460,16 +469,19 @@ bool ModemGTC::getSPN(std::string &SPN)
 // Described here: http://devcon.corp.ooma.com/pages/viewpage.action?pageId=21728633
 bool ModemGTC::firmwareUpgrade(const std::string &fileName)
 {
-    log_info("Upgrading dongle's firmware with file %s", fileName.c_str());
+    log_info("Upgrade dongle's firmware with file %s", fileName.c_str());
     // file is assumed to be uploaded to modem's internal memory (via TFTProtocol)
 #ifndef PSEUDO_MODEM
+    log_info("Sleeping 5 secs");
+    sleep(5);
+
     bool bOK = true;
     std::string cmd = "at%syscmd=";
     cmd += '"';
     cmd += "superload -l /var/update/";
     cmd += fileName;
     cmd += '"';
-    printf("command = %s\n", cmd.c_str());
+    log_info("AT-command: %s\n", cmd.c_str());
     bOK = execute(cmd, 30*1000);    // Takes around 25 seconds to upgrade according to RamaK.
     if (!bOK)
     {
@@ -477,6 +489,9 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
         return false;
     }
     log_info("Dongle's firmware has been successfully upgraded");
+
+    log_info("Sleeping 5 secs");
+    sleep(5);
 
     // reboot dongle
     log_info("Rebooting dongle");
@@ -487,8 +502,11 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
     cmd += '"';
     cmd += "ucfg add config ui restore_default 1";
     cmd += '"';
-    //printf("command = %s\n", cmd.c_str());
+    log_info("AT-command: %s\n", cmd.c_str());
     bOK = execute(cmd, 3000);
+
+    log_info("Sleeping 5 secs");
+    sleep(5);
 
     // reboot now
     // execute AT-command at%syscmd="reboot -f"
@@ -496,7 +514,7 @@ bool ModemGTC::firmwareUpgrade(const std::string &fileName)
     cmd += '"';
     cmd += "reboot -f";
     cmd += '"';
-    //printf("command = %s\n", cmd.c_str());
+    log_info("AT-command: %s\n", cmd.c_str());
     bOK = execute(cmd, 1000);
     return bOK;
 #else

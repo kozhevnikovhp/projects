@@ -1,5 +1,5 @@
 /*
- *  messaging-https.cpp
+ *  curl-lib.cpp
  *
  *  Copyright (C) 2015-2018 Ooma Incorporated. All rights reserved.
  *
@@ -107,7 +107,7 @@ bool CurlLib::putFileTFTP(const std::string &fileFullPath, const std::string &tf
         bSuccess = (res == CURLE_OK);
         // Check for errors
         if (bSuccess)
-            log_info("TFTP transfer suceeded");
+            log_info("TFTP transfer succeded");
         else
             log_error("TFTP transfer failed (%s)", curl_easy_strerror(res));
 

@@ -9,75 +9,92 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+// for debug purposes, when syslog is not easy to look at -> create dump.txt file
 #define DUMP 0
 
-static int log_debug_messages = 0;
+static int verboseLevel = 8;
 
-void log_init(int to_stderr_also) 
+void log_init(bool bAlsoToStdErr)
 {
     int option = LOG_NDELAY
                | LOG_PID
-               | (to_stderr_also ? LOG_PERROR : 0);
-    
+               | (bAlsoToStdErr ? LOG_PERROR : 0);
+
     openlog("lte-manager", option, LOG_DAEMON);
     log_debug("Logging system initialized");
 }
 
-
-void log_level(const int d) 
+void log_level(int level)
 {
-    log_debug("Log level set to %d", d);
-    log_debug_messages = d;
+    log_debug("Log level set to %d", level);
+    verboseLevel = level;
 }
 
 void log_debug(const char *format, ...)
 {
-    if (log_debug_messages)
+    if (verboseLevel >= LOG_DEBUG)
     {
         va_list ap;
 
         va_start(ap, format);
         vsyslog(LOG_DEBUG, format, ap);
+
+#if DUMP
+        FILE *pFile = fopen("dump.txt", "a");
+        if (pFile)
+        {
+            vfprintf(pFile, format, ap);
+            fprintf(pFile, "\n");
+            fclose(pFile);
+        }
+#endif
+
         va_end(ap);
     }
 }
 
 void log_info(const char *format, ...)
 {
-    va_list ap;
+    if (verboseLevel >= LOG_INFO)
+    {
+        va_list ap;
 
-    va_start(ap, format);
-    vsyslog(LOG_INFO, format, ap);
+        va_start(ap, format);
+        vsyslog(LOG_INFO, format, ap);
 
 #if DUMP
-    FILE *pFile = fopen("dump.txt", "a");
-    if (pFile)
-    {
-        vfprintf(pFile, format, ap);
-        fprintf(pFile, "\n");
-        fclose(pFile);
-    }
+        FILE *pFile = fopen("dump.txt", "a");
+        if (pFile)
+        {
+            vfprintf(pFile, format, ap);
+            fprintf(pFile, "\n");
+            fclose(pFile);
+        }
 #endif
 
-    va_end(ap);
+        va_end(ap);
+    }
 }
 
 void log_error(const char *format, ...)
 {
-    va_list ap;
+    if (verboseLevel >= LOG_ERR)
+    {
+        va_list ap;
 
-    va_start(ap, format);
-    vsyslog(LOG_ERR, format, ap);
+        va_start(ap, format);
+        vsyslog(LOG_ERR, format, ap);
 
 #if DUMP
-    FILE *pFile = fopen("dump.txt", "a");
-    if (pFile)
-    {
-        vfprintf(pFile, format, ap);
-        fprintf(pFile, "\n");
-        fclose(pFile);
-    }
+        FILE *pFile = fopen("dump.txt", "a");
+        if (pFile)
+        {
+            vfprintf(pFile, format, ap);
+            fprintf(pFile, "\n");
+            fclose(pFile);
+        }
 #endif
 
-    va_end(ap);
+        va_end(ap);
+    }
 }

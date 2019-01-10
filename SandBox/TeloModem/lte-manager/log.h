@@ -8,8 +8,8 @@
 
 #include <syslog.h>
 
-void log_init(int log_to_stderr_also);
-void log_level(const int log_debug_messages_also);
+void log_init(bool bAlsoToStdErr);
+void log_level(int level);
 
 void log_debug(const char *format, ...);
 void log_info(const char *format, ...);

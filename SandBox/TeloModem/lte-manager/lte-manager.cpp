@@ -19,8 +19,7 @@
 #include "myxid.h"
 #include "fw-upgrade.h"
 #include "curl-lib.h"
-
-static const char *PSZ_VERSION = "1.1.1";
+#include "version.h"
 
 static bool needToContinue(int nCycles)
 {
@@ -57,12 +56,24 @@ int main(int argc, char *argv[])
     if (bDaemonize)
         bVerbose = false; // silent in daemon mode
 
-    int logToStderr = 0;
+    int bLogToStderr = false;
     if (bVerbose)
-        logToStderr = 1;
+        bLogToStderr = true;
 
-    log_init(logToStderr);
-    log_level(1);
+    log_init(bLogToStderr);
+
+    Configuration cfg(PSZ_CFG_FILE_PATH);
+    if (!cfg.load())
+    {
+        log_error("Cannot read cfg-file %s", PSZ_CFG_FILE_PATH);
+        return 1;
+    }
+
+    std::string logLevelString = cfg.get(PSZ_SYSLOG_VERBOSE_LEVEL, "8"); // log everything by default
+    int logLevel = atoi(logLevelString.c_str());
+    if (logLevel == 0)
+        logLevel = 8; // if invalid value - log everything
+    log_level(logLevel);
 
     log_info("Version %s, compiled on %s at %s", PSZ_VERSION, __DATE__, __TIME__);
 
@@ -74,13 +85,6 @@ int main(int argc, char *argv[])
         return 1;
     }
     log_info("MyxID = %s", myxID.c_str());
-
-    Configuration cfg(PSZ_CFG_FILE_PATH);
-    if (!cfg.load())
-    {
-        log_error("Cannot read cfg-file %s", PSZ_CFG_FILE_PATH);
-        return 1;
-    }
 
     std::string basicDelayString = cfg.get(PSZ_BASIC_QUERY_DELAY, "60");
     time_t basicDelay = atol(basicDelayString.c_str());
@@ -101,18 +105,9 @@ int main(int argc, char *argv[])
 
     std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
     ModemGTC modem(deviceName);
-    if (modem.connect())
-    {
-        log_info("Connected to the dongle through %s", deviceName.c_str());
-    }
-    else
-    {
-        log_error("Could not open device %s", deviceName.c_str());
-        return 1;
-    }
 
 #ifndef PSEUDO_MODEM
-    std::string trafficInterfaceName("usbnet0");
+    std::string trafficInterfaceName(PSZ_LTE_NETWORK_INTERFACE);
 #else
     std::string trafficInterfaceName("enp0s3");    // my CENTOS/Debian laptop. TODO: set as compiler option, for example, by means of -D option (define directive), another than PSEUDO_MODEM
 #endif
@@ -162,7 +157,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    cfg.free(); // as we read mdm.cfg file, it is not very good idea to keep all its long list of parameters permanently
+    cfg.free(); // as we read mdm.cfg file now, it is not a very good idea to keep all its long list of parameters permanently
 
     std::string startedAs("Started");
     if (bDaemonize)
@@ -181,33 +176,24 @@ int main(int argc, char *argv[])
     log_info(startedAs.c_str());
 
     std::vector<LteValuesGroup *> allGroups;
+    allGroups.emplace_back(new NetworkParameterGroup()); // must be first in the list for easier enforcement full re-quering in case of connection type changed - other groups are processed later
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
     allGroups.emplace_back(new ConstantModemParameterGroup(modem));
     allGroups.emplace_back(new VariableModemParameterGroup(modem));
-    allGroups.emplace_back(new NetworkParameterGroup());
     allGroups.emplace_back(new TrafficParameterGroup(trafficCounter));
     //allGroups.emplace_back(new WanSwitchStateGroup());
     allGroups.emplace_back(new OomaServiceStatusGroup());
 
     JsonContent queryResult;
     int nCyclesDone = 0;
-    std::string fwUpdateFilePath;
+    std::string fwTgzFilePath; // tgz file with real firmware file
 
     while (needToContinue(nCyclesDone))
     {
         if (!modem.isConnected())
-        {
-            // try to reconnect
-            if (modem.connect())
-                log_info("Reconnected to device %s", deviceName.c_str());
-            else
-                log_error("Could not connect to device %s", deviceName.c_str());
-        }
+            modem.connect();
 
-        if (!trafficCounter.isListening())
-            trafficCounter.startListening();
-        if (trafficCounter.isListening())
-            trafficCounter.doJob();
+        trafficCounter.doJob();
 
         queryResult.clear();
 
@@ -243,19 +229,42 @@ int main(int argc, char *argv[])
                        nullptr,
                        nullptr);
             }
+            LteValuesGroup::bConnectionTypeChanged_ = false; // clear this flag as everything is re-queried already
         }
 
-        if (FWupgrader.checkForUpdate(fwUpdateFilePath))
+        LteValuesGroup::bFirmwareUpdated_ = false; // clear this flag before checking for upgrade
+        if (FWupgrader.isUpgradeAvailable(fwTgzFilePath))
         {
-            trafficCounter.stopListening();
-            FWupgrader.upgrade(modem, fwUpdateFilePath);
-            log_info("Firmware upgrade is done");
-            log_info("Disconnecting %s", deviceName.c_str());
-            modem.disconnect();
-            sleep(300); // wait while modem is rebooting
+            if (FWupgrader.unpackPrgFile(fwTgzFilePath))
+            {
+                trafficCounter.stopListening();
+                bool bUpdateSuccess = false;
+                if (FWupgrader.upgrade(modem))
+                {
+                    log_info("Firmware upgrade is done");
+                    log_info("Disconnecting %s", deviceName.c_str());
+                    LteValuesGroup::bFirmwareUpdated_ = true; // to enforce querying of all parameters directly after FW update
+                    modem.disconnect();
+                    bUpdateSuccess = true;
+                }
+                // report status of upgrade to myxprov
+                std::string fileName = PSZ_FW_UPGRADE_MARKER_PATH;
+                fileName += PSZ_FW_UPGRADE_MARKER_FILE;
+                FILE *pFile = fopen(fileName.c_str(), "a");
+                if (pFile)
+                {
+                    fprintf(pFile, "\nstatus=%s\n", bUpdateSuccess ? "done" : "failed");
+                    fclose(pFile);
+                }
+                else
+                    log_error("Cannot open file %s%s for writing", PSZ_FW_UPGRADE_MARKER_PATH, PSZ_FW_UPGRADE_MARKER_FILE);
+
+                if (bUpdateSuccess)
+                    sleep(60); // wait while modem is rebooting
+            }
         }
 
-        sleep(10);
+        sleep(5);
 #ifdef VALGRIND
         ++nCyclesDone;
         printf("VALGRIND: %d cycles done\n", nCyclesDone);

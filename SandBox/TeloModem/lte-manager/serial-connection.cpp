@@ -23,6 +23,7 @@
 SerialConnection::SerialConnection()
 {
     fd_ = -1; // invalid value
+    bNoResetOption_ = false; // restore by default
 }
 
 //virtual
@@ -31,7 +32,7 @@ SerialConnection::~SerialConnection()
     close();
 }
 
-bool SerialConnection::open(const char *pszDeviceName)
+bool SerialConnection::open(const char *pszDeviceName, bool bNoResetOption)
 {
     fd_ = ::open(pszDeviceName, O_RDWR | O_NOCTTY);
     if (fd_ < 0)
@@ -41,12 +42,17 @@ bool SerialConnection::open(const char *pszDeviceName)
         return false;
     }
 
-    if (tcgetattr(fd_, &old_termios_) != 0)
+    // To reset or not to reset original options upon device closure? It is a question! The same as -r option of picocom, for example
+    bNoResetOption_ = bNoResetOption;
+    if (!bNoResetOption_)
     {
-        fprintf(stderr, "tcgetattr(fd, &old_termios) failed: %s\n", strerror(errno));
-        perror("tcgetattr");
-        close();
-        return false;
+        if (tcgetattr(fd_, &old_termios_) != 0)
+        {
+            fprintf(stderr, "tcgetattr(fd, &old_termios) failed: %s\n", strerror(errno));
+            perror("tcgetattr");
+            close();
+            return false;
+        }
     }
 
     memset(&new_termios_, 0, sizeof(new_termios_));
@@ -100,8 +106,11 @@ bool SerialConnection::close()
 {
     if (isOpen())
     {
-        // Before leaving, reset the old serial settings.
-        tcsetattr(fd_, TCSANOW, &old_termios_);
+        if (!bNoResetOption_)
+        {
+            // Before leaving, reset the old serial settings.
+            tcsetattr(fd_, TCSANOW, &old_termios_);
+        }
         ::close(fd_);
     }
     fd_ = -1;

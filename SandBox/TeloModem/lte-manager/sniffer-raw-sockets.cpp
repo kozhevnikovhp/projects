@@ -14,9 +14,7 @@
 SnifferRawSockets::SnifferRawSockets(const std::string &ifaceName)
     : Sniffer(ifaceName)
 {
-    socket_ = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (socket_ <= 0)
-        perror("Sniffer socket creation"); // TODO: to LOG!
+    socket_ = -1;
 }
 
 //virtual
@@ -25,14 +23,16 @@ SnifferRawSockets::~SnifferRawSockets()
     if (socket_ > 0)
     {
         promiscModeOff();
-        ::shutdown(socket_, SHUT_RDWR);
-        ::close(socket_);
     }
 }
 
 // virtual
 bool SnifferRawSockets::promiscModeOn(bool bLog)
 {
+    socket_ = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if (socket_ <= 0)
+        perror("Sniffer socket creation"); // TODO: to LOG!
+
     if (socket_ <= 0)
         return false;
 
@@ -59,6 +59,7 @@ bool SnifferRawSockets::promiscModeOff()
 {
     if (socket_ <= 0)
         return false;
+
     struct ifreq iface;
     strncpy(iface.ifr_name, ifaceName_.c_str(), IFNAMSIZ-1);
 
@@ -72,6 +73,11 @@ bool SnifferRawSockets::promiscModeOff()
     ec = ioctl(socket_, SIOCSIFFLAGS, &iface);
     if (ec < 0)
         perror("ioctl SIOCSIFFLAGS");
+
+    ::shutdown(socket_, SHUT_RDWR);
+    ::close(socket_);
+    socket_ = -1;
+
     return (ec >= 0);
 }
 

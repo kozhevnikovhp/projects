@@ -60,5 +60,6 @@ protected:
     std::string deviceName_;
     std::string raw_; // to avoid memory fragmentation
     JsonContent tmpContent_; // to avoid memory fragmentation
+    int nCannotConnectReported_;
 };
 

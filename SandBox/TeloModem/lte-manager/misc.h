@@ -23,7 +23,13 @@ bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnet
 bool isItInterfaceName(const std::string &ifaceName);
 bool isItInterfaceName(const std::string &ifaceName, int sock);
 
+bool isInterfaceUp(const std::string &ifaceName, bool &bUp);
+bool putInterfaceDown(const std::string &ifaceName);
+bool setInterfaceUp(const std::string &ifaceName);
+
 bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask);
+bool setInterfaceIpAddress(const std::string &ifaceName, IPADDRESS_TYPE ifaceIP);
+bool setInterfaceMask(const std::string &ifaceName, IPADDRESS_TYPE mask);
 bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress);
 bool getGateway(IPADDRESS_TYPE &GW);
 

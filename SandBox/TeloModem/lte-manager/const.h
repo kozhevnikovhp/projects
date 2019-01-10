@@ -8,6 +8,12 @@
 #pragma once
 
 extern const char *PSZ_CFG_FILE_PATH;
+extern const char *PSZ_SYSLOG_VERBOSE_LEVEL;
+
+extern const char *PSZ_LTE_NETWORK_INTERFACE;
+
+extern const char *PSZ_FW_UPGRADE_MARKER_PATH;
+extern const char *PSZ_FW_UPGRADE_MARKER_FILE;
 extern const char *PSZ_FW_UPGRADE_PATH;
 
 extern const char *PSZ_DEVICE_NAME;

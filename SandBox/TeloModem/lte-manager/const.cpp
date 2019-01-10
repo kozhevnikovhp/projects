@@ -8,6 +8,12 @@
 #include "const.h"
 
 const char *PSZ_CFG_FILE_PATH = "/etc/ooma/mdm.cfg";
+const char *PSZ_SYSLOG_VERBOSE_LEVEL = "lte_manager_verbose_level";
+
+const char *PSZ_LTE_NETWORK_INTERFACE = "usbnet0";
+
+const char *PSZ_FW_UPGRADE_MARKER_PATH = "/opt/lte/";
+const char *PSZ_FW_UPGRADE_MARKER_FILE = "firmwareUpdated";
 const char *PSZ_FW_UPGRADE_PATH = "/update/firmware/lte-dongle/";
 
 const char *PSZ_DEVICE_NAME = "device_name";

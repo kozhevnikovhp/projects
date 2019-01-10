@@ -17,11 +17,11 @@ public:
 
     virtual bool promiscModeOn(bool bLog);
     virtual bool promiscModeOff();
-    virtual int getSelectableFd() { return socket_; }
+    virtual bool isListening() const { return (socket_ > 0); }
+    virtual int getSelectableFd() const { return socket_; }
     virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen);
 
 protected:
-
     int socket_;
     char bufferForPackets_[0xFFFF];
 };

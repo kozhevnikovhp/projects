@@ -53,6 +53,7 @@ public:
     int getTeloInputBytes() const { return TeloStat_.getInputBytes(); }
     int getTeloOutputBytes() const { return TeloStat_.getOutputBytes(); }
     void clearStatistics();
+    bool checkForInterface() const;
 
 protected:
     bool isMyPacket(const SIpHeader *pIpHeader) const { return (isPacketFromMe(pIpHeader) || isPacketToMe(pIpHeader)); }
@@ -74,8 +75,6 @@ class TrafficCounter
 public:
     TrafficCounter();
 
-    bool isListening() const { return bListening_; }
-
     void addInterface(const char *pszInterfaceName);
     bool hasJob() const { return !interfaces_.empty(); }
     bool startListening();
@@ -90,6 +89,5 @@ public:
 
 protected:
     std::vector<InterfaceTrafficCounter> interfaces_;
-    bool bListening_;
 };
 

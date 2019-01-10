@@ -22,7 +22,8 @@ public:
 
     virtual bool promiscModeOn(bool bLog) = 0;
     virtual bool promiscModeOff() = 0;
-    virtual int getSelectableFd() = 0;
+    virtual bool isListening() const = 0;
+    virtual int getSelectableFd() const = 0;
     virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen) = 0;
 
 // Protected methods

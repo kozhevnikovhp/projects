@@ -20,6 +20,11 @@ time_t getCurrentTimeSec()
 //////////////////////////////////////////////////////////////////
 /// LteValuesGroup::LteParameterGroup
 ///
+
+//static
+bool LteValuesGroup::bFirmwareUpdated_ = true; // query everything at start-up
+bool LteValuesGroup::bConnectionTypeChanged_ = true; // query everything at start-up
+
 LteValuesGroup::LteValuesGroup()
     : actualTime_(0), bForceQuery_(true)
 {
@@ -34,7 +39,7 @@ bool LteValuesGroup::get(time_t basicDelay, JsonContent &allReport)
 {
     //printf("get %s\n", getName());
     ReportAction action = REPORT_CHANGED_ONLY;
-    if (bForceQuery_)
+    if (bForceQuery_ || bFirmwareUpdated_ || bConnectionTypeChanged_)
         action = REPORT_EVERYTHING;
     else
     {
@@ -98,11 +103,8 @@ ModemControlParameterGroup::ModemControlParameterGroup(ModemGTC &modem)
 //virtual
 bool ModemControlParameterGroup::doGet(JsonContent &content)
 {
-    if (!modem_.isConnected())
-        return false;
-
     std::string status = "inactive";
-    if (modem_.isControllable())
+    if (modem_.isConnected() && modem_.isControllable())
         status = "active";
     content.emplace_back(KeyValue("lte_dongle", status));
     return true;
@@ -172,16 +174,21 @@ bool NetworkParameterGroup::doGet(JsonContent &content)
     if (!getCurrentConnection(ifaceName))
         return false;
 
-    std::string connectionType;
     if (ifaceName.find("eth") != std::string::npos)
-        connectionType = std::string("ethernet");
+        connectionType_ = std::string("ethernet");
     else if (ifaceName.find("usbnet") != std::string::npos)
-        connectionType = std::string("lte");
+        connectionType_ = std::string("lte");
     else if (ifaceName.find("ra") != std::string::npos)
-        connectionType = std::string("wifi");
+        connectionType_ = std::string("wifi");
     else
-        connectionType = std::string("unknown");
-    content.emplace_back(KeyValue("connection_type", connectionType));
+        connectionType_ = std::string("unknown");
+    content.emplace_back(KeyValue("connection_type", connectionType_));
+    if (connectionType_.compare(previousConnectionType_))
+    {
+        LteValuesGroup::bConnectionTypeChanged_ = true;
+        previousConnectionType_.swap(connectionType_);
+        connectionType_.clear();
+    }
 
     IPADDRESS_TYPE IP = 0, subnetMask = 0;
     if (!getInterfaceAddressAndMask(ifaceName, IP, subnetMask))
@@ -399,7 +406,7 @@ OomaServiceStatusGroup::~OomaServiceStatusGroup()
 //virtual
 bool OomaServiceStatusGroup::doGet(JsonContent &content)
 {
-    std::string status;;
+    std::string status;
     std::ifstream f("/var/status/freeswitch");
     if (f.is_open() && !f.bad() && !f.eof() && !f.fail())
     {

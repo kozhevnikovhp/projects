@@ -20,7 +20,8 @@ public:
 
     virtual bool promiscModeOn(bool bLog);
     virtual bool promiscModeOff();
-    virtual int getSelectableFd() { return pcap_get_selectable_fd(pHandle_); }
+    virtual bool isListening() const { return (pHandle_ != nullptr); }
+    virtual int getSelectableFd() const { return pcap_get_selectable_fd(pHandle_); }
     virtual bool doWaitForPacket(struct ethhdr *&pEthernetHeader, void *&pPayload, unsigned int &nPayloadLen);
 
 protected:

@@ -16,6 +16,7 @@ add_executable (lte-manager
     sniffer-pcap.cpp
     sniffer-raw-sockets.cpp
     traffic-counter.cpp
+    version.cpp
     )
 
 #C++11 support

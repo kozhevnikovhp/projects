@@ -32,15 +32,17 @@ class FirmwareUpgrader
     static FirmwareUpgrader &instance();
 
     void configure(const Configuration &config);
-    bool checkForUpdate(std::string &fwFileName);
+    bool isUpgradeAvailable(std::string &tgzFilePath);
     FWU_STATE getState() const { return state_; }
-    bool upgrade(ModemGTC &modem, const std::string &fwFileName);
+    bool unpackPrgFile(const std::string &tgzFilePath);
+    bool upgrade(ModemGTC &modem);
 
   private:
     FirmwareUpgrader();
     ~FirmwareUpgrader();
 
-    bool checkFileName(const char *pszFileName) const;
+    bool getTgzFileName(const std::string &markerFilePath, std::string &tgzFilePath) const;
+    bool checkPrgFileName(const char *pszFileName) const;
 
     // disable copy constructor...
     FirmwareUpgrader(FirmwareUpgrader const &) = delete;
