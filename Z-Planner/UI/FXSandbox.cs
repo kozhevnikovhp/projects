@@ -1282,7 +1282,7 @@ namespace ZZero.ZPlanner.UI
                     s +="                AIR" + Environment.NewLine;
                     s +="        w2                 c1" + Environment.NewLine;
                     s +="     +======+           +======+ "     + Environment.NewLine;
-                    s +=" t //        \\\\       //        \\\\  c2" + Environment.NewLine;
+                    s +=" t //        \\       //        \\  c2" + Environment.NewLine;
                     s +="===+----------+=======+----------+=====" + Environment.NewLine;
                     s +="  ^     w1    |<--s-->|" + Environment.NewLine;
                     s +="  |" + Environment.NewLine;

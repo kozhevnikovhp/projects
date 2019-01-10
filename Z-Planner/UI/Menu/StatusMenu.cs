@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ZZero.ZPlanner.Data.Entities;
 using System.Globalization;
 using System.Threading;
+using ZZero.ZPlanner.Utils;
 
 namespace ZZero.ZPlanner.UI.Menu
 {
@@ -101,9 +102,12 @@ namespace ZZero.ZPlanner.UI.Menu
 
             int layerCount = stackup.GetMetallLayerCount();
             string layerString = (layerCount == 1) ? " Layer" : " Layers";
-
             tbNumberOfLayers.Text = layerCount + layerString;
-            tbBoardThickness.Text = stackup.GetBoardThickness().ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture) + " mils";
+
+            double fThickness = Settings.Options.TheOptions.convertMilsToCurrentBoardThicknessUnits(stackup.GetBoardThickness());
+            String strUnits = Settings.Options.TheOptions.getBoardThicknessCurrentUnits();
+
+            tbBoardThickness.Text = fThickness.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture) + " " + strUnits;
         }
     }
 }

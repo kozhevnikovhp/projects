@@ -16,7 +16,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
 {
     public partial class DiffToolDialog : Form
     {
-        bool isIgnoreUpdate = false;
         string fileName1, fileName2;
         DateTime dateTime1 = DateTime.MinValue, dateTime2 = DateTime.MinValue;
         ZPlannerProject project1 = null;
@@ -32,8 +31,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
         public DiffToolDialog()
         {
             InitializeComponent();
-
-            this.labelRedText.ForeColor = ZColorConstants.DiffToolNoMatchColor;
 
             lProduct.Text = "Z-zero  " + AboutData.TheAbout.sVersion;
             printDocument1.PrintPage += new PrintPageEventHandler(printDocument1_PrintPage);
@@ -62,7 +59,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 ZPlannerManager.IsAutoMirror = false;
             }
 
-            ClearProjects();
+            ClearAll();
 
             if (string.IsNullOrEmpty(stackupFile)) return;
 
@@ -72,7 +69,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1) && File.Exists(fileName1))
             {
-                textBoxFile1.Text = Path.GetFileName(fileName1);
                 dateTime1 = File.GetLastWriteTime(fileName1);
             }
 
@@ -95,7 +91,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 ZPlannerManager.IsAutoMirror = false;
             }
 
-            ClearProjects();
+            ClearAll();
 
             if (project == null) return;
 
@@ -114,7 +110,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1) && File.Exists(fileName1))
             {
-                textBoxFile1.Text = Path.GetFileName(fileName1);
                 dateTime1 = File.GetLastWriteTime(fileName1);
             }
 
@@ -178,7 +173,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             return currentName;
         }
 
-        private void ClearProjects()
+        private void ClearAll()
         {
             //Clear();
 
@@ -190,32 +185,15 @@ namespace ZZero.ZPlanner.UI.Dialogs
             project2 = null;
         }
 
-        private void ClearParameters()
+        private void Clear()
         {
-            comboBoxPairs1.Items.Clear();
-            comboBoxPairs1.Text = string.Empty;
-            comboBoxPairs2.Items.Clear();
-            comboBoxPairs2.Text = string.Empty;
-            comboBoxSingles1.Items.Clear();
-            comboBoxSingles1.Text = string.Empty;
-            comboBoxSingles2.Items.Clear();
-            comboBoxSingles2.Text = string.Empty;
-
-            parameters1.Clear();
-            parameters2.Clear();
-
-            ClearGrids();
-        }
-
-        private void ClearGrids()
-        {            
             dataGridView1.Rows.Clear();
             dataGridView1.Columns.Clear();
             dataGridView2.Rows.Clear();
             dataGridView2.Columns.Clear();
 
-            textBoxTotalThickness1.Text = "0 mils";
-            textBoxTotalThickness2.Text = "0 mils";
+            parameters1.Clear();
+            parameters2.Clear();
         }
 
         private void MergeParameters()
@@ -343,71 +321,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
                         parameters1.Add(project1.Parameters.Find(x => x.ID == parameter.ID) ?? new ZParameter(parameter.ID) { ValueType = parameter.ValueType });
                     }
                 }
-
-                // Pair
-                for (int i = 0; i < orderList.Count; ++i)
-                {
-                    string parameterId = orderList[i];
-                    ZParameter parameter1 = project1.Parameters.Find(x => x.ID == parameterId) ?? project1.SubParameters.Find(x => x.ID == parameterId);
-                    ZParameter parameter2 = project2.Parameters.Find(x => x.ID == parameterId) ?? project2.SubParameters.Find(x => x.ID == parameterId);
-                    if (parameter1 == null && parameter2 == null) continue;
-                    if (parameter1 != null && (parameter1.Table != ZTableType.Pair || parameter1.IsPrivate || parameter1.IsHidden) ||
-                        parameter2 != null && (parameter2.Table != ZTableType.Pair || parameter2.IsPrivate)) continue;
-
-                    parameters1.Add(parameter1 ?? new ZParameter(parameterId) { ValueType = parameter2.ValueType });
-                    parameters2.Add(parameter2 ?? new ZParameter(parameterId) { ValueType = parameter1.ValueType });
-                }
-
-                foreach (ZParameter parameter in project1.Parameters)
-                {
-                    if (parameter.Table != ZTableType.Pair || parameter.IsPrivate || parameter.IsHidden) continue;
-                    if (parameters1.Contains(parameter)) continue;
-
-                    if (parameter.SubParameters != null && parameter.SubParameters.Count > 0)
-                    {
-                        foreach (ZParameter subparameter in parameter.SubParameters)
-                        {
-                            if (subparameter.IsPrivate || subparameter.IsHidden) continue;
-                            if (parameters1.Contains(subparameter)) continue;
-
-                            parameters1.Add(subparameter);
-                            parameters2.Add(project2.SubParameters.Find(x => x.ID == subparameter.ID) ?? new ZParameter(subparameter.ID) { ValueType = subparameter.ValueType });
-                        }
-                    }
-                    else
-                    {
-                        parameters1.Add(parameter);
-                        parameters2.Add(project2.Parameters.Find(x => x.ID == parameter.ID) ?? new ZParameter(parameter.ID) { ValueType = parameter.ValueType });
-                    }
-                }
-
-                foreach (ZParameter parameter in project2.Parameters)
-                {
-                    if (parameter.Table != ZTableType.Pair || parameter.IsPrivate || parameter.IsHidden) continue;
-                    if (parameters2.Contains(parameter)) continue;
-
-                    if (parameter.SubParameters != null && parameter.SubParameters.Count > 0)
-                    {
-                        foreach (ZParameter subparameter in parameter.SubParameters)
-                        {
-                            if (subparameter.IsPrivate || subparameter.IsHidden) continue;
-                            if (parameters2.Contains(subparameter)) continue;
-
-                            parameters2.Add(subparameter);
-                            parameters1.Add(project1.SubParameters.Find(x => x.ID == subparameter.ID) ?? new ZParameter(subparameter.ID) { ValueType = subparameter.ValueType });
-                        }
-                    }
-                    else
-                    {
-                        parameters2.Add(parameter);
-                        parameters1.Add(project1.Parameters.Find(x => x.ID == parameter.ID) ?? new ZParameter(parameter.ID) { ValueType = parameter.ValueType });
-                    }
-                }
             }
         }
 
-        private void FillGrid(ZDataGridView grid, ZPlannerProject project, ZSingle selectedSingle, ZPair selectedPair, List<ZParameter> parameters, int rowCount)
-        { 
+        private void FillGrid(ZDataGridView grid, ZPlannerProject project, List<ZParameter> parameters, int rowCount)
+        {
             grid.CurrentCellChanged -= DataGridView_CurrentCellChanged;
 
             foreach (ZParameter parameter in parameters)
@@ -448,8 +366,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             for(int i = 0; i < rowCount; ++i)
             {
                 ZLayer layer = (i < project.Stackup.Layers.Count) ? project.Stackup.Layers[i] : null;
-                ZLayer singleLayer = (selectedSingle != null && i < selectedSingle.Layers.Count) ? selectedSingle.Layers[i] : null;
-                ZLayer pairLayer = (selectedPair != null && i < selectedPair.Layers.Count) ? selectedPair.Layers[i] : null;
+                ZLayer singleLayer = (project.Stackup.ActiveSingle != null && i < project.Stackup.ActiveSingle.Layers.Count) ? project.Stackup.ActiveSingle.Layers[i] : null;
                 ZDataGridViewRow row = new ZDataGridViewRow();
                 row.ReadOnly = true;
                 row.Tag = layer;
@@ -459,7 +376,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     ZLayerParameter layerParameter = null;
                     if (layer != null) layerParameter = layer.LayerParameters.Find(x => x.ID == parameter.ID);
                     if (layerParameter == null && singleLayer != null) layerParameter = singleLayer.LayerParameters.Find(x => x.ID == parameter.ID);
-                    if (layerParameter == null && pairLayer != null) layerParameter = pairLayer.LayerParameters.Find(x => x.ID == parameter.ID);
                     if (layerParameter == null) layerParameter = new ZLayerParameter(parameter.ID);
 
                     ZDataGridViewTextBoxCell cell = new ZDataGridViewTextBoxCell();
@@ -534,21 +450,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void CompareGridsData()
         {
-            if (textBoxTotalThickness1.Text != textBoxTotalThickness2.Text)
-            {
-                textBoxTotalThickness1.BackColor = textBoxTotalThickness1.BackColor;
-                textBoxTotalThickness1.ForeColor = ZColorConstants.DiffToolNoMatchColor;
-                textBoxTotalThickness2.BackColor = textBoxTotalThickness2.BackColor;
-                textBoxTotalThickness2.ForeColor = ZColorConstants.DiffToolNoMatchColor;
-            }
-            else
-            {
-                textBoxTotalThickness1.BackColor = textBoxTotalThickness1.BackColor;
-                textBoxTotalThickness1.ForeColor = Color.Black;
-                textBoxTotalThickness2.BackColor = textBoxTotalThickness2.BackColor;
-                textBoxTotalThickness2.ForeColor = Color.Black;
-            }
-
             //if (dataGridView1.Columns.Count != dataGridView2.Columns.Count || dataGridView1.Rows.Count != dataGridView2.Rows.Count) return;
 
             /*for (int cIndex = 0; cIndex < dataGridView1.Columns.Count; ++cIndex)
@@ -716,95 +617,59 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void UpdateDiff()
         {
+            Clear();
+
             bool ignoreCommands = ZPlannerManager.Commands.SuspendCommandEvent();
-            isIgnoreUpdate = true;
             try
             {
-                ClearParameters();
-
                 if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1)) project1 = DataProvider.Instance.OpenZPlannerProject(fileName1);
                 if (!string.IsNullOrWhiteSpace(fileName2)) project2 = DataProvider.Instance.OpenZPlannerProject(fileName2);
-
-                if (project1 == null || project1.Stackup == null)
-                {
-                    project1 = new ZPlannerProject();
-                    project1.Stackup.Layers.Clear();
-                    foreach (var single in project1.Stackup.Singles) single.Layers.Clear();
-                    project1.Stackup.Singles.Clear();
-                    foreach (var pair in project1.Stackup.Pairs) pair.Layers.Clear();
-                    project1.Stackup.Pairs.Clear();
-                }
-
-                if (project2 == null || project2.Stackup == null)
-                {
-                    project2 = new ZPlannerProject();
-                    project2.Stackup.Layers.Clear();
-                    foreach (var single in project2.Stackup.Singles) single.Layers.Clear();
-                    project2.Stackup.Singles.Clear();
-                    foreach (var pair in project2.Stackup.Pairs) pair.Layers.Clear();
-                    project2.Stackup.Pairs.Clear();
-                }
-
-                comboBoxSingles1.Items.AddRange(project1.Stackup.Singles.ToArray());
-                if (comboBoxSingles1.Items.Count > 0) comboBoxSingles1.SelectedIndex = 0;
-                comboBoxPairs1.Items.AddRange(project1.Stackup.Pairs.ToArray());
-                if (comboBoxPairs1.Items.Count > 0) comboBoxPairs1.SelectedIndex = 0;
-
-                comboBoxSingles2.Items.AddRange(project2.Stackup.Singles.ToArray());
-                if (comboBoxSingles2.Items.Count > 0) comboBoxSingles2.SelectedIndex = 0;
-                comboBoxPairs2.Items.AddRange(project2.Stackup.Pairs.ToArray());
-                if (comboBoxPairs2.Items.Count > 0) comboBoxPairs2.SelectedIndex = 0;
-
-                MergeParameters();
             }
             finally
             {
-                isIgnoreUpdate = false;
                 ZPlannerManager.Commands.ResumeCommandEvent(ignoreCommands);
             }
 
-            UpdateGrids();
-        }
-
-        private void UpdateGrids()
-        {
-            bool ignoreCommands = ZPlannerManager.Commands.SuspendCommandEvent();
-            isIgnoreUpdate = true;
-            try
+            if (project1 == null || project1.Stackup == null) 
             {
-                ZSingle selectedSingle1 = (comboBoxSingles1.SelectedIndex >= 0) ? comboBoxSingles1.Items[comboBoxSingles1.SelectedIndex] as ZSingle : null;
-                ZPair selectedPair1 = (comboBoxPairs1.SelectedIndex >= 0) ? comboBoxPairs1.Items[comboBoxPairs1.SelectedIndex] as ZPair : null;
-                ZSingle selectedSingle2 = (comboBoxSingles2.SelectedIndex >= 0) ? comboBoxSingles2.Items[comboBoxSingles2.SelectedIndex] as ZSingle : null;
-                ZPair selectedPair2 = (comboBoxPairs2.SelectedIndex >= 0) ? comboBoxPairs2.Items[comboBoxPairs2.SelectedIndex] as ZPair : null;
-
-                FillGrid(dataGridView1, project1, selectedSingle1, selectedPair1, parameters1, project1.Stackup.Layers.Count);
-                FillGrid(dataGridView2, project2, selectedSingle2, selectedPair2, parameters2, project2.Stackup.Layers.Count);
-
-                //FillGrid(dataGridView1, project1, parameters1, Math.Max(project1.Stackup.Layers.Count, project2.Stackup.Layers.Count));
-                //FillGrid(dataGridView2, project2, parameters2, Math.Max(project1.Stackup.Layers.Count, project2.Stackup.Layers.Count));
-
-                textBoxTotalThickness1.Text = project1.Stackup.GetBoardThickness().ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture) + " mils";
-                textBoxTotalThickness2.Text = project2.Stackup.GetBoardThickness().ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture) + " mils";
-
-                CompareGridsData();
-
-                ResizeGrids();
+                project1 = new ZPlannerProject();
+                project1.Stackup.Layers.Clear();
+                foreach (var single in project1.Stackup.Singles) single.Layers.Clear();
+                project1.Stackup.Singles.Clear();
+                foreach (var pair in project1.Stackup.Pairs) pair.Layers.Clear();
+                project1.Stackup.Pairs.Clear();
             }
-            finally
+
+            if (project2 == null || project2.Stackup == null)
             {
-                isIgnoreUpdate = false;
-                ZPlannerManager.Commands.ResumeCommandEvent(ignoreCommands);
+                project2 = new ZPlannerProject();
+                project2.Stackup.Layers.Clear();
+                foreach (var single in project2.Stackup.Singles) single.Layers.Clear();
+                project2.Stackup.Singles.Clear();
+                foreach (var pair in project2.Stackup.Pairs) pair.Layers.Clear();
+                project2.Stackup.Pairs.Clear();
             }
+
+            MergeParameters();
+
+            FillGrid(dataGridView1, project1, parameters1, project1.Stackup.Layers.Count);
+            FillGrid(dataGridView2, project2, parameters2, project2.Stackup.Layers.Count);
+
+            //FillGrid(dataGridView1, project1, parameters1, Math.Max(project1.Stackup.Layers.Count, project2.Stackup.Layers.Count));
+            //FillGrid(dataGridView2, project2, parameters2, Math.Max(project1.Stackup.Layers.Count, project2.Stackup.Layers.Count));
+
+            CompareGridsData();
+
+            ResizeGrids();
         }
 
         private void buttonFile1_Click(object sender, EventArgs e)
         {
-            fileName1 = GetFileToCompare(fileName1);
+            fileName1 = GetFileToCompare(textBoxFile1.Text);
             textBoxFile1.Text = fileName1;
 
             if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1) && File.Exists(fileName1))
             {
-                textBoxFile1.Text = Path.GetFileName(fileName1);
                 dateTime1 = File.GetLastWriteTime(fileName1);
             }
 
@@ -813,12 +678,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void buttonFile2_Click(object sender, EventArgs e)
         {
-            fileName2 = GetFileToCompare(fileName2);
+            fileName2 = GetFileToCompare(textBoxFile2.Text);
             textBoxFile2.Text = fileName2;
 
             if (!string.IsNullOrWhiteSpace(fileName2) && File.Exists(fileName2))
             {
-                textBoxFile2.Text = Path.GetFileName(fileName2);
                 dateTime2 = File.GetLastWriteTime(fileName2);
             }
 
@@ -1002,15 +866,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
             else sensitivity = 0;
 
             CompareGridsData();
-        }
-
-        void comboBoxSinglesPairs_SelectedIndexChanged(object sender, System.EventArgs e)
-        {
-            if (!isIgnoreUpdate)
-            {
-                ClearGrids();
-                UpdateGrids();
-            }
         }
     }
 }

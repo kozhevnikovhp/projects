@@ -15,6 +15,7 @@ using ZZero.ZPlanner.Commands;
 using ZZero.ZPlanner.Data;
 using ZZero.ZPlanner.Data.Entities;
 using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.UI.Grid;
 using ZZero.ZPlanner.UI.Grid.Filter;
 using ZZero.ZPlanner.ZConfiguration;
@@ -543,6 +544,15 @@ namespace ZZero.ZPlanner.UI
             ZPlannerManager.IsMaterialSelected = dmlGridView.CurrentRow != null;
         }
 
+        public void UnitsChanged()
+        {
+            // TODO: make it more smart than to remove everything and re-fill it from scratch. We just need to rename 3 columns and recalculate their values.
+            // But good enough for now
+            // (EvgenyK)
+            Clear();
+            FillGridView();
+        }
+
         private void FillGridView()
         {
             this.dmlGridView.ClipboardCopyMode = DataGridViewClipboardCopyMode.Disable;
@@ -634,6 +644,19 @@ namespace ZZero.ZPlanner.UI
 
                 column.Name = parameter.ID;
                 column.HeaderText = parameter.Title;
+                
+                // Hack: if the units are English, set the header as it was read from the library. If Metric - compose name form ID and "um"
+                // Probably, changing parameter.Title is better.. 
+                if (parameter.ID == ZStringConstants.DMLParameterIDH ||
+                    parameter.ID == ZStringConstants.DMLParameterIDWeavePitch ||
+                    parameter.ID == ZStringConstants.DMLParameterIDFillPitch)
+                {
+                    if (Options.TheOptions.isUnitsMetric())
+                    { // rename column
+                        column.HeaderText = parameter.ID + " (mm)";
+                    }
+                }
+
                 column.ReadOnly = parameter.IsReadOnly;
                 column.DisplayIndex = parameter.Order;
                 column.Frozen = parameter.IsFrozen;
@@ -770,7 +793,20 @@ namespace ZZero.ZPlanner.UI
                 if (materialParameter != null)
                 {
                     //cell.ToolTipText = materialParameter.Value;
-                    cell.Value = materialParameter.Value;
+                    string value = materialParameter.Value;
+                    if (parameter.ID == ZStringConstants.DMLParameterIDH         ||
+                        parameter.ID == ZStringConstants.DMLParameterIDWeavePitch ||
+                        parameter.ID == ZStringConstants.DMLParameterIDFillPitch)
+                    {
+                        if (Options.TheOptions.isUnitsMetric())
+                        {
+                            double fValue = 0;
+                            double.TryParse(value, out fValue);
+                            fValue *= Units.fMilsToMillimeters;
+                            value = fValue.ToString();
+                        }
+                    }
+                    cell.Value = value;
                     cell.Tag = materialParameter; // Remove it in case it is not required.
 
                     if (materialParameter.ID == ZStringConstants.DMLParameterIDHide) cell.ReadOnly = false;

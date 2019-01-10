@@ -86,10 +86,6 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ParameterIDZo_TraceWidth = "Zo_TraceWidth";
         public const string ParameterIDZo_TraceSpacing = "Zo_TraceSpacing";
         public const string ParameterIDZo_Zo = "Zo_Zo";
-        public const string ParameterIDZo_TopReference = "Zo_TopReference";
-        public const string ParameterIDZo_BottomReference = "Zo_BottomReference";
-        public const string ParameterIDZdiff_TopReference = "Zdiff_TopReference";
-        public const string ParameterIDZdiff_BottomReference = "Zdiff_BottomReference";
         public const string ParameterIDDifferentialImpedanceZdiff = "DifferentialImpedanceZdiff";
         public const string ParameterIDZdiff_TraceWidth = "Zdiff_TraceWidth";
         public const string ParameterIDZdiff_TraceSpacing = "Zdiff_TraceSpacing";
@@ -122,10 +118,6 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ParameterIDPlaneReference = "PlaneReference";
         public const string ParameterIDComments = "Comments";
         public const string ParameterIDSequentialLamination = "SequentialLamination";
-
-//tapestry specific
-        public const string ParameterIDPlaneVoltage = "PlaneVoltage";
-
 
         public const string DMLParameterIDCategory  = "Category";
         public const string DMLParameterIDQualified  = "Qualified";
@@ -261,7 +253,8 @@ namespace ZZero.ZPlanner.ZConfiguration
             {"Frequency", "Frequency (GHz)"},
             {"Description", "Description"},
             {"DefaultValue", "Default Value"},
-            {"BoardThickness", "Board Thickness (mils)"},
+            {"BoardThicknessEnglish", "Board Thickness (mils)"},
+            {"BoardThicknessMetric", "Board Thickness (mm)"},
             {"AspectRatio", "Aspect Ratio"},
             {"Enable", "Enable"},
             {"Filled", "Fill"},
@@ -281,7 +274,8 @@ namespace ZZero.ZPlanner.ZConfiguration
             {"Frequency","Defines the work frequency for of stackup."},
             {"Description","Defines the Description of the column."},
             {"DefaultValue","Defines the default value for the column."},
-            {"BoardThickness", "Total Board Thickness"},
+            {"BoardThicknessEnglish", "Total Board Thickness"},
+            {"BoardThicknessMetric", "Total Board Thickness"},
             {"AspectRatio", "Defines the aspect ratio of Via Span"},
             {"Enable", "Defines whether the Via Span is enabled"},
             {"Filled", "Defines whether the Via Span is filled"},

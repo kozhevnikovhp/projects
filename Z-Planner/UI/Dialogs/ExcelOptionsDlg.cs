@@ -49,8 +49,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     case ExportFlags.Frequency: cbFrequency.Checked = true; break;
 
                     // copper, impedance, notes
-                    case ExportFlags.SingleEnded: cbSE.Checked = true; break;
-                    case ExportFlags.Differential: cbDiff.Checked = true; break;
                     case ExportFlags.CopperWeight: cbCopperWeight.Checked = true; break;
                     case ExportFlags.Copper: cbCopper.Checked = true; break;
                     case ExportFlags.RzTop: cbRz.Checked = true; break;
@@ -91,8 +89,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
             if (cbFrequency.Checked) options.Add(ExportFlags.Frequency);
 
             //copper, impedance, notes
-            if (cbSE.Checked) options.Add(ExportFlags.SingleEnded);
-            if (cbDiff.Checked) options.Add(ExportFlags.Differential);
             if (cbCopperWeight.Checked) options.Add(ExportFlags.CopperWeight);
             if (cbCopper.Checked) options.Add(ExportFlags.Copper);
             if (cbRz.Checked)
@@ -131,11 +127,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
         private void cbMetalThickness_CheckedChanged(object sender, EventArgs e)
         {
             cbThickness.Checked = cbMetalThickness.Checked;
-        }
-
-        private void ExcelOptionsDlg_Load(object sender, EventArgs e)
-        {
-
         }
 
     }

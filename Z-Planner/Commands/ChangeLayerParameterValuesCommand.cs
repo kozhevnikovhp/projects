@@ -26,7 +26,6 @@ namespace ZZero.ZPlanner.Commands
             }
 
             currentObject.CalculateLayerNumber();
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
             ZPlannerManager.MainMenu.UpdateMenu();
             ZPlannerManager.UpdateActiveStackup();
 
@@ -45,7 +44,6 @@ namespace ZZero.ZPlanner.Commands
             }
 
             currentObject.CalculateLayerNumber();
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
             ZPlannerManager.MainMenu.UpdateMenu();
             ZPlannerManager.UpdateActiveStackup();
 

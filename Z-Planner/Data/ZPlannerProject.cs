@@ -4,6 +4,7 @@ using System.Linq;
 using ZZero.ZPlanner.Commands;
 using ZZero.ZPlanner.Data.Entities;
 using ZZero.ZPlanner.Data.Properties;
+using ZZero.ZPlanner.Settings;
 using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.Data
@@ -460,6 +461,7 @@ namespace ZZero.ZPlanner.Data
             ZParameter parameter;
             ZParameter subparameter;
             int order = 0;
+            Options options = Options.TheOptions;
 
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -576,12 +578,12 @@ namespace ZZero.ZPlanner.Data
             parameters.Add(parameter);
 
             parameter = new ZParameter(ZStringConstants.ParameterIDPrepregThickness);
-            parameter.Title = "Prepreg Thickness (mils)";
+            parameter.Title = "Prepreg Thickness";
             parameter.Description = "Thickness of the prepreg layer.";
+            parameter.SetLengthDisplayUnits();
+            parameter.Measure = ZMeasures.Mils;
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Number;
-            parameter.Measure = ZMeasures.Mils;
-            parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
             parameter.IsReadOnly = true;
             parameter.IsPrivate = true;
@@ -590,24 +592,24 @@ namespace ZZero.ZPlanner.Data
             parameters.Add(parameter);
 
             parameter = new ZParameter(ZStringConstants.ParameterIDThickness);
-            parameter.Title = "Thickness (mils)";
+            parameter.Title = "Thickness";
             parameter.Description = "Row thickness.";
+            parameter.SetLengthDisplayUnits();
+            parameter.Measure = ZMeasures.Mils;
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Number;
-            parameter.Measure = ZMeasures.Mils;
-            parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
             parameter.Width = 60;
             parameter.Order = order++;
             parameters.Add(parameter);
 
             parameter = new ZParameter(ZStringConstants.ParameterIDOriginThickness);
-            parameter.Title = "Origin Thickness (mils)";
+            parameter.Title = "Origin Thickness";
             parameter.Description = "Origin row thickness.";
+            parameter.SetLengthDisplayUnits();
+            parameter.Measure = ZMeasures.Mils;
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Number;
-            parameter.Measure = ZMeasures.Mils;
-            parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
             parameter.IsReadOnly = true;
             parameter.IsPrivate = true;
@@ -781,7 +783,6 @@ namespace ZZero.ZPlanner.Data
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Select;
             parameter.Width = 90;
-            parameter.IsPrivate = true;
             parameter.Order = order++;
             parameters.Add(parameter);
 
@@ -808,12 +809,12 @@ namespace ZZero.ZPlanner.Data
             parameters.Add(parameter);
 
             parameter = new ZParameter(ZStringConstants.ParameterIDWeavePitch);
-            parameter.Title = "Weave Pitch (mils)";
+            parameter.Title = "Weave Pitch";
             parameter.Description = "Weave Pitch = 1000 / Warp Yarn Count.";
+            parameter.SetLengthDisplayUnits();
+            parameter.Measure = ZMeasures.Mils;
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Number;
-            parameter.Measure = ZMeasures.Mils;
-            parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
             parameter.IsReadOnly = true;
             parameter.IsPrivate = true;
@@ -822,12 +823,12 @@ namespace ZZero.ZPlanner.Data
             parameters.Add(parameter);
 
             parameter = new ZParameter(ZStringConstants.ParameterIDFillPitch);
-            parameter.Title = "Fill Pitch (mils)";
+            parameter.Title = "Fill Pitch";
             parameter.Description = "Fill Pitch = 1000 / Fill Yarn Count.";
+            parameter.SetLengthDisplayUnits();
+            parameter.Measure = ZMeasures.Mils;
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Number;
-            parameter.Measure = ZMeasures.Mils;
-            parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
             parameter.IsReadOnly = true;
             parameter.IsPrivate = true;
@@ -870,12 +871,12 @@ namespace ZZero.ZPlanner.Data
             parameters.Add(parameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZo_TraceWidth);
-            subparameter.Title = "Trace Width (mils)";
+            subparameter.Title = "Trace Width";
             subparameter.Description = "Trace width for single-ended impedance calculation.";
+            subparameter.SetLengthDisplayUnits();
+            subparameter.Measure = ZMeasures.Mils;
             subparameter.Table = ZTableType.Single;
             subparameter.ValueType = ZValueType.Number;
-            subparameter.Measure = ZMeasures.Mils;
-            subparameter.DisplayMeasure = ZMeasures.Mils;
             subparameter.Width = 80;
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
@@ -1023,24 +1024,6 @@ namespace ZZero.ZPlanner.Data
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 
-            subparameter = new ZParameter(ZStringConstants.ParameterIDZo_TopReference);
-            subparameter.Title = "Top Reference";
-            subparameter.Description = "Defines a top reference for the layers";
-            subparameter.Table = ZTableType.Single;
-            subparameter.ValueType = ZValueType.Select;
-            subparameter.Width = 90;
-            subparameter.Order = order++;
-            parameter.SubParameters.Add(subparameter);
-
-            subparameter = new ZParameter(ZStringConstants.ParameterIDZo_BottomReference);
-            subparameter.Title = "Bottom Reference";
-            subparameter.Description = "Defines a bottom reference for the layers";
-            subparameter.Table = ZTableType.Single;
-            subparameter.ValueType = ZValueType.Select;
-            subparameter.Width = 90;
-            subparameter.Order = order++;
-            parameter.SubParameters.Add(subparameter);
-
             subparameter = new ZParameter(ZStringConstants.ParameterIDZo_IsUsed);
             subparameter.Title = "ON/OFF";
             subparameter.Description = "Check this to include this row into Zo calculations.";
@@ -1062,12 +1045,12 @@ namespace ZZero.ZPlanner.Data
             parameters.Add(parameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_TraceWidth);
-            subparameter.Title = "Diff. Trace Width (mils)";
+            subparameter.Title = "Diff. Trace Width";
             subparameter.Description = "Trace width for differential-impedance calculation.";
+            subparameter.SetLengthDisplayUnits();
+            subparameter.Measure = ZMeasures.Mils;
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
-            subparameter.Measure = ZMeasures.Mils;
-            subparameter.DisplayMeasure = ZMeasures.Mils;
             subparameter.Width = 100;
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
@@ -1086,23 +1069,23 @@ namespace ZZero.ZPlanner.Data
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_TraceSpacing);
-            subparameter.Title = "Spacing (mils)";
+            subparameter.Title = "Spacing";
             subparameter.Description = "Trace spacing for differential-impedance calculation.";
+            subparameter.SetLengthDisplayUnits();
+            subparameter.Measure = ZMeasures.Mils;
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
-            subparameter.Measure = ZMeasures.Mils;
-            subparameter.DisplayMeasure = ZMeasures.Mils;
             subparameter.Width = 80;
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_TracePitch);
-            subparameter.Title = "Diff. Trace Pitch (mils)";
+            subparameter.Title = "Diff. Trace Pitch";
             subparameter.Description = "Trace Pitch for differential-impedance calculation.";
+            subparameter.SetLengthDisplayUnits();
+            subparameter.Measure = ZMeasures.Mils;
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
-            subparameter.Measure = ZMeasures.Mils;
-            subparameter.DisplayMeasure = ZMeasures.Mils;
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
             subparameter.Width = 80;
@@ -1111,12 +1094,12 @@ namespace ZZero.ZPlanner.Data
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_WeavePitch);
-            subparameter.Title = "Weave Pitch (mils)";
+            subparameter.Title = "Weave Pitch";
             subparameter.Description = "Weave Pitch = 1000 / Warp Yarn Count.";
+            subparameter.SetLengthDisplayUnits();
+            subparameter.Measure = ZMeasures.Mils;
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
-            subparameter.Measure = ZMeasures.Mils;
-            subparameter.DisplayMeasure = ZMeasures.Mils;
             subparameter.DisplayFactor = 1.0;
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
@@ -1126,12 +1109,12 @@ namespace ZZero.ZPlanner.Data
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_FillPitch);
-            subparameter.Title = "Fill Pitch (mils)";
+            subparameter.Title = "Fill Pitch";
             subparameter.Description = "Fill Pitch = 1000 / Fill Yarn Count.";
+            subparameter.SetLengthDisplayUnits();
+            subparameter.Measure = ZMeasures.Mils;
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
-            subparameter.Measure = ZMeasures.Mils;
-            subparameter.DisplayMeasure = ZMeasures.Mils;
             subparameter.DisplayFactor = 1.0;
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
@@ -1328,24 +1311,6 @@ namespace ZZero.ZPlanner.Data
             subparameter.IsHidden = true;
             subparameter.IsPrivate = true;
             subparameter.Width = 70;
-            subparameter.Order = order++;
-            parameter.SubParameters.Add(subparameter);
-
-            subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_TopReference);
-            subparameter.Title = "Diff. Top Reference";
-            subparameter.Description = "Defines a top reference for the layers";
-            subparameter.Table = ZTableType.Pair;
-            subparameter.ValueType = ZValueType.Select;
-            subparameter.Width = 90;
-            subparameter.Order = order++;
-            parameter.SubParameters.Add(subparameter);
-
-            subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_BottomReference);
-            subparameter.Title = "Diff.  Bottom Reference";
-            subparameter.Description = "Defines a bottom reference for the layers";
-            subparameter.Table = ZTableType.Pair;
-            subparameter.ValueType = ZValueType.Select;
-            subparameter.Width = 90;
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 

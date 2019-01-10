@@ -82,6 +82,7 @@ namespace ZZero.ZPlanner.UI.Grid
                     if (this.DisplayIndex != parameter.Order) this.DisplayIndex = parameter.Order;
                     break;
                 case "Title":
+                case "DisplayMeasure":
                     ZDataGridViewColumnHeaderCell headerCell = this.HeaderCell as ZDataGridViewColumnHeaderCell;
                     if (headerCell != null)
                     {

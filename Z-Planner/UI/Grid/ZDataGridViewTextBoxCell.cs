@@ -214,22 +214,6 @@ namespace ZZero.ZPlanner.UI.Grid
                 }
             }
 
-            if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
-            {
-                string sValue = value as string;
-                if (!string.IsNullOrWhiteSpace(sValue))
-                {
-                    ZLayer layer = this.OwningRow.Tag as ZLayer;
-                    if (layer == null) return string.Empty;
-                    ZLayer referenceLayer = layer.Stackup.Layers.Find(x => x.ID == value.ToString());
-                    if (referenceLayer == null) return string.Empty;
-                    return referenceLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-                }
-            }
-
             if (value == null) return string.Empty;
 
             return value.ToString();

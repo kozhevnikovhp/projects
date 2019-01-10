@@ -54,14 +54,9 @@ namespace ZZero.ZPlanner
         public string dml;
         public bool bAllowDmlUpdate, bAllowDmlSave;
         public List<int> timeZones;
-        public bool bAllowTapestry;
 
         public void ParseParams(string param)//<name>:value;<name>:value
         {
-            //defaults
-            License.TheLicense.bAllowTapestry = false; 
-
-            //
             string[] pars = param.Split(';');
             foreach (string s in pars)
             {
@@ -103,13 +98,6 @@ namespace ZZero.ZPlanner
                                 Int32.TryParse(zone, out z);
                                 timeZones.Add(z);
                             }
-                        }
-                        break;
-                    case "xls":
-                        switch (value)
-                        {
-                            case "0": License.TheLicense.bAllowTapestry = false; break;
-                            case "1": License.TheLicense.bAllowTapestry = true; break;
                         }
                         break;
                 }
@@ -246,7 +234,6 @@ namespace ZZero.ZPlanner
         public bool AllowDmlUpdate { get; private set; }
         public bool AllowDmlSave { get; private set; }
         public List<int> AllowedTimeZones { get; private set; }
-        public bool AllowTapestry { get; private set; }
 
         public Role currentRole
         {
@@ -330,8 +317,7 @@ namespace ZZero.ZPlanner
             // DML Administrator
             AllowDmlSave = License.TheLicense.bAllowDmlSave;
 
-            // Allow reading Cisco Excel format
-            AllowTapestry = License.TheLicense.bAllowTapestry;
+
 
             // Check Version
             {

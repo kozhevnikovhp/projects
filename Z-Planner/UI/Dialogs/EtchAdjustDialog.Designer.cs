@@ -182,7 +182,6 @@
             this.Controls.Add(this.groupBox12);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "EtchAdjustDialog";
-            this.ShowInTaskbar = false;
             this.Text = "  Etch Effect Settings";
             this.groupBox12.ResumeLayout(false);
             this.groupBox12.PerformLayout();

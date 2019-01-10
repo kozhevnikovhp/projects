@@ -148,37 +148,38 @@ namespace ZZero.ZPlanner.UI.Dialogs
             // galery??
 
             //dielectric
-            options.drill = Convert.ToDouble(tbDrill.Text);
-            options.soldermask_height = Convert.ToDouble(tbSoldermask_Height.Text);
+            options.drill = Settings.Options.TheOptions.convertCurrentDrillDiameterUnitsToMils(Convert.ToDouble(tbDrill.Text));
+            options.soldermask_height = Settings.Options.TheOptions.convertCurrentSolderMaskHeightUnitsToMils(Convert.ToDouble(tbSoldermask_Height.Text));
             options.soldermask_Dk = Convert.ToDouble(tbSoldermask_Dk.Text);
             options.soldermask_Df = Convert.ToDouble(tbSoldermask_Df.Text);
 
-            options.height = Convert.ToDouble(tbHeight.Text);
+            options.height = Settings.Options.TheOptions.convertCurrentDielectricHeightUnitsToMils(Convert.ToDouble(tbCorePrepregHeight.Text));
+
             options.Dk = Convert.ToDouble(tbDk.Text);
             options.Df = Convert.ToDouble(tbDf.Text);
             options.resin_Dk = Convert.ToDouble(tbResin_Dk.Text);
             options.resin_Df = Convert.ToDouble(tbResin_Df.Text);
 
             //metal
-            options.trace_width = Convert.ToDouble(tbOuter_Diff_Trace_Width.Text);
-            options.trace_spacing = Convert.ToDouble(tbOuter_Trace_Spacing.Text);
+            options.trace_width = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuter_Diff_Trace_Width.Text), ZStringConstants.ParameterIDZo_TraceWidth);
+            options.trace_spacing = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuter_Trace_Spacing.Text), ZStringConstants.ParameterIDZo_TraceSpacing);
             options.etch = Convert.ToDouble(tbEtch.Text);
 
             //outer metal layers
             options.plating_thickness = Convert.ToDouble(cbPlating_Thickness.Text);
             options.base_trace_thickness = Convert.ToDouble(cbBase_Trace_Thickness.Text);
             options.roughness = Convert.ToDouble(tbRoughness.Text);
-            options.outer_trace_width = Convert.ToDouble(tbOuter_Trace_Width.Text);
-            options.outer_diff_trace_width = Convert.ToDouble(tbOuter_Diff_Trace_Width.Text);
-            options.outer_diff_trace_spacing = Convert.ToDouble(tbOuter_Trace_Spacing.Text);
+            options.outer_trace_width = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuter_Trace_Width.Text), ZStringConstants.ParameterIDZo_TraceWidth);
+            options.outer_diff_trace_width = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuter_Diff_Trace_Width.Text), ZStringConstants.ParameterIDZdiff_TraceWidth);
+            options.outer_diff_trace_spacing = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuter_Trace_Spacing.Text), ZStringConstants.ParameterIDZdiff_TraceSpacing);
 
             //inner metal layers
             options.copper_foil_thickness = Convert.ToDouble(cbCopper_Foil_Thickness.Text);
             options.laminate_side_roughness = Convert.ToDouble(tbLaminate_Side_Rougness.Text);
             options.prepreg_side_roughness = Convert.ToDouble(tbPrepreg_Side_Roughness.Text);
-            options.inner_trace_width = Convert.ToDouble(tbInner_Trace_Width.Text);
-            options.inner_diff_trace_width = Convert.ToDouble(tbInner_Diff_Trace_Width.Text);
-            options.inner_diff_trace_spacing = Convert.ToDouble(tbInner_Trace_Spacing.Text);
+            options.inner_trace_width = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbInner_Trace_Width.Text), ZStringConstants.ParameterIDZo_TraceWidth);
+            options.inner_diff_trace_width = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbInner_Diff_Trace_Width.Text), ZStringConstants.ParameterIDZdiff_TraceWidth);
+            options.inner_diff_trace_spacing = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbInner_Trace_Spacing.Text), ZStringConstants.ParameterIDZdiff_TraceSpacing);
 
             // copper foil thickness for copper weight
             options.copper_thickness_05oz = Convert.ToDouble(tbCopperThickness_05.Text);
@@ -244,7 +245,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
             io.WriteSettings(ref options);
         }
   
-       
         public void LoadOptions()
         {
 #if ZSANDBOX
@@ -256,6 +256,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             // units
             rbUnitsEnglish.Checked = (options.units == Options.Units.English);
+            rbUnitsMetric.Checked = (options.units == Options.Units.Metric);
 
             switch (options.dateFormat)
             {
@@ -327,12 +328,12 @@ namespace ZZero.ZPlanner.UI.Dialogs
             tbLicPaths.Text = options.LicensePath;
 
             //dielectric
-            tbDrill.Text = options.drill.ToString();
-            tbSoldermask_Height.Text = options.soldermask_height.ToString();
+            tbDrill.Text = Settings.Options.TheOptions.convertMilsToCurrentDrillDiameterUnits(options.drill).ToString();
+            tbSoldermask_Height.Text = Settings.Options.TheOptions.convertMilsToCurrentSolderMaskHeightUnits(options.soldermask_height).ToString();
             tbSoldermask_Dk.Text = options.soldermask_Dk.ToString();
             tbSoldermask_Df.Text = options.soldermask_Df.ToString();
 
-            tbHeight.Text = options.height.ToString();
+            tbCorePrepregHeight.Text = Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(options.height).ToString();
             tbDk.Text = options.Dk.ToString();
             tbDf.Text = options.Df.ToString();
             tbResin_Dk.Text = options.resin_Dk.ToString();
@@ -345,17 +346,17 @@ namespace ZZero.ZPlanner.UI.Dialogs
             SetFormatedValue(cbPlating_Thickness, options.plating_thickness.ToString(), options.weightDigits);
             SetFormatedValue(cbBase_Trace_Thickness, options.base_trace_thickness.ToString(), options.weightDigits);
             tbRoughness.Text = options.roughness.ToString();
-            tbOuter_Trace_Width.Text = options.outer_trace_width.ToString();
-            tbOuter_Diff_Trace_Width.Text = options.outer_diff_trace_width.ToString();
-            tbOuter_Trace_Spacing.Text = options.outer_diff_trace_spacing.ToString();
+            tbOuter_Trace_Width.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(options.outer_trace_width, ZStringConstants.ParameterIDZo_TraceWidth).ToString();
+            tbOuter_Diff_Trace_Width.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(options.outer_diff_trace_width, ZStringConstants.ParameterIDZdiff_TraceWidth).ToString();
+            tbOuter_Trace_Spacing.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(options.outer_diff_trace_spacing, ZStringConstants.ParameterIDZdiff_TraceSpacing).ToString();
 
             //inner metal layers
             SetFormatedValue(cbCopper_Foil_Thickness, options.copper_foil_thickness.ToString(), options.weightDigits);
             tbLaminate_Side_Rougness.Text = options.laminate_side_roughness.ToString();
             tbPrepreg_Side_Roughness.Text = options.prepreg_side_roughness.ToString();
-            tbInner_Trace_Width.Text = options.inner_trace_width.ToString();
-            tbInner_Diff_Trace_Width.Text = options.inner_diff_trace_width.ToString();
-            tbInner_Trace_Spacing.Text = options.inner_diff_trace_spacing.ToString();
+            tbInner_Trace_Width.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(options.inner_trace_width, ZStringConstants.ParameterIDZo_TraceWidth).ToString();
+            tbInner_Diff_Trace_Width.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(options.inner_diff_trace_width, ZStringConstants.ParameterIDZdiff_TraceWidth).ToString();
+            tbInner_Trace_Spacing.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(options.inner_diff_trace_spacing, ZStringConstants.ParameterIDZdiff_TraceSpacing).ToString();
 
             // copper foil thickness for copper weight
             SetFormatedValue(tbCopperThickness_05, options.copper_thickness_05oz.ToString(), options.lengthDigits);
@@ -455,20 +456,27 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            Options.Units oldUnits = Options.TheOptions.units;
             SaveOptions();
+            if (Options.TheOptions.units != oldUnits)
+                ZPlannerManager.UnitsChangedForEverywhere();
             this.DialogResult = DialogResult.OK;
             Close();
         }
 
         private void tbSoldermask_Height_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Solder Mask Height", 1.5, 50);
+            TextBoxValidator.CheckRange(sender, "Solder Mask Height",
+                Settings.Options.TheOptions.convertMilsToCurrentSolderMaskHeightUnits(1.5),  // convert to current units - the logic is the same as for board thickness
+                Settings.Options.TheOptions.convertMilsToCurrentSolderMaskHeightUnits(50));  // convert to current units - the logic is the same as for board thickness
 
         }
 
         private void tbHeight_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Core/Prepreg Height", 1.5, 50);
+            TextBoxValidator.CheckRange(sender, "Core/Prepreg Height",
+                Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(1.5),  // convert to current units - the logic is the same as for board thickness
+                Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(50));  // convert to current units - the logic is the same as for board thickness
         }
 
         private void tbWeightDigits_TextChanged(object sender, EventArgs e)
@@ -493,7 +501,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             {
                 SetFormatedValue(tbDrill, digitsNumber);
                 SetFormatedValue(tbSoldermask_Height, digitsNumber);
-                SetFormatedValue(tbHeight, digitsNumber);
+                SetFormatedValue(tbCorePrepregHeight, digitsNumber);
                 SetFormatedValue(tbOuter_Diff_Trace_Width, digitsNumber);
                 SetFormatedValue(tbOuter_Trace_Spacing, digitsNumber);
                 SetFormatedValue(tbOuter_Trace_Width, digitsNumber);

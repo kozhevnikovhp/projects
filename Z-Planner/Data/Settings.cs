@@ -3,7 +3,6 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using System.Xml;
-using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.Settings
@@ -43,6 +42,182 @@ namespace ZZero.ZPlanner.Settings
         public enum Units {English, Metric}
         public enum DateFormat {US, English, European} //MM/DD/YY, DD/MM/YY, YY/MM/DD
         public enum MetalThickness { Weight, Length} //oz, mils
+        public bool isUnitsEnglish() { return (this.units == Units.English); }
+        public bool isUnitsMetric() { return (this.units == Units.Metric); }
+
+        protected String getMetricMillimetersEnglishMilsUnits()
+        {
+            if (isUnitsMetric())
+                return "mm";
+            else if (isUnitsEnglish())
+                return "mils";
+
+            return ""; // unknown
+        }
+        protected String getMetricMikronsEnglishMilsUnits()
+        {
+            if (isUnitsMetric())
+                return "um";
+            else if (isUnitsEnglish())
+                return "mils";
+
+            return ""; // unknown
+        }
+
+
+        protected double convertMilsOrMillimetersToMils(double f)
+        {
+            if (isUnitsEnglish())
+                return f; // mils
+            // Assume units are metric (millimeters)
+            return f * Utils.Units.fMillimetersToMils;
+        }
+        protected double convertMilsToMilsOrMillimeters(double f)
+        {
+            if (isUnitsEnglish())
+                return f;
+            // Assume units are metric (millimeters)
+            return f * Utils.Units.fMilsToMillimeters;
+        }
+
+        protected double convertMilsToToMilsOrMikrons(double fMils)
+        {
+            if (isUnitsEnglish())
+                return fMils;
+            // Assume units are metric
+            return fMils * Utils.Units.fMilsToMikrons;
+        }
+        protected double convertMilsOrMikronsMikronsToMils(double fMillimeters)
+        {
+            if (isUnitsEnglish())
+                return fMillimeters;
+            // Assume units are metric
+            return fMillimeters * Utils.Units.fMikronsToMils;
+        }
+
+        public String getDrillDiameterUnits()
+        {
+            return getMetricMillimetersEnglishMilsUnits();
+        }
+        public double convertCurrentDrillDiameterUnitsToMils(double fDiameter)
+        {
+            return convertMilsOrMillimetersToMils(fDiameter);
+        }
+        public double convertMilsToCurrentDrillDiameterUnits(double fDiameter)
+        {
+            return convertMilsToMilsOrMillimeters(fDiameter);
+        }
+
+        public String getSolderMaskHeightCurrentUnits()
+        {
+            return getMetricMillimetersEnglishMilsUnits();
+        }
+        public double convertCurrentSolderMaskHeightUnitsToMils(double fHeight)
+        {
+            return convertMilsOrMillimetersToMils(fHeight);
+        }
+        public double convertMilsToCurrentSolderMaskHeightUnits(double fHeight)
+        {
+            return convertMilsToMilsOrMillimeters(fHeight);
+        }
+
+        public String getDielectricHeightCurrentUnits()
+        {
+            return getMetricMillimetersEnglishMilsUnits();
+        }
+        public double convertCurrentDielectricHeightUnitsToMils(double fHeight)
+        {
+            return convertMilsOrMillimetersToMils(fHeight);
+        }
+        public double convertMilsToCurrentDielectricHeightUnits(double fHeight)
+        {
+            return convertMilsToMilsOrMillimeters(fHeight);
+        }
+
+        public String getBoardThicknessCurrentUnits()
+        {
+            return getMetricMillimetersEnglishMilsUnits();
+        }
+        public double convertCurrentBoardThicknessUnitsToMils(double fThickness)
+        {
+            return convertMilsOrMillimetersToMils(fThickness);
+        }
+        public double convertMilsToCurrentBoardThicknessUnits(double fThickness)
+        {
+            return convertMilsToMilsOrMillimeters(fThickness);
+        }
+
+        public String getFoilThicknessUnits()
+        {
+            return getMetricMillimetersEnglishMilsUnits();
+        }
+        public double convertCurrentFoilThicknessUnitsToMils(double fDiameter)
+        {
+            return convertMilsOrMillimetersToMils(fDiameter);
+        }
+        public double convertMilsToCurrentFoilThicknessUnits(double fDiameter)
+        {
+            return convertMilsToMilsOrMillimeters(fDiameter);
+        }
+
+        // length/width/thickness parameters are supported, metric units support
+        public String getCurrentUnitsForParameter(string paramID)
+        {
+            string units = "mils";
+            switch (paramID)
+            {
+                case ZStringConstants.ParameterIDZo_TraceWidth:
+                case ZStringConstants.ParameterIDZo_TraceSpacing:
+                case ZStringConstants.ParameterIDZdiff_TraceWidth:
+                case ZStringConstants.ParameterIDZdiff_TraceSpacing:
+                    if (isUnitsMetric())
+                        units = "mm";
+                    break;
+            }
+
+            return units;
+        }
+        public double convertMilsToCurrentUnits(double fMils, string paramID)
+        {
+            if (isUnitsEnglish())
+                return fMils; // as is
+
+            double f = fMils;
+            switch (paramID)
+            {
+                case ZStringConstants.ParameterIDZo_TraceWidth:
+                case ZStringConstants.ParameterIDZo_TraceSpacing:
+                case ZStringConstants.ParameterIDZdiff_TraceWidth:
+                case ZStringConstants.ParameterIDZdiff_TraceSpacing:
+                    f = convertMilsToMilsOrMillimeters(fMils);
+                    break;
+            }
+
+            return f;
+        }
+        public double convertCurrentUnitsToMils(double f, string paramID)
+        {
+            if (isUnitsEnglish())
+                return f; // as is
+
+            double fMils = f;
+            switch (paramID)
+            {
+                case ZStringConstants.ParameterIDZo_TraceWidth:
+                case ZStringConstants.ParameterIDZo_TraceSpacing:
+                case ZStringConstants.ParameterIDZdiff_TraceWidth:
+                case ZStringConstants.ParameterIDZdiff_TraceSpacing:
+                    fMils = convertMilsOrMillimetersToMils(f);
+                    break;
+            }
+
+            return fMils;
+        }
+
+        public string getLinearParameterTextFormat()
+        {
+            return isUnitsEnglish() ? "N1" : "N2";
+        }
 
         [DataMember(Name = "DataFormatUnits")]
         public Units units;
@@ -427,14 +602,14 @@ namespace ZZero.ZPlanner.Settings
             allowZZeroSynchronization = true;
 
             // Stackup
-            allowStackupSwitches = false;
+            allowStackupSwitches = true;
 
             // Auto-save
             autosaveInterval = 10;
 
             // DRC Errors/Warnings
-            displayDRCErrors = false;
-            displayDRCWarnings = false;
+            displayDRCErrors = true;
+            displayDRCWarnings = true;
 
             // Switches
             enabledIsRoughness = false;

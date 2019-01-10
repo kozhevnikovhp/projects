@@ -5,7 +5,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using System.Text;
 //
 using ClosedXML.Excel;
-using Microsoft.Office.Interop.Excel;
+//using Microsoft.Office.Interop.Excel;
 //
 using ZZero.ZPlanner;
 using ZZero.ZPlanner.Data;
@@ -71,7 +71,7 @@ namespace ZZero.ZPlanner.Translators
         private ZSingle single;
         private ZPair   pair;
         private HashSet<int> skipped_rows;
-        private Dictionary<string, string> ref_layers; //ID - references
+        private HashSet<int> ref_layers;
         
         private int iPlating;
         private double[] plating_thick;
@@ -82,7 +82,7 @@ namespace ZZero.ZPlanner.Translators
             skipped_rows = new HashSet<int>();
             iPlating = 0;
             plating_thick = new double[2];
-            ref_layers = new Dictionary<string, string>();
+            ref_layers = new HashSet<int>();
         }
 
         public bool Import()
@@ -112,14 +112,14 @@ namespace ZZero.ZPlanner.Translators
 
             try
             {
-                var application = new Microsoft.Office.Interop.Excel.Application();
-                var workbook = application.Workbooks.Open(origFile);
-                if (File.Exists(retFile))
-                {
-                    File.Delete(retFile);
-                }
-                workbook.SaveAs(retFile, XlFileFormat.xlOpenXMLWorkbook);
-                workbook.Close();
+               // var application = new Microsoft.Office.Interop.Excel.Application();
+               // var workbook = application.Workbooks.Open(origFile);
+               // if (File.Exists(retFile))
+               // {
+               ////     File.Delete(retFile);
+               //// }
+               ///// workbook.SaveAs(retFile, XlFileFormat.xlOpenXMLWorkbook);
+               // workbook.Close();
             }
             catch (Exception e)
             {
@@ -154,22 +154,6 @@ namespace ZZero.ZPlanner.Translators
                 if (parameter.SubParameters != null && parameter.SubParameters.Count > 0) project.SubParameters.AddRange(parameter.SubParameters);
             }
 
-            //add additional Tapestry data ===============================================
-            int iLastParameter = project.Parameters.Count - 1;
-            int order = project.Parameters[iLastParameter].Order;
-
-            ZParameter par = new ZParameter(ZStringConstants.ParameterIDPlaneVoltage);
-            par.Title = "Plane Voltage";
-            par.Description = "Comma separated list of plane voltages or Gnd for ground";
-            par.Table = ZTableType.Stackup;
-            par.ValueType = ZValueType.Text;
-            par.IsReadOnly = true;
-            par.IsCustom = true;
-            par.Width = 70;
-            par.Order = order++;
-            project.Parameters.Add(par);
-            //============================================================================
-
             // parse file
             Translate(stackup);
 
@@ -182,7 +166,6 @@ namespace ZZero.ZPlanner.Translators
 
             //ui
             ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
-            ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
 
             ZPlannerManager.ResumeFSHandlers();
             return true;
@@ -191,7 +174,6 @@ namespace ZZero.ZPlanner.Translators
 
         private void UpdateRefPlanes()
         {
-            /*
             if (ref_layers.Count > 0){
                 int metalIdx = 0;
                 foreach (ZLayer zl in stackup.Layers)
@@ -205,7 +187,6 @@ namespace ZZero.ZPlanner.Translators
                     }
                 }
             }
-             */
         }
 
         private void UpdatePlating()
@@ -400,7 +381,6 @@ namespace ZZero.ZPlanner.Translators
             int num = ReadInt(iRow, iLayerNum);
             string description = ReadString(iRow, sDescription);
             double dielThick = ReadDouble(iRow, dDielThick);
-            double cuDensity = ReadDouble(iRow, dCuDensity);
             double cuWeight = ReadDouble(iRow, dCuWieght);
             string name = ReadString(iRow, sName);
             string metalType = ReadString(iRow, sType);
@@ -411,7 +391,6 @@ namespace ZZero.ZPlanner.Translators
             double thickness = ReadDouble(iRow, dFinishedThickness);
             double Dk = ReadDouble(iRow, dDkVendor);
             double Df = ReadDouble(iRow, dDfVendor);
-            string planeVoltage = ReadString(iRow, sPlaneVoltage);
 
             //fill in layer parameters
             if (name.Length > 0)
@@ -457,6 +436,19 @@ namespace ZZero.ZPlanner.Translators
                 return;
             }
 
+            if (refPlanes.Length > 0)
+            {
+                string[] r = refPlanes.Split(',');
+                foreach(string s in r){
+                    int n = 0;
+                    if (Int32.TryParse(s, out n)){
+                        if (n > 0 && !ref_layers.Contains(n)){
+                            ref_layers.Add(n);
+                        }
+                    }                   
+                }
+            }
+
             if (material.Length > 0)
             {
                 parMap.Add(ZStringConstants.ParameterIDMaterial, material);
@@ -480,17 +472,6 @@ namespace ZZero.ZPlanner.Translators
             {
                 parMap.Add(ZStringConstants.ParameterIDCopperThickness, cuWeight.ToString());
             }
-
-            if (cuDensity > 0)
-            {
-                parMap.Add(ZStringConstants.ParameterIDCopperPercent, cuDensity.ToString());
-            }
-
-            if (planeVoltage.Length > 0)
-            {
-                parMap.Add(ZStringConstants.ParameterIDPlaneVoltage, planeVoltage);
-            }
-
             if (resin.Length > 0)
             {
                 string[] r = resin.Split('/');
@@ -500,19 +481,10 @@ namespace ZZero.ZPlanner.Translators
             {
                 parMap.Add(ZStringConstants.ParameterIDConstruction, construction);
             }
-
-            if (planeVoltage.Length > 0){
-                parMap.Add("1", planeVoltage);
-            }
             //set actual parameters
             ZLayerType zType = (ZLayerType)lType;
             string layerID = stackup.AddLayer(zType);
             ZLayer zLayer = stackup.GetLayerOfStackup(layerID);
-
-            if (refPlanes.Length > 0)
-            {
-                ref_layers.Add(layerID, refPlanes);
-            }
 
             foreach (KeyValuePair<string, string> kvp in parMap)
             {
@@ -606,39 +578,6 @@ namespace ZZero.ZPlanner.Translators
 
             
             ZLayer zLayer = single.GetLayerOfSingleImpedance(iLayIndex - 1);
-            ZLayer L = stackup.GetLayerOfStackup(zLayer.ID);
-            int iLay = -1;
-            if (ZPlannerProject.GetLayerParameterValue(L, ZStringConstants.ParameterIDLayerNumber, ref iLay) && iLay > 0)
-            {
-                string ID = zLayer.ID;
-                if (ref_layers.ContainsKey(ID))
-                {
-                    string[] refs = ref_layers[ID].Split(',');
-                    if (refs.Length > 0)
-                    {
-                        foreach (string s in refs)
-                        {
-                            int n = -1;
-                            if (Int32.TryParse(s, out n))
-                            {
-                                ZLayer referenceLayer = stackup.Layers.Find(x => x.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber) == n.ToString());
-                                if (referenceLayer != null)
-                                {
-                                    if (n < iLay)
-                                    {
-                                        parMap.Add(ZStringConstants.ParameterIDZo_TopReference, referenceLayer.ID);
-                                    }
-                                    else
-                                    {
-                                        parMap.Add(ZStringConstants.ParameterIDZo_BottomReference, referenceLayer.ID);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
             foreach (KeyValuePair<string, string> kvp in parMap)
             {
                 ZLayerParameter layerParameter = zLayer.GetLayerParameter(kvp.Key);
@@ -727,40 +666,6 @@ namespace ZZero.ZPlanner.Translators
             }
 
             ZLayer zLayer = pair.GetLayerOfPairImpedance(iLayIndex - 1);
-
-            ZLayer L = stackup.GetLayerOfStackup(zLayer.ID);
-            int iLay = -1;
-            if (ZPlannerProject.GetLayerParameterValue(L, ZStringConstants.ParameterIDLayerNumber, ref iLay) && iLay > 0)
-            {
-                string ID = zLayer.ID;
-                if (ref_layers.ContainsKey(ID))
-                {
-                    string[] refs = ref_layers[ID].Split(',');
-                    if (refs.Length > 0)
-                    {
-                        foreach (string s in refs)
-                        {
-                            int n = -1;
-                            if (Int32.TryParse(s, out n))
-                            {
-                                ZLayer referenceLayer = stackup.Layers.Find(x => x.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber) == n.ToString());
-                                if (referenceLayer != null)
-                                {
-                                    if (n < iLay)
-                                    {
-                                        parMap.Add(ZStringConstants.ParameterIDZdiff_TopReference, referenceLayer.ID);
-                                    }
-                                    else
-                                    {
-                                        parMap.Add(ZStringConstants.ParameterIDZdiff_BottomReference, referenceLayer.ID);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             foreach (KeyValuePair<string, string> kvp in parMap)
             {
                 ZLayerParameter layerParameter = zLayer.GetLayerParameter(kvp.Key);

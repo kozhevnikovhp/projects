@@ -77,12 +77,12 @@ namespace ZZero.ZPlanner.UI
             cbPlatingWeight.Text = "0.5";
 
             string wFormat = "N" + Options.TheOptions.lengthDigits;
-            tbOuterMetalWidth.Text = Options.TheOptions.outer_trace_width.ToString(wFormat);
-            tbOuterMetalDiffWidth.Text = Options.TheOptions.outer_diff_trace_width.ToString(wFormat);
-            tbOuterMetalDiffSpacing.Text = Options.TheOptions.outer_diff_trace_spacing.ToString(wFormat);
-            tbInnerMetalWidth.Text = Options.TheOptions.inner_trace_width.ToString(wFormat);
-            tbInnerMetalDiffWidth.Text = Options.TheOptions.inner_diff_trace_width.ToString(wFormat);
-            tbInnerMetalDiffSpacing.Text = Options.TheOptions.inner_diff_trace_spacing.ToString(wFormat);
+            tbOuterMetalWidth.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(Options.TheOptions.outer_trace_width, ZStringConstants.ParameterIDZo_TraceWidth).ToString(wFormat);
+            tbOuterMetalDiffWidth.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(Options.TheOptions.outer_diff_trace_width, ZStringConstants.ParameterIDZdiff_TraceWidth).ToString(wFormat);
+            tbOuterMetalDiffSpacing.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(Options.TheOptions.outer_diff_trace_spacing, ZStringConstants.ParameterIDZdiff_TraceSpacing).ToString(wFormat);
+            tbInnerMetalWidth.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(Options.TheOptions.inner_trace_width, ZStringConstants.ParameterIDZo_TraceWidth).ToString(wFormat);
+            tbInnerMetalDiffWidth.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(Options.TheOptions.inner_diff_trace_width, ZStringConstants.ParameterIDZdiff_TraceWidth).ToString(wFormat);
+            tbInnerMetalDiffSpacing.Text = Settings.Options.TheOptions.convertMilsToCurrentUnits(Options.TheOptions.inner_diff_trace_spacing, ZStringConstants.ParameterIDZdiff_TraceSpacing).ToString(wFormat);
 
 
             rbGeneric.Checked = true;
@@ -98,7 +98,8 @@ namespace ZZero.ZPlanner.UI
             cbUpperDf.Text = "0.020 - Standard Loss";
             cbLowerDf.Text = "0";
 
-            tbDielectricHeight.Text = Options.TheOptions.height.ToString();
+            // thickness in mils -> convert to current units
+            tbDielectricHeight.Text = Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(Options.TheOptions.height).ToString("N2");
 
             cbPlies.Text = "1";
             cbParsPlies.Text = "1";
@@ -126,7 +127,10 @@ namespace ZZero.ZPlanner.UI
             theWizard.numberSeqLam = Convert.ToInt32(cbSeqLam.SelectedItem);
             theWizard.numberOfLayers = Convert.ToInt32(cbNumberOfLayers.SelectedItem) + 2*theWizard.numberSeqLam;
             theWizard.numberSeqLam = Convert.ToInt32(cbSeqLam.SelectedItem);
+            // Current units...
             theWizard.targetBoardWidth = tbTargetBoardThickness.Text == String.Empty ? 0 : Convert.ToDouble(tbTargetBoardThickness.Text);
+            // ...recalculate to mils
+            theWizard.targetBoardWidth = Settings.Options.TheOptions.convertCurrentBoardThicknessUnitsToMils(theWizard.targetBoardWidth);
 
             theWizard.signals.Clear();
             theWizard.splitMixed.Clear();
@@ -171,12 +175,12 @@ namespace ZZero.ZPlanner.UI
                     break;
             }
 
-            theWizard.outerMetalWidth = Convert.ToDouble(tbOuterMetalWidth.Text);
-            theWizard.outerMetalDiffWidth = Convert.ToDouble(tbOuterMetalDiffWidth.Text);
-            theWizard.outerMetalDiffSpacing = Convert.ToDouble(tbOuterMetalDiffSpacing.Text);
-            theWizard.innerMetalWidth = Convert.ToDouble(tbInnerMetalWidth.Text);
-            theWizard.innerMetalDiffWidth = Convert.ToDouble(tbInnerMetalDiffWidth.Text);
-            theWizard.innerMetalDiffSpacing = Convert.ToDouble(tbInnerMetalDiffSpacing.Text);
+            theWizard.outerMetalWidth = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuterMetalWidth.Text), ZStringConstants.ParameterIDZo_TraceWidth);
+            theWizard.outerMetalDiffWidth =  Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuterMetalDiffWidth.Text), ZStringConstants.ParameterIDZdiff_TraceWidth);
+            theWizard.outerMetalDiffSpacing =  Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbOuterMetalDiffSpacing.Text), ZStringConstants.ParameterIDZdiff_TraceSpacing);
+            theWizard.innerMetalWidth =  Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbInnerMetalWidth.Text), ZStringConstants.ParameterIDZo_TraceWidth);
+            theWizard.innerMetalDiffWidth = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbInnerMetalDiffWidth.Text), ZStringConstants.ParameterIDZdiff_TraceWidth);
+            theWizard.innerMetalDiffSpacing = Settings.Options.TheOptions.convertCurrentUnitsToMils(Convert.ToDouble(tbInnerMetalDiffSpacing.Text), ZStringConstants.ParameterIDZdiff_TraceSpacing);
 
 
             // pageDielectrics
@@ -200,7 +204,10 @@ namespace ZZero.ZPlanner.UI
             theWizard.targetDk = tbTargetDk.Text == String.Empty ? 0 : Convert.ToDouble(tbTargetDk.Text);
             theWizard.targetDf = tbTargetDf.Text == String.Empty ? 0 : Convert.ToDouble(tbTargetDf.Text);
             theWizard.specifyDielectricHeight = rbSpecifyDielectricHeight.Checked;
+            // Current units...
             theWizard.dielectricHeight = tbDielectricHeight.Text == String.Empty ? 0 : Convert.ToDouble(tbDielectricHeight.Text);
+            // ...recalculate to mils
+            theWizard.dielectricHeight = Settings.Options.TheOptions.convertCurrentDielectricHeightUnitsToMils(theWizard.dielectricHeight);
 
             //pageManufacturerDielectric            
             theWizard.manufacturerList.Clear();
@@ -477,7 +484,8 @@ namespace ZZero.ZPlanner.UI
 
                     //board thickness estimate
                     theWizard.EstimateBoardThickness();
-                    tbTargetBoardThickness.Text = theWizard.targetBoardWidth.ToString("N1"); 
+                    // thickness in mils -> convert to current units
+                    tbTargetBoardThickness.Text = Settings.Options.TheOptions.convertMilsToCurrentBoardThicknessUnits(theWizard.targetBoardWidth).ToString("N1");
                     break;
                 case WizardData.State.pageManufacturerDielectric:
                     btnNext.Enabled = theWizard.selManufacturer != theFirstManufacturer;
@@ -523,7 +531,6 @@ namespace ZZero.ZPlanner.UI
                     ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
 
                     if (commentsShouldBeDisplayed) ShowComments();
-                    ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
                     ZPlannerManager.StatusMenu.SetStatusReady();
                     ZPlannerManager.MessagePanel.AddMessage(ZPlannerManager.Project.Stackup.GetMetallLayerCount() + " layer Stackup was created.");
 
@@ -770,12 +777,6 @@ namespace ZZero.ZPlanner.UI
 
         }
 
-
-        private void tbTargetBoardThickness_Validating(object sender, CancelEventArgs e)
-        {
-            TextBoxValidator.CheckRange(sender, "Thickness", 0.5, 100);
-        }
-
         private void tbSignalTraceWidth_Validating(object sender, CancelEventArgs e)
         {
             TextBoxValidator.CheckRange(sender, "Trace width", 0.5, 100);
@@ -793,14 +794,11 @@ namespace ZZero.ZPlanner.UI
 
         private void tbDielectricHeight_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Dielectric Height", 1.5, 50);
+            TextBoxValidator.CheckRange(sender, "Dielectric Height",
+                Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(1.5),        // convert mils to current units
+                Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(50));        // convert mils to current units
         }
-
-        private void tbThickness_DielectricHeight_Validating(object sender, CancelEventArgs e)
-        {
-            TextBoxValidator.CheckRange(sender, "Dielectric Height", 1.5, 50);
-        }
-
+            
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
@@ -983,9 +981,11 @@ namespace ZZero.ZPlanner.UI
             tbDielectricHeight.Enabled = rbSpecifyDielectricHeight.Checked;
         }
 
-        private void tbTargetBoardThickness_Validating_1(object sender, CancelEventArgs e)
+        private void tbTargetBoardThickness_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Board Thickness", 10, 300);
+            TextBoxValidator.CheckRange(sender, "Board Thickness",
+                Settings.Options.TheOptions.convertMilsToCurrentBoardThicknessUnits(10),        // convert mils to current units
+                Settings.Options.TheOptions.convertMilsToCurrentBoardThicknessUnits(300));        // convert mils to current units
         }
 
         private void suggestPlanes()
@@ -1011,12 +1011,16 @@ namespace ZZero.ZPlanner.UI
 
         private void tbOuterMetalWidth_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Trace width", 0.5, 100);
+            TextBoxValidator.CheckRange(sender, "Trace width",
+                Settings.Options.TheOptions.convertMilsToCurrentUnits(0.5, ZStringConstants.ParameterIDZo_TraceWidth),        // convert mils to current units
+                Settings.Options.TheOptions.convertMilsToCurrentUnits(100, ZStringConstants.ParameterIDZo_TraceWidth));        // convert mils to current units
         }
 
         private void tbOuterMetalDiffSpacing_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Trace spacing", 0.5, 100);
+            TextBoxValidator.CheckRange(sender, "Trace spacing",
+                Settings.Options.TheOptions.convertMilsToCurrentUnits(0.5, ZStringConstants.ParameterIDZdiff_TraceSpacing),        // convert mils to current units
+                Settings.Options.TheOptions.convertMilsToCurrentUnits(100, ZStringConstants.ParameterIDZdiff_TraceSpacing));        // convert mils to current units
         }
 
         private void cbPrepregs_SelectedIndexChanged(object sender, EventArgs e)

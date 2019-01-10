@@ -40,7 +40,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\</OutputPath>
@@ -220,6 +220,7 @@
     <Compile Include="Data\Entities\ZEntity.cs" />
     <Compile Include="Data\ODBPP_IO.cs" />
     <Compile Include="Data\Properties\AspectRatioTypeConverter.cs" />
+    <Compile Include="Data\Properties\DoubleTypeUnitsConverter.cs" />
     <Compile Include="Data\Properties\DoubleTypeConverter.cs" />
     <Compile Include="Data\Properties\FrequencyTypeConverter.cs" />
     <Compile Include="Data\Properties\ListTypeConverter.cs" />

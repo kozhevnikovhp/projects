@@ -30,6 +30,11 @@ namespace ZZero.ZPlanner.UI
             this.VisibleChanged += ZPlannerManager.Panel_VisibleChanged;
         }
 
+        public void UnitsChanged()
+        {
+            UpdateProperties();
+        }
+
         void gridView_SizeChanged(object sender, EventArgs e)
         {
             int gridWidth = gridView.Size.Width;
@@ -89,7 +94,7 @@ namespace ZZero.ZPlanner.UI
                     switch (layerParameter.ID)
                     {
                         case ZStringConstants.ParameterIDThickness:
-                            layerParameter.SetEditedValue(e.ChangedItem.Value.ToString());
+                            layerParameter.SetEditedValue(e.ChangedItem.Value.ToString()); //EvgenyK!
                             break;
                         default:
                             layerParameter.Value = e.ChangedItem.Value.ToString();

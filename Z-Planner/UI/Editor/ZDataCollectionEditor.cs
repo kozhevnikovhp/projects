@@ -145,7 +145,7 @@ namespace ZZero.ZPlanner.UI.Editor
 
         private string GetDisplayText(ZEntity item)
         {
-            return (item == null) ? String.Empty : item.Title.ToString();
+            return (item == null) ? String.Empty : item.ToString();
         }
 
         private object CreateInstance(ZDynamicCollection collectionObject)

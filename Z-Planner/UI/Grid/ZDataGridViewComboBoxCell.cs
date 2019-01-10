@@ -102,73 +102,6 @@ namespace ZZero.ZPlanner.UI.Grid
         protected override object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
         {
             ZParameter parameter = this.OwningColumn.Tag as ZParameter;
-
-            if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
-            {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
-                string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                if (isUsed != null && isUsed.ToLower() != "true") return string.Empty;
-
-                ZLayer layer = value as ZLayer;
-                if (layer == null) return string.Empty;
-                return layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-            }
-
-            if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference)
-            {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
-                string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
-                if (isUsed != null && isUsed.ToLower() != "true") return string.Empty;
-
-                ZLayer layer = value as ZLayer;
-                if (layer == null) return string.Empty;
-                return layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-            }
-
-            /*if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference)
-            {
-                ZLayer layer = this.OwningRow.Tag as ZLayer;
-                ZLayer.PlaneReferences references;
-                if (layer != null && layer.GetPlaneReferences(out references))
-                {
-                    if (!references.refsUp.Contains(value))
-                    {
-                        SetValue(rowIndex, references.defUp);
-                        value = references.defUp;
-                    }
-                }
-
-                ZLayer referenceLayer = value as ZLayer;
-                if (referenceLayer == null) return string.Empty;
-
-                string referenceLayerNumber = referenceLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-                return referenceLayerNumber;
-            }
-
-            if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference ||
-                this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
-            {
-                ZLayer layer = this.OwningRow.Tag as ZLayer;
-                ZLayer.PlaneReferences references;
-                if (layer != null && layer.GetPlaneReferences(out references))
-                {
-                    if (!references.refsDown.Contains(value))
-                    {
-                        SetValue(rowIndex, references.defDown);
-                        value = references.defDown;
-                    }
-                }
-
-                ZLayer referenceLayer = value as ZLayer;
-                if (referenceLayer == null) return string.Empty;
-
-                string referenceLayerNumber = referenceLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-                return referenceLayerNumber;
-            }*/
-
             if (parameter != null && parameter.List != null && parameter.List.GetValues().Count > 0)
             {
                 if (!string.IsNullOrWhiteSpace(value as string) && !parameter.List.GetValues().Contains(value))
@@ -464,31 +397,6 @@ namespace ZZero.ZPlanner.UI.Grid
             switch (e.PropertyName)
             {
                 case "Value":
-                    if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
-                        this.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference ||
-                        this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
-                        this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
-                    {
-                        if (!string.IsNullOrWhiteSpace(layerParameter.Value))
-                        {
-                            ZLayer layer = layerParameter.Layer.Stackup.GetLayerOfStackup(layerParameter.Value);
-                            /*if (layer != null)
-                            {
-                                string value = layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-                                this.Value = value;
-                            }*/
-                            if (layer != null)
-                            {
-                                this.Value = layer;
-                            }
-                            else
-                            {
-                                this.Value = string.Empty;
-                            }
-                            break;
-                        }
-                    }
-
                     this.Value = layerParameter.Value;
                     break;
                 default:

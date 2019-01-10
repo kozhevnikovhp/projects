@@ -32,25 +32,13 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DiffToolDialog));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.comboBoxSingles1 = new System.Windows.Forms.ComboBox();
-            this.comboBoxPairs1 = new System.Windows.Forms.ComboBox();
             this.dataGridView1 = new ZZero.ZPlanner.UI.Grid.ZDataGridView();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBoxTotalThickness1 = new System.Windows.Forms.TextBox();
             this.textBoxFile1 = new System.Windows.Forms.TextBox();
             this.buttonFile1 = new System.Windows.Forms.Button();
-            this.comboBoxSingles2 = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.comboBoxPairs2 = new System.Windows.Forms.ComboBox();
             this.dataGridView2 = new ZZero.ZPlanner.UI.Grid.ZDataGridView();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
             this.textBoxFile2 = new System.Windows.Forms.TextBox();
-            this.textBoxTotalThickness2 = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
             this.buttonFile2 = new System.Windows.Forms.Button();
             this.panelHeader = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -64,7 +52,6 @@
             this.checkBoxTileHorizontal = new System.Windows.Forms.CheckBox();
             this.lProduct = new System.Windows.Forms.Label();
             this.panelContent = new System.Windows.Forms.Panel();
-            this.labelRedText = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -87,54 +74,22 @@
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.comboBoxSingles1);
-            this.splitContainer.Panel1.Controls.Add(this.comboBoxPairs1);
             this.splitContainer.Panel1.Controls.Add(this.dataGridView1);
-            this.splitContainer.Panel1.Controls.Add(this.label6);
-            this.splitContainer.Panel1.Controls.Add(this.label5);
-            this.splitContainer.Panel1.Controls.Add(this.label9);
             this.splitContainer.Panel1.Controls.Add(this.label1);
-            this.splitContainer.Panel1.Controls.Add(this.textBoxTotalThickness1);
             this.splitContainer.Panel1.Controls.Add(this.textBoxFile1);
             this.splitContainer.Panel1.Controls.Add(this.buttonFile1);
             // 
             // splitContainer.Panel2
             // 
-            this.splitContainer.Panel2.Controls.Add(this.comboBoxSingles2);
             this.splitContainer.Panel2.Controls.Add(this.label2);
-            this.splitContainer.Panel2.Controls.Add(this.comboBoxPairs2);
             this.splitContainer.Panel2.Controls.Add(this.dataGridView2);
-            this.splitContainer.Panel2.Controls.Add(this.label8);
-            this.splitContainer.Panel2.Controls.Add(this.label10);
             this.splitContainer.Panel2.Controls.Add(this.textBoxFile2);
-            this.splitContainer.Panel2.Controls.Add(this.textBoxTotalThickness2);
-            this.splitContainer.Panel2.Controls.Add(this.label7);
             this.splitContainer.Panel2.Controls.Add(this.buttonFile2);
             this.splitContainer.Size = new System.Drawing.Size(1420, 716);
             this.splitContainer.SplitterDistance = 357;
             this.splitContainer.SplitterWidth = 2;
             this.splitContainer.TabIndex = 0;
             this.splitContainer.Resize += new System.EventHandler(this.splitContainer_Resize);
-            // 
-            // comboBoxSingles1
-            // 
-            this.comboBoxSingles1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxSingles1.DropDownWidth = 120;
-            this.comboBoxSingles1.FormattingEnabled = true;
-            this.comboBoxSingles1.Location = new System.Drawing.Point(1130, 37);
-            this.comboBoxSingles1.Name = "comboBoxSingles1";
-            this.comboBoxSingles1.Size = new System.Drawing.Size(70, 21);
-            this.comboBoxSingles1.TabIndex = 9;
-            // 
-            // comboBoxPairs1
-            // 
-            this.comboBoxPairs1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxPairs1.DropDownWidth = 120;
-            this.comboBoxPairs1.FormattingEnabled = true;
-            this.comboBoxPairs1.Location = new System.Drawing.Point(1312, 37);
-            this.comboBoxPairs1.Name = "comboBoxPairs1";
-            this.comboBoxPairs1.Size = new System.Drawing.Size(70, 21);
-            this.comboBoxPairs1.TabIndex = 9;
             // 
             // dataGridView1
             // 
@@ -160,47 +115,17 @@
             this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView1.DefaultDateTimeGrouping = ZZero.ZPlanner.UI.Grid.ZDataGridViewFilterMenuDateTimeGrouping.Second;
             this.dataGridView1.FilterString = "";
-            this.dataGridView1.Location = new System.Drawing.Point(0, 64);
+            this.dataGridView1.Location = new System.Drawing.Point(0, 43);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersWidth = 56;
-            this.dataGridView1.Size = new System.Drawing.Size(1420, 290);
+            this.dataGridView1.Size = new System.Drawing.Size(1420, 311);
             this.dataGridView1.SortString = "";
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGridView1_CellStateChanged);
             this.dataGridView1.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.dataGridView1_RowStateChanged);
             this.dataGridView1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridView1_Scroll);
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label6.Location = new System.Drawing.Point(1028, 36);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(100, 20);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "Sinle-ended signal:";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.Location = new System.Drawing.Point(1210, 36);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(100, 20);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Differential signal:";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label9
-            // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label9.Location = new System.Drawing.Point(846, 36);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(92, 20);
-            this.label9.TabIndex = 8;
-            this.label9.Text = "Board Thickness:";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label1
             // 
@@ -210,16 +135,6 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "Select first Stackup file for comparison:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // textBoxTotalThickness1
-            // 
-            this.textBoxTotalThickness1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxTotalThickness1.ForeColor = System.Drawing.Color.Red;
-            this.textBoxTotalThickness1.Location = new System.Drawing.Point(943, 37);
-            this.textBoxTotalThickness1.Name = "textBoxTotalThickness1";
-            this.textBoxTotalThickness1.ReadOnly = true;
-            this.textBoxTotalThickness1.Size = new System.Drawing.Size(70, 20);
-            this.textBoxTotalThickness1.TabIndex = 0;
             // 
             // textBoxFile1
             // 
@@ -242,16 +157,6 @@
             this.buttonFile1.UseVisualStyleBackColor = true;
             this.buttonFile1.Click += new System.EventHandler(this.buttonFile1_Click);
             // 
-            // comboBoxSingles2
-            // 
-            this.comboBoxSingles2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxSingles2.DropDownWidth = 120;
-            this.comboBoxSingles2.FormattingEnabled = true;
-            this.comboBoxSingles2.Location = new System.Drawing.Point(1130, 37);
-            this.comboBoxSingles2.Name = "comboBoxSingles2";
-            this.comboBoxSingles2.Size = new System.Drawing.Size(70, 21);
-            this.comboBoxSingles2.TabIndex = 9;
-            // 
             // label2
             // 
             this.label2.Location = new System.Drawing.Point(3, 10);
@@ -260,16 +165,6 @@
             this.label2.TabIndex = 8;
             this.label2.Text = "Select second Stackup file for comparison:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // comboBoxPairs2
-            // 
-            this.comboBoxPairs2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxPairs2.DropDownWidth = 120;
-            this.comboBoxPairs2.FormattingEnabled = true;
-            this.comboBoxPairs2.Location = new System.Drawing.Point(1312, 37);
-            this.comboBoxPairs2.Name = "comboBoxPairs2";
-            this.comboBoxPairs2.Size = new System.Drawing.Size(70, 21);
-            this.comboBoxPairs2.TabIndex = 9;
             // 
             // dataGridView2
             // 
@@ -295,37 +190,17 @@
             this.dataGridView2.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView2.DefaultDateTimeGrouping = ZZero.ZPlanner.UI.Grid.ZDataGridViewFilterMenuDateTimeGrouping.Second;
             this.dataGridView2.FilterString = "";
-            this.dataGridView2.Location = new System.Drawing.Point(0, 64);
+            this.dataGridView2.Location = new System.Drawing.Point(0, 43);
             this.dataGridView2.MultiSelect = false;
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.ReadOnly = true;
             this.dataGridView2.RowHeadersWidth = 56;
-            this.dataGridView2.Size = new System.Drawing.Size(1420, 314);
+            this.dataGridView2.Size = new System.Drawing.Size(1420, 323);
             this.dataGridView2.SortString = "";
             this.dataGridView2.TabIndex = 0;
             this.dataGridView2.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGridView2_CellStateChanged);
             this.dataGridView2.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.dataGridView2_RowStateChanged);
             this.dataGridView2.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridView2_Scroll);
-            // 
-            // label8
-            // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label8.Location = new System.Drawing.Point(1028, 36);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(100, 20);
-            this.label8.TabIndex = 8;
-            this.label8.Text = "Sinle-ended signal:";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.Location = new System.Drawing.Point(846, 36);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(92, 20);
-            this.label10.TabIndex = 8;
-            this.label10.Text = "Board Thickness:";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // textBoxFile2
             // 
@@ -336,25 +211,6 @@
             this.textBoxFile2.ReadOnly = true;
             this.textBoxFile2.Size = new System.Drawing.Size(1156, 20);
             this.textBoxFile2.TabIndex = 2;
-            // 
-            // textBoxTotalThickness2
-            // 
-            this.textBoxTotalThickness2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxTotalThickness2.Location = new System.Drawing.Point(943, 37);
-            this.textBoxTotalThickness2.Name = "textBoxTotalThickness2";
-            this.textBoxTotalThickness2.ReadOnly = true;
-            this.textBoxTotalThickness2.Size = new System.Drawing.Size(70, 20);
-            this.textBoxTotalThickness2.TabIndex = 0;
-            // 
-            // label7
-            // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label7.Location = new System.Drawing.Point(1210, 36);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(100, 20);
-            this.label7.TabIndex = 8;
-            this.label7.Text = "Differential signal:";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // buttonFile2
             // 
@@ -497,10 +353,10 @@
             this.lProduct.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lProduct.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lProduct.Location = new System.Drawing.Point(422, 6);
+            this.lProduct.Location = new System.Drawing.Point(12, 6);
             this.lProduct.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lProduct.Name = "lProduct";
-            this.lProduct.Size = new System.Drawing.Size(600, 19);
+            this.lProduct.Size = new System.Drawing.Size(1420, 19);
             this.lProduct.TabIndex = 31;
             this.lProduct.Text = "Z-zero";
             this.lProduct.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -512,22 +368,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelContent.Controls.Add(this.splitContainer);
             this.panelContent.Controls.Add(this.lProduct);
-            this.panelContent.Controls.Add(this.labelRedText);
             this.panelContent.Location = new System.Drawing.Point(0, 38);
             this.panelContent.Name = "panelContent";
             this.panelContent.Size = new System.Drawing.Size(1444, 742);
             this.panelContent.TabIndex = 2;
-            // 
-            // labelRedText
-            // 
-            this.labelRedText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelRedText.ForeColor = System.Drawing.Color.Red;
-            this.labelRedText.Location = new System.Drawing.Point(1215, 6);
-            this.labelRedText.Name = "labelRedText";
-            this.labelRedText.Size = new System.Drawing.Size(217, 20);
-            this.labelRedText.TabIndex = 8;
-            this.labelRedText.Text = "Stackup differences are shown in red.";
-            this.labelRedText.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // DiffToolDialog
             // 
@@ -536,7 +380,7 @@
             this.Controls.Add(this.panelHeader);
             this.Controls.Add(this.panelContent);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(1200, 800);
+            this.MinimumSize = new System.Drawing.Size(900, 400);
             this.Name = "DiffToolDialog";
             this.Text = "  Compare Stackups";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DiffToolDialog_FormClosing);
@@ -579,18 +423,5 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ComboBox comboBoxSingles1;
-        private System.Windows.Forms.ComboBox comboBoxPairs1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox comboBoxSingles2;
-        private System.Windows.Forms.ComboBox comboBoxPairs2;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label labelRedText;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox textBoxTotalThickness1;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.TextBox textBoxTotalThickness2;
     }
 }

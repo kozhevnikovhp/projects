@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Data.Entities;
+using ZZero.ZPlanner.Utils;
+using ZZero.ZPlanner.Settings;
 using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.UI.Grid
@@ -306,7 +308,28 @@ namespace ZZero.ZPlanner.UI.Grid
             if (parameter != null) 
             {
                 if (value != null && double.TryParse(value.ToString().Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
-                return dValue.ToString(ZPlannerManager.GetFormatByParameter(parameter), CultureInfo.InvariantCulture);
+                {
+                    // convert if not English units (EvgenyK)
+                    if (Options.TheOptions.isUnitsMetric())
+                    {
+                        if (parameter.ID == ZStringConstants.ParameterIDPrepregThickness ||
+                            parameter.ID == ZStringConstants.ParameterIDThickness ||
+                            parameter.ID == ZStringConstants.ParameterIDOriginThickness)
+                            dValue *= Units.fMilsToMikrons;
+                        else if (parameter.ID == ZStringConstants.ParameterIDZo_TraceSpacing ||
+                            parameter.ID == ZStringConstants.ParameterIDZo_TraceWidth ||
+                            parameter.ID == ZStringConstants.ParameterIDZdiff_TraceWidth ||
+                            parameter.ID == ZStringConstants.ParameterIDZdiff_TraceSpacing ||
+                            parameter.ID == ZStringConstants.ParameterIDFillPitch ||
+                            parameter.ID == ZStringConstants.ParameterIDWeavePitch ||
+                            parameter.ID == ZStringConstants.ParameterIDZdiff_TracePitch ||
+                            parameter.ID == ZStringConstants.ParameterIDZdiff_WeavePitch ||
+                            parameter.ID == ZStringConstants.ParameterIDZdiff_FillPitch)
+                            dValue *= Units.fMilsToMillimeters;
+                    }
+
+                    return dValue.ToString(ZPlannerManager.GetFormatByParameter(parameter), CultureInfo.InvariantCulture);
+                }
             }
             else if (this.OwningColumn.Name == "Size")
             {

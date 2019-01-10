@@ -51,15 +51,15 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     double.TryParse(layer.GetLayerParameterValue(ZStringConstants.ParameterIDThickness).Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out copperThickness))
                 {
                     if (copperWeight == 0.5)
-                        tbCopperThickness_05.Text = copperThickness.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
+                        tbCopperThickness_05.Text = Settings.Options.TheOptions.convertMilsToCurrentFoilThicknessUnits(copperThickness).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
                     else if (copperWeight == 1.0)
-                        tbCopperThickness_10.Text = copperThickness.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
+                        tbCopperThickness_10.Text = Settings.Options.TheOptions.convertMilsToCurrentFoilThicknessUnits(copperThickness).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
                     else if (copperWeight == 1.5)
-                        tbCopperThickness_15.Text = copperThickness.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
+                        tbCopperThickness_15.Text = Settings.Options.TheOptions.convertMilsToCurrentFoilThicknessUnits(copperThickness).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
                     else if (copperWeight == 2.0)
-                        tbCopperThickness_20.Text = copperThickness.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
+                        tbCopperThickness_20.Text = Settings.Options.TheOptions.convertMilsToCurrentFoilThicknessUnits(copperThickness).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
                     else if (copperWeight == 2.5)
-                        tbCopperThickness_25.Text = copperThickness.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
+                        tbCopperThickness_25.Text = Settings.Options.TheOptions.convertMilsToCurrentFoilThicknessUnits(copperThickness).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
                 }
             }
         }
@@ -69,23 +69,23 @@ namespace ZZero.ZPlanner.UI.Dialogs
             double dValue;
             if (!string.IsNullOrWhiteSpace(tbCopperThickness_05.Text) && 
                 double.TryParse(tbCopperThickness_05.Text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out dValue)) 
-                Settings.Options.TheOptions.copper_thickness_05oz = dValue;
+                Settings.Options.TheOptions.copper_thickness_05oz = Settings.Options.TheOptions.convertCurrentFoilThicknessUnitsToMils(dValue);
 
             if (!string.IsNullOrWhiteSpace(tbCopperThickness_10.Text) &&
                 double.TryParse(tbCopperThickness_10.Text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
-                Settings.Options.TheOptions.copper_thickness_10oz = dValue;
+                Settings.Options.TheOptions.copper_thickness_10oz = Settings.Options.TheOptions.convertCurrentFoilThicknessUnitsToMils(dValue);
 
             if (!string.IsNullOrWhiteSpace(tbCopperThickness_15.Text) &&
                 double.TryParse(tbCopperThickness_15.Text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
-                Settings.Options.TheOptions.copper_thickness_15oz = dValue;
+                Settings.Options.TheOptions.copper_thickness_15oz = Settings.Options.TheOptions.convertCurrentFoilThicknessUnitsToMils(dValue);
 
             if (!string.IsNullOrWhiteSpace(tbCopperThickness_20.Text) &&
                 double.TryParse(tbCopperThickness_20.Text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
-                Settings.Options.TheOptions.copper_thickness_20oz = dValue;
+                Settings.Options.TheOptions.copper_thickness_20oz = Settings.Options.TheOptions.convertCurrentFoilThicknessUnitsToMils(dValue);
 
             if (!string.IsNullOrWhiteSpace(tbCopperThickness_25.Text) &&
                 double.TryParse(tbCopperThickness_25.Text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
-                Settings.Options.TheOptions.copper_thickness_25oz = dValue;
+                Settings.Options.TheOptions.copper_thickness_25oz = Settings.Options.TheOptions.convertCurrentFoilThicknessUnitsToMils(dValue);
 
             Options options = Options.TheOptions;
             Settings_IO io = new Settings_IO();

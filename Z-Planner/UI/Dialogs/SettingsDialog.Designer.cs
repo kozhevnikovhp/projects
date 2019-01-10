@@ -1,4 +1,6 @@
-﻿namespace ZZero.ZPlanner.UI.Dialogs
+﻿using ZZero.ZPlanner.ZConfiguration;
+
+namespace ZZero.ZPlanner.UI.Dialogs
 {
     partial class SettingsDialog
     {
@@ -26,6 +28,17 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
+        /// 
+
+        private string rangeTextForLinearParameter(double fMin, double fMax, string paramID) // "linear" meand length, width, thickness... metric vs english units
+        {
+            string format = Settings.Options.TheOptions.getLinearParameterTextFormat();
+            return string.Format("Range: {0}-{1} {2}",
+                            Settings.Options.TheOptions.convertMilsToCurrentUnits(fMin, paramID).ToString(paramID),
+                            Settings.Options.TheOptions.convertMilsToCurrentUnits(fMax, paramID).ToString(paramID),
+                            Settings.Options.TheOptions.getCurrentUnitsForParameter(paramID));
+        }
+
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsDialog));
@@ -37,12 +50,6 @@
             this.label122 = new System.Windows.Forms.Label();
             this.label124 = new System.Windows.Forms.Label();
             this.label123 = new System.Windows.Forms.Label();
-            this.groupBox32 = new System.Windows.Forms.GroupBox();
-            this.cbDRCWarnings = new System.Windows.Forms.CheckBox();
-            this.cbDRCErrors = new System.Windows.Forms.CheckBox();
-            this.groupBox33 = new System.Windows.Forms.GroupBox();
-            this.label125 = new System.Windows.Forms.Label();
-            this.label126 = new System.Windows.Forms.Label();
             this.groupBox28 = new System.Windows.Forms.GroupBox();
             this.cbStackupSwitches = new System.Windows.Forms.CheckBox();
             this.groupBox29 = new System.Windows.Forms.GroupBox();
@@ -120,9 +127,9 @@
             this.label18 = new System.Windows.Forms.Label();
             this.tbDk = new System.Windows.Forms.TextBox();
             this.label20 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.tbHeight = new System.Windows.Forms.TextBox();
+            this.labelCorePrepregHeightRange = new System.Windows.Forms.Label();
+            this.labelCorePrepregHeight = new System.Windows.Forms.Label();
+            this.tbCorePrepregHeight = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.tbSoldermask_Df = new System.Windows.Forms.TextBox();
@@ -130,12 +137,12 @@
             this.label27 = new System.Windows.Forms.Label();
             this.tbSoldermask_Dk = new System.Windows.Forms.TextBox();
             this.label29 = new System.Windows.Forms.Label();
-            this.label30 = new System.Windows.Forms.Label();
-            this.label31 = new System.Windows.Forms.Label();
+            this.labelSolderMaskHeightRange = new System.Windows.Forms.Label();
+            this.labelSolderMaskHeight = new System.Windows.Forms.Label();
             this.tbSoldermask_Height = new System.Windows.Forms.TextBox();
             this.label32 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.labelDrillDiameter = new System.Windows.Forms.Label();
             this.tbDrill = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tabMetal = new System.Windows.Forms.TabPage();
@@ -145,7 +152,7 @@
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.cbPlating_Thickness = new System.Windows.Forms.ComboBox();
             this.cbBase_Trace_Thickness = new System.Windows.Forms.ComboBox();
-            this.label43 = new System.Windows.Forms.Label();
+            this.labelDiffSpacingUnits = new System.Windows.Forms.Label();
             this.label36 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label44 = new System.Windows.Forms.Label();
@@ -155,8 +162,8 @@
             this.label97 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.label38 = new System.Windows.Forms.Label();
-            this.label96 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
+            this.labelOuterTraceWidthUnits = new System.Windows.Forms.Label();
+            this.labelOuterDiffTraceWidthUnits = new System.Windows.Forms.Label();
             this.label39 = new System.Windows.Forms.Label();
             this.tbOuter_Trace_Width = new System.Windows.Forms.TextBox();
             this.tbOuter_Diff_Trace_Width = new System.Windows.Forms.TextBox();
@@ -166,9 +173,9 @@
             this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.groupBox27 = new System.Windows.Forms.GroupBox();
             this.label117 = new System.Windows.Forms.Label();
-            this.label112 = new System.Windows.Forms.Label();
-            this.label109 = new System.Windows.Forms.Label();
-            this.label111 = new System.Windows.Forms.Label();
+            this.labelCopperFoilThickness25Units = new System.Windows.Forms.Label();
+            this.labelCopperFoilThickness20Units = new System.Windows.Forms.Label();
+            this.labelCopperFoilThickness05Units = new System.Windows.Forms.Label();
             this.label113 = new System.Windows.Forms.Label();
             this.tbCopperThickness_25 = new System.Windows.Forms.TextBox();
             this.tbCopperThickness_20 = new System.Windows.Forms.TextBox();
@@ -179,11 +186,11 @@
             this.tbCopperThickness_15 = new System.Windows.Forms.TextBox();
             this.tbCopperThickness_05 = new System.Windows.Forms.TextBox();
             this.tbCopperThickness_10 = new System.Windows.Forms.TextBox();
-            this.label118 = new System.Windows.Forms.Label();
-            this.label120 = new System.Windows.Forms.Label();
+            this.labelCopperFoilThickness15Units = new System.Windows.Forms.Label();
+            this.labelCopperFoilThickness10Units = new System.Windows.Forms.Label();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
             this.cbCopper_Foil_Thickness = new System.Windows.Forms.ComboBox();
-            this.label106 = new System.Windows.Forms.Label();
+            this.labelInnerDiffSpacingUnits = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
             this.label105 = new System.Windows.Forms.Label();
@@ -195,9 +202,9 @@
             this.tbInner_Diff_Trace_Width = new System.Windows.Forms.TextBox();
             this.tbInner_Trace_Width = new System.Windows.Forms.TextBox();
             this.label103 = new System.Windows.Forms.Label();
-            this.label100 = new System.Windows.Forms.Label();
+            this.labelInnerDiffTraceWidthUnits = new System.Windows.Forms.Label();
             this.label102 = new System.Windows.Forms.Label();
-            this.label101 = new System.Windows.Forms.Label();
+            this.labelInnerTraceWidthUnits = new System.Windows.Forms.Label();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label42 = new System.Windows.Forms.Label();
@@ -287,15 +294,17 @@
             this.tbCompany = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.label127 = new System.Windows.Forms.Label();
-            this.label128 = new System.Windows.Forms.Label();
+            this.groupBox32 = new System.Windows.Forms.GroupBox();
+            this.cbDRCErrors = new System.Windows.Forms.CheckBox();
+            this.groupBox33 = new System.Windows.Forms.GroupBox();
+            this.label125 = new System.Windows.Forms.Label();
+            this.label126 = new System.Windows.Forms.Label();
+            this.cbDRCWarnings = new System.Windows.Forms.CheckBox();
             this.tabOptions.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox30.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudAutosave)).BeginInit();
             this.groupBox31.SuspendLayout();
-            this.groupBox32.SuspendLayout();
-            this.groupBox33.SuspendLayout();
             this.groupBox28.SuspendLayout();
             this.groupBox29.SuspendLayout();
             this.groupBox14.SuspendLayout();
@@ -337,6 +346,8 @@
             this.groupBox26.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbCompanyLogo)).BeginInit();
             this.groupBox25.SuspendLayout();
+            this.groupBox32.SuspendLayout();
+            this.groupBox33.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabOptions
@@ -383,7 +394,7 @@
             this.groupBox30.Controls.Add(this.groupBox31);
             this.groupBox30.Controls.Add(this.label124);
             this.groupBox30.Controls.Add(this.label123);
-            this.groupBox30.Location = new System.Drawing.Point(16, 266);
+            this.groupBox30.Location = new System.Drawing.Point(16, 288);
             this.groupBox30.Name = "groupBox30";
             this.groupBox30.Size = new System.Drawing.Size(611, 73);
             this.groupBox30.TabIndex = 0;
@@ -422,7 +433,7 @@
             this.label122.Name = "label122";
             this.label122.Size = new System.Drawing.Size(272, 21);
             this.label122.TabIndex = 27;
-            this.label122.Text = "Set interval to \"0\" to disable auto-save.";
+            this.label122.Text = "Set interval equal to \"0\" to disable auto-save.";
             // 
             // label124
             // 
@@ -442,74 +453,6 @@
             this.label123.TabIndex = 0;
             this.label123.Text = "Auto-save interval:";
             // 
-            // groupBox32
-            // 
-            this.groupBox32.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox32.Controls.Add(this.cbDRCWarnings);
-            this.groupBox32.Controls.Add(this.cbDRCErrors);
-            this.groupBox32.Controls.Add(this.groupBox33);
-            this.groupBox32.Controls.Add(this.label126);
-            this.groupBox32.Location = new System.Drawing.Point(16, 357);
-            this.groupBox32.Name = "groupBox32";
-            this.groupBox32.Size = new System.Drawing.Size(611, 172);
-            this.groupBox32.TabIndex = 0;
-            this.groupBox32.TabStop = false;
-            this.groupBox32.Text = "Stackup Design-Rule Checks";
-            // 
-            // cbDRCWarnings
-            // 
-            this.cbDRCWarnings.Location = new System.Drawing.Point(20, 68);
-            this.cbDRCWarnings.Name = "cbDRCWarnings";
-            this.cbDRCWarnings.Size = new System.Drawing.Size(222, 24);
-            this.cbDRCWarnings.TabIndex = 1;
-            this.cbDRCWarnings.Text = "There are DRC warnings";
-            this.cbDRCWarnings.UseVisualStyleBackColor = true;
-            // 
-            // cbDRCErrors
-            // 
-            this.cbDRCErrors.Location = new System.Drawing.Point(20, 45);
-            this.cbDRCErrors.Name = "cbDRCErrors";
-            this.cbDRCErrors.Size = new System.Drawing.Size(222, 23);
-            this.cbDRCErrors.TabIndex = 1;
-            this.cbDRCErrors.Text = "There are DRC errors";
-            this.cbDRCErrors.UseVisualStyleBackColor = true;
-            // 
-            // groupBox33
-            // 
-            this.groupBox33.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox33.Controls.Add(this.label128);
-            this.groupBox33.Controls.Add(this.label127);
-            this.groupBox33.Controls.Add(this.label125);
-            this.groupBox33.Location = new System.Drawing.Point(313, 19);
-            this.groupBox33.Name = "groupBox33";
-            this.groupBox33.Size = new System.Drawing.Size(278, 135);
-            this.groupBox33.TabIndex = 55;
-            this.groupBox33.TabStop = false;
-            this.groupBox33.Text = "Hint";
-            // 
-            // label125
-            // 
-            this.label125.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label125.Location = new System.Drawing.Point(3, 16);
-            this.label125.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label125.Name = "label125";
-            this.label125.Size = new System.Drawing.Size(272, 33);
-            this.label125.TabIndex = 27;
-            this.label125.Text = "Stackup DRCs can also be run manually from the Views group of the Stackup toolbar" +
-    ". ";
-            // 
-            // label126
-            // 
-            this.label126.AutoSize = true;
-            this.label126.Location = new System.Drawing.Point(17, 25);
-            this.label126.Name = "label126";
-            this.label126.Size = new System.Drawing.Size(209, 13);
-            this.label126.TabIndex = 0;
-            this.label126.Text = "Automatically display the DRC panel when:";
-            // 
             // groupBox28
             // 
             this.groupBox28.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -519,18 +462,18 @@
             this.groupBox28.Controls.Add(this.label121);
             this.groupBox28.Location = new System.Drawing.Point(16, 157);
             this.groupBox28.Name = "groupBox28";
-            this.groupBox28.Size = new System.Drawing.Size(611, 93);
+            this.groupBox28.Size = new System.Drawing.Size(611, 115);
             this.groupBox28.TabIndex = 0;
             this.groupBox28.TabStop = false;
-            this.groupBox28.Text = "Stackup toolbar switch settings";
+            this.groupBox28.Text = "Stackup";
             // 
             // cbStackupSwitches
             // 
-            this.cbStackupSwitches.Location = new System.Drawing.Point(20, 47);
+            this.cbStackupSwitches.Location = new System.Drawing.Point(20, 43);
             this.cbStackupSwitches.Name = "cbStackupSwitches";
-            this.cbStackupSwitches.Size = new System.Drawing.Size(257, 38);
+            this.cbStackupSwitches.Size = new System.Drawing.Size(222, 54);
             this.cbStackupSwitches.TabIndex = 1;
-            this.cbStackupSwitches.Text = "Use the switch settings from the stackup file.";
+            this.cbStackupSwitches.Text = "Use the switch settings from the stackup file when it is opening";
             this.cbStackupSwitches.UseVisualStyleBackColor = true;
             // 
             // groupBox29
@@ -538,7 +481,7 @@
             this.groupBox29.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox29.Controls.Add(this.label119);
-            this.groupBox29.Location = new System.Drawing.Point(316, 19);
+            this.groupBox29.Location = new System.Drawing.Point(316, 43);
             this.groupBox29.Name = "groupBox29";
             this.groupBox29.Size = new System.Drawing.Size(278, 54);
             this.groupBox29.TabIndex = 55;
@@ -553,16 +496,16 @@
             this.label119.Name = "label119";
             this.label119.Size = new System.Drawing.Size(272, 35);
             this.label119.TabIndex = 27;
-            this.label119.Text = "Otherwise, the most recent Stackup toolbar switch settings will be used.";
+            this.label119.Text = "Otherwise, the last switches settings you used will be used";
             // 
             // label121
             // 
             this.label121.AutoSize = true;
-            this.label121.Location = new System.Drawing.Point(17, 31);
+            this.label121.Location = new System.Drawing.Point(17, 25);
             this.label121.Name = "label121";
-            this.label121.Size = new System.Drawing.Size(148, 13);
+            this.label121.Size = new System.Drawing.Size(232, 13);
             this.label121.TabIndex = 0;
-            this.label121.Text = "When opening a Stackup file:";
+            this.label121.Text = "Allow to use switches settings from Stackup file:";
             // 
             // groupBox14
             // 
@@ -579,7 +522,7 @@
             this.groupBox14.Size = new System.Drawing.Size(611, 126);
             this.groupBox14.TabIndex = 0;
             this.groupBox14.TabStop = false;
-            this.groupBox14.Text = "Library";
+            this.groupBox14.Text = "DML";
             // 
             // cbLocalLibrary
             // 
@@ -609,8 +552,8 @@
             this.cbZZeroSynchronize.Name = "cbZZeroSynchronize";
             this.cbZZeroSynchronize.Size = new System.Drawing.Size(268, 54);
             this.cbZZeroSynchronize.TabIndex = 1;
-            this.cbZZeroSynchronize.Text = "Сheck for the latest version of the Z-zero dielectric material library every time" +
-    " Z-planner runs.";
+            this.cbZZeroSynchronize.Text = "Сheck the latest version of the Z-zero dielectric material library every time the" +
+    " Z-planner is run";
             this.cbZZeroSynchronize.UseVisualStyleBackColor = true;
             // 
             // cbZZeroLibrary
@@ -628,18 +571,18 @@
             this.label108.AutoSize = true;
             this.label108.Location = new System.Drawing.Point(323, 25);
             this.label108.Name = "label108";
-            this.label108.Size = new System.Drawing.Size(146, 13);
+            this.label108.Size = new System.Drawing.Size(187, 13);
             this.label108.TabIndex = 0;
-            this.label108.Text = "Z-zero library synchronization:";
+            this.label108.Text = "Allow to synchronize the Z-zero library:";
             // 
             // label78
             // 
             this.label78.AutoSize = true;
             this.label78.Location = new System.Drawing.Point(17, 25);
             this.label78.Name = "label78";
-            this.label78.Size = new System.Drawing.Size(143, 13);
+            this.label78.Size = new System.Drawing.Size(167, 13);
             this.label78.TabIndex = 0;
-            this.label78.Text = "Enable the following libraries:";
+            this.label78.Text = "Allow to use the following libraries:";
             // 
             // tabUnits
             // 
@@ -922,7 +865,7 @@
             // rbUnitsMetric
             // 
             this.rbUnitsMetric.AutoSize = true;
-            this.rbUnitsMetric.Enabled = false;
+            this.rbUnitsMetric.Enabled = true;
             this.rbUnitsMetric.Location = new System.Drawing.Point(20, 49);
             this.rbUnitsMetric.Margin = new System.Windows.Forms.Padding(2);
             this.rbUnitsMetric.Name = "rbUnitsMetric";
@@ -1335,9 +1278,9 @@
             this.groupBox6.Controls.Add(this.label18);
             this.groupBox6.Controls.Add(this.tbDk);
             this.groupBox6.Controls.Add(this.label20);
-            this.groupBox6.Controls.Add(this.label15);
-            this.groupBox6.Controls.Add(this.label16);
-            this.groupBox6.Controls.Add(this.tbHeight);
+            this.groupBox6.Controls.Add(this.labelCorePrepregHeightRange);
+            this.groupBox6.Controls.Add(this.labelCorePrepregHeight);
+            this.groupBox6.Controls.Add(this.tbCorePrepregHeight);
             this.groupBox6.Controls.Add(this.label17);
             this.groupBox6.Location = new System.Drawing.Point(16, 187);
             this.groupBox6.Margin = new System.Windows.Forms.Padding(2);
@@ -1396,35 +1339,38 @@
             this.label20.Text = "Dielectric constant (Dk):";
             this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label15
+            // labelCorePrepregHeightRange
             // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(272, 21);
-            this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(95, 13);
-            this.label15.TabIndex = 7;
-            this.label15.Text = "Range: 1.5-50 mils";
+            this.labelCorePrepregHeightRange.AutoSize = true;
+            this.labelCorePrepregHeightRange.Location = new System.Drawing.Point(272, 21);
+            this.labelCorePrepregHeightRange.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCorePrepregHeightRange.Name = "label15";
+            this.labelCorePrepregHeightRange.Size = new System.Drawing.Size(95, 13);
+            this.labelCorePrepregHeightRange.TabIndex = 7;
+            this.labelCorePrepregHeightRange.Text = string.Format("Range: {0}-{1} {2}",
+                Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(1.5).ToString(Settings.Options.TheOptions.getLinearParameterTextFormat()),
+                Settings.Options.TheOptions.convertMilsToCurrentDielectricHeightUnits(50).ToString(Settings.Options.TheOptions.getLinearParameterTextFormat()),
+                Settings.Options.TheOptions.getDielectricHeightCurrentUnits());
             // 
-            // label16
+            // labelCorePrepregHeight
             // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(213, 21);
-            this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(24, 13);
-            this.label16.TabIndex = 6;
-            this.label16.Text = "mils";
+            this.labelCorePrepregHeight.AutoSize = true;
+            this.labelCorePrepregHeight.Location = new System.Drawing.Point(213, 21);
+            this.labelCorePrepregHeight.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCorePrepregHeight.Name = "label16";
+            this.labelCorePrepregHeight.Size = new System.Drawing.Size(24, 13);
+            this.labelCorePrepregHeight.TabIndex = 6;
+            this.labelCorePrepregHeight.Text = Settings.Options.TheOptions.getDielectricHeightCurrentUnits();
             // 
-            // tbHeight
+            // tbCorePrepregHeight
             // 
-            this.tbHeight.Location = new System.Drawing.Point(148, 18);
-            this.tbHeight.Margin = new System.Windows.Forms.Padding(2);
-            this.tbHeight.Name = "tbHeight";
-            this.tbHeight.Size = new System.Drawing.Size(61, 20);
-            this.tbHeight.TabIndex = 5;
-            this.tbHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tbHeight.Validating += new System.ComponentModel.CancelEventHandler(this.tbHeight_Validating);
+            this.tbCorePrepregHeight.Location = new System.Drawing.Point(148, 18);
+            this.tbCorePrepregHeight.Margin = new System.Windows.Forms.Padding(2);
+            this.tbCorePrepregHeight.Name = "tbCorePrepregHeight";
+            this.tbCorePrepregHeight.Size = new System.Drawing.Size(61, 20);
+            this.tbCorePrepregHeight.TabIndex = 5;
+            this.tbCorePrepregHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbCorePrepregHeight.Validating += new System.ComponentModel.CancelEventHandler(this.tbHeight_Validating);
             // 
             // label17
             // 
@@ -1445,8 +1391,8 @@
             this.groupBox5.Controls.Add(this.label27);
             this.groupBox5.Controls.Add(this.tbSoldermask_Dk);
             this.groupBox5.Controls.Add(this.label29);
-            this.groupBox5.Controls.Add(this.label30);
-            this.groupBox5.Controls.Add(this.label31);
+            this.groupBox5.Controls.Add(this.labelSolderMaskHeightRange);
+            this.groupBox5.Controls.Add(this.labelSolderMaskHeight);
             this.groupBox5.Controls.Add(this.tbSoldermask_Height);
             this.groupBox5.Controls.Add(this.label32);
             this.groupBox5.Location = new System.Drawing.Point(16, 72);
@@ -1506,25 +1452,28 @@
             this.label29.Text = "Dielectric constant (Dk):";
             this.label29.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label30
+            // labelSolderMaskHeightRange
             // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(272, 19);
-            this.label30.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(95, 13);
-            this.label30.TabIndex = 19;
-            this.label30.Text = "Range: 1.5-50 mils";
+            this.labelSolderMaskHeightRange.AutoSize = true;
+            this.labelSolderMaskHeightRange.Location = new System.Drawing.Point(272, 19);
+            this.labelSolderMaskHeightRange.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelSolderMaskHeightRange.Name = "label30";
+            this.labelSolderMaskHeightRange.Size = new System.Drawing.Size(95, 13);
+            this.labelSolderMaskHeightRange.TabIndex = 19;
+            this.labelSolderMaskHeightRange.Text = string.Format("Range: {0}-{1} {2}",
+                Settings.Options.TheOptions.convertMilsToCurrentSolderMaskHeightUnits(1.5).ToString(Settings.Options.TheOptions.getLinearParameterTextFormat()),
+                Settings.Options.TheOptions.convertMilsToCurrentSolderMaskHeightUnits(50).ToString(Settings.Options.TheOptions.getLinearParameterTextFormat()),
+                Settings.Options.TheOptions.getSolderMaskHeightCurrentUnits());
             // 
-            // label31
+            // labelSolderMaskHeight
             // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(213, 19);
-            this.label31.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(24, 13);
-            this.label31.TabIndex = 18;
-            this.label31.Text = "mils";
+            this.labelSolderMaskHeight.AutoSize = true;
+            this.labelSolderMaskHeight.Location = new System.Drawing.Point(213, 19);
+            this.labelSolderMaskHeight.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelSolderMaskHeight.Name = "label31";
+            this.labelSolderMaskHeight.Size = new System.Drawing.Size(24, 13);
+            this.labelSolderMaskHeight.TabIndex = 18;
+            this.labelSolderMaskHeight.Text = Settings.Options.TheOptions.getSolderMaskHeightCurrentUnits();
             // 
             // tbSoldermask_Height
             // 
@@ -1550,7 +1499,7 @@
             // 
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox4.Controls.Add(this.label7);
+            this.groupBox4.Controls.Add(this.labelDrillDiameter);
             this.groupBox4.Controls.Add(this.tbDrill);
             this.groupBox4.Controls.Add(this.label3);
             this.groupBox4.Location = new System.Drawing.Point(16, 16);
@@ -1562,15 +1511,15 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Drilling";
             // 
-            // label7
+            // labelDrillDiameter
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(213, 18);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(24, 13);
-            this.label7.TabIndex = 2;
-            this.label7.Text = "mils";
+            this.labelDrillDiameter.AutoSize = true;
+            this.labelDrillDiameter.Location = new System.Drawing.Point(213, 18);
+            this.labelDrillDiameter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelDrillDiameter.Name = "label7";
+            this.labelDrillDiameter.Size = new System.Drawing.Size(24, 13);
+            this.labelDrillDiameter.TabIndex = 2;
+            this.labelDrillDiameter.Text = Settings.Options.TheOptions.getDrillDiameterUnits();
             // 
             // tbDrill
             // 
@@ -1643,7 +1592,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox11.Controls.Add(this.cbPlating_Thickness);
             this.groupBox11.Controls.Add(this.cbBase_Trace_Thickness);
-            this.groupBox11.Controls.Add(this.label43);
+            this.groupBox11.Controls.Add(this.labelDiffSpacingUnits);
             this.groupBox11.Controls.Add(this.label36);
             this.groupBox11.Controls.Add(this.label10);
             this.groupBox11.Controls.Add(this.label44);
@@ -1653,8 +1602,8 @@
             this.groupBox11.Controls.Add(this.label97);
             this.groupBox11.Controls.Add(this.label13);
             this.groupBox11.Controls.Add(this.label38);
-            this.groupBox11.Controls.Add(this.label96);
-            this.groupBox11.Controls.Add(this.label19);
+            this.groupBox11.Controls.Add(this.labelOuterTraceWidthUnits);
+            this.groupBox11.Controls.Add(this.labelOuterDiffTraceWidthUnits);
             this.groupBox11.Controls.Add(this.label39);
             this.groupBox11.Controls.Add(this.tbOuter_Trace_Width);
             this.groupBox11.Controls.Add(this.tbOuter_Diff_Trace_Width);
@@ -1699,15 +1648,15 @@
             this.cbBase_Trace_Thickness.TabIndex = 21;
             this.cbBase_Trace_Thickness.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.combobox_DrawItem);
             // 
-            // label43
+            // labelDiffSpacingUnits
             // 
-            this.label43.AutoSize = true;
-            this.label43.Location = new System.Drawing.Point(239, 138);
-            this.label43.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label43.Name = "label43";
-            this.label43.Size = new System.Drawing.Size(24, 13);
-            this.label43.TabIndex = 23;
-            this.label43.Text = "mils";
+            this.labelDiffSpacingUnits.AutoSize = true;
+            this.labelDiffSpacingUnits.Location = new System.Drawing.Point(239, 138);
+            this.labelDiffSpacingUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelDiffSpacingUnits.Name = "labelDiffSpacingUnits";
+            this.labelDiffSpacingUnits.Size = new System.Drawing.Size(24, 13);
+            this.labelDiffSpacingUnits.TabIndex = 23;
+            this.labelDiffSpacingUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceSpacing);
             // 
             // label36
             // 
@@ -1727,7 +1676,8 @@
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(86, 13);
             this.label10.TabIndex = 22;
-            this.label10.Text = "Range: 2-25 mils";
+            this.label10.Text = rangeTextForLinearParameter(2, 25, ZStringConstants.ParameterIDZdiff_TraceSpacing);
+
             // 
             // label44
             // 
@@ -1776,7 +1726,7 @@
             this.label97.Name = "label97";
             this.label97.Size = new System.Drawing.Size(86, 13);
             this.label97.TabIndex = 19;
-            this.label97.Text = "Range: 2-25 mils";
+            this.label97.Text = rangeTextForLinearParameter(2, 25, ZStringConstants.ParameterIDZo_TraceWidth);
             // 
             // label13
             // 
@@ -1786,7 +1736,8 @@
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(86, 13);
             this.label13.TabIndex = 19;
-            this.label13.Text = "Range: 2-25 mils";
+            this.label13.Text = rangeTextForLinearParameter(2, 25, ZStringConstants.ParameterIDZdiff_TraceWidth);
+
             // 
             // label38
             // 
@@ -1798,25 +1749,25 @@
             this.label38.TabIndex = 19;
             this.label38.Text = "Range: 0.5, 1.0 oz.";
             // 
-            // label96
+            // labelOuterTraceWidthUnits
             // 
-            this.label96.AutoSize = true;
-            this.label96.Location = new System.Drawing.Point(239, 80);
-            this.label96.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label96.Name = "label96";
-            this.label96.Size = new System.Drawing.Size(24, 13);
-            this.label96.TabIndex = 18;
-            this.label96.Text = "mils";
+            this.labelOuterTraceWidthUnits.AutoSize = true;
+            this.labelOuterTraceWidthUnits.Location = new System.Drawing.Point(239, 80);
+            this.labelOuterTraceWidthUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelOuterTraceWidthUnits.Name = "labelOuterTraceWidthUnits";
+            this.labelOuterTraceWidthUnits.Size = new System.Drawing.Size(24, 13);
+            this.labelOuterTraceWidthUnits.TabIndex = 18;
+            this.labelOuterTraceWidthUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZo_TraceWidth);
             // 
-            // label19
+            // labelOuterDiffTraceWidthUnits
             // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(239, 109);
-            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(24, 13);
-            this.label19.TabIndex = 18;
-            this.label19.Text = "mils";
+            this.labelOuterDiffTraceWidthUnits.AutoSize = true;
+            this.labelOuterDiffTraceWidthUnits.Location = new System.Drawing.Point(239, 109);
+            this.labelOuterDiffTraceWidthUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelOuterDiffTraceWidthUnits.Name = "label19";
+            this.labelOuterDiffTraceWidthUnits.Size = new System.Drawing.Size(24, 13);
+            this.labelOuterDiffTraceWidthUnits.TabIndex = 18;
+            this.labelOuterDiffTraceWidthUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceWidth);
             // 
             // label39
             // 
@@ -1881,9 +1832,9 @@
             this.groupBox15.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox15.Controls.Add(this.groupBox27);
-            this.groupBox15.Controls.Add(this.label112);
-            this.groupBox15.Controls.Add(this.label109);
-            this.groupBox15.Controls.Add(this.label111);
+            this.groupBox15.Controls.Add(this.labelCopperFoilThickness25Units);
+            this.groupBox15.Controls.Add(this.labelCopperFoilThickness20Units);
+            this.groupBox15.Controls.Add(this.labelCopperFoilThickness05Units);
             this.groupBox15.Controls.Add(this.label113);
             this.groupBox15.Controls.Add(this.tbCopperThickness_25);
             this.groupBox15.Controls.Add(this.tbCopperThickness_20);
@@ -1894,8 +1845,8 @@
             this.groupBox15.Controls.Add(this.tbCopperThickness_15);
             this.groupBox15.Controls.Add(this.tbCopperThickness_05);
             this.groupBox15.Controls.Add(this.tbCopperThickness_10);
-            this.groupBox15.Controls.Add(this.label118);
-            this.groupBox15.Controls.Add(this.label120);
+            this.groupBox15.Controls.Add(this.labelCopperFoilThickness15Units);
+            this.groupBox15.Controls.Add(this.labelCopperFoilThickness10Units);
             this.groupBox15.Location = new System.Drawing.Point(16, 340);
             this.groupBox15.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox15.Name = "groupBox15";
@@ -1927,35 +1878,35 @@
             this.label117.TabIndex = 27;
             this.label117.Text = "Ask your fabricator for standard processed thicknesses for each foil weight.";
             // 
-            // label112
+            // labelCopperFoilThickness25Units
             // 
-            this.label112.AutoSize = true;
-            this.label112.Location = new System.Drawing.Point(402, 49);
-            this.label112.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label112.Name = "label112";
-            this.label112.Size = new System.Drawing.Size(24, 13);
-            this.label112.TabIndex = 23;
-            this.label112.Text = "mils";
+            this.labelCopperFoilThickness25Units.AutoSize = true;
+            this.labelCopperFoilThickness25Units.Location = new System.Drawing.Point(402, 49);
+            this.labelCopperFoilThickness25Units.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCopperFoilThickness25Units.Name = "labelCopperFoilThickness25Units";
+            this.labelCopperFoilThickness25Units.Size = new System.Drawing.Size(24, 13);
+            this.labelCopperFoilThickness25Units.TabIndex = 23;
+            this.labelCopperFoilThickness25Units.Text = Settings.Options.TheOptions.getFoilThicknessUnits();
             // 
-            // label109
+            // labelCopperFoilThickness20Units
             // 
-            this.label109.AutoSize = true;
-            this.label109.Location = new System.Drawing.Point(402, 20);
-            this.label109.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label109.Name = "label109";
-            this.label109.Size = new System.Drawing.Size(24, 13);
-            this.label109.TabIndex = 23;
-            this.label109.Text = "mils";
+            this.labelCopperFoilThickness20Units.AutoSize = true;
+            this.labelCopperFoilThickness20Units.Location = new System.Drawing.Point(402, 20);
+            this.labelCopperFoilThickness20Units.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCopperFoilThickness20Units.Name = "labelCopperFoilThickness20Units";
+            this.labelCopperFoilThickness20Units.Size = new System.Drawing.Size(24, 13);
+            this.labelCopperFoilThickness20Units.TabIndex = 23;
+            this.labelCopperFoilThickness20Units.Text = Settings.Options.TheOptions.getFoilThicknessUnits();
             // 
-            // label111
+            // labelCopperFoilThickness05Units
             // 
-            this.label111.AutoSize = true;
-            this.label111.Location = new System.Drawing.Point(239, 20);
-            this.label111.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label111.Name = "label111";
-            this.label111.Size = new System.Drawing.Size(24, 13);
-            this.label111.TabIndex = 26;
-            this.label111.Text = "mils";
+            this.labelCopperFoilThickness05Units.AutoSize = true;
+            this.labelCopperFoilThickness05Units.Location = new System.Drawing.Point(239, 20);
+            this.labelCopperFoilThickness05Units.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCopperFoilThickness05Units.Name = "labelCopperFoilThickness05Units";
+            this.labelCopperFoilThickness05Units.Size = new System.Drawing.Size(24, 13);
+            this.labelCopperFoilThickness05Units.TabIndex = 26;
+            this.labelCopperFoilThickness05Units.Text = Settings.Options.TheOptions.getFoilThicknessUnits();
             // 
             // label113
             // 
@@ -2052,32 +2003,32 @@
             this.tbCopperThickness_10.TabIndex = 17;
             this.tbCopperThickness_10.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // label118
+            // labelCopperFoilThickness15Units
             // 
-            this.label118.AutoSize = true;
-            this.label118.Location = new System.Drawing.Point(239, 78);
-            this.label118.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label118.Name = "label118";
-            this.label118.Size = new System.Drawing.Size(24, 13);
-            this.label118.TabIndex = 18;
-            this.label118.Text = "mils";
+            this.labelCopperFoilThickness15Units.AutoSize = true;
+            this.labelCopperFoilThickness15Units.Location = new System.Drawing.Point(239, 78);
+            this.labelCopperFoilThickness15Units.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCopperFoilThickness15Units.Name = "labelCopperFoilThickness15Units";
+            this.labelCopperFoilThickness15Units.Size = new System.Drawing.Size(24, 13);
+            this.labelCopperFoilThickness15Units.TabIndex = 18;
+            this.labelCopperFoilThickness15Units.Text = Settings.Options.TheOptions.getFoilThicknessUnits();
             // 
-            // label120
+            // labelCopperFoilThickness10Units
             // 
-            this.label120.AutoSize = true;
-            this.label120.Location = new System.Drawing.Point(239, 49);
-            this.label120.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label120.Name = "label120";
-            this.label120.Size = new System.Drawing.Size(24, 13);
-            this.label120.TabIndex = 18;
-            this.label120.Text = "mils";
+            this.labelCopperFoilThickness10Units.AutoSize = true;
+            this.labelCopperFoilThickness10Units.Location = new System.Drawing.Point(239, 49);
+            this.labelCopperFoilThickness10Units.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelCopperFoilThickness10Units.Name = "labelCopperFoilThickness10Units";
+            this.labelCopperFoilThickness10Units.Size = new System.Drawing.Size(24, 13);
+            this.labelCopperFoilThickness10Units.TabIndex = 18;
+            this.labelCopperFoilThickness10Units.Text = Settings.Options.TheOptions.getFoilThicknessUnits();
             // 
             // groupBox10
             // 
             this.groupBox10.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox10.Controls.Add(this.cbCopper_Foil_Thickness);
-            this.groupBox10.Controls.Add(this.label106);
+            this.groupBox10.Controls.Add(this.labelInnerDiffSpacingUnits);
             this.groupBox10.Controls.Add(this.label24);
             this.groupBox10.Controls.Add(this.label28);
             this.groupBox10.Controls.Add(this.label105);
@@ -2089,9 +2040,9 @@
             this.groupBox10.Controls.Add(this.tbInner_Diff_Trace_Width);
             this.groupBox10.Controls.Add(this.tbInner_Trace_Width);
             this.groupBox10.Controls.Add(this.label103);
-            this.groupBox10.Controls.Add(this.label100);
+            this.groupBox10.Controls.Add(this.labelInnerDiffTraceWidthUnits);
             this.groupBox10.Controls.Add(this.label102);
-            this.groupBox10.Controls.Add(this.label101);
+            this.groupBox10.Controls.Add(this.labelInnerTraceWidthUnits);
             this.groupBox10.Location = new System.Drawing.Point(16, 187);
             this.groupBox10.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox10.Name = "groupBox10";
@@ -2116,15 +2067,15 @@
             this.cbCopper_Foil_Thickness.TabIndex = 21;
             this.cbCopper_Foil_Thickness.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.combobox_DrawItem);
             // 
-            // label106
+            // labelInnerDiffSpacingUnits
             // 
-            this.label106.AutoSize = true;
-            this.label106.Location = new System.Drawing.Point(239, 109);
-            this.label106.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label106.Name = "label106";
-            this.label106.Size = new System.Drawing.Size(24, 13);
-            this.label106.TabIndex = 23;
-            this.label106.Text = "mils";
+            this.labelInnerDiffSpacingUnits.AutoSize = true;
+            this.labelInnerDiffSpacingUnits.Location = new System.Drawing.Point(239, 109);
+            this.labelInnerDiffSpacingUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelInnerDiffSpacingUnits.Name = "labelInnerDiffSpacingUnits";
+            this.labelInnerDiffSpacingUnits.Size = new System.Drawing.Size(24, 13);
+            this.labelInnerDiffSpacingUnits.TabIndex = 23;
+            this.labelInnerDiffSpacingUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceSpacing);
             // 
             // label24
             // 
@@ -2154,7 +2105,8 @@
             this.label105.Name = "label105";
             this.label105.Size = new System.Drawing.Size(86, 13);
             this.label105.TabIndex = 22;
-            this.label105.Text = "Range: 2-25 mils";
+            this.label105.Text = rangeTextForLinearParameter(2, 25, ZStringConstants.ParameterIDZdiff_TraceSpacing);
+
             // 
             // label34
             // 
@@ -2231,17 +2183,17 @@
             this.label103.Name = "label103";
             this.label103.Size = new System.Drawing.Size(86, 13);
             this.label103.TabIndex = 19;
-            this.label103.Text = "Range: 2-25 mils";
+            this.label103.Text = rangeTextForLinearParameter(2, 25, ZStringConstants.ParameterIDZo_TraceWidth);
             // 
-            // label100
+            // labelInnerDiffTraceWidthUnits
             // 
-            this.label100.AutoSize = true;
-            this.label100.Location = new System.Drawing.Point(239, 80);
-            this.label100.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label100.Name = "label100";
-            this.label100.Size = new System.Drawing.Size(24, 13);
-            this.label100.TabIndex = 18;
-            this.label100.Text = "mils";
+            this.labelInnerDiffTraceWidthUnits.AutoSize = true;
+            this.labelInnerDiffTraceWidthUnits.Location = new System.Drawing.Point(239, 80);
+            this.labelInnerDiffTraceWidthUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelInnerDiffTraceWidthUnits.Name = "labelInnerDiffTraceWidthUnits";
+            this.labelInnerDiffTraceWidthUnits.Size = new System.Drawing.Size(24, 13);
+            this.labelInnerDiffTraceWidthUnits.TabIndex = 18;
+            this.labelInnerDiffTraceWidthUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceWidth);
             // 
             // label102
             // 
@@ -2251,17 +2203,17 @@
             this.label102.Name = "label102";
             this.label102.Size = new System.Drawing.Size(86, 13);
             this.label102.TabIndex = 19;
-            this.label102.Text = "Range: 2-25 mils";
+            this.label102.Text = rangeTextForLinearParameter(2, 25, ZStringConstants.ParameterIDZdiff_TraceWidth);
             // 
-            // label101
+            // labelInnerTraceWidthUnits
             // 
-            this.label101.AutoSize = true;
-            this.label101.Location = new System.Drawing.Point(239, 51);
-            this.label101.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label101.Name = "label101";
-            this.label101.Size = new System.Drawing.Size(24, 13);
-            this.label101.TabIndex = 18;
-            this.label101.Text = "mils";
+            this.labelInnerTraceWidthUnits.AutoSize = true;
+            this.labelInnerTraceWidthUnits.Location = new System.Drawing.Point(239, 51);
+            this.labelInnerTraceWidthUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelInnerTraceWidthUnits.Name = "labelInnerTraceWidthUnits";
+            this.labelInnerTraceWidthUnits.Size = new System.Drawing.Size(24, 13);
+            this.labelInnerTraceWidthUnits.TabIndex = 18;
+            this.labelInnerTraceWidthUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZo_TraceWidth);
             // 
             // groupBox12
             // 
@@ -3254,28 +3206,70 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // label127
+            // groupBox32
             // 
-            this.label127.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox32.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label127.Location = new System.Drawing.Point(3, 49);
-            this.label127.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label127.Name = "label127";
-            this.label127.Size = new System.Drawing.Size(272, 33);
-            this.label127.TabIndex = 27;
-            this.label127.Text = "Possible errors include having an uneven number of copper layers.";
+            this.groupBox32.Controls.Add(this.cbDRCWarnings);
+            this.groupBox32.Controls.Add(this.cbDRCErrors);
+            this.groupBox32.Controls.Add(this.groupBox33);
+            this.groupBox32.Controls.Add(this.label126);
+            this.groupBox32.Location = new System.Drawing.Point(16, 376);
+            this.groupBox32.Name = "groupBox32";
+            this.groupBox32.Size = new System.Drawing.Size(611, 115);
+            this.groupBox32.TabIndex = 0;
+            this.groupBox32.TabStop = false;
+            this.groupBox32.Text = "DRC";
             // 
-            // label128
+            // cbDRCErrors
             // 
-            this.label128.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cbDRCErrors.Location = new System.Drawing.Point(20, 41);
+            this.cbDRCErrors.Name = "cbDRCErrors";
+            this.cbDRCErrors.Size = new System.Drawing.Size(222, 38);
+            this.cbDRCErrors.TabIndex = 1;
+            this.cbDRCErrors.Text = "There are DRC Errors";
+            this.cbDRCErrors.UseVisualStyleBackColor = true;
+            // 
+            // groupBox33
+            // 
+            this.groupBox33.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label128.Location = new System.Drawing.Point(3, 82);
-            this.label128.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label128.Name = "label128";
-            this.label128.Size = new System.Drawing.Size(272, 43);
-            this.label128.TabIndex = 27;
-            this.label128.Text = "Warnings include asymmetrical stackups should generally be symmetrical and altern" +
-    "ating power and ground planes for decoupling.";
+            this.groupBox33.Controls.Add(this.label125);
+            this.groupBox33.Location = new System.Drawing.Point(313, 37);
+            this.groupBox33.Name = "groupBox33";
+            this.groupBox33.Size = new System.Drawing.Size(278, 62);
+            this.groupBox33.TabIndex = 55;
+            this.groupBox33.TabStop = false;
+            this.groupBox33.Text = "Hint";
+            // 
+            // label125
+            // 
+            this.label125.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label125.Location = new System.Drawing.Point(3, 16);
+            this.label125.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label125.Name = "label125";
+            this.label125.Size = new System.Drawing.Size(272, 43);
+            this.label125.TabIndex = 27;
+            this.label125.Text = "Select the corresponding checkboxes if you want the DRC panel to be automatically" +
+    " shown in case DRC errors or warnings are detected.";
+            // 
+            // label126
+            // 
+            this.label126.AutoSize = true;
+            this.label126.Location = new System.Drawing.Point(17, 25);
+            this.label126.Name = "label126";
+            this.label126.Size = new System.Drawing.Size(209, 13);
+            this.label126.TabIndex = 0;
+            this.label126.Text = "Automatically display the DRC panel when:";
+            // 
+            // cbDRCWarnings
+            // 
+            this.cbDRCWarnings.Location = new System.Drawing.Point(20, 71);
+            this.cbDRCWarnings.Name = "cbDRCWarnings";
+            this.cbDRCWarnings.Size = new System.Drawing.Size(222, 38);
+            this.cbDRCWarnings.TabIndex = 1;
+            this.cbDRCWarnings.Text = "There are DRC Warnings";
+            this.cbDRCWarnings.UseVisualStyleBackColor = true;
             // 
             // SettingsDialog
             // 
@@ -3296,9 +3290,6 @@
             this.groupBox30.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudAutosave)).EndInit();
             this.groupBox31.ResumeLayout(false);
-            this.groupBox32.ResumeLayout(false);
-            this.groupBox32.PerformLayout();
-            this.groupBox33.ResumeLayout(false);
             this.groupBox28.ResumeLayout(false);
             this.groupBox28.PerformLayout();
             this.groupBox29.ResumeLayout(false);
@@ -3365,6 +3356,9 @@
             this.groupBox26.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbCompanyLogo)).EndInit();
             this.groupBox25.ResumeLayout(false);
+            this.groupBox32.ResumeLayout(false);
+            this.groupBox32.PerformLayout();
+            this.groupBox33.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -3417,20 +3411,20 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox tbDk;
         private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.TextBox tbHeight;
+        private System.Windows.Forms.Label labelCorePrepregHeightRange;
+        private System.Windows.Forms.Label labelCorePrepregHeight;
+        private System.Windows.Forms.TextBox tbCorePrepregHeight;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TextBox tbSoldermask_Df;
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.TextBox tbSoldermask_Dk;
         private System.Windows.Forms.Label label29;
-        private System.Windows.Forms.Label label30;
-        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Label labelSolderMaskHeightRange;
+        private System.Windows.Forms.Label labelSolderMaskHeight;
         private System.Windows.Forms.TextBox tbSoldermask_Height;
         private System.Windows.Forms.Label label32;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label labelDrillDiameter;
         private System.Windows.Forms.TextBox tbDrill;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.PictureBox pictureBox1;
@@ -3444,7 +3438,7 @@
         private System.Windows.Forms.TextBox tbOuter_Trace_Spacing;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label labelOuterDiffTraceWidthUnits;
         private System.Windows.Forms.TextBox tbOuter_Diff_Trace_Width;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.GroupBox groupBox12;
@@ -3456,7 +3450,7 @@
         private System.Windows.Forms.Label label44;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label28;
-        private System.Windows.Forms.Label label43;
+        private System.Windows.Forms.Label labelDiffSpacingUnits;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.RadioButton rbPrepregProportional;
         private System.Windows.Forms.RadioButton rbPrepregPercent;
@@ -3567,10 +3561,10 @@
         private System.Windows.Forms.Button bCompanyLogo;
         private System.Windows.Forms.TextBox tbCompanyLogo;
         private System.Windows.Forms.Label label97;
-        private System.Windows.Forms.Label label96;
+        private System.Windows.Forms.Label labelOuterTraceWidthUnits;
         private System.Windows.Forms.TextBox tbOuter_Trace_Width;
         private System.Windows.Forms.Label label95;
-        private System.Windows.Forms.Label label106;
+        private System.Windows.Forms.Label labelInnerDiffSpacingUnits;
         private System.Windows.Forms.Label label105;
         private System.Windows.Forms.TextBox tbInner_Trace_Spacing;
         private System.Windows.Forms.Label label99;
@@ -3579,9 +3573,9 @@
         private System.Windows.Forms.TextBox tbInner_Diff_Trace_Width;
         private System.Windows.Forms.TextBox tbInner_Trace_Width;
         private System.Windows.Forms.Label label103;
-        private System.Windows.Forms.Label label100;
+        private System.Windows.Forms.Label labelInnerDiffTraceWidthUnits;
         private System.Windows.Forms.Label label102;
-        private System.Windows.Forms.Label label101;
+        private System.Windows.Forms.Label labelInnerTraceWidthUnits;
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.Button btnLicAdd;
         private System.Windows.Forms.TextBox tbLicPaths;
@@ -3595,8 +3589,8 @@
         private System.Windows.Forms.CheckBox cbZZeroSynchronize;
         private System.Windows.Forms.Label label108;
         private System.Windows.Forms.GroupBox groupBox15;
-        private System.Windows.Forms.Label label109;
-        private System.Windows.Forms.Label label111;
+        private System.Windows.Forms.Label labelCopperFoilThickness20Units;
+        private System.Windows.Forms.Label labelCopperFoilThickness05Units;
         private System.Windows.Forms.Label label113;
         private System.Windows.Forms.TextBox tbCopperThickness_20;
         private System.Windows.Forms.Label label114;
@@ -3604,12 +3598,12 @@
         private System.Windows.Forms.Label label116;
         private System.Windows.Forms.TextBox tbCopperThickness_15;
         private System.Windows.Forms.TextBox tbCopperThickness_10;
-        private System.Windows.Forms.Label label118;
-        private System.Windows.Forms.Label label120;
+        private System.Windows.Forms.Label labelCopperFoilThickness15Units;
+        private System.Windows.Forms.Label labelCopperFoilThickness10Units;
         private System.Windows.Forms.TextBox tbCopperThickness_05;
         private System.Windows.Forms.GroupBox groupBox27;
         private System.Windows.Forms.Label label117;
-        private System.Windows.Forms.Label label112;
+        private System.Windows.Forms.Label labelCopperFoilThickness25Units;
         private System.Windows.Forms.TextBox tbCopperThickness_25;
         private System.Windows.Forms.Label label110;
         private System.Windows.Forms.GroupBox groupBox28;
@@ -3629,7 +3623,5 @@
         private System.Windows.Forms.GroupBox groupBox33;
         private System.Windows.Forms.Label label125;
         private System.Windows.Forms.Label label126;
-        private System.Windows.Forms.Label label128;
-        private System.Windows.Forms.Label label127;
     }
 }

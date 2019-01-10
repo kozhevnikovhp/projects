@@ -69,7 +69,11 @@
             this.label55 = new System.Windows.Forms.Label();
             this.rbPrepregPercent = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lSequentialLamination = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.lSequentialLaminationN = new System.Windows.Forms.Label();
+            this.lSequentialLaminationX = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label14 = new System.Windows.Forms.Label();
             this.cbSequentialLamination = new System.Windows.Forms.CheckBox();
@@ -84,7 +88,7 @@
             // checkBoxUpdateSettings
             // 
             this.checkBoxUpdateSettings.AutoSize = true;
-            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(29, 392);
+            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(29, 507);
             this.checkBoxUpdateSettings.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxUpdateSettings.Name = "checkBoxUpdateSettings";
             this.checkBoxUpdateSettings.Size = new System.Drawing.Size(257, 17);
@@ -107,7 +111,7 @@
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(393, 567);
+            this.btnCancel.Location = new System.Drawing.Point(393, 538);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(82, 23);
@@ -119,7 +123,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(479, 567);
+            this.btnOK.Location = new System.Drawing.Point(479, 538);
             this.btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(82, 23);
@@ -142,7 +146,7 @@
             this.panelPrepregProportional.Controls.Add(this.label71);
             this.panelPrepregProportional.Controls.Add(this.label72);
             this.panelPrepregProportional.Controls.Add(this.tbForMixed);
-            this.panelPrepregProportional.Location = new System.Drawing.Point(18, 266);
+            this.panelPrepregProportional.Location = new System.Drawing.Point(18, 374);
             this.panelPrepregProportional.Name = "panelPrepregProportional";
             this.panelPrepregProportional.Size = new System.Drawing.Size(543, 118);
             this.panelPrepregProportional.TabIndex = 42;
@@ -169,7 +173,7 @@
             this.label63.Name = "label63";
             this.label63.Size = new System.Drawing.Size(236, 65);
             this.label63.TabIndex = 42;
-            this.label63.Text = "% Copper coverage by metal layer type.";
+            this.label63.Text = "% Copper coverage by metal layer type:";
             // 
             // label69
             // 
@@ -262,7 +266,7 @@
             // 
             this.rbPrepregProportional.AutoSize = true;
             this.rbPrepregProportional.Checked = true;
-            this.rbPrepregProportional.Location = new System.Drawing.Point(29, 265);
+            this.rbPrepregProportional.Location = new System.Drawing.Point(29, 372);
             this.rbPrepregProportional.Margin = new System.Windows.Forms.Padding(2);
             this.rbPrepregProportional.Name = "rbPrepregProportional";
             this.rbPrepregProportional.Size = new System.Drawing.Size(179, 17);
@@ -295,7 +299,7 @@
             this.panelPrepregPercent.Controls.Add(this.label58);
             this.panelPrepregPercent.Controls.Add(this.tbSignal_Plane);
             this.panelPrepregPercent.Controls.Add(this.label55);
-            this.panelPrepregPercent.Location = new System.Drawing.Point(18, 47);
+            this.panelPrepregPercent.Location = new System.Drawing.Point(18, 156);
             this.panelPrepregPercent.Name = "panelPrepregPercent";
             this.panelPrepregPercent.Size = new System.Drawing.Size(543, 208);
             this.panelPrepregPercent.TabIndex = 41;
@@ -323,7 +327,7 @@
             this.label52.Size = new System.Drawing.Size(236, 156);
             this.label52.TabIndex = 28;
             this.label52.Text = "Set final pressed thickness of prepreg materials as a percentage of the base mate" +
-    "rial when prepreg is pressed between.";
+    "rial when prepreg is pressed between:";
             // 
             // label61
             // 
@@ -502,7 +506,7 @@
             // rbPrepregPercent
             // 
             this.rbPrepregPercent.AutoSize = true;
-            this.rbPrepregPercent.Location = new System.Drawing.Point(29, 45);
+            this.rbPrepregPercent.Location = new System.Drawing.Point(29, 154);
             this.rbPrepregPercent.Margin = new System.Windows.Forms.Padding(2);
             this.rbPrepregPercent.Name = "rbPrepregPercent";
             this.rbPrepregPercent.Size = new System.Drawing.Size(180, 17);
@@ -515,23 +519,60 @@
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.lSequentialLamination);
+            this.groupBox2.Controls.Add(this.label17);
+            this.groupBox2.Controls.Add(this.label16);
+            this.groupBox2.Controls.Add(this.lSequentialLaminationN);
+            this.groupBox2.Controls.Add(this.lSequentialLaminationX);
+            this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.groupBox3);
             this.groupBox2.Controls.Add(this.cbSequentialLamination);
-            this.groupBox2.Location = new System.Drawing.Point(18, 442);
+            this.groupBox2.Location = new System.Drawing.Point(18, 38);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(543, 108);
             this.groupBox2.TabIndex = 42;
             this.groupBox2.TabStop = false;
             // 
-            // lSequentialLamination
+            // label17
             // 
-            this.lSequentialLamination.Location = new System.Drawing.Point(30, 34);
-            this.lSequentialLamination.Name = "lSequentialLamination";
-            this.lSequentialLamination.Size = new System.Drawing.Size(238, 55);
-            this.lSequentialLamination.TabIndex = 45;
-            this.lSequentialLamination.Text = "This stackup uses sequential lamination with 0 build-up layers added after the fi" +
-    "rst lamination pass involving 0 layers.";
+            this.label17.Location = new System.Drawing.Point(8, 62);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(224, 23);
+            this.label17.TabIndex = 45;
+            this.label17.Text = "layers.";
+            // 
+            // label16
+            // 
+            this.label16.Location = new System.Drawing.Point(8, 48);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(224, 23);
+            this.label16.TabIndex = 45;
+            this.label16.Text = "build-up layers added after the first lamination pass involving";
+            // 
+            // lSequentialLaminationN
+            // 
+            this.lSequentialLaminationN.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lSequentialLaminationN.Location = new System.Drawing.Point(236, 48);
+            this.lSequentialLaminationN.Name = "lSequentialLaminationN";
+            this.lSequentialLaminationN.Size = new System.Drawing.Size(23, 23);
+            this.lSequentialLaminationN.TabIndex = 45;
+            this.lSequentialLaminationN.Text = "0";
+            // 
+            // lSequentialLaminationX
+            // 
+            this.lSequentialLaminationX.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lSequentialLaminationX.Location = new System.Drawing.Point(236, 34);
+            this.lSequentialLaminationX.Name = "lSequentialLaminationX";
+            this.lSequentialLaminationX.Size = new System.Drawing.Size(23, 23);
+            this.lSequentialLaminationX.TabIndex = 45;
+            this.lSequentialLaminationX.Text = "0";
+            // 
+            // label15
+            // 
+            this.label15.Location = new System.Drawing.Point(8, 34);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(224, 23);
+            this.label15.TabIndex = 45;
+            this.label15.Text = "This stackup uses sequential lamination with";
             // 
             // groupBox3
             // 
@@ -566,13 +607,12 @@
             this.cbSequentialLamination.TabIndex = 35;
             this.cbSequentialLamination.Text = "Enable sequential lamination";
             this.cbSequentialLamination.UseVisualStyleBackColor = true;
-            this.cbSequentialLamination.CheckedChanged += new System.EventHandler(this.cbSequentialLamination_CheckedChanged);
             // 
             // PressedThicknessDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(579, 606);
+            this.ClientSize = new System.Drawing.Size(579, 577);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.rbPrepregProportional);
             this.Controls.Add(this.rbPrepregPercent);
@@ -584,7 +624,6 @@
             this.Controls.Add(this.btnOK);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PressedThicknessDialog";
-            this.ShowInTaskbar = false;
             this.Text = "  Pressed Thickness Settings";
             this.panelPrepregProportional.ResumeLayout(false);
             this.panelPrepregProportional.PerformLayout();
@@ -642,7 +681,11 @@
         private System.Windows.Forms.RadioButton rbPrepregProportional;
         private System.Windows.Forms.RadioButton rbPrepregPercent;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label lSequentialLamination;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label lSequentialLaminationN;
+        private System.Windows.Forms.Label lSequentialLaminationX;
+        private System.Windows.Forms.Label label15;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.CheckBox cbSequentialLamination;

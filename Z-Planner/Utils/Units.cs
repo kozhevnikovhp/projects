@@ -12,6 +12,10 @@ namespace ZZero.ZPlanner.Utils
         public const double MilsToMeters = 1 / MetersToMils;
         public const float fMetersToMils = 100000 / 2.54f;
         public const float fMilsToMeters = 1 / fMetersToMils;
+        public const double fMilsToMikrons = 1000 * 1000 * fMilsToMeters;
+        public const double fMikronsToMils = 1 / fMilsToMikrons;
+        public const double fMilsToMillimeters = 1000 * fMilsToMeters;
+        public const double fMillimetersToMils = 1 / fMilsToMillimeters;
 
         public static float fOzToMils 
         { 

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using ZZero.ZPlanner.ZConfiguration;
 using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.Utils;
 using System.Globalization;
 using ZZero.ZPlanner.Commands;
 using System.Text.RegularExpressions;
@@ -13,7 +14,7 @@ using System.Windows.Forms;
 namespace ZZero.ZPlanner.Data.Entities
 {
     enum ZValueType { Text, Number, Boolean, Select, Span, Container, Percent, Link, Ratio, Table}
-    enum ZMeasures { None, In, Um, C, GHz, Mils, Percent, Oz, Db, Db_per_In, Ns, In_per_Ns, Ohm, Ohm_by_M, Gb_per_s, pS }
+    enum ZMeasures { None, In, Um, Mm, C, GHz, Mils, Percent, Oz, Db, Db_per_In, Ns, In_per_Ns, Ohm, Ohm_by_M, Gb_per_s, pS }
     enum ZLayerType {Core, Prepreg, SolderMask, Plane, Signal, SplitMixed }
     enum ZLibraryCategory { ZZero, Corporate, Local}
     public enum ZTableType { Undefined, Stackup, Viaspan, Single, Pair }
@@ -26,24 +27,14 @@ namespace ZZero.ZPlanner.Data.Entities
     abstract class ZEntity
     {
         string _id;
-        public string ID 
-        { 
-            get 
-            { 
-                return _id; 
-            } 
-            set 
-            { 
-                _id = value; 
-                string foundID = idList.Find(x => x == _id);
-                if (foundID == null) idList.Add(_id); 
-            } 
-        }
+        public string ID { get { return _id; } set { _id = value; idList.Add(_id); } }
 
         string _title;
+        public virtual string getTitle() { return _title; }
+
         public string Title
         {
-            get { return _title; }
+            get { return getTitle(); }
             set { if (value != _title) { new ChangeEntityTitleCommand(this, _title, value); _title = value; NotifyPropertyChanged("Title"); } }
         }
 
@@ -89,9 +80,6 @@ namespace ZZero.ZPlanner.Data.Entities
             return newTitle;
         }
 
-        internal static List<string> IdList
-        { get { return idList; } }
-
         protected static List<string> idList = new List<string>();
 
         public override string ToString()
@@ -115,6 +103,56 @@ namespace ZZero.ZPlanner.Data.Entities
         }
 
         public ZList<ZMaterialParameter> MaterialParameters { get; private set; }
+
+        public void SetLengthDisplayUnits()
+        {
+            if (Options.TheOptions.isUnitsEnglish())
+                this.DisplayMeasure = ZMeasures.Mils;
+            else if (Options.TheOptions.isUnitsMetric())
+            {
+                if (ID == ZStringConstants.ParameterIDPrepregThickness ||
+                    ID == ZStringConstants.ParameterIDThickness ||
+                    ID == ZStringConstants.ParameterIDOriginThickness)
+                    this.DisplayMeasure = ZMeasures.Um;
+                else if (ID == ZStringConstants.ParameterIDZo_TraceSpacing ||
+                    ID == ZStringConstants.ParameterIDZo_TraceWidth ||
+                    ID == ZStringConstants.ParameterIDZdiff_TraceWidth ||
+                    ID == ZStringConstants.ParameterIDZdiff_TraceSpacing ||
+                    ID == ZStringConstants.ParameterIDWeavePitch ||
+                    ID == ZStringConstants.ParameterIDFillPitch ||
+                    ID == ZStringConstants.ParameterIDZdiff_TracePitch ||
+                    ID == ZStringConstants.ParameterIDZdiff_WeavePitch ||
+                    ID == ZStringConstants.ParameterIDZdiff_FillPitch)
+                    this.DisplayMeasure = ZMeasures.Mm;
+            }
+        }
+
+        public override string getTitle()
+        {
+            string ret = base.getTitle();
+            if (ID == ZStringConstants.ParameterIDPrepregThickness   ||
+                ID == ZStringConstants.ParameterIDThickness          ||
+                ID == ZStringConstants.ParameterIDOriginThickness    ||
+                ID == ZStringConstants.ParameterIDZo_TraceSpacing    ||
+                ID == ZStringConstants.ParameterIDZo_TraceWidth      ||
+                ID == ZStringConstants.ParameterIDZdiff_TraceWidth ||
+                ID == ZStringConstants.ParameterIDZdiff_TraceSpacing ||
+                ID == ZStringConstants.ParameterIDFillPitch ||
+                ID == ZStringConstants.ParameterIDWeavePitch         ||
+                ID == ZStringConstants.ParameterIDZdiff_TracePitch   ||
+                ID == ZStringConstants.ParameterIDZdiff_WeavePitch   ||
+                ID == ZStringConstants.ParameterIDZdiff_FillPitch)
+            {
+                if (DisplayMeasure == ZMeasures.Mils)
+                    ret += " (mils)";
+                else if (DisplayMeasure == ZMeasures.Um)
+                    ret += " (um)";
+                else if (DisplayMeasure == ZMeasures.Mm)
+                    ret += " (mm)";
+            }
+            //Console.WriteLine(ret);
+            return ret;
+        }
 
         string _description;
         public string Description 
@@ -925,11 +963,6 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
-        public override string ToString()
-        {
-            return this.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
-        }
-
         public bool Compare(ZLayer otherLayer)
         {
             if (otherLayer == null) return false;
@@ -1014,12 +1047,6 @@ namespace ZZero.ZPlanner.Data.Entities
             return metals.Contains(GetLayerType()); 
         }
 
-        public bool isSignalOrMixed()
-        {
-            var metals = new List<ZLayerType?> { ZLayerType.Signal, ZLayerType.SplitMixed };
-            return metals.Contains(GetLayerType());
-        }
-
         public bool isDielectric()
         {
             var dielectrics = new List<ZLayerType?> { ZLayerType.Core, ZLayerType.Prepreg, ZLayerType.SolderMask };
@@ -1047,21 +1074,20 @@ namespace ZZero.ZPlanner.Data.Entities
             public List<ZLayer> refsDown;
             public ZLayer defUp, defDown;
 
-            public PlaneReferences()
+            PlaneReferences()
             {
                 refsUp = new List<ZLayer>();
                 refsDown = new List<ZLayer>();
                 defUp = null;
                 defDown = null;
             }
-
         }
 
-        public bool GetPlaneReferences(out PlaneReferences Refs)
+        public bool GetPlaneReferences(ref PlaneReferences Refs)
         {
-            Refs = new PlaneReferences();
+            if (!isMetal()) return false;
+            if (GetLayerType() == ZLayerType.Plane) return false;
 
-            if (!isSignalOrMixed()) return false;
 
             Refs.defUp = null;
             Refs.defDown = null;
@@ -1091,60 +1117,64 @@ namespace ZZero.ZPlanner.Data.Entities
                         break;
                 }
             }
-            int upCnt = Refs.refsUp.Count; 
+            int upCnt =Refs.refsUp.Count; 
             if (upCnt > 0){
-                //exclude screened layers
-                int iPlane = -1;
-                int iRemove = 0;
-                for (int i = upCnt - 1; i >= 0; i--)
-                {
-                    if (iPlane >= 0)
-                    {
-                        iRemove++;
-                    }
-                    else
-                    {
-                        if (Refs.refsUp[i].GetLayerType() == ZLayerType.Plane)
-                        {
-                            iPlane = i;
-                        }
-                    }
-                }
-                if (iPlane >= 0)
-                {
-                    Refs.refsUp.RemoveRange(0, iRemove);
-                }
-                //set default
-                Refs.defUp = Refs.refsUp[Refs.refsUp.Count - 1]; // the last
+                Refs.defUp = Refs.refsUp[upCnt - 1]; // the last
             }
             if (Refs.refsDown.Count > 0){
-                //remove screened layers
-                int iPlane = -1;
-                int iRemove = 0;
-                for (int i = 0; i < Refs.refsDown.Count; i++)
-                {
-                    if (iPlane >= 0)
-                    {
-                        iRemove++;
-                    }
-                    else
-                    {
-                        if (Refs.refsDown[i].GetLayerType() == ZLayerType.Plane)
-                        {
-                            iPlane = i;
-                        }
-                    }
-                }
-                if (iPlane >= 0)
-                {
-                    Refs.refsDown.RemoveRange(iPlane + 1, iRemove);
-                }
-
-                //set default
                 Refs.defDown = Refs.refsDown[0];
             }            
             
             return true;
+        }
+
+        public bool GetReferences(out ZLayer lUp, out ZLayer lDown)
+        {
+            lUp = null;
+            lDown = null;
+
+            bool bUp = true;
+            if (GetLayerType() == ZLayerType.Signal || GetLayerType() == ZLayerType.SplitMixed)
+            {
+                foreach (ZLayer l in Stackup.Layers)
+                {
+                    if (l.ID == ID)
+                    {
+                        bUp = false;
+                        continue;
+                    }
+                    bool bRef = false;
+                    switch (l.GetLayerType())
+                    {
+                        case ZLayerType.Plane:
+                            bRef = true;
+                            break;
+                        case ZLayerType.SplitMixed:
+                            string planeRef = "";
+                            if (ZPlannerProject.GetLayerParameterValue(l, ZStringConstants.ParameterIDPlaneReference, ref planeRef))
+                            {
+                                if (planeRef == ZStringConstants.PlaneReference)
+                                {
+                                    bRef = true;
+                                }
+                            }
+                            break;
+                    }
+                    if (bRef)
+                    {
+                        if (bUp)
+                        {
+                            lUp = l;
+                        }
+                        else
+                        {
+                            lDown = l;
+                            break;
+                        }
+                    }
+                }
+            }
+            return lUp != null || lDown != null;
         }
 
         internal bool HasValues(string[] arrayOfLayerParameterID)
@@ -1549,9 +1579,14 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
+        public bool NeedToUpdate(string value)
+        {
+            return (value != _value);
+        }
+
         public void SetEditedValue(string value)
         {
-            if (value != _value)
+            if (NeedToUpdate(value))
             {
                 if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeLayerParameterValueCommand(this, _value, value, IsEdited, true);
                 bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
@@ -1564,7 +1599,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public void SetUnEditedValue(string value)
         {
-            if (value != _value)
+            if (NeedToUpdate(value))
             {
                 if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeLayerParameterValueCommand(this, _value, value, IsEdited, false);
                 bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
@@ -1575,10 +1610,9 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
-        public bool IsReadOnly(bool isIgnoreLayerAndParameter = false, bool isIgnoreMaterialAssigned = false, bool isIgnoreCustomParameters = false)
+        public bool IsReadOnly(bool isIgnoreLayerAndParameter = false, bool isIgnoreMaterialAssigned = false)
         {
             if(Layer == null || Parameter == null) return false;
-            if(isIgnoreCustomParameters && Parameter.IsCustom) return false; 
             ZLayerType? layerTypeOrNull = Layer.GetLayerType();
             if (layerTypeOrNull == null) return false;
             ZLayerType layerType = (ZLayerType)layerTypeOrNull;
@@ -1607,10 +1641,6 @@ namespace ZZero.ZPlanner.Data.Entities
                     return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || !(layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed);
                 case ZStringConstants.ParameterIDZo_Frequency:
                 case ZStringConstants.ParameterIDZdiff_Frequency:
-                case ZStringConstants.ParameterIDZo_TopReference:
-                case ZStringConstants.ParameterIDZo_BottomReference:
-                case ZStringConstants.ParameterIDZdiff_TopReference:
-                case ZStringConstants.ParameterIDZdiff_BottomReference:
                     return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || !(layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed);
                 case ZStringConstants.ParameterIDZo_InsertionLoss:
                 case ZStringConstants.ParameterIDZdiff_InsertionLoss:
@@ -1628,9 +1658,9 @@ namespace ZZero.ZPlanner.Data.Entities
                 case ZStringConstants.ParameterIDZo_TraceWidth:
                 case ZStringConstants.ParameterIDZo_TraceSpacing:
                 case ZStringConstants.ParameterIDZdiff_TraceWidth:
+                case ZStringConstants.ParameterIDZdiff_TraceSpacing:
                 case ZStringConstants.ParameterIDZdiff_IsUsed:
                 case ZStringConstants.ParameterIDZo_IsUsed:
-                case ZStringConstants.ParameterIDZdiff_TraceSpacing:
                 case ZStringConstants.ParameterIDZo_Zo:
                 case ZStringConstants.ParameterIDZdiff_Zo:
                 case ZStringConstants.ParameterIDZdiff_Zdiff:
@@ -1689,11 +1719,7 @@ namespace ZZero.ZPlanner.Data.Entities
                             return ZStringConstants.PlaneReference;
                         default: return ZStringConstants.PlaneReferenceNA;
                     }
-                case ZStringConstants.ParameterIDZo_TopReference:
-                case ZStringConstants.ParameterIDZo_BottomReference:
-                case ZStringConstants.ParameterIDZdiff_TopReference:
-                case ZStringConstants.ParameterIDZdiff_BottomReference:
-                    return ZStringConstants.PlaneReferenceNA;                    
+                    
                 case ZStringConstants.ParameterIDLayerName:
                     return string.Empty;
                 case ZStringConstants.ParameterIDMaterial:
@@ -2726,7 +2752,6 @@ namespace ZZero.ZPlanner.Data.Entities
                 layer.SetTitle("Row " + (index < 10 ? " " : "") + index);
             }
             CalculateLayerNumber();
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
         }
 
         void Layers_BeforeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -3220,7 +3245,6 @@ namespace ZZero.ZPlanner.Data.Entities
             }
 
             CalculateLayerNumber();
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
 
             // Select Layer
             if (ZPlannerManager.StackupPanel != null && isSetSelection) ZPlannerManager.StackupPanel.AddRowSelection(layerStructure.Index);
@@ -3247,8 +3271,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
                 currentLayerStructure.SingleLayers.Add(single.ID, singleLayer);
 
-                // We do not remove Single and Pair on Row remove
-                /*if (singleLayer.isMetal())
+                if (singleLayer.isMetal())
                 {
                     foreach (ZLayerParameter layerParameter in singleLayer.LayerParameters)
                     {
@@ -3258,7 +3281,7 @@ namespace ZZero.ZPlanner.Data.Entities
                             break;
                         }
                     }
-                }*/
+                }
             }
 
             // Pair Layers
@@ -3272,8 +3295,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
                 currentLayerStructure.PairLayers.Add(pair.ID, pairLayer);
 
-                // We do not remove Single and Pair on Row remove
-                /*if (pairLayer.isMetal())
+                if (pairLayer.isMetal())
                 {
                     foreach (ZLayerParameter layerParameter in pairLayer.LayerParameters)
                     {
@@ -3284,7 +3306,6 @@ namespace ZZero.ZPlanner.Data.Entities
                         }
                     }
                 }
-                */
             }
 
             // ViaSpans.
@@ -4442,9 +4463,9 @@ namespace ZZero.ZPlanner.Data.Entities
 
                         currentLayerParameterStructure.LayerParameter = lParameter;
                         currentLayerParameterStructure.OldValue = lParameter.Value;
-                        /*if (lParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed)
+                        if (lParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed)
                             currentLayerParameterStructure.NewValue = "false";
-                        else*/
+                        else
                             currentLayerParameterStructure.NewValue = lParameter.GetDefaulLayerParameterValue(lType);
                         currentLayerParameterStructure.RemovedSpans = new Dictionary<ZSpan, int>();
 
@@ -4465,9 +4486,9 @@ namespace ZZero.ZPlanner.Data.Entities
 
                         currentLayerParameterStructure.LayerParameter = lParameter;
                         currentLayerParameterStructure.OldValue = lParameter.Value;
-                        /*if (lParameter.ID == ZStringConstants.ParameterIDZo_IsUsed)
+                        if (lParameter.ID == ZStringConstants.ParameterIDZo_IsUsed)
                             currentLayerParameterStructure.NewValue = "false";
-                        else*/
+                        else
                             currentLayerParameterStructure.NewValue = lParameter.GetDefaulLayerParameterValue(lType);
                         currentLayerParameterStructure.RemovedSpans = new Dictionary<ZSpan, int>();
 
@@ -4535,9 +4556,9 @@ namespace ZZero.ZPlanner.Data.Entities
 
                                 mirrorLayerParameterStructure.LayerParameter = lParameter;
                                 mirrorLayerParameterStructure.OldValue = lParameter.Value;
-                                /*if (lParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed)
+                                if (lParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed)
                                     mirrorLayerParameterStructure.NewValue = "false";
-                                else*/
+                                else
                                     mirrorLayerParameterStructure.NewValue = lParameter.GetDefaulLayerParameterValue(lType);
                                 mirrorLayerParameterStructure.RemovedSpans = new Dictionary<ZSpan, int>();
 
@@ -4560,9 +4581,9 @@ namespace ZZero.ZPlanner.Data.Entities
 
                                 mirrorLayerParameterStructure.LayerParameter = lParameter;
                                 mirrorLayerParameterStructure.OldValue = lParameter.Value;
-                                /*if (lParameter.ID == ZStringConstants.ParameterIDZo_IsUsed)
+                                if (lParameter.ID == ZStringConstants.ParameterIDZo_IsUsed)
                                     mirrorLayerParameterStructure.NewValue = "false";
-                                else*/
+                                else
                                     mirrorLayerParameterStructure.NewValue = lParameter.GetDefaulLayerParameterValue(lType);
                                 mirrorLayerParameterStructure.RemovedSpans = new Dictionary<ZSpan, int>();
 
@@ -4593,7 +4614,6 @@ namespace ZZero.ZPlanner.Data.Entities
                 }
 
                 CalculateLayerNumber();
-                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
                 ZPlannerManager.MainMenu.UpdateMenu();
                 ZPlannerManager.UpdateActiveStackup();
                 
@@ -5215,7 +5235,6 @@ namespace ZZero.ZPlanner.Data.Entities
                     }
 
                     ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
-                    if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
                     ZPlannerManager.UpdateActiveStackup();
                     if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
                     if (!ZPlannerManager.Commands.IsIgnoreCommands) new MirrorLayersAndValuesCommand(this, layerStructureDictionary);
@@ -5255,7 +5274,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public bool IsMirroredByTypesAndValues()
         {
-            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDLayerNumber, ZStringConstants.ParameterIDLayerName, ZStringConstants.ParameterIDCopperPercent, ZStringConstants.ParameterIDNarrowTop, ZStringConstants.ParameterIDCalcRoughTop, ZStringConstants.ParameterIDCalcRoughBottom, ZStringConstants.ParameterIDZo_InsertionLoss, ZStringConstants.ParameterIDZo_TotalLoss, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TotalLoss, ZStringConstants.ParameterIDZo_TopReference, ZStringConstants.ParameterIDZo_BottomReference, ZStringConstants.ParameterIDZdiff_TopReference, ZStringConstants.ParameterIDZdiff_BottomReference });
+            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDLayerNumber, ZStringConstants.ParameterIDLayerName, ZStringConstants.ParameterIDCopperPercent, ZStringConstants.ParameterIDNarrowTop, ZStringConstants.ParameterIDCalcRoughTop, ZStringConstants.ParameterIDCalcRoughBottom, ZStringConstants.ParameterIDZo_InsertionLoss, ZStringConstants.ParameterIDZo_TotalLoss, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TotalLoss });
             
             for (int i = 0; i < (int)(Layers.Count * 0.5); ++i)
             {
@@ -5756,7 +5775,6 @@ namespace ZZero.ZPlanner.Data.Entities
         internal bool IsAutoMirror;
         internal bool IsHeadersVisible;
         internal bool IsColorDisabledCells;
-        internal bool IsSequentialLaminationSetByUser;
 
 
         internal double GetFrequencyByLayer(ZLayer layer)
@@ -6036,50 +6054,6 @@ namespace ZZero.ZPlanner.Data.Entities
                         //--ZLayer zSingleLayer = zl.Stackup.GetLayerOfSingleImpedance(zl.ID);
                         ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDNarrowTop, bNarrowTop);
                         break;
-                }
-            }
-        }
-
-        public void UpdateSequentialLamination()
-        {
-            bool bEnabled = ZPlannerManager.IsSequentialLamination;
-            if (! bEnabled){
-                foreach (ZLayer z in Layers)
-                {
-                    if (z.GetLayerType() == ZLayerType.Prepreg)
-                    {
-                        ZPlannerProject.SetLayerParameterValue(z, ZStringConstants.ParameterIDSequentialLamination, false);
-                            //GetLayerParameterValue(zl, ZStringConstants.ParameterIDSequentialLamination, ref bSequentialLamination);
-                    }
-                }
-            }
-            else {
-                int x = SequentialLamination();
-                if (x < 0) x = 0;
-                int n = GetMetallLayerCount() - (2 * x);
-                if (n < 0) n = 0;
-                if (x > 0)
-                {
-                    int nLayers = Layers.Count;
-                    for (int i = 1; i <= nLayers / 2; i++)
-                    {
-                        ZLayer z = Layers[i];
-                        if (z.GetLayerType() == ZLayerType.Core) break;
-                        if (z.GetLayerType() == ZLayerType.Prepreg)
-                        {
-                            ZPlannerProject.SetLayerParameterValue(z, ZStringConstants.ParameterIDSequentialLamination, true);
-                        }
-                    }
-
-                    for (int i = nLayers - 1; i >= nLayers / 2; i--)
-                    {
-                        ZLayer z = Layers[i];
-                        if (z.GetLayerType() == ZLayerType.Core) break;
-                        if (z.GetLayerType() == ZLayerType.Prepreg)
-                        {
-                            ZPlannerProject.SetLayerParameterValue(z, ZStringConstants.ParameterIDSequentialLamination, true);
-                        }
-                    }
                 }
             }
         }
@@ -6381,12 +6355,20 @@ namespace ZZero.ZPlanner.Data.Entities
                 currMetal = zl.isMetal();
                 if (currMetal) nMetals++;
                 currType = zl.GetLayerType();
-                switch (currType)
+                if (currType == ZLayerType.Plane)
                 {
-                    case ZLayerType.Plane:
-                    case ZLayerType.SplitMixed:
-                        numPlanes++;
-                        break;
+                    numPlanes++;
+                }
+                else if (currType == ZLayerType.SplitMixed)
+                {
+                    string s = "";
+                    if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPlaneReference, ref s))
+                    {
+                        if (s == ZStringConstants.PlaneReference)
+                        {
+                            numPlanes++;
+                        }
+                    }
                 }
 
                 currIdx = GetLayerOfStackupIndex(zl.ID);
@@ -6587,7 +6569,7 @@ namespace ZZero.ZPlanner.Data.Entities
                 prevIdx = currIdx;
             }
 
-            if (numPlanes == 0) // && nMetals > 2)
+            if (numPlanes == 0) //&& nMetals > 2)
             {
                 message = "Stackup must have at least one plane.";
                 return false;
@@ -6596,14 +6578,15 @@ namespace ZZero.ZPlanner.Data.Entities
         }
         //---------------------------------------------------------------------------------------------------
 
-        public int SequentialLamination(bool bCheckSymmetry = false)
+        public int SequentialLamination()
         {
+            int retval = 0; //no sequential lamination
             //look for sequential lamination structure(s)
             int nLayers = Layers.Count;
             int middle = nLayers / 2 + 1;//1-based
 
             int count = Layers.Count;
-            int iMetal = 0; //no sequential lamination
+            int iMetal = 0;
 
             bool bCore = false; //core layer is the reason search was stopped
             bool bSymmetry = false;  //symmetry is the reason search was stopped
@@ -6619,39 +6602,25 @@ namespace ZZero.ZPlanner.Data.Entities
                     break; 
                 }
 
-                if (tUp == ZLayerType.Core || tDown == ZLayerType.Core)
+                if (tUp == ZLayerType.Core)
                 {
                     bCore = true;
                     break;
                 }
 
-                if (bCheckSymmetry)
+                double hUp = 0, hDown = 0;
+                ZPlannerProject.GetLayerParameterValue(zlUp, ZStringConstants.ParameterIDThickness, ref hUp);
+                ZPlannerProject.GetLayerParameterValue(zlDown, ZStringConstants.ParameterIDThickness, ref hDown);
+                double eps = 0.0001;
+                if (Math.Abs(hUp - hDown) > eps)
                 {
-                    double hUp = 0, hDown = 0;
-                    ZPlannerProject.GetLayerParameterValue(zlUp, ZStringConstants.ParameterIDThickness, ref hUp);
-                    ZPlannerProject.GetLayerParameterValue(zlDown, ZStringConstants.ParameterIDThickness, ref hDown);
-                    double eps = 0.0001;
-                    if (Math.Abs(hUp - hDown) > eps)
-                    {
-                        bSymmetry = true;
-                        break;
-                    }
+                    bSymmetry = true;
+                    break;
                 }
 
                 if (zlUp.isMetal())
                 {
-                    //check for (core ==> prepreg + metal) pair
-                    ZLayer lPreg = Layers[i];
-                    ZLayer lPreg1 = Layers[count - i - 1];
-                    if (lPreg.GetLayerType() == ZLayerType.Prepreg && lPreg1.GetLayerType() == ZLayerType.Prepreg)
-                    {
-                        iMetal++;
-                    }
-                    else
-                    {
-                        bSymmetry = true; //reuse symmetry flag
-                        break;
-                    }
+                    iMetal++;
                 }
 
             }
@@ -6674,8 +6643,9 @@ namespace ZZero.ZPlanner.Data.Entities
             {
                 iMetal--;
             }
-            
-            return iMetal;
+            retval = iMetal;
+
+            return retval;
         }
     }
 

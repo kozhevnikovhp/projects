@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Data.Entities;
 using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.Data.Properties
@@ -65,12 +66,16 @@ namespace ZZero.ZPlanner.Data.Properties
         {
             //board thickness
             string format = "{0:N" + Options.TheOptions.lengthDigits.ToString() +"}";
-            string thick = String.Format(format, stackup.GetBoardThickness());
+            double fThickness = Settings.Options.TheOptions.convertMilsToCurrentBoardThicknessUnits(stackup.GetBoardThickness());
+            string thick = String.Format(format, fThickness);
 
             ZDynamicComponent component = new ZDynamicComponent(stackup);
             component.AddProperty(stackup, ZStringConstants.TitleDictionary["StackupTitle"], stackup.Title, ZStringConstants.DescriptionDictionary["Title"], ZStringConstants.CategoryStackupParameters, typeof(string), "", null, false, false, null, null);
             component.AddProperty(stackup, ZStringConstants.TitleDictionary["Frequency"], stackup.Frequency, ZStringConstants.DescriptionDictionary["Frequency"], ZStringConstants.CategoryStackupParameters, typeof(double), "N" + Settings.Options.TheOptions.frequencyDigits, null, false, false, null, null);
-            component.AddProperty(stackup, ZStringConstants.TitleDictionary["BoardThickness"], thick, ZStringConstants.DescriptionDictionary["BoardThickness"], ZStringConstants.CategoryStackupParameters, typeof(string), "", null, true, false, null, null);
+            String DictionaryKey = "BoardThicknessEnglish";
+            if (Options.TheOptions.isUnitsMetric())
+                DictionaryKey = "BoardThicknessMetric";
+            component.AddProperty(stackup, ZStringConstants.TitleDictionary[DictionaryKey], thick, ZStringConstants.DescriptionDictionary[DictionaryKey], ZStringConstants.CategoryStackupParameters, typeof(string), "", null, true, false, null, null);
             return component;
         }
 
@@ -88,12 +93,19 @@ namespace ZZero.ZPlanner.Data.Properties
                 Type editorType = null;
                 if (listCollection != null) converterType = typeof(ListTypeConverter);
                 if (layerParameter.Parameter.ValueType == ZValueType.Link) continue;
-                if (layerParameter.Parameter.ValueType == ZValueType.Number) converterType = typeof(DoubleTypeConverter);
+                if (layerParameter.Parameter.ValueType == ZValueType.Number)
+                {
+                    if (layerParameter.ID == ZStringConstants.ParameterIDPrepregThickness ||
+                        layerParameter.ID == ZStringConstants.ParameterIDThickness ||
+                        layerParameter.ID == ZStringConstants.ParameterIDOriginThickness)
+                        converterType = typeof(DoubleTypeMilsToMikronsConverter);
+                    else
+                        converterType = typeof(DoubleTypeConverter);
+                }
                 // This can be used in V2
                 if (layerParameter.Parameter.ValueType == ZValueType.Table) { converterType = typeof(TableTypeConverter); /*editorType = typeof(TableTypeEditor);*/ }
                 if (layerParameter.Parameter.ValueType == ZValueType.Percent) converterType = typeof(PercentTypeConverter);
-                bool isReadOnly = layerParameter.IsReadOnly();
-                component.AddProperty(layerParameter, layerParameter.Parameter.Title, GetParameterValue(layerParameter.Value, layerParameter.Parameter.ValueType), layerParameter.Parameter.Description, "1 " + ZStringConstants.CategoryLayerParameters, GetParameterType(layerParameter.Parameter.ValueType), ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), listCollection, isReadOnly, false, editorType, converterType);
+                component.AddProperty(layerParameter, layerParameter.Parameter.Title, GetParameterValue(layerParameter.Value, layerParameter.Parameter.ValueType), layerParameter.Parameter.Description, "1 " + ZStringConstants.CategoryLayerParameters, GetParameterType(layerParameter.Parameter.ValueType), ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), listCollection, layerParameter.IsReadOnly(), false, editorType, converterType);
             }
 
             ZSingle single = layer.Stackup.ActiveSingle;
@@ -111,14 +123,21 @@ namespace ZZero.ZPlanner.Data.Properties
                         Type editorType = null;
                         if (listCollection != null) converterType = typeof(ListTypeConverter);
                         if (layerParameter.Parameter.ValueType == ZValueType.Link) continue;
-                        if (layerParameter.Parameter.ValueType == ZValueType.Number) converterType = typeof(DoubleTypeConverter);
+                        if (layerParameter.Parameter.ValueType == ZValueType.Number)
+                        {
+                            if (layerParameter.ID == ZStringConstants.ParameterIDZo_TraceWidth ||
+                                layerParameter.ID == ZStringConstants.ParameterIDZo_TraceSpacing ||
+                                layerParameter.ID == ZStringConstants.ParameterIDWeavePitch ||
+                                layerParameter.ID == ZStringConstants.ParameterIDFillPitch)
+                                converterType = typeof(DoubleTypeMilsToMillimetersConverter);
+                            else
+                                converterType = typeof(DoubleTypeConverter);
+                        }
                         // This can be used in V2
                         if (layerParameter.Parameter.ValueType == ZValueType.Table) { converterType = typeof(TableTypeConverter); /*editorType = typeof(TableTypeEditor);*/ }
                         if (layerParameter.Parameter.ValueType == ZValueType.Percent) converterType = typeof(PercentTypeConverter);
                         if (layerParameter.ID == ZStringConstants.ParameterIDZo_Frequency) converterType = typeof(FrequencyTypeConverter);
-                        bool isReadOnly = (layerParameter.ID == ZStringConstants.ParameterIDZo_TopReference ||
-                            layerParameter.ID == ZStringConstants.ParameterIDZo_BottomReference) ? true : layerParameter.IsReadOnly();
-                        component.AddProperty(layerParameter, layerParameter.Parameter.Title, GetParameterValue(layerParameter.Value, layerParameter.Parameter.ValueType), layerParameter.Parameter.Description, "2 " + ZStringConstants.CategorySingleParameters, GetParameterType(layerParameter.Parameter.ValueType), ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), listCollection, isReadOnly, false, editorType, converterType);
+                        component.AddProperty(layerParameter, layerParameter.Parameter.Title, GetParameterValue(layerParameter.Value, layerParameter.Parameter.ValueType), layerParameter.Parameter.Description, "2 " + ZStringConstants.CategorySingleParameters, GetParameterType(layerParameter.Parameter.ValueType), ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), listCollection, layerParameter.IsReadOnly(), false, editorType, converterType);
                     }
                 }
             }
@@ -139,15 +158,23 @@ namespace ZZero.ZPlanner.Data.Properties
                         Type editorType = null;
                         if (listCollection != null) converterType = typeof(ListTypeConverter);
                         if (layerParameter.Parameter.ValueType == ZValueType.Link) continue;
-                        if (layerParameter.Parameter.ValueType == ZValueType.Number) converterType = typeof(DoubleTypeConverter);
+                        if (layerParameter.Parameter.ValueType == ZValueType.Number)
+                        {
+                            if (layerParameter.ID == ZStringConstants.ParameterIDZdiff_TraceWidth ||
+                                layerParameter.ID == ZStringConstants.ParameterIDZdiff_TraceSpacing ||
+                                layerParameter.ID == ZStringConstants.ParameterIDZdiff_TracePitch   ||
+                                layerParameter.ID == ZStringConstants.ParameterIDZdiff_WeavePitch   ||
+                                layerParameter.ID == ZStringConstants.ParameterIDZdiff_FillPitch)
+                                converterType = typeof(DoubleTypeMilsToMillimetersConverter);
+                            else
+                                converterType = typeof(DoubleTypeConverter);
+                        }
                         // This can be used in V2
                         if (layerParameter.Parameter.ValueType == ZValueType.Table) { converterType = typeof(TableTypeConverter); /*editorType = typeof(TableTypeEditor);*/ }
                         if (layerParameter.Parameter.ValueType == ZValueType.Percent) converterType = typeof(PercentTypeConverter);
                         if (layerParameter.ID == ZStringConstants.ParameterIDZdiff_Frequency) converterType = typeof(FrequencyTypeConverter);
                         if (ZStringConstants.MovedFroStackupColumnIDs.Contains(layerParameter.ID)) value = layer.Stackup.GetMovedFromStackupLayerParameterValue(layerParameter);
-                        bool isReadOnly = (layerParameter.ID == ZStringConstants.ParameterIDZdiff_TopReference ||
-                            layerParameter.ID == ZStringConstants.ParameterIDZdiff_BottomReference) ? true : layerParameter.IsReadOnly();
-                        component.AddProperty(layerParameter, layerParameter.Parameter.Title, GetParameterValue(value, layerParameter.Parameter.ValueType), layerParameter.Parameter.Description, "3 " + ZStringConstants.CategoryPairParameters, GetParameterType(layerParameter.Parameter.ValueType), ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), listCollection, isReadOnly, false, editorType, converterType);
+                        component.AddProperty(layerParameter, layerParameter.Parameter.Title, GetParameterValue(value, layerParameter.Parameter.ValueType), layerParameter.Parameter.Description, "3 " + ZStringConstants.CategoryPairParameters, GetParameterType(layerParameter.Parameter.ValueType), ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), listCollection, layerParameter.IsReadOnly(), false, editorType, converterType);
                     }
                 }
             }

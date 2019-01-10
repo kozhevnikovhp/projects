@@ -25,6 +25,8 @@ namespace ZZero.ZPlanner.UI
                 val = Convert.ToDouble(tb.Text);
                 if (val < min || val > max)
                 {
+                    // TODO: improve number formatting to avoid smth like 1.9382498237434 when mils are being recalculated to millimeters
+                    // TODO: or, create special validator for metric support
                     ReportError(String.Format("{0} value must be in the range [{1} : {2}] ", name, min, max));
                     retval = false;
                 }

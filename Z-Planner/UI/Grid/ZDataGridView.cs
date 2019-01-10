@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Data.Entities;
+using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.UI.Grid
@@ -124,6 +126,12 @@ namespace ZZero.ZPlanner.UI.Grid
         {
             // This can be used in V2
             //this.CurrentCell.Value = frequencyDependedEditingControl.Value;
+        }
+
+        // EvgenyK
+        public void UnitsChanged()
+        {
+            Invalidate();
         }
 
         private List<string> sortOrder = new List<string>();
@@ -1130,7 +1138,7 @@ namespace ZZero.ZPlanner.UI.Grid
                 return;
             }
 
-            if (showMeasure && parameter.Measure != ZMeasures.None) cell.ToolTipText = formattedValue + " " + GetMeasureString(parameter.Measure);
+            if (showMeasure && parameter.Measure != ZMeasures.None) cell.ToolTipText = formattedValue + " " + GetMeasureString(parameter.DisplayMeasure);
             else cell.ToolTipText = formattedValue.ToString();
         }
 
@@ -1146,6 +1154,8 @@ namespace ZZero.ZPlanner.UI.Grid
                     return "in";
                 case ZMeasures.Mils:
                     return "mils";
+                case ZMeasures.Mm:
+                    return "mm";
                 case ZMeasures.Oz:
                     return "oz";
                 case ZMeasures.Percent:

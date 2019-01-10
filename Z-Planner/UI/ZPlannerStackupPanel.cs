@@ -17,6 +17,7 @@ using System.Drawing.Printing;
 using System.IO;
 using ZZero.ZPlanner.UI.Menu;
 using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.Commands;
 using ZZero.ZPlanner.UI.Dialogs;
 using System.Collections;
@@ -29,6 +30,7 @@ namespace ZZero.ZPlanner.UI
         ZPair pair;
         ZSingle single;
         Control curentEditingControl = null;
+        bool isUnitsBeingConverted = false; // EvgenyK (to avoid infinite converting units due to notifications)
         bool isLastColumnResizing = false;
         List<string> rowSelection = new List<string>();
 
@@ -356,8 +358,6 @@ namespace ZZero.ZPlanner.UI
             //stackupGridView.RowHeightChanged += dataGridView_ElementsResize;
 
             stackupGridView.CellValueChanged += dataGridView_CellValueChanged;
-            UpdateReferences();
-
             stackupGridView.EditingControlShowing += dataGridView_EditingControlShowing;
             stackupGridView.CellEndEdit += dataGridView_CellEndEdit;
 
@@ -398,6 +398,51 @@ namespace ZZero.ZPlanner.UI
                     if (layer != null && layer.IsMaterialAssigned) TryToEditMaterialAssignedRow();
                 }
             }
+
+            // EvgenyK lives here temporarily
+            if (e.ColumnIndex >= 0 && e.RowIndex >= 0)
+            {
+                ZDataGridViewColumn column = stackupGridView.Columns[e.ColumnIndex] as ZDataGridViewColumn;
+                ZDataGridViewRow row = stackupGridView.Rows[e.RowIndex] as ZDataGridViewRow;
+                if (column != null && row != null)
+                {
+                    ZParameter parameter = column.Tag as ZParameter;
+                    ZLayer layer = row.Tag as ZLayer;
+                    ZLayer diffLayer = stackup.GetLayerOfPairImpedance(layer.ID, pair.ID);
+                    bool bMetal = layer.GetLayerType() == ZLayerType.Signal || layer.GetLayerType() == ZLayerType.SplitMixed;
+                    if (diffLayer != null && bMetal && parameter != null && layer != null)
+                    {
+                        if (parameter.ID == ZStringConstants.ParameterIDZdiff_TraceSpacing || 
+                            parameter.ID == ZStringConstants.ParameterIDZdiff_TraceWidth)
+                        {
+                            FX_AutoFit_DiffPairWS autoFitData = new FX_AutoFit_DiffPairWS();
+                            autoFitData.layer_ = layer;
+                            autoFitData.diffLayer_ = diffLayer;
+                            // Take this from GUI
+                            autoFitData.bCanVaryS_ = true;
+                            autoFitData.fMinS_ = 6; // mils
+                            autoFitData.fMaxS_ = 50; // mils
+                            autoFitData.bCanVaryW_ = true;
+                            autoFitData.fMinW_ = 5; // mils
+                            autoFitData.fMaxW_ = 20; // mils
+                            autoFitData.fTargetImpedance_ = 90; // Ohms
+                            // end of GUI
+                            ZPlannerProject.GetLayerParameterValue(diffLayer, ZStringConstants.ParameterIDZdiff_TraceWidth, ref autoFitData.fW_);
+                            ZPlannerProject.GetLayerParameterValue(diffLayer, ZStringConstants.ParameterIDZdiff_TraceSpacing, ref autoFitData.fS_);
+
+                            //MessageBox.Show("a");
+                           // AutoFit_DiffPairWS dialog = new AutoFit_DiffPairWS();
+                            //if (dialog.ShowDialog() == DialogResult.OK)
+                            {
+                                FX.Run_AutoWS(stackup, pair, layer, ref autoFitData);
+
+                                ZPlannerProject.SetLayerParameterValue(diffLayer, ZStringConstants.ParameterIDZdiff_TraceSpacing, autoFitData.fS_.ToString());
+                                ZPlannerProject.SetLayerParameterValue(diffLayer, ZStringConstants.ParameterIDZdiff_TraceWidth, autoFitData.fW_.ToString());
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         void dataGridView_CurrentCellChanged(object sender, EventArgs e)
@@ -422,7 +467,6 @@ namespace ZZero.ZPlanner.UI
             if (single != null)
             {
                 AddSingle(single);
-                UpdateReferences();
                 SetReadOnlyCells();
                 FormatGridView();
                 stackup.ActiveSingle = single;
@@ -453,7 +497,6 @@ namespace ZZero.ZPlanner.UI
             if (pair != null)
             {
                 AddPair(pair);
-                UpdateReferences();
                 SetReadOnlyCells();
                 FormatGridView();
                 stackup.ActivePair = pair;
@@ -587,6 +630,7 @@ namespace ZZero.ZPlanner.UI
             {
                 case "IsHidden":
                 case "IsPrivate":
+                case "DisplayMeasure":
                     RecalculateColumnHeaderName();
                     ZPlannerManager.PropertiesPanel.UpdateProperties();
                     break;
@@ -878,9 +922,6 @@ namespace ZZero.ZPlanner.UI
                                 zRow.Cells[column.Index].Tag = layerParameter;
                                 layerParameter.PropertyChanged += (zRow.Cells[column.Index] as IZDataGridViewCell).ZLayerParameter_PropertyChanged;
                                 layerParameter.PropertyChanged += ZLayerParameter_PropertyChanged;
-
-                                if (layerParameter.ID == ZStringConstants.ParameterIDZo_TopReference ||
-                                    layerParameter.ID == ZStringConstants.ParameterIDZo_BottomReference) zRow.Cells[column.Index].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                             }
                         }
                     }
@@ -954,9 +995,6 @@ namespace ZZero.ZPlanner.UI
                                 zRow.Cells[column.Index].Tag = layerParameter;
                                 layerParameter.PropertyChanged += (zRow.Cells[column.Index] as IZDataGridViewCell).ZLayerParameter_PropertyChanged;
                                 layerParameter.PropertyChanged += ZLayerParameter_PropertyChanged;
-
-                                if (layerParameter.ID == ZStringConstants.ParameterIDZdiff_TopReference ||
-                                    layerParameter.ID == ZStringConstants.ParameterIDZdiff_BottomReference) zRow.Cells[column.Index].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                             }
                         }
                     }
@@ -1080,7 +1118,7 @@ namespace ZZero.ZPlanner.UI
                 ZLayerParameter layerParameter = cell.Tag as ZLayerParameter;
                 if (layerParameter != null)
                 {
-                    if (layerParameter.IsReadOnly(false, true, true)) { cell.Style.ForeColor = foreColor; cell.Style.Font = font; }
+                    if (layerParameter.IsReadOnly(false, true)) { cell.Style.ForeColor = foreColor; cell.Style.Font = font; }
                     else { cell.Style.ForeColor = Color.Empty; cell.Style.Font = null; }
                 }
             }
@@ -1257,7 +1295,7 @@ namespace ZZero.ZPlanner.UI
 
         void ZLayerParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDLayerType, ZStringConstants.ParameterIDLayerNumber, ZStringConstants.ParameterIDLayerName, ZStringConstants.ParameterIDCopperPercent, ZStringConstants.ParameterIDNarrowTop, ZStringConstants.ParameterIDCalcRoughTop, ZStringConstants.ParameterIDCalcRoughBottom, ZStringConstants.ParameterIDZo_InsertionLoss, ZStringConstants.ParameterIDZo_TotalLoss, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TotalLoss, ZStringConstants.ParameterIDZo_TopReference, ZStringConstants.ParameterIDZo_BottomReference, ZStringConstants.ParameterIDZdiff_TopReference, ZStringConstants.ParameterIDZdiff_BottomReference });
+            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDLayerType, ZStringConstants.ParameterIDLayerNumber, ZStringConstants.ParameterIDLayerName, ZStringConstants.ParameterIDCopperPercent, ZStringConstants.ParameterIDNarrowTop, ZStringConstants.ParameterIDCalcRoughTop, ZStringConstants.ParameterIDCalcRoughBottom, ZStringConstants.ParameterIDZo_InsertionLoss, ZStringConstants.ParameterIDZo_TotalLoss, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TotalLoss });
             ZLayerParameter layerParameter = sender as ZLayerParameter;
 
             if (layerParameter == null) return;
@@ -1304,7 +1342,7 @@ namespace ZZero.ZPlanner.UI
                     ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                     foreach (var lParameter in layerParameter.Layer.LayerParameters)
                     {
-                        if (layerParameter.ID == lParameter.ID || layerParameter.ID == ZStringConstants.ParameterIDZdiff_TopReference || layerParameter.ID == ZStringConstants.ParameterIDZdiff_BottomReference) continue;
+                        if (layerParameter.ID == lParameter.ID) continue;
 
                         if (layerParameter.Value.ToLower() == "yes" || layerParameter.Value.ToLower() == "true")
                         {
@@ -1334,7 +1372,7 @@ namespace ZZero.ZPlanner.UI
                     ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                     foreach (var lParameter in layerParameter.Layer.LayerParameters)
                     {
-                        if (layerParameter.ID == lParameter.ID || layerParameter.ID == ZStringConstants.ParameterIDZo_TopReference || layerParameter.ID == ZStringConstants.ParameterIDZo_BottomReference) continue;
+                        if (layerParameter.ID == lParameter.ID) continue;
 
                         if (layerParameter.Value.ToLower() == "yes" || layerParameter.Value.ToLower() == "true")
                         {
@@ -1452,10 +1490,6 @@ namespace ZZero.ZPlanner.UI
                 case ZStringConstants.ParameterIDNarrowTop:
                 case ZStringConstants.ParameterIDPlaneReference:
                 case ZStringConstants.ParameterIDCopperPercent:
-                case ZStringConstants.ParameterIDZo_TopReference:
-                case ZStringConstants.ParameterIDZo_BottomReference:
-                case ZStringConstants.ParameterIDZdiff_TopReference:
-                case ZStringConstants.ParameterIDZdiff_BottomReference:
 
                     if (!ZPlannerManager.IsIgnorePropertyChanged)
                     {
@@ -1521,23 +1555,54 @@ namespace ZZero.ZPlanner.UI
                     case ZStringConstants.ParameterIDZdiff_FillPitch:
                         ZPlannerProject.SetLayerParameterValue(layerParameter.Layer.Stackup.GetLayerOfStackup(layerParameter.Layer.ID), ZStringConstants.ParameterIDFillPitch, (cell.Value != null) ? (cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString() : "");
                         break;
-                    case ZStringConstants.ParameterIDThickness:
-                        layerParameter.SetEditedValue((cell.Value != null) ? (cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString() : "");
-                        break;
-                    case ZStringConstants.ParameterIDZo_TopReference:
-                    case ZStringConstants.ParameterIDZo_BottomReference:
-                    case ZStringConstants.ParameterIDZdiff_TopReference:
-                    case ZStringConstants.ParameterIDZdiff_BottomReference:
-                        ZLayer referenceLayer = cell.Value as ZLayer;
-                        if (referenceLayer == null)
+                    case ZStringConstants.ParameterIDZo_TraceWidth:
+                    case ZStringConstants.ParameterIDZo_TraceSpacing:
+                    case ZStringConstants.ParameterIDZdiff_TraceWidth:
+                    case ZStringConstants.ParameterIDZdiff_TraceSpacing:
+                    case ZStringConstants.ParameterIDWeavePitch:
+                    case ZStringConstants.ParameterIDFillPitch:
+                    case ZStringConstants.ParameterIDZdiff_TracePitch:
                         {
-                            string sValue = cell.Value as string;
-                            referenceLayer = Stackup.Layers.Find(x => x.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber) == sValue);
+                            String str = (cell.Value != null) ? (cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString() : "";
+                            if (layerParameter.NeedToUpdate(str))
+                            {
+                                // convert if not English units (EvgenyK)
+                                if (!isUnitsBeingConverted && Options.TheOptions.isUnitsMetric())
+                                {
+                                    isUnitsBeingConverted = true;
+                                    double fValue = 0;
+                                    double.TryParse(str, out fValue);
+                                    fValue *= Units.fMillimetersToMils;
+                                    str = fValue.ToString();
+                                }
+                                layerParameter.SetEditedValue(str);
+                            }
+                            isUnitsBeingConverted = false;
                         }
-                        if (referenceLayer != null && layerParameter.Value != referenceLayer.ID) layerParameter.Value = referenceLayer.ID;
+                        break;
+                    case ZStringConstants.ParameterIDPrepregThickness:
+                    case ZStringConstants.ParameterIDThickness:
+                    case ZStringConstants.ParameterIDOriginThickness:
+                        {
+                            String str = (cell.Value != null) ? (cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString() : "";
+                            if (layerParameter.NeedToUpdate(str))
+                            {
+                                // convert if not English units (EvgenyK)
+                                if (!isUnitsBeingConverted && Options.TheOptions.isUnitsMetric())
+                                {
+                                    isUnitsBeingConverted = true;
+                                    double fValue = 0;
+                                    double.TryParse(str, out fValue);
+                                    fValue *= Units.fMikronsToMils;
+                                    str = fValue.ToString();
+                                }
+                                layerParameter.SetEditedValue(str);
+                            }
+                            isUnitsBeingConverted = false;
+                        }
                         break;
                     default:
-                        layerParameter.Value = (cell.Value != null) ? ((cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString()) : "";
+                        layerParameter.Value = (cell.Value != null) ? (cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString() : "";
                         break;
                 }
             }
@@ -1551,36 +1616,13 @@ namespace ZZero.ZPlanner.UI
                 return;
             }
 
-            DataGridView grid = sender as DataGridView;
-            
             if (e.Control.GetType() == typeof(ZDataGridViewSelectBoxEditingControl))
             {
                 ZDataGridViewSelectBoxEditingControl control = e.Control as ZDataGridViewSelectBoxEditingControl;
+                DataGridView grid = sender as DataGridView;
                 ZDataGridViewSelectBoxCell cell = grid.CurrentCell as ZDataGridViewSelectBoxCell;
                 if (cell != null && cell.Editable)
                 {
-                    /*string columnName = (cell.OwningColumn == null) ? string.Empty : cell.OwningColumn.Name;
-                    ZLayer layer = cell.OwningRow.Tag as ZLayer;
-
-                    if (layer != null)
-                    {
-                        ZLayer.PlaneReferences references;
-                        if (layer.GetPlaneReferences(out references))
-                        {
-                            if (columnName == ZStringConstants.ParameterIDZo_TopReference ||
-                                columnName == ZStringConstants.ParameterIDZdiff_TopReference)
-                            {
-                                control.Items.AddRange(references.refsUp.ToArray());
-                            }
-
-                            if (columnName == ZStringConstants.ParameterIDZo_BottomReference ||
-                                columnName == ZStringConstants.ParameterIDZdiff_BottomReference)
-                            {
-                                control.Items.AddRange(references.refsDown.ToArray());
-                            }
-                        }
-                    }*/
-
                     control.DropDownStyle = ComboBoxStyle.DropDown;
                     control.Validating += cell.Validating;
 
@@ -1591,6 +1633,7 @@ namespace ZZero.ZPlanner.UI
             if (e.Control.GetType() == typeof(DataGridViewComboBoxEditingControl))
             {
                 DataGridViewComboBoxEditingControl control = e.Control as DataGridViewComboBoxEditingControl;
+                DataGridView grid = sender as DataGridView;
                 ZDataGridViewComboBoxCell cell = grid.CurrentCell as ZDataGridViewComboBoxCell;
                 if (cell != null && cell.Editable)
                 {
@@ -1611,6 +1654,7 @@ namespace ZZero.ZPlanner.UI
             if (e.Control.GetType() == typeof(DataGridViewTextBoxEditingControl))
             {
                 DataGridViewTextBoxEditingControl control = e.Control as DataGridViewTextBoxEditingControl;
+                DataGridView grid = sender as DataGridView;
                 ZDataGridViewNumberBoxCell numberCell = grid.CurrentCell as ZDataGridViewNumberBoxCell;
                 if (numberCell != null)
                 {
@@ -2247,17 +2291,8 @@ namespace ZZero.ZPlanner.UI
             ZDataGridViewLinkBoxCell linkCell = row.Cells[e.ColumnIndex] as ZDataGridViewLinkBoxCell;
             if (linkCell != null && linkCell.ButtonEnabled)
             {
-                if (column.Name == ZStringConstants.ParameterIDZo_LossViewer)
-                {
-                    ZLayer layer = row.Tag as ZLayer;
-                    if (layer != null) ZPlannerManager.ShowLossPanel(layer, ZTableType.Single);
-                }
-
-                if (column.Name == ZStringConstants.ParameterIDZdiff_LossViewer)
-                {
-                    ZLayer layer = row.Tag as ZLayer;
-                    if (layer != null) ZPlannerManager.ShowLossPanel(layer, ZTableType.Pair);
-                }
+                ZLayer layer = row.Tag as ZLayer;
+                if (layer != null) ZPlannerManager.ShowLossPanel(layer);
             }
         }
 
@@ -3408,7 +3443,6 @@ namespace ZZero.ZPlanner.UI
             
             PageSetupDialog pageSetupDialog = new PageSetupDialog();
             pageSetupDialog.Document = printDocument;
-            pageSetupDialog.PageSettings.Landscape = true;
             pageSetupDialog.ShowDialog();
         }
 
@@ -3607,63 +3641,6 @@ namespace ZZero.ZPlanner.UI
             ZPlannerManager.NoteOK("Warning", "This dielectric row, which comes from the PCB laminate manufacturer or your corporate library, cannot be edited in a stackup.\n" +
                 "\nIf you would like to experiment with different dielectric properties, right click on a row's header cell on the left of the stackup view, select \"Clear Material\" from the pop-up menu.\n" +
                 "\nThe material name will default to \"Dielectric\", and it is recommended that you keep this name or any other name that would distinguish it from the original PCB material to reduce the possibility of creating an invalid stackup.");
-        }
-
-        internal void UpdateReferences()
-        {
-            foreach(ZDataGridViewRow row in stackupGridView.Rows)
-            {
-                ZLayer layer = row.Tag as ZLayer;
-                if (layer == null) continue;
-
-                ZLayer.PlaneReferences references;
-                if (layer.GetPlaneReferences(out references))
-                {
-                    foreach(DataGridViewCell cell in row.Cells)
-                    {
-                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
-                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference)
-                        {
-                            if (cell.Value == null || cell.Value.ToString() == string.Empty)
-                            { 
-                                ZLayerParameter layerParameter = cell.Tag as ZLayerParameter;
-                                if (layerParameter != null && !string.IsNullOrWhiteSpace(layerParameter.Value)) cell.Value = Stackup.GetLayerOfStackup(layerParameter.Value);
-                            }
-
-                            (cell as ZDataGridViewComboBoxCell).Items.Clear();
-                            (cell as ZDataGridViewComboBoxCell).Items.AddRange(references.refsUp.ToArray());
-                            if (!references.refsUp.Contains(cell.Value as ZLayer)) cell.Value = references.defUp;
-                        }
-
-                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference ||
-                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
-                        {
-                            if (cell.Value == null || cell.Value.ToString() == string.Empty)
-                            {
-                                ZLayerParameter layerParameter = cell.Tag as ZLayerParameter;
-                                if (layerParameter != null && !string.IsNullOrWhiteSpace(layerParameter.Value)) cell.Value = Stackup.Layers.Find(x => x.ID == layerParameter.Value);
-                            }
-
-                            (cell as ZDataGridViewComboBoxCell).Items.Clear();
-                            (cell as ZDataGridViewComboBoxCell).Items.AddRange(references.refsDown.ToArray());
-                            if (!references.refsDown.Contains(cell.Value as ZLayer)) cell.Value = references.defDown;
-                        }
-                    }
-                }
-                else 
-                {
-                    foreach (DataGridViewCell cell in row.Cells)
-                    {
-                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
-                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
-                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference ||
-                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
-                        {
-                            cell.Value = string.Empty;
-                        }
-                    }
-                }
-            }
         }
     }
 }

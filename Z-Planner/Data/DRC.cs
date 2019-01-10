@@ -251,7 +251,15 @@ namespace ZZero.ZPlanner.DRC
                 }
                 else if (zl.GetLayerType() == ZLayerType.SplitMixed)
                 {
-                    nPlanes++;
+                    string s = "";
+                    if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPlaneReference, ref s))
+                    {
+                        if (s == ZStringConstants.PlaneReference)
+                        {
+                            nPlanes++;
+                            bPlane = true;
+                        }
+                    }
                 }
                 if (bPlane)
                 {
@@ -348,11 +356,11 @@ namespace ZZero.ZPlanner.DRC
                 Problem p = new Problem(stackup, null, Problem.Severity.Error, "Number of Metals", "Stackup must have even number of metal layers");
                 report.Add(p);
             }
-            //if (nAll % 2 == 0)
-            //{
-            //    Problem p = new Problem(stackup, null, Problem.Severity.Warning, "Number of Rows", "Stackup should have an odd number of rows");
-            //    report.Add(p);
-            //}
+            if (nAll % 2 == 0)
+            {
+                Problem p = new Problem(stackup, null, Problem.Severity.Warning, "Number of Rows", "Stackup should have an odd number of rows");
+                report.Add(p);
+            }
         }
 
         private void LayerProperties(ZStackup stackup)
@@ -565,7 +573,7 @@ namespace ZZero.ZPlanner.DRC
                                 if (!prevMetal)
                                 {
                                     message = String.Format("Dielectric layer {0} adjacent to Core {1}. Consider adding a copper foil to the core.", prevIdx + 1, currIdx + 1);
-                                    Problem p = new Problem(stackup, zl, Problem.Severity.Warning, "Layer order", message);
+                                    Problem p = new Problem(stackup, zl, Problem.Severity.Error, "Layer order", message);
                                     report.Add(p);
                                 }
                                 break;
@@ -575,7 +583,7 @@ namespace ZZero.ZPlanner.DRC
                                 if (prevType == ZLayerType.Core)
                                 {
                                     message = String.Format("Prepreg layer {0} adjacent to Core {1}. Consider adding a copper foil to the core.", currIdx + 1, prevIdx + 1);
-                                    Problem p = new Problem(stackup, zl, Problem.Severity.Warning, "Layer order", message);
+                                    Problem p = new Problem(stackup, zl, Problem.Severity.Error, "Layer order", message);
                                     report.Add(p);
                                 }
                                 break;

@@ -247,15 +247,6 @@ namespace ZZero.ZPlanner.UI.Menu
                 }
             }
 
-            if (!ZPlannerManager.IsUserHaveAccessToTapestryImport())
-            {
-                if (this.importStackupRibbonButton.DropDownItems.Contains(this.importTapestryRibbonButton))
-                    this.importStackupRibbonButton.DropDownItems.Remove(this.importTapestryRibbonButton);
-
-                if (this.exportStackupRibbonButton.DropDownItems.Contains(this.importTapestryRibbonButton2))
-                    this.exportStackupRibbonButton.DropDownItems.Remove(this.importTapestryRibbonButton2);
-            }
-
             foreach (string type in ZStringConstants.LayerType)
             {
                 RibbonButton button = new RibbonButton(type);
@@ -391,21 +382,48 @@ namespace ZZero.ZPlanner.UI.Menu
 
             this.programRibbonMenu.SuspendUpdating();
             filterRibbonButtonList.Buttons.Clear();
-            filterRibbonButtonList.DropDownItems.Clear();
-
             foreach (var fileName in filterFiles.Keys)
             {
                 string filePath = filterFiles[fileName];
-                RibbonButton button = GetFilterButton(fileName, filePath, pathToBeChecked);
+                RibbonButton button = new RibbonButton(global::ZZero.ZPlanner.Properties.Resources.Filter_16);
+                button.Text = fileName;
+                button.ToolTip = fileName;
+                button.Value = "ApplyFilter";
+                button.Tag = Path.GetFullPath(filePath);
+                button.SmallMinimumSize = new System.Drawing.Size(100, 0);
+                button.CheckOnClick = true;
+                button.Click += filterRibbonButton_Click;
+                button.Style = RibbonButtonStyle.SplitDropDown;
+                button.DrawIconsBar = false;
+                if (filePath == pathToBeChecked) button.Checked = true;
 
-                filterRibbonButtonList.DropDownItems.Add(button);
-                button.RedrawItem();
-            }
+                RibbonButton filterRename = new RibbonButton("Rename: " + button.Text + " ...");
+                filterRename.ToolTip = "Rename: " + button.Text;
+                filterRename.Value = "RenameFilter";
+                filterRename.Tag = button.Tag;
+                filterRename.Click += filterRename_Click;
+                button.DropDownItems.Add(filterRename);
 
-            foreach (var fileName in filterFiles.Keys)
-            {
-                string filePath = filterFiles[fileName];
-                RibbonButton button = GetFilterButton(fileName, filePath, pathToBeChecked);                
+                RibbonButton filterEdit = new RibbonButton("Edit: " + button.Text + " ...");
+                filterEdit.ToolTip = "Edit: " + button.Text;
+                filterEdit.Value = "EditFilter";
+                filterEdit.Tag = button.Tag;
+                filterEdit.Click += filterEdit_Click;
+                button.DropDownItems.Add(filterEdit);
+
+                RibbonButton filterUpdate = new RibbonButton("Update: " + button.Text);
+                filterUpdate.ToolTip = "Update: " + button.Text;
+                filterUpdate.Value = "UpdateFilter";
+                filterUpdate.Tag = button.Tag;
+                filterUpdate.Click += filterUpdate_Click;
+                button.DropDownItems.Add(filterUpdate);
+
+                RibbonButton filterDelete = new RibbonButton("Delete: " + button.Text);
+                filterDelete.ToolTip = "Delete: " + button.Text;
+                filterDelete.Value = "DeleteFilter";
+                filterDelete.Tag = button.Tag;
+                filterDelete.Click += filterDelete_Click;
+                button.DropDownItems.Add(filterDelete);
 
                 filterRibbonButtonList.Buttons.Add(button);
                 button.RedrawItem();
@@ -428,51 +446,6 @@ namespace ZZero.ZPlanner.UI.Menu
 
             filterRibbonButtonList.RedrawItem();
             this.programRibbonMenu.ResumeUpdating(true);
-        }
-
-        private RibbonButton GetFilterButton(string fileName, string filePath, string pathToBeChecked)
-        {
-            RibbonButton button = new RibbonButton(global::ZZero.ZPlanner.Properties.Resources.Filter_16);
-            button.Text = fileName;
-            button.ToolTip = fileName;
-            button.Value = "ApplyFilter";
-            button.Tag = Path.GetFullPath(filePath);
-            button.SmallMinimumSize = new System.Drawing.Size(100, 0);
-            button.CheckOnClick = true;
-            button.Click += filterRibbonButton_Click;
-            button.Style = RibbonButtonStyle.SplitDropDown;
-            button.DrawIconsBar = false;
-            if (filePath == pathToBeChecked) button.Checked = true;
-
-            RibbonButton filterRename = new RibbonButton("Rename: " + button.Text + " ...");
-            filterRename.ToolTip = "Rename: " + button.Text;
-            filterRename.Value = "RenameFilter";
-            filterRename.Tag = button.Tag;
-            filterRename.Click += filterRename_Click;
-            button.DropDownItems.Add(filterRename);
-
-            RibbonButton filterEdit = new RibbonButton("Edit: " + button.Text + " ...");
-            filterEdit.ToolTip = "Edit: " + button.Text;
-            filterEdit.Value = "EditFilter";
-            filterEdit.Tag = button.Tag;
-            filterEdit.Click += filterEdit_Click;
-            button.DropDownItems.Add(filterEdit);
-
-            RibbonButton filterUpdate = new RibbonButton("Update: " + button.Text);
-            filterUpdate.ToolTip = "Update: " + button.Text;
-            filterUpdate.Value = "UpdateFilter";
-            filterUpdate.Tag = button.Tag;
-            filterUpdate.Click += filterUpdate_Click;
-            button.DropDownItems.Add(filterUpdate);
-
-            RibbonButton filterDelete = new RibbonButton("Delete: " + button.Text);
-            filterDelete.ToolTip = "Delete: " + button.Text;
-            filterDelete.Value = "DeleteFilter";
-            filterDelete.Tag = button.Tag;
-            filterDelete.Click += filterDelete_Click;
-            button.DropDownItems.Add(filterDelete);
-
-            return button;
         }
 
         public string GetCurrentCustomFilterName()
@@ -505,25 +478,12 @@ namespace ZZero.ZPlanner.UI.Menu
             {
                 foreach (RibbonButton button in filterRibbonButtonList.Buttons)
                 {
-                    if (button.Tag as string != filePath) button.Checked = false;
-                }
-
-                foreach (RibbonButton button in filterRibbonButtonList.DropDownItems)
-                {
-                    if (button.Tag as string != filePath) button.Checked = false;
+                    if (button != item) button.Checked = false;
                 }
 
                 ZPlannerManager.ApplyCustomFilter(item.Tag as string);
 
-                foreach (RibbonButton button in filterRibbonButtonList.Buttons)
-                {
-                    if (button.Tag as string == filePath) button.Checked = true;
-                }
-
-                foreach (RibbonButton button in filterRibbonButtonList.DropDownItems)
-                {
-                    if (button.Tag as string == filePath) button.Checked = true;
-                }
+                item.Checked = true;
             }
             else
             {
@@ -589,11 +549,6 @@ namespace ZZero.ZPlanner.UI.Menu
         internal void ClearCustomFilterList()
         {
             foreach (RibbonButton button in filterRibbonButtonList.Buttons)
-            {
-                button.Checked = false;
-            }
-
-            foreach (RibbonButton button in filterRibbonButtonList.DropDownItems)
             {
                 button.Checked = false;
             }
@@ -850,6 +805,7 @@ namespace ZZero.ZPlanner.UI.Menu
                 sendToStackupRibbonButton.Enabled = (ZPlannerManager.DMLPanel.GetSelectedMaterial() != null);
                 copperRoughnessShowRibbonButton.Checked = ZPlannerManager.IsRoughness;
                 pressedThicknessIncludeRibbonButton.Checked = ZPlannerManager.IsPressedThickness;
+                sequentialLaminationIncludeRibbonButton.Enabled = ZPlannerManager.IsPressedThickness;
                 sequentialLaminationIncludeRibbonButton.Checked = ZPlannerManager.IsSequentialLamination;
                 etchEffectsIncludeRibbonButton.Checked = ZPlannerManager.IsTrapezoidalTraces;
                 //if (ZPlannerManager.StackupPanel.IsGlassPitchShown() != glassPitchRibbonButton.Checked) glassPitchRibbonButton.PerformClick();
@@ -886,6 +842,7 @@ namespace ZZero.ZPlanner.UI.Menu
                 libViewRibbonButton.Enabled = false;
                 copperRoughnessShowRibbonButton.Checked = false;
                 pressedThicknessIncludeRibbonButton.Checked = false;
+                sequentialLaminationIncludeRibbonButton.Enabled = false;
                 sequentialLaminationIncludeRibbonButton.Checked = false;
                 etchEffectsIncludeRibbonButton.Checked = false;
                 glassPitchRibbonButton.Checked = false;
@@ -1408,12 +1365,6 @@ namespace ZZero.ZPlanner.UI.Menu
         private void coresRibbonButton_Click(object sender, EventArgs e)
         {
             solderMaskRibbonButton.Checked = !(coresRibbonButton.Checked || prepregsRibbonButton.Checked);
-            if (solderMaskRibbonButton.Checked)
-            {
-                ZPlannerManager.DMLPanel.SetGlassStyleFilter(ZStringConstants.ClearFilter, true);
-                ZPlannerManager.DMLPanel.SetSlashSheetFilter(ZStringConstants.ClearFilter, true);
-                ZPlannerManager.DMLPanel.Set2PlyMaterialsFilter(false);
-            }
             ZPlannerManager.DMLPanel.SetMaterialTypeFilter(coresRibbonButton.Checked, prepregsRibbonButton.Checked, solderMaskRibbonButton.Checked);
             NotifyMenuButtonClicked(sender, e);
         }
@@ -1422,23 +1373,11 @@ namespace ZZero.ZPlanner.UI.Menu
         {
             solderMaskRibbonButton.Checked = !(coresRibbonButton.Checked || prepregsRibbonButton.Checked);
             ZPlannerManager.DMLPanel.SetMaterialTypeFilter(coresRibbonButton.Checked, prepregsRibbonButton.Checked, solderMaskRibbonButton.Checked);
-            if (solderMaskRibbonButton.Checked)
-            {
-                ZPlannerManager.DMLPanel.SetGlassStyleFilter(ZStringConstants.ClearFilter, true);
-                ZPlannerManager.DMLPanel.SetSlashSheetFilter(ZStringConstants.ClearFilter, true);
-                ZPlannerManager.DMLPanel.Set2PlyMaterialsFilter(false);
-            }
             NotifyMenuButtonClicked(sender, e);
         }
 
         private void solderMaskRibbonButton_Click(object sender, EventArgs e)
         {
-            if (solderMaskRibbonButton.Checked)
-            {
-                ZPlannerManager.DMLPanel.SetGlassStyleFilter(ZStringConstants.ClearFilter, true);
-                ZPlannerManager.DMLPanel.SetSlashSheetFilter(ZStringConstants.ClearFilter, true);
-                ZPlannerManager.DMLPanel.Set2PlyMaterialsFilter(false);
-            }
             coresRibbonButton.Checked = !solderMaskRibbonButton.Checked;
             prepregsRibbonButton.Checked = !solderMaskRibbonButton.Checked;
             ZPlannerManager.DMLPanel.SetMaterialTypeFilter(coresRibbonButton.Checked, prepregsRibbonButton.Checked, solderMaskRibbonButton.Checked);
@@ -1460,10 +1399,6 @@ namespace ZZero.ZPlanner.UI.Menu
         private void plyMaterialsRibbonButton_Click(object sender, EventArgs e)
         {
             ZPlannerManager.DMLPanel.Set2PlyMaterialsFilter(plyMaterialsRibbonButton.Checked);
-            if (plyMaterialsRibbonButton.Checked && solderMaskRibbonButton.Checked)
-            {
-                ZPlannerManager.DMLPanel.SetMaterialTypeFilter(true, true, false);
-            }
             NotifyMenuButtonClicked(sender, e);
         }
 
@@ -1995,6 +1930,7 @@ namespace ZZero.ZPlanner.UI.Menu
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProgramMenu));
             pressedThicknessIncludeRibbonButton.SmallImage = (pressedThicknessIncludeRibbonButton.Checked) ? global::ZZero.ZPlanner.Properties.Resources.Checked_16 : ((System.Drawing.Image)(resources.GetObject("pressedThicknessIncludeRibbonButton.SmallImage")));
+            sequentialLaminationIncludeRibbonButton.Enabled = pressedThicknessIncludeRibbonButton.Checked;
             pressedThicknessRibbonButton.Checked = pressedThicknessIncludeRibbonButton.Checked;
         }
 
@@ -2012,7 +1948,6 @@ namespace ZZero.ZPlanner.UI.Menu
         private void sequentialLaminationIncludeRibbonButton_Click(object sender, EventArgs e)
         {
             ZPlannerManager.SetSequentialLamination(sequentialLaminationIncludeRibbonButton.Checked);
-            if (ZPlannerManager.StackupPanel != null && ZPlannerManager.StackupPanel.Stackup != null) ZPlannerManager.StackupPanel.Stackup.IsSequentialLaminationSetByUser = true; 
         }
 
         private void pressedThicknessSettingsRibbonButton_Click(object sender, EventArgs e)
@@ -2027,22 +1962,19 @@ namespace ZZero.ZPlanner.UI.Menu
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     pressedThicknessIncludeRibbonButton.Checked = dlg.isShowPressedThickness;
+                    sequentialLaminationIncludeRibbonButton.Enabled = dlg.isShowPressedThickness;
                     sequentialLaminationIncludeRibbonButton.Checked = dlg.isShowSequentialLamination;
 
                     bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
-                    bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
                     try
                     {
                         ZPlannerManager.IsPressedThickness = dlg.isShowPressedThickness;
                         ZPlannerManager.IsSequentialLamination = dlg.isShowSequentialLamination;
                         ZPlannerManager.CalculatePressedThickness(dlg.isShowPressedThickness);
                         ZPlannerManager.StackupPanel.RecalculateViaSpanAspectRatio();
-                        stackup.IsSequentialLaminationSetByUser = true; 
                     }
                     finally
                     {
-                        ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
-                        ZPlannerManager.UpdateActiveStackup();
                         ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
                     }
                 }

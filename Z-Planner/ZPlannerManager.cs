@@ -1080,7 +1080,6 @@ namespace ZZero.ZPlanner
             Project = project;
 
             ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
-            ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
             ZPlannerManager.Commands.Clear();
             ZPlannerManager.StatusMenu.SetStatusReady();
             ZPlannerManager.MessagePanel.AddMessage("New Stackup was created.");
@@ -1425,7 +1424,6 @@ namespace ZZero.ZPlanner
             if (project != null) Project = null;
             if (projectFile != null) ProjectFile = null;
             if (ZPlannerManager.Commands.UndoCount > 0 || ZPlannerManager.Commands.RedoCount > 0) ZPlannerManager.Commands.Clear();
-            ZEntity.IdList.Clear();
 
             ZPlannerManager.StatusMenu.SetStatusReady();
             return true;
@@ -1505,21 +1503,14 @@ namespace ZZero.ZPlanner
                 ZPlannerManager.DMLPanel.Show(ZPlannerManager.StartPanel.Pane, DockAlignment.Bottom, 0.3);
         }
 
-        internal static void ShowLossPanel(ZLayer layer, ZTableType tableType)
+        internal static void ShowLossPanel(ZLayer layer)
         {
-            switch(tableType)
-            { 
-                case ZTableType.Single:
-                // Add code to Open LossViewer here.
-                //for single-ended nets
-                FX.LossViewer(layer, layer.Stackup.ActiveSingle);
-                break;
+            // Add code to Open LossViewer here.
+            //for ingle-ended nets
+            //--FX.LossViewer(layer);
             
-                case ZTableType.Pair:
-                //for diff pairs
-                FX.LossViewer(layer, layer.Stackup.ActivePair);
-                break;
-            }
+            //for diff pairs
+            FX.LossViewer(layer, layer.Stackup.ActivePair);
         }
 
         internal static void ShowProjectView()
@@ -2285,7 +2276,7 @@ namespace ZZero.ZPlanner
 
             //
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
+            saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
             saveFileDialog.Title = "Export to Excel File";
             if (!Options.TheOptions.UseLast) saveFileDialog.InitialDirectory = Options.TheOptions.ExportPath;
 
@@ -2340,34 +2331,6 @@ namespace ZZero.ZPlanner
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName != string.Empty)
                 {
-                    //copy template
-                    string template = ZSettings.SettingsFolder + Path.DirectorySeparatorChar + "Excel" + Path.DirectorySeparatorChar + "ExcelExportTemplate.xlsm";
-                    try
-                    {
-                        File.Copy(template, saveFileDialog.FileName, true);
-                    }
-                    catch (Exception err)
-                    {
-                        MessageBox.Show(err.Message);
-                        return;
-                    }
-                    //copy logo
-                    if (Options.TheOptions.UserLogo.Length > 0)
-                    {
-                        string logo = ZSettings.SettingsFolder + Path.DirectorySeparatorChar + Options.TheOptions.UserLogo;
-                        string new_logo = Path.GetDirectoryName(saveFileDialog.FileName) + Path.DirectorySeparatorChar + "logo" + Path.GetExtension(logo);
-                        try
-                        {
-                            File.Copy(logo, new_logo, true);
-                        }
-                        catch (Exception err)
-                        {
-                            MessageBox.Show(err.Message);
-                            return;
-                        }
-                    }
-
-
                     ZPlannerManager.StatusMenu.StartProgress("Exporting a Stackup ...");
                     Cursor currentCursor = Cursor.Current;
                     Cursor.Current = Cursors.WaitCursor;
@@ -2532,8 +2495,6 @@ namespace ZZero.ZPlanner
 
                 ZStackup stk = ZPlannerManager.Project.Stackup;
 
-                if (!stk.IsSequentialLaminationSetByUser) ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
-
                 string message;
                 bool bCheck = stk.IsValid(out message);
 
@@ -2560,7 +2521,6 @@ namespace ZZero.ZPlanner
                 stk.DefineRoughness();
                 //--}
 
-                stk.UpdateSequentialLamination();
                 stk.CalculatePrepregAdjustedThickness(ZPlannerManager.IsPressedThickness);
 
                 if (ZPlannerManager.IsTrapezoidalTraces)
@@ -2703,7 +2663,6 @@ namespace ZZero.ZPlanner
                 ZPlannerManager.Project = DataProvider.Instance.OpenZPlannerProject(filePath);
                 ZPlannerManager.Project.Stackup.CorrectDefaultParametersForInnerOuterLayers();
                 ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
-                ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
                 //RecentFilesManager.AddToRecentFiles(filePath);
             }
             finally
@@ -2972,12 +2931,6 @@ namespace ZZero.ZPlanner
                     case ZLibraryCategory.ZZero:
                         return (ZPlannerManager.rights.maxRole == Rights.Role.SuperUser);
                 }
-            return false;
-        }
-
-        internal static bool IsUserHaveAccessToTapestryImport()
-        {
-            if (ZPlannerManager.rights != null) return (ZPlannerManager.rights.AllowTapestry);
             return false;
         }
 
@@ -3296,6 +3249,53 @@ namespace ZZero.ZPlanner
                     }
                 }
             }
+        }
+
+        public static void UnitsChangedForEverywhere()
+        {
+            if (project == null)
+                return; // do nothing
+            // TODO: make that smarter (getter/setter in DB)
+            foreach (ZParameter parameter in project.Parameters)
+            {
+                if (parameter.ID == ZStringConstants.ParameterIDPrepregThickness ||
+                    parameter.ID == ZStringConstants.ParameterIDThickness ||
+                    parameter.ID == ZStringConstants.ParameterIDOriginThickness)
+                {
+                    ZMeasures measure = ZMeasures.Mils;
+                    if (Options.TheOptions.isUnitsMetric())
+                        measure = ZMeasures.Um;
+                    parameter.DisplayMeasure = measure;
+                }
+            }
+            foreach (ZParameter subparameter in project.SubParameters)
+            {
+                if (subparameter.ID == ZStringConstants.ParameterIDWeavePitch ||
+                    subparameter.ID == ZStringConstants.ParameterIDFillPitch ||
+                    subparameter.ID == ZStringConstants.ParameterIDZdiff_TracePitch ||
+                    subparameter.ID == ZStringConstants.ParameterIDZdiff_WeavePitch ||
+                    subparameter.ID == ZStringConstants.ParameterIDZdiff_FillPitch)
+                {
+                    ZMeasures measure = ZMeasures.Mils;
+                    if (Options.TheOptions.isUnitsMetric())
+                        measure = ZMeasures.Um;
+                    subparameter.DisplayMeasure = measure;
+                }
+                else if (subparameter.ID == ZStringConstants.ParameterIDZo_TraceSpacing ||
+                    subparameter.ID == ZStringConstants.ParameterIDZo_TraceWidth ||
+                    subparameter.ID == ZStringConstants.ParameterIDZdiff_TraceSpacing ||
+                    subparameter.ID == ZStringConstants.ParameterIDZdiff_TraceWidth)
+                {
+                    ZMeasures measure = ZMeasures.Mils;
+                    if (Options.TheOptions.isUnitsMetric())
+                        measure = ZMeasures.Mm;
+                    subparameter.DisplayMeasure = measure;
+                }
+            }
+            ZPlannerManager.StatusMenu.SetStackupParameters(Project.Stackup);
+            stackupPanel.UnitsChanged();
+            propertiesPanel.UnitsChanged();
+            dmlPanel.UnitsChanged();
         }
 
         public static void ReloadDML()
@@ -3710,14 +3710,6 @@ namespace ZZero.ZPlanner
                 n = Project.Stackup.GetMetallLayerCount() - (2 * x);
                 if (n < 0) n = 0;
             }
-        }
-
-        internal static bool IsSequentialLaminationCanBeEnabled()
-        {
-            int x, n;
-            CalculateSequentialLaminationParams(out x, out n);
-
-            return (x > 0);
         }
     }
 }

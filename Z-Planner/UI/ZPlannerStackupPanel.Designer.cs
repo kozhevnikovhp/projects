@@ -7,6 +7,12 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
+        public void UnitsChanged()
+        {
+            stackupGridView.UnitsChanged();
+            RecalculateColumnHeaderName();
+        }
+
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>

@@ -11,6 +11,11 @@ namespace ZZero.ZPlanner.Data.Properties
 {
     class DoubleTypeConverter : DoubleConverter
     {
+        public virtual double getConversionCoefficient()
+        {
+            return 1; // no conversion by default
+        }
+
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(string))
@@ -37,6 +42,7 @@ namespace ZZero.ZPlanner.Data.Properties
                 {
                     double num = (double)value;
                     if (double.IsNaN(num)) return string.Empty;
+                    num *= getConversionCoefficient();
                     return num.ToString((context.PropertyDescriptor as ZZero.ZPlanner.Data.Properties.ZDynamicComponent.DynamicProperty).PropertyFormat, CultureInfo.InvariantCulture);
                 }
             }
@@ -54,7 +60,7 @@ namespace ZZero.ZPlanner.Data.Properties
                 NumberStyles style = NumberStyles.AllowDecimalPoint;
                 // AllowNegative was not implemented.
                 //if (((context.PropertyDescriptor as ZZero.ZPlanner.Data.Properties.ZDynamicComponent.DynamicProperty).PropertyObject as ZLayerParameter).Parameter.IsAllowNegative) style |= NumberStyles.AllowLeadingSign;
-                if(double.TryParse(value as string, style, CultureInfo.InvariantCulture, out num)) return num;
+                if(double.TryParse(value as string, style, CultureInfo.InvariantCulture, out num)) return num/getConversionCoefficient();
             }
 
             try

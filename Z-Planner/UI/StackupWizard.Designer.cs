@@ -1,4 +1,6 @@
-﻿namespace ZZero.ZPlanner.UI
+﻿using ZZero.ZPlanner.ZConfiguration;
+
+namespace ZZero.ZPlanner.UI
 {
     partial class StackupWizardDialog
     {
@@ -33,9 +35,9 @@
             this.tabMetals = new System.Windows.Forms.TabPage();
             this.cbSeqLam = new System.Windows.Forms.ComboBox();
             this.groupBox22 = new System.Windows.Forms.GroupBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label28 = new System.Windows.Forms.Label();
+            this.labelInnerMetalDiffWidthUnits = new System.Windows.Forms.Label();
+            this.labelInnerMetalDiffSpacingUnits = new System.Windows.Forms.Label();
+            this.labelInnerMetalWidthUnits = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.tbInnerMetalDiffSpacing = new System.Windows.Forms.TextBox();
             this.label30 = new System.Windows.Forms.Label();
@@ -46,9 +48,9 @@
             this.label12 = new System.Windows.Forms.Label();
             this.cbPlatingWeight = new System.Windows.Forms.ComboBox();
             this.groupBox21 = new System.Windows.Forms.GroupBox();
-            this.label19 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
+            this.microstripLayerDiffWidthLabel = new System.Windows.Forms.Label();
+            this.microstripLayerDiffSpacingLabel = new System.Windows.Forms.Label();
+            this.microstripLayerWidthLabel = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.tbOuterMetalDiffSpacing = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -99,7 +101,7 @@
             this.label11 = new System.Windows.Forms.Label();
             this.tbTargetDf = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.boardThicknessUnitsLabel = new System.Windows.Forms.Label();
             this.tbTargetBoardThickness = new System.Windows.Forms.TextBox();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
             this.textBox12 = new System.Windows.Forms.TextBox();
@@ -107,7 +109,7 @@
             this.textBox11 = new System.Windows.Forms.TextBox();
             this.tbDielectricHeight = new System.Windows.Forms.TextBox();
             this.rbHeightFromBoardThickness = new System.Windows.Forms.RadioButton();
-            this.label14 = new System.Windows.Forms.Label();
+            this.labelDielectricHeightUnits = new System.Windows.Forms.Label();
             this.rbSpecifyDielectricHeight = new System.Windows.Forms.RadioButton();
             this.tabManufacturer = new System.Windows.Forms.TabPage();
             this.textBox13 = new System.Windows.Forms.TextBox();
@@ -287,9 +289,9 @@
             // 
             // groupBox22
             // 
-            this.groupBox22.Controls.Add(this.label20);
-            this.groupBox22.Controls.Add(this.label21);
-            this.groupBox22.Controls.Add(this.label28);
+            this.groupBox22.Controls.Add(this.labelInnerMetalDiffWidthUnits);
+            this.groupBox22.Controls.Add(this.labelInnerMetalDiffSpacingUnits);
+            this.groupBox22.Controls.Add(this.labelInnerMetalWidthUnits);
             this.groupBox22.Controls.Add(this.label29);
             this.groupBox22.Controls.Add(this.tbInnerMetalDiffSpacing);
             this.groupBox22.Controls.Add(this.label30);
@@ -303,32 +305,32 @@
             this.groupBox22.TabStop = false;
             this.groupBox22.Text = "Inner metal layers";
             // 
-            // label20
+            // labelInnerMetalDiffSpacingUnits
             // 
-            this.label20.Location = new System.Drawing.Point(250, 65);
-            this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(32, 17);
-            this.label20.TabIndex = 10;
-            this.label20.Text = "mils";
+            this.labelInnerMetalDiffSpacingUnits.Location = new System.Drawing.Point(250, 65);
+            this.labelInnerMetalDiffSpacingUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelInnerMetalDiffSpacingUnits.Name = "labelInnerMetalDiffSpacingUnits";
+            this.labelInnerMetalDiffSpacingUnits.Size = new System.Drawing.Size(32, 17);
+            this.labelInnerMetalDiffSpacingUnits.TabIndex = 10;
+            this.labelInnerMetalDiffSpacingUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceWidth);
             // 
-            // label21
+            // labelInnerMetalDiffSpacingUnits
             // 
-            this.label21.Location = new System.Drawing.Point(252, 107);
-            this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(32, 17);
-            this.label21.TabIndex = 9;
-            this.label21.Text = "mils";
+            this.labelInnerMetalDiffSpacingUnits.Location = new System.Drawing.Point(252, 107);
+            this.labelInnerMetalDiffSpacingUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelInnerMetalDiffSpacingUnits.Name = "labelInnerMetalDiffSpacingUnits";
+            this.labelInnerMetalDiffSpacingUnits.Size = new System.Drawing.Size(32, 17);
+            this.labelInnerMetalDiffSpacingUnits.TabIndex = 9;
+            this.labelInnerMetalDiffSpacingUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceSpacing); ;
             // 
-            // label28
+            // labelInnerMetalWidthUnits
             // 
-            this.label28.Location = new System.Drawing.Point(249, 20);
-            this.label28.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(32, 17);
-            this.label28.TabIndex = 8;
-            this.label28.Text = "mils";
+            this.labelInnerMetalWidthUnits.Location = new System.Drawing.Point(249, 20);
+            this.labelInnerMetalWidthUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelInnerMetalWidthUnits.Name = "labelInnerMetalWidthUnits";
+            this.labelInnerMetalWidthUnits.Size = new System.Drawing.Size(32, 17);
+            this.labelInnerMetalWidthUnits.TabIndex = 8;
+            this.labelInnerMetalWidthUnits.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZo_TraceWidth); ;
             // 
             // label29
             // 
@@ -426,9 +428,9 @@
             // 
             // groupBox21
             // 
-            this.groupBox21.Controls.Add(this.label19);
-            this.groupBox21.Controls.Add(this.label16);
-            this.groupBox21.Controls.Add(this.label13);
+            this.groupBox21.Controls.Add(this.microstripLayerDiffWidthLabel);
+            this.groupBox21.Controls.Add(this.microstripLayerDiffSpacingLabel);
+            this.groupBox21.Controls.Add(this.microstripLayerWidthLabel);
             this.groupBox21.Controls.Add(this.label8);
             this.groupBox21.Controls.Add(this.tbOuterMetalDiffSpacing);
             this.groupBox21.Controls.Add(this.label6);
@@ -442,32 +444,32 @@
             this.groupBox21.TabStop = false;
             this.groupBox21.Text = "Microstrip metal layers";
             // 
-            // label19
+            // microstripLayerDiffWidthLabel
             // 
-            this.label19.Location = new System.Drawing.Point(250, 65);
-            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(32, 17);
-            this.label19.TabIndex = 10;
-            this.label19.Text = "mils";
+            this.microstripLayerDiffWidthLabel.Location = new System.Drawing.Point(250, 65);
+            this.microstripLayerDiffWidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.microstripLayerDiffWidthLabel.Name = "label19";
+            this.microstripLayerDiffWidthLabel.Size = new System.Drawing.Size(32, 17);
+            this.microstripLayerDiffWidthLabel.TabIndex = 10;
+            this.microstripLayerDiffWidthLabel.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceWidth);
             // 
-            // label16
+            // microstripLayerDiffSpacingLabel
             // 
-            this.label16.Location = new System.Drawing.Point(252, 104);
-            this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(32, 17);
-            this.label16.TabIndex = 9;
-            this.label16.Text = "mils";
+            this.microstripLayerDiffSpacingLabel.Location = new System.Drawing.Point(252, 104);
+            this.microstripLayerDiffSpacingLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.microstripLayerDiffSpacingLabel.Name = "label16";
+            this.microstripLayerDiffSpacingLabel.Size = new System.Drawing.Size(32, 17);
+            this.microstripLayerDiffSpacingLabel.TabIndex = 9;
+            this.microstripLayerDiffSpacingLabel.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZdiff_TraceSpacing);
             // 
-            // label13
+            // microstripLayerWidthLabel
             // 
-            this.label13.Location = new System.Drawing.Point(249, 20);
-            this.label13.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(32, 17);
-            this.label13.TabIndex = 8;
-            this.label13.Text = "mils";
+            this.microstripLayerWidthLabel.Location = new System.Drawing.Point(249, 20);
+            this.microstripLayerWidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.microstripLayerWidthLabel.Name = "label13";
+            this.microstripLayerWidthLabel.Size = new System.Drawing.Size(32, 17);
+            this.microstripLayerWidthLabel.TabIndex = 8;
+            this.microstripLayerWidthLabel.Text = Settings.Options.TheOptions.getCurrentUnitsForParameter(ZStringConstants.ParameterIDZo_TraceSpacing);
             // 
             // label8
             // 
@@ -1060,13 +1062,13 @@
             // 
             // groupBox8
             // 
-            this.groupBox8.Controls.Add(this.label7);
+            this.groupBox8.Controls.Add(this.boardThicknessUnitsLabel);
             this.groupBox8.Controls.Add(this.tbTargetBoardThickness);
             this.groupBox8.Controls.Add(this.groupBox13);
             this.groupBox8.Controls.Add(this.groupBox12);
             this.groupBox8.Controls.Add(this.tbDielectricHeight);
             this.groupBox8.Controls.Add(this.rbHeightFromBoardThickness);
-            this.groupBox8.Controls.Add(this.label14);
+            this.groupBox8.Controls.Add(this.labelDielectricHeightUnits);
             this.groupBox8.Controls.Add(this.rbSpecifyDielectricHeight);
             this.groupBox8.Location = new System.Drawing.Point(9, 278);
             this.groupBox8.Name = "groupBox8";
@@ -1075,15 +1077,15 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Mechanical characteristics:";
             // 
-            // label7
+            // boardThicknessUnitsLabel
             // 
-            this.label7.Location = new System.Drawing.Point(118, 83);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(32, 17);
-            this.label7.TabIndex = 14;
-            this.label7.Text = "mils";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.boardThicknessUnitsLabel.Location = new System.Drawing.Point(118, 83);
+            this.boardThicknessUnitsLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.boardThicknessUnitsLabel.Name = "label7";
+            this.boardThicknessUnitsLabel.Size = new System.Drawing.Size(32, 17);
+            this.boardThicknessUnitsLabel.TabIndex = 14;
+            this.boardThicknessUnitsLabel.Text = Settings.Options.TheOptions.getBoardThicknessCurrentUnits();
+            this.boardThicknessUnitsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tbTargetBoardThickness
             // 
@@ -1092,7 +1094,7 @@
             this.tbTargetBoardThickness.Name = "tbTargetBoardThickness";
             this.tbTargetBoardThickness.Size = new System.Drawing.Size(83, 20);
             this.tbTargetBoardThickness.TabIndex = 13;
-            this.tbTargetBoardThickness.Validating += new System.ComponentModel.CancelEventHandler(this.tbTargetBoardThickness_Validating_1);
+            this.tbTargetBoardThickness.Validating += new System.ComponentModel.CancelEventHandler(this.tbTargetBoardThickness_Validating);
             // 
             // groupBox13
             // 
@@ -1160,14 +1162,14 @@
             this.rbHeightFromBoardThickness.UseVisualStyleBackColor = true;
             this.rbHeightFromBoardThickness.CheckedChanged += new System.EventHandler(this.rbHeightFromBoardThickness_CheckedChanged);
             // 
-            // label14
+            // labelDielectricHeightUnits
             // 
-            this.label14.Location = new System.Drawing.Point(287, 158);
-            this.label14.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(32, 17);
-            this.label14.TabIndex = 2;
-            this.label14.Text = "mils";
+            this.labelDielectricHeightUnits.Location = new System.Drawing.Point(287, 158);
+            this.labelDielectricHeightUnits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelDielectricHeightUnits.Name = "labelDielectricHeightUnits";
+            this.labelDielectricHeightUnits.Size = new System.Drawing.Size(32, 17);
+            this.labelDielectricHeightUnits.TabIndex = 2;
+            this.labelDielectricHeightUnits.Text = Settings.Options.TheOptions.getDielectricHeightCurrentUnits();
             // 
             // rbSpecifyDielectricHeight
             // 
@@ -2184,7 +2186,7 @@
         private System.Windows.Forms.TextBox tbTargetDk;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox tbDielectricHeight;
-        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label labelDielectricHeightUnits;
         private System.Windows.Forms.RadioButton rbSpecifyDielectricHeight;
         private System.Windows.Forms.RadioButton rbHeightFromBoardThickness;
         private System.Windows.Forms.TextBox tbTargetDf;
@@ -2273,7 +2275,7 @@
         private System.Windows.Forms.TextBox textBox27;
         private System.Windows.Forms.TextBox textBox26;
         private System.Windows.Forms.TextBox textBox25;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label boardThicknessUnitsLabel;
         private System.Windows.Forms.TextBox tbTargetBoardThickness;
         private System.Windows.Forms.GroupBox groupBox20;
         private System.Windows.Forms.TextBox textBox31;
@@ -2288,18 +2290,18 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbOuterMetalWidth;
         private System.Windows.Forms.GroupBox groupBox22;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label labelInnerMetalDiffWidthUnits;
+        private System.Windows.Forms.Label labelInnerMetalDiffSpacingUnits;
+        private System.Windows.Forms.Label labelInnerMetalWidthUnits;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.TextBox tbInnerMetalDiffSpacing;
         private System.Windows.Forms.Label label30;
         private System.Windows.Forms.TextBox tbInnerMetalDiffWidth;
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.TextBox tbInnerMetalWidth;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label microstripLayerDiffWidthLabel;
+        private System.Windows.Forms.Label microstripLayerDiffSpacingLabel;
+        private System.Windows.Forms.Label microstripLayerWidthLabel;
         private System.Windows.Forms.RichTextBox rtbHintPlanes;
         private System.Windows.Forms.ComboBox cbLowerDf;
         private System.Windows.Forms.Label label22;

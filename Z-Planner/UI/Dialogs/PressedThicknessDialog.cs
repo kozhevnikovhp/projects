@@ -15,8 +15,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
 {
     public partial class PressedThicknessDialog : Form
     {
-        int xSequentialLamination = 0;
-        int nSequentialLamination = 0;
         public PressedThicknessDialog()
         {
             InitializeComponent();
@@ -40,17 +38,14 @@ namespace ZZero.ZPlanner.UI.Dialogs
             rbPrepregPercent_CheckedChanged(rbPrepregPercent, EventArgs.Empty);
 
             cbShowPressedThickness.Checked = ZPlannerManager.IsPressedThickness;
+            cbSequentialLamination.Enabled = ZPlannerManager.IsPressedThickness;
             cbSequentialLamination.Checked = ZPlannerManager.IsSequentialLamination;
             checkBoxUpdateSettings.Checked = false;
-            
-            ZPlannerManager.CalculateSequentialLaminationParams(out xSequentialLamination, out nSequentialLamination);
+            int x, n;
+            ZPlannerManager.CalculateSequentialLaminationParams(out x, out n);
 
-            cbSequentialLamination_CheckedChanged(cbSequentialLamination, EventArgs.Empty);
-        }
-
-        private void DisplaySequentialLamination(int x, int n)
-        {
-            lSequentialLamination.Text = string.Format("This stackup (a {0}-{1}-{0} stackup) uses sequential lamination \n" + "with {0} build-up layers added after the \n" + "first lamination pass involving {1} layers.", x, n);
+            lSequentialLaminationX.Text = x.ToString();
+            lSequentialLaminationN.Text = n.ToString();
         }
 
         public bool isShowPressedThickness
@@ -197,16 +192,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void cbShowPressedThickness_CheckedChanged(object sender, EventArgs e)
         {
-            
-        }
-
-        private void cbSequentialLamination_CheckedChanged(object sender, EventArgs e)
-        {
-            lSequentialLamination.Enabled = cbSequentialLamination.Checked;
-
-            //if (cbSequentialLamination.Checked) 
-            DisplaySequentialLamination(xSequentialLamination, nSequentialLamination);
-            //else DisplaySequentialLamination(0, 2 * xSequentialLamination + nSequentialLamination);
+            cbSequentialLamination.Enabled = cbShowPressedThickness.Checked;
         }
     }
 }

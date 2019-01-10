@@ -149,7 +149,6 @@ namespace ZZero.ZPlanner.Translators
 
             //ui
             ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
-            ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
 
             ZPlannerManager.ResumeFSHandlers();
             return true;
