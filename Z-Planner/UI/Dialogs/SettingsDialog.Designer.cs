@@ -41,6 +41,8 @@
             this.cbDRCWarnings = new System.Windows.Forms.CheckBox();
             this.cbDRCErrors = new System.Windows.Forms.CheckBox();
             this.groupBox33 = new System.Windows.Forms.GroupBox();
+            this.label128 = new System.Windows.Forms.Label();
+            this.label127 = new System.Windows.Forms.Label();
             this.label125 = new System.Windows.Forms.Label();
             this.label126 = new System.Windows.Forms.Label();
             this.groupBox28 = new System.Windows.Forms.GroupBox();
@@ -287,8 +289,6 @@
             this.tbCompany = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.label127 = new System.Windows.Forms.Label();
-            this.label128 = new System.Windows.Forms.Label();
             this.tabOptions.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox30.SuspendLayout();
@@ -489,6 +489,29 @@
             this.groupBox33.TabStop = false;
             this.groupBox33.Text = "Hint";
             // 
+            // label128
+            // 
+            this.label128.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label128.Location = new System.Drawing.Point(3, 82);
+            this.label128.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label128.Name = "label128";
+            this.label128.Size = new System.Drawing.Size(272, 43);
+            this.label128.TabIndex = 27;
+            this.label128.Text = "Warnings include asymmetrical stackups should generally be symmetrical and altern" +
+    "ating power and ground planes for decoupling.";
+            // 
+            // label127
+            // 
+            this.label127.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label127.Location = new System.Drawing.Point(3, 49);
+            this.label127.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label127.Name = "label127";
+            this.label127.Size = new System.Drawing.Size(272, 33);
+            this.label127.TabIndex = 27;
+            this.label127.Text = "Possible errors include having an uneven number of copper layers.";
+            // 
             // label125
             // 
             this.label125.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -605,9 +628,9 @@
             // 
             this.cbZZeroSynchronize.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbZZeroSynchronize.Location = new System.Drawing.Point(326, 54);
+            this.cbZZeroSynchronize.Location = new System.Drawing.Point(326, 47);
             this.cbZZeroSynchronize.Name = "cbZZeroSynchronize";
-            this.cbZZeroSynchronize.Size = new System.Drawing.Size(268, 54);
+            this.cbZZeroSynchronize.Size = new System.Drawing.Size(268, 35);
             this.cbZZeroSynchronize.TabIndex = 1;
             this.cbZZeroSynchronize.Text = "Сheck for the latest version of the Z-zero dielectric material library every time" +
     " Z-planner runs.";
@@ -1239,7 +1262,7 @@
             this.label62.Name = "label62";
             this.label62.Size = new System.Drawing.Size(96, 13);
             this.label62.TabIndex = 10;
-            this.label62.Text = "Range: 0.1 - 20.00";
+            this.label62.Text = "Range: 0.1 - 100.0";
             // 
             // tbFrequency
             // 
@@ -1305,7 +1328,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(96, 13);
             this.label8.TabIndex = 7;
-            this.label8.Text = "Range: 1.00 - 7.00";
+            this.label8.Text = "Range: 1.00 - 5.00";
             // 
             // tbResin_Dk
             // 
@@ -1375,7 +1398,7 @@
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(96, 13);
             this.label18.TabIndex = 11;
-            this.label18.Text = "Range: 1.00 - 7.00";
+            this.label18.Text = "Range: 1.00 - 5.00";
             // 
             // tbDk
             // 
@@ -1402,9 +1425,9 @@
             this.label15.Location = new System.Drawing.Point(272, 21);
             this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(95, 13);
+            this.label15.Size = new System.Drawing.Size(101, 13);
             this.label15.TabIndex = 7;
-            this.label15.Text = "Range: 1.5-50 mils";
+            this.label15.Text = "Range: 0.25-70 mils";
             // 
             // label16
             // 
@@ -1485,7 +1508,7 @@
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(96, 13);
             this.label27.TabIndex = 23;
-            this.label27.Text = "Range: 1.00 - 7.00";
+            this.label27.Text = "Range: 1.00 - 5.00";
             // 
             // tbSoldermask_Dk
             // 
@@ -1512,9 +1535,9 @@
             this.label30.Location = new System.Drawing.Point(272, 19);
             this.label30.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(95, 13);
+            this.label30.Size = new System.Drawing.Size(104, 13);
             this.label30.TabIndex = 19;
-            this.label30.Text = "Range: 1.5-50 mils";
+            this.label30.Text = "Range: 0.25-1.5 mils";
             // 
             // label31
             // 
@@ -3253,29 +3276,6 @@
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // label127
-            // 
-            this.label127.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label127.Location = new System.Drawing.Point(3, 49);
-            this.label127.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label127.Name = "label127";
-            this.label127.Size = new System.Drawing.Size(272, 33);
-            this.label127.TabIndex = 27;
-            this.label127.Text = "Possible errors include having an uneven number of copper layers.";
-            // 
-            // label128
-            // 
-            this.label128.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label128.Location = new System.Drawing.Point(3, 82);
-            this.label128.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label128.Name = "label128";
-            this.label128.Size = new System.Drawing.Size(272, 43);
-            this.label128.TabIndex = 27;
-            this.label128.Text = "Warnings include asymmetrical stackups should generally be symmetrical and altern" +
-    "ating power and ground planes for decoupling.";
             // 
             // SettingsDialog
             // 

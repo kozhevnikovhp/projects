@@ -517,7 +517,7 @@ namespace ZZero.ZPlanner.UI
                     //if (!ZPlannerManager.CloseProject()) return;
                     //ZPlannerManager.MessagePanel.ClearMessages();
 
-                    ZPlannerManager.Commands.IsIgnoreCommands = true;
+                    ZPlannerManager.Commands.SuspendCommandEvent();
                     if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
                     bool commentsShouldBeDisplayed = theWizard.CreateStackup();
                     ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);

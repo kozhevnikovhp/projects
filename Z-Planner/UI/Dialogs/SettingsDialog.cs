@@ -248,7 +248,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
         public void LoadOptions()
         {
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.ReadSettings();
+            ZZero.ZSolver.ZSolverManager.ReadSettings();
 #else
             ZPlannerManager.ReadSettings();
 #endif
@@ -276,7 +276,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             // paths
             if (string.IsNullOrWhiteSpace(options.ProjectPath)) options.ProjectPath = 
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory;
+            ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory;
 #else
                 ZPlannerManager.ZPlannerDataDirectory;
 #endif
@@ -285,7 +285,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             cbUseLast.Checked = options.UseLast;
             if (string.IsNullOrWhiteSpace(options.ExportPath)) options.ExportPath = 
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory;
+            ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory;
 #else
                 ZPlannerManager.ZPlannerDataDirectory;
 #endif
@@ -293,14 +293,14 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             if (string.IsNullOrWhiteSpace(options.DML_LocalPath)) options.DML_LocalPath = 
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory;
+            ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory;
 #else
                 ZPlannerManager.ZPlannerDataDirectory;
 #endif
             tbDML_LocalPath.Text = options.DML_LocalPath;
             if (string.IsNullOrWhiteSpace(options.DML_NetworkPath)) options.DML_NetworkPath = 
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory;
+            ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory;
 #else
                 ZPlannerManager.ZPlannerDataDirectory;
 #endif
@@ -311,7 +311,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             {
                 string LicPath = Path.Combine(
 #if ZSANDBOX
-                    ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory,
+                    ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory,
 #else
                     ZPlannerManager.ZPlannerDataDirectory,
 #endif
@@ -324,7 +324,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 }
                 options.LicensePath = LicPath;
             }
-            tbLicPaths.Text = options.LicensePath;
+            
+            string LicPaths= options.LicensePath;
+
+            string[] lines = LicPaths.Split(new string[] { Environment.NewLine, "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+            tbLicPaths.Text = string.Join(Environment.NewLine, lines);
 
             //dielectric
             tbDrill.Text = options.drill.ToString();
@@ -462,13 +466,13 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void tbSoldermask_Height_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Solder Mask Height", 1.5, 50);
+            TextBoxValidator.CheckRange(sender, "Solder Mask Height", 0.25, 1.5);
 
         }
 
         private void tbHeight_Validating(object sender, CancelEventArgs e)
         {
-            TextBoxValidator.CheckRange(sender, "Core/Prepreg Height", 1.5, 50);
+            TextBoxValidator.CheckRange(sender, "Core/Prepreg Height", 0.25, 70);
         }
 
         private void tbWeightDigits_TextChanged(object sender, EventArgs e)
@@ -669,7 +673,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
         {
             string LicPath = Path.Combine(
 #if ZSANDBOX
-                    ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory,
+                    ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory,
 #else
                     ZPlannerManager.ZPlannerDataDirectory,
 #endif
@@ -681,15 +685,22 @@ namespace ZZero.ZPlanner.UI.Dialogs
             licFileDlg.FilterIndex = 1;
             licFileDlg.RestoreDirectory = true;
 
-            if (licFileDlg.ShowDialog() == DialogResult.OK && licFileDlg.FileName != string.Empty && File.Exists(licFileDlg.FileName))
+            try
             {
-                File.Copy(licFileDlg.FileName, Path.Combine(LicPath, Path.GetFileName(licFileDlg.FileName)));
-
-                if (!tbLicPaths.Text.Contains(LicPath))
+                if (licFileDlg.ShowDialog() == DialogResult.OK && licFileDlg.FileName != string.Empty && File.Exists(licFileDlg.FileName))
                 {
-                    if (tbLicPaths.Text != string.Empty) tbLicPaths.Text += Environment.NewLine;
-                    tbLicPaths.Text += LicPath;
+                    File.Copy(licFileDlg.FileName, Path.Combine(LicPath, Path.GetFileName(licFileDlg.FileName)));
+
+                    if (!tbLicPaths.Text.Contains(LicPath))
+                    {
+                        if (tbLicPaths.Text != string.Empty) tbLicPaths.Text += Environment.NewLine;
+                        tbLicPaths.Text += LicPath;
+                    }
                 }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message, "File Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

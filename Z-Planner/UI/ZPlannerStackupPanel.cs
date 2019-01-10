@@ -20,6 +20,8 @@ using ZZero.ZPlanner.Settings;
 using ZZero.ZPlanner.Commands;
 using ZZero.ZPlanner.UI.Dialogs;
 using System.Collections;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace ZZero.ZPlanner.UI
 {
@@ -35,12 +37,14 @@ namespace ZZero.ZPlanner.UI
         internal ZPlannerStackupPanel(ZStackup stackup)
         {
             InitializeComponent();
+            SetDefaultPageSetup();
             
             ZPlannerManager.ResumeCollectionChangedEvent();
             InitContextMenuSubitems();
 
             this.FormClosing += ZPlannerStackupPanel_FormClosing;
             this.Activated += ZPlannerStackupPanel_Activated;
+            ZPlannerManager.PropertyChanged += ZPlannerManager_PropertyChanged;
 
             this.stackup = stackup;
             SetSingleComboBox();
@@ -82,6 +86,19 @@ namespace ZZero.ZPlanner.UI
             ZPlannerManager.PropertyChanged += Program_PropertyChanged;
         }
 
+        void ZPlannerManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Settings")
+            {
+                stackupGridView.Invalidate();
+            }
+
+            if (e.PropertyName == "ProjectFile")
+            {
+                SetTabName();
+            }
+        }
+
         private void InitContextMenuSubitems()
         {
             foreach (string type in ZStringConstants.LayerType)
@@ -102,6 +119,7 @@ namespace ZZero.ZPlanner.UI
         internal void Clear()
         {
             this.FormClosing -= ZPlannerStackupPanel_FormClosing;
+            ZPlannerManager.PropertyChanged -= ZPlannerManager_PropertyChanged;
             if (stackup != null) stackup.PropertyChanged -= ZStackup_PropertyChanged;
             if (single != null) single.PropertyChanged -= ZSingle_PropertyChanged;
             if (pair != null) pair.PropertyChanged -= ZPair_PropertyChanged;
@@ -210,6 +228,15 @@ namespace ZZero.ZPlanner.UI
                     {
                         parameter.PropertyChanged -= (column as ZDataGridViewColumn).ZParameter_PropertyChanged;
                         parameter.PropertyChanged -= ZParameter_PropertyChanged;
+                    }
+                }
+                else
+                {
+                    ZDataGridViewViaSpanColumn spanColumn = column as ZDataGridViewViaSpanColumn;
+                    if (spanColumn != null)
+                    {
+                        ZSpan span = stackup.Spans.Find((ZSpan x) => x.ID == spanColumn.Name);
+                        if (span != null) span.PropertyChanged -= spanColumn.ZSpan_PropertyChanged;
                     }
                 }
             }
@@ -395,14 +422,24 @@ namespace ZZero.ZPlanner.UI
                 if (cell != null && cell.ReadOnly && !cell.OwningColumn.ReadOnly)
                 {
                     ZLayer layer = stackupGridView.Rows[e.RowIndex].Tag as ZLayer;
-                    if (layer != null && layer.IsMaterialAssigned) TryToEditMaterialAssignedRow();
+                    if (layer != null && layer.IsMaterialAssigned)
+                    {
+                        TryToEditMaterialAssignedRow();
+                        return;
+                    }
+
+                    if (cell.OwningColumn.Name == ZStringConstants.ParameterIDCopperPercent)
+                    {
+                        TryToEditCopperPercentCell();
+                        return;
+                    }
                 }
             }
         }
 
         void dataGridView_CurrentCellChanged(object sender, EventArgs e)
         {
-            ZPlannerManager.IsLayerSelected = stackupGridView.CurrentRow != null;
+            //ZPlannerManager.IsLayerSelected = stackupGridView.CurrentRow != null;
         }
 
         internal void LoadSingle(ZSingle single)
@@ -456,7 +493,7 @@ namespace ZZero.ZPlanner.UI
                 UpdateReferences();
                 SetReadOnlyCells();
                 FormatGridView();
-                stackup.ActivePair = pair;
+                if (stackup.ActivePair != pair) stackup.ActivePair = pair;
                 SetPairComboBox();
                 stackupGridView.Invalidate();
             }
@@ -874,7 +911,15 @@ namespace ZZero.ZPlanner.UI
                             ZLayerParameter layerParameter = singleLayer.LayerParameters.Find((ZLayerParameter x) => x.ID == column.Name);
                             if (layerParameter != null)
                             {
-                                zRow.Cells[column.Index].Value = layerParameter.Value;
+                                if (column.Name == ZStringConstants.ParameterIDZo_TopReference ||
+                                    column.Name == ZStringConstants.ParameterIDZo_BottomReference)
+                                {
+                                    zRow.Cells[column.Index].Value = Stackup.Layers.Find(x => x.ID == layerParameter.Value);
+                                }
+                                else
+                                {
+                                    zRow.Cells[column.Index].Value = layerParameter.Value;
+                                }
                                 zRow.Cells[column.Index].Tag = layerParameter;
                                 layerParameter.PropertyChanged += (zRow.Cells[column.Index] as IZDataGridViewCell).ZLayerParameter_PropertyChanged;
                                 layerParameter.PropertyChanged += ZLayerParameter_PropertyChanged;
@@ -950,7 +995,15 @@ namespace ZZero.ZPlanner.UI
                             ZLayerParameter layerParameter = pairLayer.LayerParameters.Find((ZLayerParameter x) => x.ID == column.Name);
                             if (layerParameter != null)
                             {
-                                zRow.Cells[column.Index].Value = layerParameter.Value;
+                                if (column.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
+                                    column.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
+                                {
+                                    zRow.Cells[column.Index].Value = Stackup.Layers.Find(x => x.ID == layerParameter.Value);
+                                }
+                                else
+                                {
+                                    zRow.Cells[column.Index].Value = layerParameter.Value;
+                                }
                                 zRow.Cells[column.Index].Tag = layerParameter;
                                 layerParameter.PropertyChanged += (zRow.Cells[column.Index] as IZDataGridViewCell).ZLayerParameter_PropertyChanged;
                                 layerParameter.PropertyChanged += ZLayerParameter_PropertyChanged;
@@ -1026,7 +1079,7 @@ namespace ZZero.ZPlanner.UI
                 }
             }
 
-            grid.AutoResizeColumnHeadersHeight();
+            //grid.AutoResizeColumnHeadersHeight();
 
         }
 
@@ -1190,7 +1243,7 @@ namespace ZZero.ZPlanner.UI
             {
                 ZLayerParameter parameter = layer.GetLayerParameter(ZStringConstants.ParameterIDZo_TotalLoss) ?? layer.GetLayerParameter(ZStringConstants.ParameterIDZdiff_TotalLoss);
                 if (parameter == null) return;
-                parameter.Value = (doubleInsertionLoss * doubleTraceLength).ToString(ZPlannerManager.GetFormatByParameter(parameter.Parameter), CultureInfo.InvariantCulture);
+                parameter.Value = (doubleInsertionLoss * doubleTraceLength).ToString(/*ZPlannerManager.GetFormatByParameter(parameter.Parameter),*/ CultureInfo.InvariantCulture);
             }
 
             stackupGridView.Invalidate();
@@ -1208,7 +1261,7 @@ namespace ZZero.ZPlanner.UI
             {
                 ZLayerParameter parameter = layer.GetLayerParameter(ZStringConstants.ParameterIDZo_PropagationDelay) ?? layer.GetLayerParameter(ZStringConstants.ParameterIDZdiff_PropagationDelay);
                 if (parameter == null) return;
-                parameter.Value = (doubleTraceLength / doublePropagationVelocity).ToString(ZPlannerManager.GetFormatByParameter(parameter.Parameter), CultureInfo.InvariantCulture);
+                parameter.Value = (doubleTraceLength / doublePropagationVelocity).ToString(/*ZPlannerManager.GetFormatByParameter(parameter.Parameter),*/ CultureInfo.InvariantCulture);
             }
 
             stackupGridView.Invalidate();
@@ -1227,30 +1280,51 @@ namespace ZZero.ZPlanner.UI
                     ZPlannerManager.UpdateActiveStackup();
                     break;
                 case "ActivePair":
-                    if (Stackup.ActivePair != null)
+                    bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+                    try
                     {
-                        ZPlannerManager.MainMenu.UpdatePairs(Stackup.Pairs, Stackup.ActivePair.ID);
-                        LoadPair(Stackup.ActivePair);
+                        if (Stackup.ActivePair != null)
+                        {
+                            ZPlannerManager.MainMenu.UpdatePairs(Stackup.Pairs, Stackup.ActivePair.ID);
+                            LoadPair(Stackup.ActivePair);
+                        }
+                        else
+                        {
+                            ZPlannerManager.MainMenu.UpdatePairs(Stackup.Pairs, null);
+                            ClearPair();
+                        }
                     }
-                    else
+                    finally
                     {
-                        ZPlannerManager.MainMenu.UpdatePairs(Stackup.Pairs, null);
-                        ClearPair();
+                        ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                        ZPlannerManager.UpdateActiveStackup();
                     }
-                    ZPlannerManager.UpdateActiveStackup();
                     break;
                 case "ActiveSingle":
-                    if (Stackup.ActiveSingle != null)
+                    isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+                    try
                     {
-                        ZPlannerManager.MainMenu.UpdateSingles(Stackup.Singles, Stackup.ActiveSingle.ID);
-                        LoadSingle(Stackup.ActiveSingle);
+                        if (Stackup.ActiveSingle != null)
+                        {
+                            ZPlannerManager.MainMenu.UpdateSingles(Stackup.Singles, Stackup.ActiveSingle.ID);
+                            LoadSingle(Stackup.ActiveSingle);
+                        }
+                        else
+                        {
+                            ZPlannerManager.MainMenu.UpdateSingles(Stackup.Singles, null);
+                            ClearSingle();
+                        }
                     }
-                    else
+                    finally
                     {
-                        ZPlannerManager.MainMenu.UpdateSingles(Stackup.Singles, null);
-                        ClearSingle();
+                        ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                        ZPlannerManager.UpdateActiveStackup();
                     }
-                    ZPlannerManager.UpdateActiveStackup();
+                    break;
+                case "CopperCoverageType":
+                    //SetReadOnlyCells();
+                    //FormatGridView();
+                    stackupGridView.Update();
                     break;
             }
         }
@@ -1262,7 +1336,7 @@ namespace ZZero.ZPlanner.UI
 
             if (layerParameter == null) return;
 
-            if (ZPlannerManager.StackupPanel != null && ZPlannerManager.IsAutoMirror && !layerParametersToBeIgnored.Contains(layerParameter.ID) && !layerParameter.IsReadOnly())
+            if (ZPlannerManager.StackupPanel != null && ZPlannerManager.IsAutoMirror && !layerParametersToBeIgnored.Contains(layerParameter.ID) && !layerParameter.IsReadOnly(false, true))
             {
                 int lastIndex = ZPlannerManager.StackupPanel.Stackup.Layers.Count - 1;
                 int currentIndex = ZPlannerManager.StackupPanel.Stackup.Layers.FindIndex(x => x.ID == layerParameter.Layer.ID);
@@ -1291,10 +1365,16 @@ namespace ZZero.ZPlanner.UI
 
                 if (double.TryParse(layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceWidth), NumberStyles.Any, CultureInfo.InvariantCulture, out traceWidth) &&
                     double.TryParse(layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceSpacing), NumberStyles.Any, CultureInfo.InvariantCulture, out traceSpacing))
-                    layerParameter.Layer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TracePitch, (traceWidth + traceSpacing).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    layerParameter.Layer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TracePitch, (traceWidth + traceSpacing).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
             }
 
-            if (layerParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed && layerParameter.Layer.isMetal())
+            if (layerParameter.ID == ZStringConstants.ParameterIDZo_IsUsed || layerParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed)
+            {
+                stackupGridView.Invalidate();
+            }
+
+            // UnComment to cleare the values when IsUsed is turned off.
+            /*if (layerParameter.ID == ZStringConstants.ParameterIDZdiff_IsUsed && layerParameter.Layer.isMetal())
             {
                 bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
                 bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
@@ -1352,14 +1432,14 @@ namespace ZZero.ZPlanner.UI
                     ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
                     ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
                 }
-            }
+            }*/
 
             if (layerParameter.ID == ZStringConstants.ParameterIDWarpYarnCount)
             {
                 double dvalue;
 
                 if (double.TryParse(layerParameter.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out dvalue) && dvalue != 0)
-                    layerParameter.Layer.SetLayerParameterValue(ZStringConstants.ParameterIDWeavePitch, (1000 / dvalue).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    layerParameter.Layer.SetLayerParameterValue(ZStringConstants.ParameterIDWeavePitch, (1000 / dvalue).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 stackupGridView.Invalidate();
             }
 
@@ -1368,8 +1448,14 @@ namespace ZZero.ZPlanner.UI
                 double dvalue;
 
                 if (double.TryParse(layerParameter.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out dvalue) && dvalue != 0)
-                    layerParameter.Layer.SetLayerParameterValue(ZStringConstants.ParameterIDFillPitch, (1000 / dvalue).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    layerParameter.Layer.SetLayerParameterValue(ZStringConstants.ParameterIDFillPitch, (1000 / dvalue).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 stackupGridView.Invalidate();
+            }
+
+            if (layerParameter.ID == ZStringConstants.ParameterIDConstruction)
+            {
+                GlassPitch gp = new GlassPitch(layerParameter.Layer);
+                gp.onConstructionChange();
             }
 
             if (layerParameter.ID == ZStringConstants.ParameterIDThickness) ZPlannerManager.StatusMenu.SetStackupParameters(Stackup);
@@ -1484,6 +1570,7 @@ namespace ZZero.ZPlanner.UI
             switch (e.PropertyName)
             {
                 case "Title":
+                case "ImpedanceTarget":
                     SetSingleComboBox();
                     break;
             }
@@ -1494,6 +1581,7 @@ namespace ZZero.ZPlanner.UI
             switch (e.PropertyName)
             {
                 case "Title":
+                case "ImpedanceTarget":
                     SetPairComboBox();
                     break;
             }
@@ -1532,9 +1620,16 @@ namespace ZZero.ZPlanner.UI
                         if (referenceLayer == null)
                         {
                             string sValue = cell.Value as string;
-                            referenceLayer = Stackup.Layers.Find(x => x.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber) == sValue);
+                            if (!string.IsNullOrEmpty(sValue)) referenceLayer = Stackup.Layers.Find(x => x.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber) == sValue);
                         }
-                        if (referenceLayer != null && layerParameter.Value != referenceLayer.ID) layerParameter.Value = referenceLayer.ID;
+                        if (referenceLayer != null)
+                        {
+                            if (layerParameter.Value != referenceLayer.ID) layerParameter.Value = referenceLayer.ID;
+                        }
+                        else
+                        {
+                            if (layerParameter.Value != string.Empty) layerParameter.Value = string.Empty;
+                        }
                         break;
                     default:
                         layerParameter.Value = (cell.Value != null) ? ((cell.Value is double) ? ((double)cell.Value).ToString(CultureInfo.InvariantCulture) : cell.Value.ToString()) : "";
@@ -1581,6 +1676,7 @@ namespace ZZero.ZPlanner.UI
                         }
                     }*/
 
+                    curentEditingControl = control;
                     control.DropDownStyle = ComboBoxStyle.DropDown;
                     control.Validating += cell.Validating;
 
@@ -1594,6 +1690,7 @@ namespace ZZero.ZPlanner.UI
                 ZDataGridViewComboBoxCell cell = grid.CurrentCell as ZDataGridViewComboBoxCell;
                 if (cell != null && cell.Editable)
                 {
+                    curentEditingControl = control;
                     control.DropDownStyle = ComboBoxStyle.DropDown;
                     control.Validating += cell.Validating;                    
 
@@ -1638,15 +1735,20 @@ namespace ZZero.ZPlanner.UI
 
         void dataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (curentEditingControl != null)
-            {
-                curentEditingControl.KeyPress -= NumberBox_KeyPress;
-                curentEditingControl.KeyPress -= PercentBox_KeyPress;
-                curentEditingControl.KeyPress -= RatioBox_KeyPress;
-            }
+            if (curentEditingControl == null) return;
+            
+            curentEditingControl.KeyPress -= NumberBox_KeyPress;
+            curentEditingControl.KeyPress -= PercentBox_KeyPress;
+            curentEditingControl.KeyPress -= RatioBox_KeyPress;
 
-            ZDataGridViewPercentBoxCell cell = (sender as DataGridView).CurrentCell as ZDataGridViewPercentBoxCell;
-            if (cell != null && curentEditingControl.Text.Contains("%")) curentEditingControl.Text = curentEditingControl.Text.Replace("%", string.Empty);
+            ZDataGridViewPercentBoxCell pbCell = (sender as DataGridView).CurrentCell as ZDataGridViewPercentBoxCell;
+            if (pbCell != null && curentEditingControl.Text.Contains("%")) curentEditingControl.Text = curentEditingControl.Text.Replace("%", string.Empty);
+
+            ZDataGridViewComboBoxCell cbCell = (sender as DataGridView).CurrentCell as ZDataGridViewComboBoxCell;
+            if (cbCell != null) curentEditingControl.Validating -= cbCell.Validating;
+
+            ZDataGridViewSelectBoxCell sbCell = (sender as DataGridView).CurrentCell as ZDataGridViewSelectBoxCell;
+            if (sbCell != null) curentEditingControl.Validating -= sbCell.Validating;
         }
 
         private void NumberBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -1858,7 +1960,12 @@ namespace ZZero.ZPlanner.UI
 
         internal void SetTabName()
         {
-             this.Text = "Main View - " + stackup.Title;
+             //this.Text = "Main View - " + stackup.Title;
+
+             string projectName = Path.GetFileNameWithoutExtension(ZPlannerManager.ProjectFile);
+             this.Text = string.IsNullOrEmpty(projectName) 
+                 ? "Main View - " + stackup.Title 
+                 : "Main View - " + projectName;
         }
 
         void ZPlannerStackupPanel_FormClosing(object sender, FormClosingEventArgs e)
@@ -1879,12 +1986,13 @@ namespace ZZero.ZPlanner.UI
 
         void Parameters_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             ClearStakup();
             ClearGrids();
             LoadData(ZPlannerManager.Project.Stackup, single, pair);
         }
 
-        void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        internal void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             ClearStakup();
@@ -1959,17 +2067,18 @@ namespace ZZero.ZPlanner.UI
             AddViaSpan(enabledSpans);
 
             RecalculateColumnHeaderName();
-            stackupGridView.Invalidate();
         }
 
         void Singles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             if (!stackup.Singles.Contains(single)) ClearSingle();
             SetSingleComboBox();
         }
 
         void Pairs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             if (!stackup.Pairs.Contains(pair)) ClearPair();
             SetPairComboBox();
         }
@@ -2042,10 +2151,12 @@ namespace ZZero.ZPlanner.UI
                 this.moveRowDownToolStripMenuItem.Enabled = layer.Order < layer.Stackup.Layers.Count - 1;
                 bool clipboardNotEmpty = ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers);
                 this.pasteRowBeforeToolStripMenuItem.Enabled = clipboardNotEmpty;
+                this.pasteRowInsteadToolStripMenuItem.Enabled = clipboardNotEmpty;
                 this.pasteRowAfterToolStripMenuItem.Enabled = clipboardNotEmpty; 
                 clipboardNotEmpty = ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyMaterials) && ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyMaterials].Count > 0;
                 pasteMaterialToolStripMenuItem.Enabled = clipboardNotEmpty;
                 clearMaterialToolStripMenuItem.Enabled = (layer.isDielectric() && layer.IsMaterialAssigned);
+                clearAllMaterialsToolStripMenuItem.Enabled = (Stackup.Layers.Find(x => x.isDielectric() && x.IsMaterialAssigned) != null);
 
                 if (clipboardNotEmpty)
                 {
@@ -2276,6 +2387,9 @@ namespace ZZero.ZPlanner.UI
 
         void dataGridView_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Right)
+                dataGridView_RowHeaderMouseClick(sender, e);
+
             ZDataGridView grid = sender as ZDataGridView;
             if (grid == null || e.RowIndex < 0 || e.ColumnIndex < 0) return;
 
@@ -2292,7 +2406,7 @@ namespace ZZero.ZPlanner.UI
         void rowContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             string itemName = e.ClickedItem.Name;
-            ZLayerType layerType = ZLayerType.Signal;
+            ZLayerType? layerType = null;
 
             DataGridViewRow row = rowContextMenu.Tag as DataGridViewRow;
             if (row == null) return;
@@ -2320,7 +2434,7 @@ namespace ZZero.ZPlanner.UI
             RowContextMenuOperation(itemName, grid, layer, selectedLayer, layerType);
         }
 
-        private void RowContextMenuOperation(string itemName, DataGridView grid, ZLayer layer, ZLayer selectedLayer, ZLayerType layerType = ZLayerType.Signal)
+        private void RowContextMenuOperation(string itemName, DataGridView grid, ZLayer layer, ZLayer selectedLayer, ZLayerType? layerType = null)
         {
             if (grid == null) grid = stackupGridView;
             int layerOrder = 0;
@@ -2357,10 +2471,10 @@ namespace ZZero.ZPlanner.UI
             switch (itemName)
             {
                 case "addRowBeforeToolStripMenuItem":
-                    stackup.AddLayer(layerOrder, layerType, ZPlannerManager.IsCoreLocked);
+                    if (layerType != null) stackup.AddLayer(layerOrder, (ZLayerType)layerType, ZPlannerManager.IsCoreLocked);
                     break;
                 case "addRowAfterToolStripMenuItem":
-                    stackup.AddLayer(layerOrder + 1, layerType, ZPlannerManager.IsCoreLocked);
+                    if (layerType != null) stackup.AddLayer(layerOrder + 1, (ZLayerType)layerType, ZPlannerManager.IsCoreLocked);
                     break;
                 case "moveRowUpToolStripMenuItem":
                     if (layerOrder > 0)
@@ -2384,6 +2498,7 @@ namespace ZZero.ZPlanner.UI
                 case "copyRowToolStripMenuItem":
                     if (ZPlannerManager.IsCoreLocked) stackup.CopyLayers(GetCoreLockedLayerIDs(grid, layer));
                     else stackup.CopyLayer(layer.ID);
+                    if (layer.IsMaterialAssigned) stackup.CopyMaterialFromLayer(layer.ID);
                     break;
                 case "cutRowToolStripMenuItem":
                     if (ZPlannerManager.IsCoreLocked) stackup.CutLayers(GetCoreLockedLayerIDs(grid, layer));
@@ -2391,6 +2506,9 @@ namespace ZZero.ZPlanner.UI
                     break;
                 case "pasteRowBeforeToolStripMenuItem":
                     stackup.PasteLayers(layerOrder, ZPlannerManager.IsCoreLocked);
+                    break;
+                case "pasteRowInsteadToolStripMenuItem":
+                    stackup.ReplaceLayers(layer.ID, ZPlannerManager.IsCoreLocked);
                     break;
                 case "pasteRowAfterToolStripMenuItem":
                     stackup.PasteLayers(layerOrder + 1, ZPlannerManager.IsCoreLocked);
@@ -2435,6 +2553,10 @@ namespace ZZero.ZPlanner.UI
                 case "clearMaterialToolStripMenuItem":
                     layers = new List<ZLayer>();
                     layers.Add(layer);
+                    ZPlannerManager.Project.Stackup.UnAssignMaterialToStackup(layers);
+                    break;
+                case "clearAllMaterialsToolStripMenuItem":
+                    layers = Stackup.Layers.FindAll(x => x.isDielectric() && x.IsMaterialAssigned);
                     ZPlannerManager.Project.Stackup.UnAssignMaterialToStackup(layers);
                     break;
             }
@@ -3036,6 +3158,8 @@ namespace ZZero.ZPlanner.UI
                     column.HeaderName = column.GetHeaderNameByOrder(index++);
                 }
             }
+
+            stackupGridView.Invalidate();
         }
 
         void ZPlannerStackupPanel_Activated(object sender, EventArgs e)
@@ -3105,15 +3229,7 @@ namespace ZZero.ZPlanner.UI
         {
             if (!IsHidden)
             {
-                if (ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers) && ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyStackupLayers] is List<ZEntity>)
-                {
-                    ZLayer layer = GetCurrentLayer();
-                    if (layer != null)
-                        RowContextMenuOperation("pasteRowAfterToolStripMenuItem", null, layer, null);
-                    else
-                        RowContextMenuOperation("pasteRowBeforeToolStripMenuItem", null, layer, null);
-                }
-                else if (ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyMaterialsForStackup))
+                if (ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyMaterialsForStackup))
                 {
                     List<ZEntity> entities = ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyMaterialsForStackup] as List<ZEntity>;
                     if (entities != null && entities.Count > 0)
@@ -3121,9 +3237,22 @@ namespace ZZero.ZPlanner.UI
                         ZMaterial material = entities[0] as ZMaterial;
                         ZLayer layer = GetCurrentLayer();
                         if (layer != null && material != null && layer.GetLayerType() == material.GetMaterialType())
+                        {
                             RowContextMenuOperation("pasteMaterialToCurrentLayerButton", null, layer, null);
+                            return;
+                        }
                     }
+                }                
+                
+                if (ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers) && ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyStackupLayers] is List<ZEntity>)
+                {
+                    ZLayer layer = GetCurrentLayer();
+                    if (layer != null)
+                        RowContextMenuOperation("pasteRowInsteadToolStripMenuItem", null, layer, null);
+                    else
+                        RowContextMenuOperation("pasteRowBeforeToolStripMenuItem", null, layer, null);
                 }
+
             }
         }
 
@@ -3165,6 +3294,24 @@ namespace ZZero.ZPlanner.UI
                     stackup.CutLayers(ids);
                     StackupPanel.SetCurrentRow(indexToSelect);
                 }*/
+            }
+        }
+
+        public void Apply()
+        {
+            if (!IsHidden)
+            {
+                if (ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyMaterialsForStackup))
+                {
+                    List<ZEntity> entities = ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyMaterialsForStackup] as List<ZEntity>;
+                    if (entities != null && entities.Count > 0)
+                    {
+                        ZMaterial material = entities[0] as ZMaterial;
+                        ZLayer layer = GetCurrentLayer();
+                        if (layer != null && material != null && layer.GetLayerType() == material.GetMaterialType())
+                            RowContextMenuOperation("pasteMaterialToCurrentLayerButton", null, layer, null);
+                    }
+                }
             }
         }
 
@@ -3253,7 +3400,7 @@ namespace ZZero.ZPlanner.UI
         internal void ShowLossPlanning(bool showLossPlanning)
         {
             string[] columnIDs = new string[] {/*ZStringConstants.ParameterIDThickness, ZStringConstants.ParameterIDZdiff_Frequency, ZStringConstants.ParameterIDZdiff_DielectricConstant, ZStringConstants.ParameterIDZdiff_LossTangent, */
-                                                ZStringConstants.ParameterIDZdiff_LossViewer, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TraceLength, ZStringConstants.ParameterIDZdiff_TotalLoss};
+                                                ZStringConstants.ParameterIDZdiff_LossViewer, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TraceLength, ZStringConstants.ParameterIDZdiff_TotalLoss, ZStringConstants.ParameterIDZdiff_PropagationVelocity, ZStringConstants.ParameterIDZdiff_PropagationDelay};
 
             bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
             stackupGridView.SuspendLayout();
@@ -3401,6 +3548,13 @@ namespace ZZero.ZPlanner.UI
         List<Rectangle> pageRectangles = new List<Rectangle>();
         Rectangle printRectangle;
         int pageNumber = 0;
+        int totalHeight = 0;
+        int totalWidth = 0;
+
+        private void SetDefaultPageSetup()
+        {
+            printDocument.DefaultPageSettings.Landscape = true;
+        }
 
         public void ShowPageSetup()
         {
@@ -3408,7 +3562,7 @@ namespace ZZero.ZPlanner.UI
             
             PageSetupDialog pageSetupDialog = new PageSetupDialog();
             pageSetupDialog.Document = printDocument;
-            pageSetupDialog.PageSettings.Landscape = true;
+            //pageSetupDialog.PageSettings.Landscape = true;
             pageSetupDialog.ShowDialog();
         }
 
@@ -3416,19 +3570,23 @@ namespace ZZero.ZPlanner.UI
         {
             ClearRowSelection();
             stackupGridView.Invalidate();
+            bool isHeaderDisplayed = ZPlannerManager.IsHeadersVisible;
+            ZPlannerManager.ShowHeaders(false);
 
             if (printDocument == null) printDocument = new PrintDocument();
-            
+
+            //PreparePrintPages();
+            PrepareSinglePrintPage();
             CaptureScreen();
+            
             printDocument.PrintPage += new PrintPageEventHandler(printDocument_PrintPage);
             printDocument.BeginPrint += printDocument_BeginPrint;
-
-            PreparePrintPages();
 
             PrintPreviewDialog printPreviewDialog = new PrintPreviewDialog();
             printPreviewDialog.Document = printDocument;
             printPreviewDialog.ShowDialog();
 
+            ZPlannerManager.ShowHeaders(isHeaderDisplayed);
             printDocument.PrintPage -= new PrintPageEventHandler(printDocument_PrintPage);
             printDocument.BeginPrint -= printDocument_BeginPrint;
         }
@@ -3437,14 +3595,17 @@ namespace ZZero.ZPlanner.UI
         {
             ClearRowSelection();
             stackupGridView.Invalidate();
+            bool isHeaderDisplayed = ZPlannerManager.IsHeadersVisible;
+            ZPlannerManager.ShowHeaders(false);
 
             if (printDocument == null) printDocument = new PrintDocument();
 
+            //PreparePrintPages();
+            PrepareSinglePrintPage();
             CaptureScreen();
+
             printDocument.PrintPage += new PrintPageEventHandler(printDocument_PrintPage);
             printDocument.BeginPrint += printDocument_BeginPrint;
-
-            PreparePrintPages();
 
             PrintDialog printDialog = new PrintDialog();
             printDialog.Document = printDocument;
@@ -3459,6 +3620,7 @@ namespace ZZero.ZPlanner.UI
                 printDocument.Print();
             }*/
 
+            ZPlannerManager.ShowHeaders(isHeaderDisplayed);
             printDocument.PrintPage -= new PrintPageEventHandler(printDocument_PrintPage);
             printDocument.BeginPrint -= printDocument_BeginPrint;
         }
@@ -3480,8 +3642,11 @@ namespace ZZero.ZPlanner.UI
             mygraphics.ReleaseHdc(dc1);
             memoryGraphics.ReleaseHdc(dc2);*/
 
-            memoryImage = new Bitmap(stackupGridView.Width, stackupGridView.Height);
-            stackupGridView.DrawToBitmap(memoryImage, new Rectangle(0, 0, memoryImage.Width, memoryImage.Height));
+            Size currentSize = printPanel.Size;
+            printPanel.Size = new Size(totalWidth + 100, totalHeight + 100);
+            memoryImage = new Bitmap(totalWidth, totalHeight);
+            stackupGridView.DrawToBitmap(memoryImage, new Rectangle(0, 0, memoryImage.Width + 1, memoryImage.Height + 1));
+            printPanel.Size = currentSize;
         }
 
         private void PreparePrintPages()
@@ -3549,6 +3714,68 @@ namespace ZZero.ZPlanner.UI
             }
         }
 
+        private void PrepareSinglePrintPage()
+        {
+            printDocument.DocumentName = ZStringConstants.ZplannerStackupDocument + ((ZPlannerManager.ProjectFile != null) ? " (" + Path.GetFileName(ZPlannerManager.ProjectFile) + ")" : "");
+            pageRectangles.Clear();
+            int printableAreaWidth = printDocument.DefaultPageSettings.Bounds.Width - printDocument.DefaultPageSettings.Margins.Left - printDocument.DefaultPageSettings.Margins.Right;
+            int printableAreaHeight = printDocument.DefaultPageSettings.Bounds.Height - printDocument.DefaultPageSettings.Margins.Top - printDocument.DefaultPageSettings.Margins.Bottom;
+            printRectangle = new Rectangle(printDocument.DefaultPageSettings.Margins.Left, printDocument.DefaultPageSettings.Margins.Top, printableAreaWidth, printableAreaHeight);
+            List<int> pageWidthList = new List<int>();
+            List<int> pageHeightList = new List<int>();
+
+            int width = 0;
+            int height = 0;
+
+            // Width
+            width += (stackupGridView.RowHeadersVisible) ? stackupGridView.RowHeadersWidth - 1 : 0;
+
+            DataGridViewColumn column = stackupGridView.Columns.GetFirstColumn(DataGridViewElementStates.Visible, DataGridViewElementStates.None);
+            while (column != null)
+            {
+                width += column.Width;
+
+                column = stackupGridView.Columns.GetNextColumn(column, DataGridViewElementStates.Visible, DataGridViewElementStates.None);
+            }
+
+            width += (stackupGridView.RowHeadersVisible) ? 1 : 0;
+
+
+            pageWidthList.Add(width);
+
+            // Height
+            if (stackupGridView.ColumnHeadersVisible) height += stackupGridView.ColumnHeadersHeight - 1;
+
+            int rowIndex = stackupGridView.Rows.GetFirstRow(DataGridViewElementStates.Visible, DataGridViewElementStates.None);
+            while (rowIndex >= 0)
+            {
+                DataGridViewRow row = stackupGridView.Rows[rowIndex];
+                height += row.Height;
+
+                rowIndex = stackupGridView.Rows.GetNextRow(rowIndex, DataGridViewElementStates.Visible, DataGridViewElementStates.None);
+            }
+
+            if (stackupGridView.ColumnHeadersVisible) height += 1;
+
+            pageHeightList.Add(height);
+
+            totalWidth = width;
+            totalHeight = height;
+
+            int pageTop = 0;
+            foreach (int pageHeight in pageHeightList)
+            {
+                int pageLeft = 0;
+                foreach (int pageWidth in pageWidthList)
+                {
+                    pageRectangles.Add(new Rectangle(pageLeft, pageTop, pageWidth, pageHeight));
+                    pageLeft += pageWidth;
+                }
+
+                pageTop += pageHeight;
+            }
+        }
+
         void printDocument_BeginPrint(object sender, PrintEventArgs e)
         {
             pageNumber = 0;
@@ -3556,10 +3783,53 @@ namespace ZZero.ZPlanner.UI
 
         private void printDocument_PrintPage(System.Object sender, System.Drawing.Printing.PrintPageEventArgs e)
         {
-            //e.Graphics.DrawImage(memoryImage, e.PageSettings.PrintableArea.Left, e.PageSettings.PrintableArea.Top, e.PageSettings.PrintableArea.Width, e.PageSettings.PrintableArea.Height);
-            e.Graphics.DrawImage(memoryImage, new Rectangle(printRectangle.Left, printRectangle.Top, pageRectangles[pageNumber].Width, pageRectangles[pageNumber].Height), pageRectangles[pageNumber], GraphicsUnit.Pixel);
+            double dX = (double)printRectangle.Width / memoryImage.Width;
+            double dY = (double)printRectangle.Height / memoryImage.Height;
+
+            double mult = Math.Min(dX, dY);
+
+            if (mult < 1)
+            {
+                int newPictWidth = (int)(memoryImage.Width * mult);
+                int newPictHeight = (int)(memoryImage.Height * mult);
+
+                //e.Graphics.DrawImage(ResizeImage(memoryImage, newPictWidth, newPictHeight), new Rectangle(printRectangle.Left, printRectangle.Top, newPictWidth, newPictHeight), new Rectangle(0, 0, newPictWidth, newPictHeight), GraphicsUnit.Pixel);
+                e.Graphics.DrawImage(memoryImage, new Rectangle(printRectangle.Left, printRectangle.Top, newPictWidth, newPictHeight), pageRectangles[pageNumber], GraphicsUnit.Pixel);
+            }
+            else
+            {
+                //e.Graphics.DrawImage(memoryImage, e.PageSettings.PrintableArea.Left, e.PageSettings.PrintableArea.Top, e.PageSettings.PrintableArea.Width, e.PageSettings.PrintableArea.Height);
+                e.Graphics.DrawImage(memoryImage, new Rectangle(printRectangle.Left, printRectangle.Top, pageRectangles[pageNumber].Width, pageRectangles[pageNumber].Height), pageRectangles[pageNumber], GraphicsUnit.Pixel);
+            }
             e.HasMorePages = (pageRectangles.Count > ++pageNumber);
+
         }
+
+        /*private Bitmap ResizeImage(Image image, int width, int height)
+        {
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceOver;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.AntiAlias;//.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }*/
+
         void Program_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "ProjectFile")
@@ -3606,7 +3876,22 @@ namespace ZZero.ZPlanner.UI
         {
             ZPlannerManager.NoteOK("Warning", "This dielectric row, which comes from the PCB laminate manufacturer or your corporate library, cannot be edited in a stackup.\n" +
                 "\nIf you would like to experiment with different dielectric properties, right click on a row's header cell on the left of the stackup view, select \"Clear Material\" from the pop-up menu.\n" +
-                "\nThe material name will default to \"Dielectric\", and it is recommended that you keep this name or any other name that would distinguish it from the original PCB material to reduce the possibility of creating an invalid stackup.");
+                "\nThe material name will default to \"Dielectric,\" and it is recommended that you keep this name or any other name that would distinguish it from the original PCB material to reduce the possibility of creating an invalid stackup.");
+        }
+
+        internal void TryToEditCopperPercentCell()
+        {
+            string message = (ZPlannerManager.IsKeepImportedPressedThickness)
+                ? "Would you lake to make % Copper value editable?" + "\n" + "Keep Imported Pressed Prepreg Thicknesses is turned on. % Copper and pressed prepreg thickness values will be tied to imported stackup data while this feature is turned on." + "\n" + "Press \"Yes\" to turn it off and make % Copper value editable."
+                : "Would you lake to make % Copper value editable?" + "\n" +  "Currentlly % copper coverage is set to use predefined values." + "\n" + "Press \"Yes\" to switch to the \"Manually entered % copper coverage\" and make % Copper value editable.";
+            if (ZPlannerManager.ConfirmYesNo("Information", message))
+            {
+                ZPlannerManager.Project.Stackup.CopperCoverageType = ZCopperCoverageType.ManuallyEntered;
+                ZPlannerManager.IsKeepImportedPressedThickness = false;
+                SetReadOnlyCells();
+                FormatGridView(); 
+                stackupGridView.Update();
+            }
         }
 
         internal void UpdateReferences()
@@ -3621,32 +3906,63 @@ namespace ZZero.ZPlanner.UI
                 {
                     foreach(DataGridViewCell cell in row.Cells)
                     {
+                        ZLayerParameter layerParameter = cell.Tag as ZLayerParameter;
+                        if (layerParameter == null) continue;
+
                         if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
                             cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference)
                         {
                             if (cell.Value == null || cell.Value.ToString() == string.Empty)
                             { 
-                                ZLayerParameter layerParameter = cell.Tag as ZLayerParameter;
-                                if (layerParameter != null && !string.IsNullOrWhiteSpace(layerParameter.Value)) cell.Value = Stackup.GetLayerOfStackup(layerParameter.Value);
+                                if (!string.IsNullOrWhiteSpace(layerParameter.Value)) cell.Value = Stackup.GetLayerOfStackup(layerParameter.Value);
                             }
 
                             (cell as ZDataGridViewComboBoxCell).Items.Clear();
                             (cell as ZDataGridViewComboBoxCell).Items.AddRange(references.refsUp.ToArray());
                             if (!references.refsUp.Contains(cell.Value as ZLayer)) cell.Value = references.defUp;
+                            ZLayer refLayer = cell.Value as ZLayer;
+                            if (refLayer != null) layerParameter.Value = refLayer.ID;
                         }
 
                         if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference ||
                             cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
                         {
-                            if (cell.Value == null || cell.Value.ToString() == string.Empty)
+                            if (!(cell.Value is ZLayer))
                             {
-                                ZLayerParameter layerParameter = cell.Tag as ZLayerParameter;
-                                if (layerParameter != null && !string.IsNullOrWhiteSpace(layerParameter.Value)) cell.Value = Stackup.Layers.Find(x => x.ID == layerParameter.Value);
+                                if (!string.IsNullOrWhiteSpace(layerParameter.Value)) cell.Value = Stackup.GetLayerOfStackup(layerParameter.Value);
                             }
 
                             (cell as ZDataGridViewComboBoxCell).Items.Clear();
                             (cell as ZDataGridViewComboBoxCell).Items.AddRange(references.refsDown.ToArray());
                             if (!references.refsDown.Contains(cell.Value as ZLayer)) cell.Value = references.defDown;
+                            ZLayer refLayer = cell.Value as ZLayer;
+                            if (refLayer != null) layerParameter.Value = refLayer.ID;
+                        }
+
+                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
+                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference)
+                        {
+                            foreach (ZSingle single in Stackup.Singles)
+                            {
+                                ZLayer singleLayer = Stackup.GetLayerOfSingleImpedance(layer.ID, single.ID);
+                                ZLayerParameter singleLayerParameter = singleLayer.GetLayerParameter(cell.OwningColumn.Name);
+
+                                if (!references.refsUp.Contains(Stackup.GetLayerOfStackup(singleLayerParameter.Value))) 
+                                    singleLayerParameter.Value = layerParameter.Value;
+                            }
+                        }
+
+                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
+                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
+                        {
+                            foreach (ZPair pair in Stackup.Pairs)
+                            {
+                                ZLayer pairLayer = Stackup.GetLayerOfPairImpedance(layer.ID, pair.ID);
+                                ZLayerParameter pairLayerParameter = pairLayer.GetLayerParameter(cell.OwningColumn.Name);
+
+                                if (!references.refsUp.Contains(Stackup.GetLayerOfStackup(pairLayerParameter.Value)))
+                                    pairLayerParameter.Value = layerParameter.Value;
+                            }
                         }
                     }
                 }
@@ -3660,6 +3976,32 @@ namespace ZZero.ZPlanner.UI
                             cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
                         {
                             cell.Value = string.Empty;
+                        }
+
+                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
+                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference)
+                        {
+                            foreach (ZSingle single in Stackup.Singles)
+                            {
+                                ZLayer singleLayer = Stackup.GetLayerOfSingleImpedance(layer.ID, single.ID);
+                                ZLayerParameter singleLayerParameter = singleLayer.GetLayerParameter(cell.OwningColumn.Name);
+
+                                if (!references.refsUp.Contains(Stackup.GetLayerOfStackup(singleLayerParameter.Value)))
+                                    singleLayerParameter.Value = string.Empty;
+                            }
+                        }
+
+                        if (cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
+                            cell.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
+                        {
+                            foreach (ZPair pair in Stackup.Pairs)
+                            {
+                                ZLayer pairLayer = Stackup.GetLayerOfPairImpedance(layer.ID, pair.ID);
+                                ZLayerParameter pairLayerParameter = pairLayer.GetLayerParameter(cell.OwningColumn.Name);
+
+                                if (!references.refsUp.Contains(Stackup.GetLayerOfStackup(pairLayerParameter.Value)))
+                                    pairLayerParameter.Value = string.Empty;
+                            }
                         }
                     }
                 }

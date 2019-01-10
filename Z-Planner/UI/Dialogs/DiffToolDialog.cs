@@ -95,9 +95,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 ZPlannerManager.IsAutoMirror = false;
             }
 
-            ClearProjects();
-
-            if (project == null) return;
+            //ClearProjects();
 
             if (string.IsNullOrWhiteSpace(stackupFile))
             {
@@ -107,16 +105,21 @@ namespace ZZero.ZPlanner.UI.Dialogs
             {
                 fileName1 = stackupFile;
             }
-            
-            textBoxFile1.Text = fileName1;
-            project1 = project;
-            //buttonFile2_Click(buttonFile2, new EventArgs());
 
-            if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1) && File.Exists(fileName1))
+            project1 = project;
+
+            if (project == null)
             {
-                textBoxFile1.Text = Path.GetFileName(fileName1);
-                dateTime1 = File.GetLastWriteTime(fileName1);
+                if (ZPlannerManager.DiffToolProjectFile1 != null && File.Exists(ZPlannerManager.DiffToolProjectFile1)) fileName1 = ZPlannerManager.DiffToolProjectFile1;
+                else fileName1 = null;
             }
+            
+            SelectFileNameText1();
+
+            if (ZPlannerManager.DiffToolProjectFile2 != null && File.Exists(ZPlannerManager.DiffToolProjectFile2)) fileName2 = ZPlannerManager.DiffToolProjectFile2;
+            else fileName2 = null;
+
+            SelectFileNameText2();
 
             UpdateDiff();
 
@@ -627,7 +630,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                             if (parameter != null && (parameter.ValueType != ZValueType.Number || parameter.ValueType != ZValueType.Percent) &&
                                     double.TryParse(dataGridView1.Rows[rIndex].Cells[cIndex].FormattedValue as string, NumberStyles.Any, CultureInfo.InvariantCulture, out d1) &&
                                     double.TryParse(dataGridView2.Rows[rIndex].Cells[cIndex].FormattedValue as string, NumberStyles.Any, CultureInfo.InvariantCulture, out d2) &&
-                                    !double.IsNaN(d1) && !double.IsNaN(d2) && (d1 == d2 || Math.Abs(d1 - d2) / Math.Max(Math.Abs(d1), Math.Abs(d2)) * 100 <= Sensitivity))
+                                    !double.IsNaN(d1) && !double.IsNaN(d2) && (d1 == d2 || Math.Abs(d1 - d2) / Math.Max(Math.Abs(d1), Math.Abs(d2)) * 1000 <= Sensitivity))
                             {
                                 dataGridView1.Rows[rIndex].Cells[cIndex].Style.ForeColor = Color.Empty;
                                 dataGridView2.Rows[rIndex].Cells[cIndex].Style.ForeColor = Color.Empty;
@@ -720,6 +723,12 @@ namespace ZZero.ZPlanner.UI.Dialogs
             isIgnoreUpdate = true;
             try
             {
+                if (string.IsNullOrWhiteSpace(fileName1) || fileName1 == "UNSAVED") ZPlannerManager.DiffToolProjectFile1 = null;
+                else ZPlannerManager.DiffToolProjectFile1 = (File.Exists(fileName1)) ? fileName1 : null;
+
+                if (string.IsNullOrWhiteSpace(fileName2)) ZPlannerManager.DiffToolProjectFile2 = null;
+                else ZPlannerManager.DiffToolProjectFile2 = (File.Exists(fileName2)) ? fileName2 : null;
+
                 ClearParameters();
 
                 if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1)) project1 = DataProvider.Instance.OpenZPlannerProject(fileName1);
@@ -800,6 +809,13 @@ namespace ZZero.ZPlanner.UI.Dialogs
         private void buttonFile1_Click(object sender, EventArgs e)
         {
             fileName1 = GetFileToCompare(fileName1);
+            SelectFileNameText1();
+
+            UpdateDiff();
+        }
+
+        private void SelectFileNameText1()
+        {
             textBoxFile1.Text = fileName1;
 
             if (fileName1 != "UNSAVED" && !string.IsNullOrWhiteSpace(fileName1) && File.Exists(fileName1))
@@ -807,13 +823,18 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 textBoxFile1.Text = Path.GetFileName(fileName1);
                 dateTime1 = File.GetLastWriteTime(fileName1);
             }
-
-            UpdateDiff();
         }
 
         private void buttonFile2_Click(object sender, EventArgs e)
         {
             fileName2 = GetFileToCompare(fileName2);
+            SelectFileNameText2();
+
+            UpdateDiff();
+        }
+
+        private void SelectFileNameText2()
+        {
             textBoxFile2.Text = fileName2;
 
             if (!string.IsNullOrWhiteSpace(fileName2) && File.Exists(fileName2))
@@ -821,8 +842,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 textBoxFile2.Text = Path.GetFileName(fileName2);
                 dateTime2 = File.GetLastWriteTime(fileName2);
             }
-
-            UpdateDiff();
         }
 
         private void buttonClose_Click(object sender, EventArgs e)
@@ -980,26 +999,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
             e.Graphics.DrawImage(memoryImage, 0, 0);
         }
 
-        void sensitivityMaskedTextBox_Enter(object sender, System.EventArgs e)
+        private void sensitivityNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
-            sensitivityMaskedTextBox.Focus();
-            sensitivityMaskedTextBox.SelectionStart = 0;
-            sensitivityMaskedTextBox.SelectionLength = 2;
-        }
-
-        void sensitivityMaskedTextBox_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            sensitivityMaskedTextBox.Focus();
-            sensitivityMaskedTextBox.SelectionStart = 0;
-            sensitivityMaskedTextBox.SelectionLength = 2;
-        }
-
-        private void sensitivityMaskedTextBox_TextChanged(object sender, EventArgs e)
-        {
-            int value;
-            string text = sensitivityMaskedTextBox.Text;
-            if (text != null && int.TryParse(text, out value)) sensitivity = value;
-            else sensitivity = 0;
+            sensitivity = (int)sensitivityNumericUpDown.Value;
 
             CompareGridsData();
         }

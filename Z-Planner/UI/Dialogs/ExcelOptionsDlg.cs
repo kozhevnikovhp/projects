@@ -57,6 +57,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     case ExportFlags.TraceWidth: cbTraceWidth.Checked = true; break;
                     case ExportFlags.Impedance: cbImpedance.Checked = true; break;
                     case ExportFlags.DiffImpedance: cbDiffImpedance.Checked = true; break;
+                    case ExportFlags.DiffZ0: cbDiffZ0.Checked = true; break;
                     case ExportFlags.RefLayer: cbRefLayer.Checked = true; break;
                     case ExportFlags.Notes: cbNotes.Checked = true; break;
                     case ExportFlags.Loss: cbLoss.Checked = true; break;
@@ -104,6 +105,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             if (cbImpedance.Checked) options.Add(ExportFlags.Impedance);
             if (cbLoss.Checked) options.Add(ExportFlags.Loss);
             if (cbDiffImpedance.Checked) options.Add(ExportFlags.DiffImpedance);
+            if (cbDiffZ0.Checked) options.Add(ExportFlags.DiffZ0);
             if (cbRefLayer.Checked) options.Add(ExportFlags.RefLayer);
             if (cbNotes.Checked) options.Add(ExportFlags.Notes);
 

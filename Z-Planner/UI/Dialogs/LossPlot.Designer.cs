@@ -141,7 +141,7 @@
             this.tbFmax.Name = "tbFmax";
             this.tbFmax.Size = new System.Drawing.Size(40, 20);
             this.tbFmax.TabIndex = 4;
-            this.tbFmax.Text = "10";
+            this.tbFmax.Text = "11";
             this.tbFmax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbFmax.Leave += new System.EventHandler(this.tbFmax_Leave);
             // 
@@ -168,7 +168,7 @@
             this.tbFmin.Name = "tbFmin";
             this.tbFmin.Size = new System.Drawing.Size(40, 20);
             this.tbFmin.TabIndex = 1;
-            this.tbFmin.Text = "1";
+            this.tbFmin.Text = "0";
             this.tbFmin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbFmin.Leave += new System.EventHandler(this.tbFmin_Leave);
             // 
@@ -191,7 +191,7 @@
             this.tbCursorCuRoughness.ReadOnly = true;
             this.tbCursorCuRoughness.Size = new System.Drawing.Size(29, 12);
             this.tbCursorCuRoughness.TabIndex = 22;
-            this.tbCursorCuRoughness.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbCursorCuRoughness.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // pictColorCuRoughness
             // 
@@ -226,12 +226,12 @@
             this.tbCursorX.BackColor = System.Drawing.SystemColors.Control;
             this.tbCursorX.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tbCursorX.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbCursorX.Location = new System.Drawing.Point(16, 117);
+            this.tbCursorX.Location = new System.Drawing.Point(7, 117);
             this.tbCursorX.Name = "tbCursorX";
             this.tbCursorX.ReadOnly = true;
-            this.tbCursorX.Size = new System.Drawing.Size(29, 12);
+            this.tbCursorX.Size = new System.Drawing.Size(38, 12);
             this.tbCursorX.TabIndex = 17;
-            this.tbCursorX.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbCursorX.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // tbCursorResistive
             // 
@@ -243,7 +243,7 @@
             this.tbCursorResistive.ReadOnly = true;
             this.tbCursorResistive.Size = new System.Drawing.Size(29, 12);
             this.tbCursorResistive.TabIndex = 15;
-            this.tbCursorResistive.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbCursorResistive.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // tbCursorTotal
             // 
@@ -255,7 +255,7 @@
             this.tbCursorTotal.ReadOnly = true;
             this.tbCursorTotal.Size = new System.Drawing.Size(29, 12);
             this.tbCursorTotal.TabIndex = 14;
-            this.tbCursorTotal.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbCursorTotal.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // pictColorResistive
             // 
@@ -363,7 +363,7 @@
             this.tbCursorDielectric.ReadOnly = true;
             this.tbCursorDielectric.Size = new System.Drawing.Size(29, 12);
             this.tbCursorDielectric.TabIndex = 16;
-            this.tbCursorDielectric.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbCursorDielectric.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // pictColorDielectric
             // 

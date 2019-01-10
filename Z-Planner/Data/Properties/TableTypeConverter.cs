@@ -37,7 +37,7 @@ namespace ZZero.ZPlanner.Data.Properties
                 ZLayerParameter layerParameter = (context.PropertyDescriptor as ZZero.ZPlanner.Data.Properties.ZDynamicComponent.DynamicProperty).PropertyObject as ZLayerParameter;
                 if (layerParameter != null)
                 {
-                    double layerFrequency = layerParameter.Layer.GetFrequency();
+                    double layerFrequency = (layerParameter.Layer.Stackup.Layers.Find(x => x.ID == layerParameter.Layer.ID) != null) ? layerParameter.Layer.GetFrequency() : double.NaN;
                     if (!double.IsNaN(layerFrequency)) frequency = layerFrequency;
                 }
 

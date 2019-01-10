@@ -106,10 +106,9 @@
             this.cbAutoMirror.Location = new System.Drawing.Point(25, 48);
             this.cbAutoMirror.Margin = new System.Windows.Forms.Padding(2);
             this.cbAutoMirror.Name = "cbAutoMirror";
-            this.cbAutoMirror.Size = new System.Drawing.Size(411, 17);
+            this.cbAutoMirror.Size = new System.Drawing.Size(303, 17);
             this.cbAutoMirror.TabIndex = 13;
-            this.cbAutoMirror.Text = "Auto-Mirror Stackup about the current center line. (Force Top > Bottom symmetry.)" +
-    "";
+            this.cbAutoMirror.Text = "Force top-to-bottom symmetry about the current center line.";
             this.cbAutoMirror.UseVisualStyleBackColor = true;
             // 
             // cbCenterLine
@@ -118,9 +117,9 @@
             this.cbCenterLine.Location = new System.Drawing.Point(25, 19);
             this.cbCenterLine.Margin = new System.Windows.Forms.Padding(2);
             this.cbCenterLine.Name = "cbCenterLine";
-            this.cbCenterLine.Size = new System.Drawing.Size(156, 17);
+            this.cbCenterLine.Size = new System.Drawing.Size(159, 17);
             this.cbCenterLine.TabIndex = 13;
-            this.cbCenterLine.Text = "Turn on stackup center line";
+            this.cbCenterLine.Text = "Turn on stackup center line.";
             this.cbCenterLine.UseVisualStyleBackColor = true;
             // 
             // label2
@@ -144,7 +143,7 @@
             this.Controls.Add(this.groupBox12);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AutoMirrorDialog";
-            this.Text = "Auto-Mirror Settings";
+            this.Text = "Stackup Symmetry Settings";
             this.groupBox12.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

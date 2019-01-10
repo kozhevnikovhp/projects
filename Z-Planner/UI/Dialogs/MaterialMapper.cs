@@ -133,7 +133,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     return mDataSorted;
             }
 
-            public void Export(List<cMaterialWrapper> materials)
+            public void Export(List<cMaterialWrapper> materials, bool bBestOnPerimeter = true)
             {
                 //sort materials by Tg and Df  
                 List<MaterialData> mData = Sort(materials);
@@ -284,6 +284,13 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
                 var rngTableOut = worksheet.Range(Row1, Col1 - 1, 17, Col1 + materials.Count - 1);
                 rngTableOut.Style.Border.OutsideBorder = XLBorderStyleValues.Thick;
+
+
+                //add note to radial page
+                worksheet = workbook.Worksheet("Radial");
+                //fill in the first page
+                int iRow1 = 2, iCol1 = 2;
+                worksheet.Cell(iRow1, iCol1).Value = bBestOnPerimeter ? "Axis orientation: \"Best\" on perimeter" : "Axis orientation: Original data";
 
 
                 //save
@@ -546,7 +553,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
                 rbDk.Checked = state;
 
-                exporter.Export(wrapperList);
+                exporter.Export(wrapperList, rbBest.Checked);
 
 
                 //try to open excel app
@@ -1936,9 +1943,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             System.Windows.Forms.Cursor currentCursor = System.Windows.Forms.Cursor.Current;
             System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
-            ZPlannerManager.StatusMenu.StartProgress("Preparing the Material Mapper ...");
+            ZPlannerManager.StatusMenu.StartProgress("Preparing Material Mapper ...", true);
             MaterialMapper mapper = new MaterialMapper(flt.MaterialList(), filter, fltName, fltExpression);
-            ZPlannerManager.StatusMenu.StopProgress("Preparing the Material Mapper ...");
+            ZPlannerManager.StatusMenu.StopProgress("Preparing Material Mapper ...");
             System.Windows.Forms.Cursor.Current = currentCursor;
 
             mapper.ShowDialog();

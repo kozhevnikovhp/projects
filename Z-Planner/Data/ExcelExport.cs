@@ -28,7 +28,7 @@ namespace ZZero.ZPlanner.Translators
         Material, Construction, Resin, Dk, Df, Frequency, Thickness, 
         //copper, impedance, notes
         SingleEnded, Differential,
-        CopperWeight, Copper, RzTop, RzBot, TraceWidth, Impedance, DiffImpedance, RefLayer, Notes, Loss
+        CopperWeight, Copper, RzTop, RzBot, TraceWidth, Impedance, DiffImpedance, DiffZ0, RefLayer, Notes, Loss
     }
     public class ExportOptions : HashSet<ExportFlags>
     {
@@ -87,7 +87,7 @@ namespace ZZero.ZPlanner.Translators
     class ExcelExporter
     {
         //upper-left cell
-        const int ulRow = 6;
+        const int ulRow = 5;
         const int ulCol = 3;
 
 
@@ -120,7 +120,7 @@ namespace ZZero.ZPlanner.Translators
 
             var workbook = new XLWorkbook(OutputFile); //template with inserted logo
             worksheet = workbook.Worksheet(1);//--workbook.Worksheets.Add(z.Title);
-            worksheet.Name = z.Title;
+            worksheet.Name = (z.Title.Length > 31) ? z.Title.Substring(0, 31) : z.Title;
 
             //worksheet.PageSetup.PaperSize = XLPaperSize.A4Paper;
             worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
@@ -166,6 +166,11 @@ namespace ZZero.ZPlanner.Translators
             try
             {
                 workbook.SaveAs(OutputFile);
+                workbook.Dispose();
+
+                //open again to fire Open event
+                var workbook1 = new XLWorkbook(OutputFile); //template with inserted logo
+                worksheet = workbook1.Worksheet(1);//--workbook.Worksheets.Add(z.Title);            
             }
             catch (Exception e)
             {
@@ -180,7 +185,7 @@ namespace ZZero.ZPlanner.Translators
             worksheet.Cell(3, 3).Value = "Units: " + units;
             string prepreg = ZPlannerManager.StackupPanel != null && ZPlannerManager.IsPressedThickness ? "Finished" : "Unpressed";
             worksheet.Cell(3, 5).Value = "Prepreg Thickness: " + prepreg;
-            worksheet.Cell(3, 8).Value = "Total Board Thickness: " + z.GetBoardThickness().ToString() + " mils";
+            worksheet.Cell(3, 8).Value = "Total Board Thickness: " + z.GetBoardThickness().ToString("N2") + " mils";
         }
 
         private int ExportFooter(int iRow, int iCol)
@@ -217,7 +222,7 @@ namespace ZZero.ZPlanner.Translators
             }
             worksheet.Cell(iRow, iCol + 3).Value = Options.TheOptions.Company;
             worksheet.Cell(iRow + 1, iCol + 3).Value = options.ProjectName;//project
-            worksheet.Cell(iRow + 2, iCol + 3).Value = options.DesignRevision;
+            worksheet.Cell(iRow + 2, iCol + 3).SetValue(options.DesignRevision);
             worksheet.Cell(iRow + 2, iCol + 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
             worksheet.Cell(iRow + 3, iCol + 3).Value = Options.TheOptions.UserEMail;
@@ -288,8 +293,118 @@ namespace ZZero.ZPlanner.Translators
             InitHeaderCell(row + 1, col);
         }
 
+        private bool CommonFrequency(out double F)
+        {
+            F = 0;
+            HashSet<double> ff = new HashSet<double>();
+            foreach (ZSingle single in z.Singles)
+            {
+                foreach (ZLayer lay in single.Layers)
+                {
+                    switch (lay.GetLayerType()) { 
+                        case ZLayerType.Signal: 
+                        case ZLayerType.SplitMixed:
+                            double f = lay.GetFrequency();
+                            ff.Add(f);
+                            break;
+                    }
+                }
+            }
+
+            foreach (ZPair pair in z.Pairs)
+            {
+                foreach (ZLayer lay in pair.Layers)
+                {
+                    switch (lay.GetLayerType())
+                    {
+                        case ZLayerType.Signal:
+                        case ZLayerType.SplitMixed:
+                            double f = lay.GetFrequency();
+                            ff.Add(f);
+                            break;
+                    }
+                }
+            }
+
+            if (ff.Count == 1){
+                foreach (double x in ff){
+                    F = x;
+                }
+            }
+            return ff.Count == 1;
+        }
+
+        private bool GetCommonDk(ZLayer lay, out double Dk)
+        {
+            Dk = Options.TheOptions.resin_Dk;
+
+            double x;
+            ZSingle single = z.ActiveSingle;
+            ZLayer slay = single.GetLayerOfSingleImpedance(lay.ID);
+            string sDk = slay.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
+            if (ZPlannerManager.GetFirstValueFromTable(sDk, out x))
+            {
+                Dk = x;
+                return true;
+            }
+
+            ZPair pair = z.ActivePair;
+            ZLayer play = pair.GetLayerOfPairImpedance(lay.ID);
+            string pDk = play.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_DielectricConstant);
+            if (ZPlannerManager.GetFirstValueFromTable(pDk, out x))
+            {
+                Dk = x;
+                return true;
+            }
+
+            string lDk = lay.GetLayerParameterValue(ZStringConstants.ParameterIDDielectricConstant);
+            if (ZPlannerManager.GetFirstValueFromTable(lDk, out x))
+            {
+                Dk = x;
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool GetCommonDf(ZLayer lay, out double Df)
+        {
+            Df = Options.TheOptions.resin_Df;
+
+            double x;
+            ZSingle single = z.ActiveSingle;
+            ZLayer slay = single.GetLayerOfSingleImpedance(lay.ID);
+            string sDf = slay.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
+            if (ZPlannerManager.GetFirstValueFromTable(sDf, out x))
+            {
+                Df = x;
+                return true;
+            }
+
+            ZPair pair = z.ActivePair;
+            ZLayer play = pair.GetLayerOfPairImpedance(lay.ID);
+            string pDf = play.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_LossTangent);
+            if (ZPlannerManager.GetFirstValueFromTable(pDf, out x))
+            {
+                Df = x;
+                return true;
+            }
+
+            string lDf = lay.GetLayerParameterValue(ZStringConstants.ParameterIDLossTangent);
+            if (ZPlannerManager.GetFirstValueFromTable(lDf, out x))
+            {
+                Df = x;
+                return true;
+            }
+
+            return false;
+        }
+
         private void ExportStackup(out int rightColumn)
         {
+            double F1;
+            bool bOneF = CommonFrequency(out F1);
+
             int row1 = ulRow, col1 = ulCol;
             int colImpedance1 = -1;
 
@@ -350,42 +465,52 @@ namespace ZZero.ZPlanner.Translators
                 AddHeader(headerRow, headerColumn, "Resin" + Environment.NewLine + "(%)");
                 headerColumn++;
             }
-                       
+
+            if (bOneF)
+            {
+                if (options.Contains(ExportFlags.Dk))
+                {
+                    AddHeader(headerRow, headerColumn, "Dk");
+                    headerColumn++;
+                }
+
+                if (options.Contains(ExportFlags.Df))
+                {
+                    AddHeader(headerRow, headerColumn, "Df");
+                    headerColumn++;
+                }
+
+                if (options.Contains(ExportFlags.Frequency))
+                {
+                    AddHeader(headerRow, headerColumn, "Frequency" + Environment.NewLine + "(GHz)");
+                    headerColumn++;
+                }
+            }
+
+            if (options.Contains(ExportFlags.Copper))
+            {
+                AddHeader(headerRow, headerColumn, "%" + Environment.NewLine + "Copper");
+                headerColumn++;
+            }
+
             if (options.Contains(ExportFlags.Thickness))
             {
                 AddHeader(headerRow, headerColumn, "Thickness" + Environment.NewLine + "(mils)");
                 headerColumn++;
             }
-            /*
-            if (options.Contains(ExportFlags.Dk))
-            {
-                AddHeader(headerRow, headerColumn, "Dk");
-                headerColumn++;
-            }
-
-            if (options.Contains(ExportFlags.Df))
-            {
-                AddHeader(headerRow, headerColumn, "Df");
-                headerColumn++;
-            }
-
-            if (options.Contains(ExportFlags.Frequency))
-            {
-                AddHeader(headerRow, headerColumn, "Frequency" + Environment.NewLine + "(GHz)");
-                headerColumn++;
-            }
-            */
+            
             //copper, impedance, notes
             if (options.Contains(ExportFlags.CopperWeight))
             {
                 AddHeader(headerRow, headerColumn, "Copper"+ Environment.NewLine + "Weight" + Environment.NewLine + "(oz)");
                 headerColumn++;
             }
-            if (options.Contains(ExportFlags.Copper))
+            if (options.Contains(ExportFlags.Notes))
             {
-                AddHeader(headerRow, headerColumn, "%" + Environment.NewLine +  "Copper");
+                AddHeader(headerRow, headerColumn, "Comments");
                 headerColumn++;
             }
+
             if (options.Contains(ExportFlags.RzTop))
             {
                 AddHeader(headerRow, headerColumn, "Rz-Top" + Environment.NewLine + "(um)");
@@ -394,12 +519,6 @@ namespace ZZero.ZPlanner.Translators
             if (options.Contains(ExportFlags.RzBot))
             {
                 AddHeader(headerRow, headerColumn, "Rz-Bot" + Environment.NewLine + "(um)");
-                headerColumn++;
-            }
-
-            if (options.Contains(ExportFlags.Notes))
-            {
-                AddHeader(headerRow, headerColumn, "Notes");
                 headerColumn++;
             }
 
@@ -416,26 +535,29 @@ namespace ZZero.ZPlanner.Translators
 
                     if (options.Contains(ExportFlags.Impedance))
                     {
-                        AddHeader(headerRow, headerColumn, "Z0" + Environment.NewLine + "(ohms)");
+                        AddHeader(headerRow, headerColumn, "Zo" + Environment.NewLine + "(ohms)");
                         headerColumn++;
                     }
 
-                    if (options.Contains(ExportFlags.Dk))
+                    if (!bOneF)
                     {
-                        AddHeader(headerRow, headerColumn, "Dk");
-                        headerColumn++;
-                    }
+                        if (options.Contains(ExportFlags.Dk))
+                        {
+                            AddHeader(headerRow, headerColumn, "Dk");
+                            headerColumn++;
+                        }
 
-                    if (options.Contains(ExportFlags.Df))
-                    {
-                        AddHeader(headerRow, headerColumn, "Df");
-                        headerColumn++;
-                    }
+                        if (options.Contains(ExportFlags.Df))
+                        {
+                            AddHeader(headerRow, headerColumn, "Df");
+                            headerColumn++;
+                        }
 
-                    if (options.Contains(ExportFlags.Frequency))
-                    {
-                        AddHeader(headerRow, headerColumn, "Freq." + Environment.NewLine + "(GHz)");
-                        headerColumn++;
+                        if (options.Contains(ExportFlags.Frequency))
+                        {
+                            AddHeader(headerRow, headerColumn, "Freq." + Environment.NewLine + "(GHz)");
+                            headerColumn++;
+                        }
                     }
                     /*
                     if (options.Contains(ExportFlags.Loss))
@@ -467,37 +589,40 @@ namespace ZZero.ZPlanner.Translators
                         AddHeader(headerRow, headerColumn, "Trace" + Environment.NewLine + "Separation" + Environment.NewLine + "(mils)");
                         headerColumn++;
                     }
-                    if (options.Contains(ExportFlags.Impedance))
+                    if (options.Contains(ExportFlags.DiffZ0))
                     {
-                        AddHeader(headerRow, headerColumn, "Z0" + Environment.NewLine + "(ohms)");
+                        AddHeader(headerRow, headerColumn, "Zo" + Environment.NewLine + "(ohms)");
                         headerColumn++;
                     }
                     if (options.Contains(ExportFlags.DiffImpedance))
                     {
-                        AddHeader(headerRow, headerColumn, "ZDiff" + Environment.NewLine + "(ohms)");
+                        AddHeader(headerRow, headerColumn, "Zdiff" + Environment.NewLine + "(ohms)");
                         headerColumn++;
                     }
-                    if (options.Contains(ExportFlags.Dk))
+                    if (!bOneF)
                     {
-                        AddHeader(headerRow, headerColumn, "Dk");
-                        headerColumn++;
-                    }
+                        if (options.Contains(ExportFlags.Dk))
+                        {
+                            AddHeader(headerRow, headerColumn, "Dk");
+                            headerColumn++;
+                        }
 
-                    if (options.Contains(ExportFlags.Df))
-                    {
-                        AddHeader(headerRow, headerColumn, "Df");
-                        headerColumn++;
-                    }
+                        if (options.Contains(ExportFlags.Df))
+                        {
+                            AddHeader(headerRow, headerColumn, "Df");
+                            headerColumn++;
+                        }
 
-                    if (options.Contains(ExportFlags.Frequency))
-                    {
-                        AddHeader(headerRow, headerColumn, "Freq." + Environment.NewLine + "(GHz)");
-                        headerColumn++;
+                        if (options.Contains(ExportFlags.Frequency))
+                        {
+                            AddHeader(headerRow, headerColumn, "Freq." + Environment.NewLine + "(GHz)");
+                            headerColumn++;
+                        }
                     }
 
                     if (options.Contains(ExportFlags.Loss))
                     {
-                        AddHeader(headerRow, headerColumn, "Insertion Loss" + Environment.NewLine + "(dB/in)");
+                        AddHeader(headerRow, headerColumn, "Insertion" + Environment.NewLine + "Loss" + Environment.NewLine + "(dB/in)");
                         headerColumn++;
                     }
 
@@ -619,6 +744,68 @@ namespace ZZero.ZPlanner.Translators
                 }
 
                 dval = 0;
+                if (bOneF)
+                {
+                    if (options.Contains(ExportFlags.Dk))
+                    {
+                        GetCommonDk(zl, out dval);
+                        sval = String.Format("N" + Options.TheOptions.dkDigits.ToString(), dval);
+                        worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                        worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                        worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        layerColumn++;
+                    }
+
+                    dval = 0;
+
+                    if (options.Contains(ExportFlags.Df))
+                    {
+                        GetCommonDf(zl, out dval);
+                        sval = String.Format("N" + Options.TheOptions.dfDigits.ToString(), dval);
+                        worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                        worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                        worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        layerColumn++;
+                    }
+
+                    dval = 0;
+
+                    if (options.Contains(ExportFlags.Frequency))
+                    {
+                        switch (zl.GetLayerType())
+                        {
+                            case ZLayerType.Signal:
+                            case ZLayerType.SplitMixed:
+                                dval = F1;
+                                break;
+                        }
+                        worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                        worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                        worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        layerColumn++;
+                    }
+                }
+
+                dval = 0;
+                if (options.Contains(ExportFlags.Copper))
+                {
+                    //ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDCopperPercent, ref dval);
+                    //sval = String.Format("N" + Options.TheOptions.percentDigits.ToString(), dval);
+                    //worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                    worksheet.Cell(layerRow, layerColumn).Value = zl.GetLayerCopperCoverage("N1");
+
+                    ZLayerParameter layerParameter = zl.GetLayerParameter(ZStringConstants.ParameterIDCopperPercent);
+                    bool isBold = (layerParameter != null) && layerParameter.IsReadOnly(false, true, true);
+
+                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                    worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    if (isBold) worksheet.Cell(layerRow, layerColumn).Style.Font.Bold = true;
+
+                    layerColumn++;
+                }
+
+                dval = 0;
+                bool bPressed = false;
                 if (options.Contains(ExportFlags.Thickness))
                 {
                     XLColor bkColor = backColor;
@@ -629,6 +816,7 @@ namespace ZZero.ZPlanner.Translators
                     if (zl.GetLayerType() == ZLayerType.Prepreg && ZPlannerManager.StackupPanel != null && ZPlannerManager.IsPressedThickness)
                     {
                         ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, ref dval);
+                        bPressed = true;
                     }
                     else
                     {
@@ -636,84 +824,34 @@ namespace ZZero.ZPlanner.Translators
                     }
                     sval = String.Format("N" + Options.TheOptions.lengthDigits.ToString(), dval);
                     worksheet.Cell(layerRow, layerColumn).Value = dval.ToString(sval);
-                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = bkColor;
+                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = bkColor;                    
+                    if (bPressed) worksheet.Cell(layerRow, layerColumn).Style.Font.Bold = true;
                     worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     layerColumn++;
                 }
 
-                dval = 0;
-                /*
-                if (options.Contains(ExportFlags.Dk))
-                {
-                    string sDk = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
-                    ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                    sval = String.Format("N" + Options.TheOptions.dkDigits.ToString(), dval);
-                    worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                    worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    layerColumn++;
-                }
-
-                dval = 0;
-
-                if (options.Contains(ExportFlags.Df))
-                {
-                    string sDk = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
-                    ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                    sval = String.Format("N" + Options.TheOptions.dfDigits.ToString(), dval);
-                    worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                    worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    layerColumn++;
-                }
-
-                dval = 0;
-
-                if (options.Contains(ExportFlags.Frequency))
-                {
-                    //--string sDk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Frequency);
-                    //--ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-                    sval = "";
-                        switch (zl.GetLayerType())
-                        {
-                            case ZLayerType.Signal:
-                            case ZLayerType.SplitMixed:
-                                dval = zlSingle.GetFrequency();
-                                sval = String.Format("N" + Options.TheOptions.weightDigits.ToString(), dval);
-                                break;
-                        }
-                    worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                    worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    layerColumn++;
-                }
-                */
                 //copper, impedance, notes
 
                 dval = 0;
-
                 if (options.Contains(ExportFlags.CopperWeight))
                 {
-                    string sDk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDCopperThickness);
-                    ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                    sval = String.Format("N" + Options.TheOptions.frequencyDigits.ToString(), dval);
-                    worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                    worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    string sW = zl.GetLayerParameterValue(ZStringConstants.ParameterIDCopperThickness);
+                    if (sW.Length > 0)
+                    {
+                        //sval = String.Format("N" + Options.TheOptions.weightDigits.ToString(), dval);
+                        worksheet.Cell(layerRow, layerColumn).DataType = XLCellValues.Text;
+                        worksheet.Cell(layerRow, layerColumn).Value = "'"+sW;
+                        worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                        worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    }
                     layerColumn++;
                 }
 
-                dval = 0;
-                if (options.Contains(ExportFlags.Copper))
+                if (options.Contains(ExportFlags.Notes))
                 {
-                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDCopperPercent, ref dval);
-                    sval = String.Format("N" + Options.TheOptions.percentDigits.ToString(), dval);
-                    worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDComments, ref sval);
+                    worksheet.Cell(layerRow, layerColumn).Value = sval;
                     worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                    worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     layerColumn++;
                 }
 
@@ -746,14 +884,6 @@ namespace ZZero.ZPlanner.Translators
                     worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
                     worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.0";
-                    layerColumn++;
-                }
-
-                if (options.Contains(ExportFlags.Notes))
-                {
-                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDDescription, ref sval);
-                    worksheet.Cell(layerRow, layerColumn).Value = sval;
-                    worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
                     layerColumn++;
                 }
 
@@ -816,54 +946,57 @@ namespace ZZero.ZPlanner.Translators
                             layerColumn++;
                         }
                         */
-                        if (options.Contains(ExportFlags.Dk))
+                        if (!bOneF)
                         {
-                            string sDk = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
-                            ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                            sval = String.Format("N" + Options.TheOptions.dkDigits.ToString(), dval);
-                            worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                            worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                            worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.00";
-                            layerColumn++;
-                        }
-
-                        dval = 0;
-
-                        if (options.Contains(ExportFlags.Df))
-                        {
-                            string sDk = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
-                            ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                            sval = String.Format("N" + Options.TheOptions.dfDigits.ToString(), dval);
-                            worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                            worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                            worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.000";
-                            layerColumn++;
-                        }
-
-                        dval = 0;
-
-                        if (options.Contains(ExportFlags.Frequency))
-                        {
-                            //--string sDk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Frequency);
-                            //--ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-                            sval = "";
-                            switch (zl.GetLayerType())
+                            if (options.Contains(ExportFlags.Dk))
                             {
-                                case ZLayerType.Signal:
-                                case ZLayerType.SplitMixed:
-                                    dval = zlSingle.GetFrequency();
-                                    sval = String.Format("N" + Options.TheOptions.weightDigits.ToString(), dval);
-                                    break;
+                                string sDk = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
+                                ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
+
+                                sval = String.Format("N" + Options.TheOptions.dkDigits.ToString(), dval);
+                                worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                                worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                                worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.00";
+                                layerColumn++;
                             }
-                            worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                            worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                            worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.0";
-                            layerColumn++;
+
+                            dval = 0;
+
+                            if (options.Contains(ExportFlags.Df))
+                            {
+                                string sDk = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
+                                ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
+
+                                sval = String.Format("N" + Options.TheOptions.dfDigits.ToString(), dval);
+                                worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                                worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                                worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.000";
+                                layerColumn++;
+                            }
+
+                            dval = 0;
+
+                            if (options.Contains(ExportFlags.Frequency))
+                            {
+                                //--string sDk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Frequency);
+                                //--ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
+                                sval = "";
+                                switch (zl.GetLayerType())
+                                {
+                                    case ZLayerType.Signal:
+                                    case ZLayerType.SplitMixed:
+                                        dval = zlSingle.GetFrequency();
+                                        sval = String.Format("N" + Options.TheOptions.weightDigits.ToString(), dval);
+                                        break;
+                                }
+                                worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                                worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                                worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.0";
+                                layerColumn++;
+                            }
                         }
 
                         if (options.Contains(ExportFlags.RefLayer))
@@ -872,7 +1005,7 @@ namespace ZZero.ZPlanner.Translators
                             //--ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPlaneReference, ref sval);
                             string topId = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_TopReference);
                             string botId = zlSingle.GetLayerParameterValue(ZStringConstants.ParameterIDZo_BottomReference);
-                            ZLayer topLayer = null, botLayer = null; ;
+                            ZLayer topLayer = null, botLayer = null; 
                             if (topId != null && topId.Length > 0) topLayer = z.GetLayerOfStackup(topId);
                             if (botId != null && botId.Length > 0) botLayer = z.GetLayerOfStackup(botId);
                             string topNum = "", botNum = "";
@@ -904,9 +1037,10 @@ namespace ZZero.ZPlanner.Translators
                         if (bFirst)
                         {
                             bFirst = false;
-                            worksheet.Range(headerRow, impCol1, headerRow, layerColumn - 1).Merge();
-                            worksheet.Cell(headerRow, impCol1).Value = "SINGLE-ENDED SIGNALS (" + single.Title + ")";
                         }
+                        worksheet.Range(headerRow, impCol1, headerRow, layerColumn - 1).Merge();
+                        worksheet.Cell(headerRow, impCol1).Value = "SE (" + single.Title + ")";
+                        
                     }
                 }
 
@@ -967,7 +1101,7 @@ namespace ZZero.ZPlanner.Translators
                             layerColumn++;
                         }
 
-                        if (options.Contains(ExportFlags.Impedance))
+                        if (options.Contains(ExportFlags.DiffZ0))
                         {
                             sval = String.Format("N" + Options.TheOptions.impedanceDigits.ToString(), z0);
                             worksheet.Cell(layerRow, layerColumn).Value = z0 > 0 ? z0.ToString(sval) : "";
@@ -985,56 +1119,59 @@ namespace ZZero.ZPlanner.Translators
                             worksheet.Cell(layerRow, layerColumn).Style.Font.Bold = true;
                             layerColumn++;
                         }
-                        if (options.Contains(ExportFlags.Dk))
+
+                        if (!bOneF)
                         {
-                            string sDk = zlPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_DielectricConstant);
-                            ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                            sval = String.Format("N" + Options.TheOptions.dkDigits.ToString(), dval);
-                            worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                            worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                            worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.00";
-                            layerColumn++;
-                        }
-
-                        dval = 0;
-
-                        if (options.Contains(ExportFlags.Df))
-                        {
-                            string sDk = zlPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_LossTangent);
-                            ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-
-                            sval = String.Format("N" + Options.TheOptions.dfDigits.ToString(), dval);
-                            worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                            worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                            worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.000";
-                            layerColumn++;
-                        }
-
-                        dval = 0;
-
-                        if (options.Contains(ExportFlags.Frequency))
-                        {
-                            //--string sDk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Frequency);
-                            //--ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
-                            sval = "";
-                            switch (zl.GetLayerType())
+                            if (options.Contains(ExportFlags.Dk))
                             {
-                                case ZLayerType.Signal:
-                                case ZLayerType.SplitMixed:
-                                    dval = zlPair.GetFrequency();
-                                    sval = String.Format("N" + Options.TheOptions.weightDigits.ToString(), dval);
-                                    break;
-                            }
-                            worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
-                            worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
-                            worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.0";
-                            layerColumn++;
-                        }
+                                string sDk = zlPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_DielectricConstant);
+                                ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
 
+                                sval = String.Format("N" + Options.TheOptions.dkDigits.ToString(), dval);
+                                worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                                worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                                worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.00";
+                                layerColumn++;
+                            }
+
+                            dval = 0;
+
+                            if (options.Contains(ExportFlags.Df))
+                            {
+                                string sDk = zlPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_LossTangent);
+                                ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
+
+                                sval = String.Format("N" + Options.TheOptions.dfDigits.ToString(), dval);
+                                worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                                worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                                worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.000";
+                                layerColumn++;
+                            }
+
+                            dval = 0;
+
+                            if (options.Contains(ExportFlags.Frequency))
+                            {
+                                //--string sDk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Frequency);
+                                //--ZPlannerManager.GetFirstValueFromTable(sDk, out dval);
+                                sval = "";
+                                switch (zl.GetLayerType())
+                                {
+                                    case ZLayerType.Signal:
+                                    case ZLayerType.SplitMixed:
+                                        dval = zlPair.GetFrequency();
+                                        sval = String.Format("N" + Options.TheOptions.weightDigits.ToString(), dval);
+                                        break;
+                                }
+                                worksheet.Cell(layerRow, layerColumn).Value = dval > 0 ? dval.ToString(sval) : "";
+                                worksheet.Cell(layerRow, layerColumn).Style.Fill.BackgroundColor = backColor;
+                                worksheet.Cell(layerRow, layerColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                worksheet.Cell(layerRow, layerColumn).Style.NumberFormat.Format = "0.0";
+                                layerColumn++;
+                            }
+                        }
 
                         if (options.Contains(ExportFlags.Loss))
                         {
@@ -1084,9 +1221,10 @@ namespace ZZero.ZPlanner.Translators
                         if (bFirstDiff)
                         {
                             bFirstDiff = false;
-                            worksheet.Range(headerRow, impCol1, headerRow, layerColumn - 1).Merge();
-                            worksheet.Cell(headerRow, impCol1).Value = "DIFFERENTIAL SIGNALS (" + pair.Title + ")";
                         }
+                        worksheet.Range(headerRow, impCol1, headerRow, layerColumn - 1).Merge();
+                        worksheet.Cell(headerRow, impCol1).Value = "DIFFERENTIAL (" + pair.Title + ")";
+                        
                     }
                 }
 
@@ -1120,6 +1258,16 @@ namespace ZZero.ZPlanner.Translators
             //
 
             worksheet.Columns(col1, headerColumn).AdjustToContents();
+            //make Dk column width equal to Df column
+            for (int i = col1; i < headerColumn; i++)
+            {
+                string a = worksheet.Cell(headerRow + 1, i).Value.ToString();
+                string b = worksheet.Cell(headerRow + 1, i + 1).Value.ToString();
+                if ((a == "Dk") && (b == "Df"))
+                {
+                    worksheet.Column(i).Width = worksheet.Column(i + 1).Width;
+                }
+            }
 
             var rngTable = worksheet.Range(row1, col1, layerRow - 1, layerColumn - 1);
             rngTable.Style.Border.TopBorder = XLBorderStyleValues.Thin;
@@ -1135,13 +1283,13 @@ namespace ZZero.ZPlanner.Translators
                     worksheet.Cell(row1, i).Value = s;
 
                     worksheet.Cell(row1, i).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    worksheet.Cell(row1, i).Style.Alignment.Vertical = XLAlignmentVerticalValues.Top;
+                    worksheet.Cell(row1, i).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                 }
 
                 for (int i = colImpedance1 + 1; i < layerColumn; i++)
                 {
                     worksheet.Cell(row1 + 1, i).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    worksheet.Cell(row1 + 1, i).Style.Alignment.Vertical = XLAlignmentVerticalValues.Top;
+                    worksheet.Cell(row1 + 1, i).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                 }
             }
 
@@ -1215,13 +1363,13 @@ namespace ZZero.ZPlanner.Translators
 
             worksheet.Cell(headerRow, headerColumn).Value = "";
             InitHeaderCell(headerRow, headerColumn);
-            worksheet.Cell(headerRow + 1, headerColumn).Value = "Z0"+ Environment.NewLine + "(ohms)";
+            worksheet.Cell(headerRow + 1, headerColumn).Value = "Zo"+ Environment.NewLine + "(ohms)";
             InitHeaderCell(headerRow + 1, headerColumn);
             headerColumn++;
 
             worksheet.Cell(headerRow, headerColumn).Value = "";
             InitHeaderCell(headerRow, headerColumn);
-            worksheet.Cell(headerRow + 1, headerColumn).Value = "ZDiff"+ Environment.NewLine + "(ohms)";
+            worksheet.Cell(headerRow + 1, headerColumn).Value = "Zdiff"+ Environment.NewLine + "(ohms)";
             InitHeaderCell(headerRow + 1, headerColumn);
             ZDiffColumn = headerColumn;
             headerColumn++;
@@ -1229,7 +1377,7 @@ namespace ZZero.ZPlanner.Translators
             //Notes
             worksheet.Cell(headerRow, headerColumn).Value = "";
             InitHeaderCell(headerRow, headerColumn);
-            worksheet.Cell(headerRow + 1, headerColumn).Value = "Notes";
+            worksheet.Cell(headerRow + 1, headerColumn).Value = "Comments";
             InitHeaderCell(headerRow + 1, headerColumn);
             headerColumn++;
             worksheet.Cell(headerRow, headerColumn).Value = "";
@@ -1249,7 +1397,7 @@ namespace ZZero.ZPlanner.Translators
             worksheet.Cell(headerRow + 1, headerColumn + 3).Value = "";
             InitHeaderCell(headerRow + 1, headerColumn + 3);
             worksheet.Range(row1, headerColumn - 1, row1 + 1, headerColumn + 3).Merge();
-            worksheet.Cell(row1, headerColumn - 1).Value = "Notes";
+            worksheet.Cell(row1, headerColumn - 1).Value = "Comments";
             worksheet.Cell(row1, headerColumn - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             worksheet.Cell(row1, headerColumn - 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 

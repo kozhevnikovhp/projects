@@ -55,6 +55,7 @@ namespace ZZero.ZPlanner
         private static DiffToolDialog diffPanel;
         private static ProgramMenu mainRibbonMenu = null;
         private static RibbonTab activeMenuTab = null;
+        private static InitDialog initDialog = null;
         
         static ZPlannerManager()
         {
@@ -138,6 +139,9 @@ namespace ZZero.ZPlanner
 
         internal static bool ProjectIsEmpty { get { return project == null; } }
 
+        internal static string DiffToolProjectFile1 { get; set; }
+        internal static string DiffToolProjectFile2 { get; set; }
+
         internal static bool IsIgnoreCollectionChanged { get; set; }
 
         internal static bool IsIgnoreUpdateActiveStackup { get; set; }
@@ -204,18 +208,20 @@ namespace ZZero.ZPlanner
             IsIgnoreMenuButtonChecked = false;
         }
 
-        private static bool isLayerSelected;
+        //private static bool isLayerSelected;
         internal static bool IsLayerSelected
         {
-            get { return isLayerSelected; }
-            set { isLayerSelected = value; if (isLayerSelected) IsMaterialSelected = false; }
+            get { return (ZPlannerManager.StackupPanel != null && ZPlannerManager.StackupPanel.ContainsFocus); }
+            //get { return isLayerSelected; }
+            //set { isLayerSelected = value; if (isLayerSelected) IsMaterialSelected = false; }
         }
 
-        private static bool isMaterialSelected;
+        //private static bool isMaterialSelected;
         internal static bool IsMaterialSelected
         {
-            get { return isMaterialSelected; }
-            set { isMaterialSelected = value; if (isMaterialSelected) IsLayerSelected = false; }
+            get { return (ZPlannerManager.DMLPanel != null && ZPlannerManager.DMLPanel.ContainsFocus); }
+            //get { return isMaterialSelected; }
+            //set { isMaterialSelected = value; if (isMaterialSelected) IsLayerSelected = false; }
         }
 
         private static bool isAutoMirror = false;
@@ -315,6 +321,46 @@ namespace ZZero.ZPlanner
                     NotifyPropertyChanged("IsSequentialLamination");
                     ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
                 }
+            }
+        }
+
+        internal static bool IsKeepImportedPressedThickness
+        {
+            get
+            {
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty) return Project.Stackup.IsKeepImportedPressedThickness;
+                else return false;
+            }
+            set
+            {
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty)
+                {
+                    if (Project.Stackup.IsKeepImportedPressedThickness != value)
+                    {
+                        if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeZPlannerPropertyCommand("IsKeepImportedPressedThickness", Project.Stackup.IsKeepImportedPressedThickness, value);
+                        bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
+                        Project.Stackup.IsKeepImportedPressedThickness = value;
+                        NotifyPropertyChanged("IsKeepImportedPressedThickness");
+                        ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
+                    }
+                }
+            }
+        }
+
+        internal static bool IsImported
+        {
+            get 
+            {
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty)
+                {
+                    foreach (ZLayer layer in Project.Stackup.Layers)
+                    {
+                        string sValue = layer.GetLayerParameterValue(ZStringConstants.ParameterIDFabricatorThickness);
+                        if (!string.IsNullOrWhiteSpace(sValue)) return true;
+                    }
+                }
+
+                return false;
             }
         }
 
@@ -458,6 +504,11 @@ namespace ZZero.ZPlanner
 
         internal static DeserializeDockContent DeserializeDockContent { get { return deserializeDockContent; } }
 
+        internal static bool DmlIsEmpty
+        {
+            get { return dml == null; }
+        }
+
         internal static ZMaterialLibrary Dml
         {
             get
@@ -473,11 +524,12 @@ namespace ZZero.ZPlanner
                         string sZzero = (!string.IsNullOrWhiteSpace(LibraryFileToBeOpened) && File.Exists(LibraryFileToBeOpened)) ? LibraryFileToBeOpened : ZSettings.DMLFile;
                         if (!String.IsNullOrEmpty(sZzero) && File.Exists(sZzero))
                         {
+                            ZPlannerManager.AddInitDialogMessage("Opening Z-zero dielectric material library ...");
                             dml = DataProvider.Instance.OpenZMaterialLibrary(sZzero);
                             //set Category to Z-zero
                             foreach (ZMaterial zm in dml.Materials)
                             {
-                                zm.SetMaterialCategory(ZLibraryCategory.ZZero);
+                                if (zm.ID != ZStringConstants.EmptyMaterialID) zm.SetMaterialCategory(ZLibraryCategory.ZZero);
                             }
                         }
 
@@ -485,6 +537,7 @@ namespace ZZero.ZPlanner
                         string sCorporate = Options.TheOptions.DML_NetworkPath;
                         if (!String.IsNullOrEmpty(sCorporate))
                         {
+                            ZPlannerManager.AddInitDialogMessage("Opening corporate dielectric material library ...");
                             LoadLocalDml(sCorporate, ZLibraryCategory.Corporate);
                         }
 
@@ -492,6 +545,7 @@ namespace ZZero.ZPlanner
                         string sLocal = Options.TheOptions.DML_LocalPath;
                         if (!String.IsNullOrEmpty(sLocal))
                         {
+                            ZPlannerManager.AddInitDialogMessage("Opening local dielectric material library ...");
                             LoadLocalDml(sLocal);
                         }
 
@@ -510,9 +564,9 @@ namespace ZZero.ZPlanner
 // saving local materials to DML
 // SaveAs: false - overwrites library in the corresponding location, true - asks to specify location
 //
-        internal static void SaveDml(ZLibraryCategory category, bool SaveAs = false)
+        internal static bool SaveDml(ZLibraryCategory category, bool SaveAs = false)
         {
-            if (category == ZLibraryCategory.ZZero && !ZPlannerManager.rights.AllowDmlSave) return;
+            if (category == ZLibraryCategory.ZZero && !ZPlannerManager.rights.AllowDmlSave) return true;
             // define saving location
             string  dmlFile;
             bool bOK = GetDmlFile(category, !SaveAs, out dmlFile);
@@ -544,7 +598,10 @@ namespace ZZero.ZPlanner
 
                 SaveZoDelta(dmlFile);
                 Dml.IsEdited = false;
+                return true;
             }
+
+            return false;
         }
 
         internal static void OpenLocalDml()
@@ -606,9 +663,9 @@ namespace ZZero.ZPlanner
             switch (dialogResult)
             {
                 case DialogResult.Yes:
-                    if (ZPlannerManager.IsUserHaveAccessToLibrary(ZLibraryCategory.Local)) SaveDml(ZLibraryCategory.Local);
-                    if (ZPlannerManager.IsUserHaveAccessToLibrary(ZLibraryCategory.Corporate)) SaveDml(ZLibraryCategory.Corporate);
-                    if (ZPlannerManager.IsUserHaveAccessToLibrary(ZLibraryCategory.ZZero)) SaveDml(ZLibraryCategory.ZZero);
+                    if (ZPlannerManager.IsUserHaveAccessToLibrary(ZLibraryCategory.Local)) return SaveDml(ZLibraryCategory.Local);
+                    if (ZPlannerManager.IsUserHaveAccessToLibrary(ZLibraryCategory.Corporate)) return SaveDml(ZLibraryCategory.Corporate);
+                    if (ZPlannerManager.IsUserHaveAccessToLibrary(ZLibraryCategory.ZZero)) return SaveDml(ZLibraryCategory.ZZero);
                     return true;
                 case DialogResult.No:
                     return true;
@@ -1023,6 +1080,29 @@ namespace ZZero.ZPlanner
             }
         }
 
+        internal static InitDialog InitDialog { get { return initDialog; } set { initDialog = value; } }
+
+        internal static void AddInitDialogMessage(string text)
+        {
+            if (initDialog == null) return;
+
+            string[] textLines = initDialog.MessageBox.Text.Split(new string[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
+            initDialog.MessageBox.Text = string.Empty;
+            string newLine;
+            for (int i = textLines.Length - initDialog.NumberOfDispayingMessages; i < textLines.Length; ++i)
+            {
+                if (i >= 0)
+                {
+                    newLine = (initDialog.MessageBox.Text == string.Empty) ? string.Empty : "\n";
+                    initDialog.MessageBox.Text += newLine + textLines[i];
+                }
+            }
+
+            newLine = (initDialog.MessageBox.Text == string.Empty) ? string.Empty : "\n";
+            initDialog.MessageBox.Text += newLine + text;
+            initDialog.Update();
+        }
+
         internal static DmlSearchDialog DMLSearchDialog { get { if (dmlSearchDialog == null) dmlSearchDialog = new DmlSearchDialog(); return dmlSearchDialog; } }
 
         internal static ProgramMenu MainMenu
@@ -1072,7 +1152,7 @@ namespace ZZero.ZPlanner
             ZPlannerManager.MessagePanel.ClearMessages();
             ZPlannerManager.StatusMenu.SetStatus("Creating new Stackup ...");
 
-            ZPlannerManager.Commands.IsIgnoreCommands = true; 
+            ZPlannerManager.Commands.SuspendCommandEvent();
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
             ZPlannerProject project = new ZPlannerProject();
@@ -1118,23 +1198,22 @@ namespace ZZero.ZPlanner
             if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.FileName != string.Empty)
             {
                 ZPlannerManager.MessagePanel.ClearMessages();
-                ZPlannerManager.StatusMenu.SetStatus("Opening a Stackup from file ...");
+                ZPlannerManager.StatusMenu.SetStatus("Opening Stackup from file ...");
 
                 bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+                ZPlannerManager.Commands.SuspendCommandEvent();
                 try
                 {
                     InternalOpenProject(openFileDialog.FileName);
+                    ZPlannerManager.StatusMenu.SetStatusReady();
+                    ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
                 }
                 finally
                 {
                     ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                    UpdateActiveStackup();
+                    ZPlannerManager.Commands.Clear();
                 }
-
-                ZPlannerManager.StatusMenu.SetStatusReady();
-                ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
-
-                UpdateActiveStackup();
-                ZPlannerManager.Commands.Clear();
             }
         }
 
@@ -1145,28 +1224,26 @@ namespace ZZero.ZPlanner
             if (!ZPlannerManager.CloseProject()) return;
 
             ZPlannerManager.MessagePanel.ClearMessages();
-            ZPlannerManager.StatusMenu.SetStatus("Opening a Stackup from file ...");
+            ZPlannerManager.StatusMenu.SetStatus("Opening Stackup from file ...");
 
             bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+            ZPlannerManager.Commands.SuspendCommandEvent();
             try
             {
                 InternalOpenProject(fileName);
+                ZPlannerManager.StatusMenu.SetStatusReady();
+                ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
             }
             finally
             {
                 ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear();
             }
-
-            ZPlannerManager.StatusMenu.SetStatusReady();
-            ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
-
-            UpdateActiveStackup();
-            ZPlannerManager.Commands.Clear();
         }
 
         private static void InternalOpenProject(string fileName)
         {
-            ZPlannerManager.Commands.IsIgnoreCommands = true;
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
             ProjectFile = fileName;
             Project = DataProvider.Instance.OpenZPlannerProject(fileName);
@@ -1181,23 +1258,23 @@ namespace ZZero.ZPlanner
             if (!string.IsNullOrEmpty(ProjectFileToBeOpened))
             {
                 ZPlannerManager.MessagePanel.ClearMessages();
-                ZPlannerManager.StatusMenu.SetStatus("Opening a Stackup from file ...");
+                ZPlannerManager.StatusMenu.SetStatus("Opening Stackup from file ...");
+                AddInitDialogMessage("Opening a stackup from selected file ...");
 
                 bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+                ZPlannerManager.Commands.SuspendCommandEvent();
                 try
                 {
                     InternalOpenProject(ProjectFileToBeOpened);
+                    ZPlannerManager.StatusMenu.SetStatusReady();
+                    ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
                 }
                 finally
                 {
                     ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                    UpdateActiveStackup();
+                    ZPlannerManager.Commands.Clear();
                 }
-
-                ZPlannerManager.StatusMenu.SetStatusReady();
-                ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
-
-                UpdateActiveStackup();
-                ZPlannerManager.Commands.Clear();
             }
         }
 
@@ -1206,27 +1283,27 @@ namespace ZZero.ZPlanner
             if (!ZPlannerManager.CloseProject()) return;
 
             ZPlannerManager.MessagePanel.ClearMessages();
-            ZPlannerManager.StatusMenu.SetStatus("Opening a Stackup from recent file ...");
+            ZPlannerManager.StatusMenu.SetStatus("Opening Stackup from recent file ...");
 
             bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+            ZPlannerManager.Commands.SuspendCommandEvent();
             try
             {
                 InternalOpenProject(file);
+                ZPlannerManager.StatusMenu.SetStatusReady();
+                ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
             }
             finally
             {
                 ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                ZPlannerManager.UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear();
             }
-            
-            ZPlannerManager.StatusMenu.SetStatusReady();
-            ZPlannerManager.MessagePanel.AddMessage(string.Format("\"{0}\" Stackup was opened.", Project.Stackup.Title));
-
-            ZPlannerManager.UpdateActiveStackup();
-            ZPlannerManager.Commands.Clear();
         }
 
         internal static bool SaveProject()
         {
+
             // If the file name is not an empty string open it for saving.
             if (string.IsNullOrEmpty(ZPlannerManager.ProjectFile) || 
                 Path.GetDirectoryName(ZPlannerManager.ProjectFile) == Path.Combine(Options.TheOptions.ProjectPath, "AutoSave") || 
@@ -1236,6 +1313,8 @@ namespace ZZero.ZPlanner
             }
             else
             {
+                if (CheckIsProtected(ZPlannerManager.ProjectFile)) return false;
+
                 BackupProject(ZPlannerManager.ProjectFile);
                 DataProvider.Instance.SaveZPlannerProject(ZPlannerManager.ProjectFile, ZPlannerManager.Project);
                 ZPlannerManager.Commands.Clear();
@@ -1244,16 +1323,23 @@ namespace ZZero.ZPlanner
             }
         }
 
+        internal static bool SaveProjectSilent(string path)
+        {
+            ZPlannerManager.ProjectFile = path;
+            BackupProject(path);
+            DataProvider.Instance.SaveZPlannerProject(path, ZPlannerManager.Project);
+            ZPlannerManager.Commands.Clear();
+            RecentFilesManager.AddToRecentFiles(path);
+            return true;
+        }
+
         internal static bool SaveProjectAs()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Z-planner stackup files (*.Z0p)|*.z0p";
             saveFileDialog.Title = "Save a Stackup";
             if (!Options.TheOptions.UseLast) saveFileDialog.InitialDirectory = Options.TheOptions.ProjectPath;
-            string owner = Options.TheOptions.Company;
-            if (string.IsNullOrWhiteSpace(owner)) owner = Options.TheOptions.UserName;
-            if (string.IsNullOrWhiteSpace(owner)) owner = "Z-planner";
-
+            
             string oldFileName = (!ProjectIsEmpty && !Project.StackupIsEmpty) ?  Path.GetFileNameWithoutExtension(ProjectFile) : null;
             DateTime dtValue;
             if (oldFileName != null && oldFileName.Length > 8 && DateTime.TryParseExact(oldFileName.Substring(0, 8), "yy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtValue)) oldFileName = oldFileName.Substring(8);
@@ -1261,18 +1347,42 @@ namespace ZZero.ZPlanner
             if (string.IsNullOrWhiteSpace(saveFileDialog.FileName))
             {
                 if (!string.IsNullOrWhiteSpace(oldFileName)) saveFileDialog.FileName = string.Format("{0}-{1}.z0p", DateTime.Now.ToString("yy-MM-dd"), oldFileName);
-                else if (!ProjectIsEmpty && !Project.StackupIsEmpty) saveFileDialog.FileName = string.Format("{0}-{1}-{2}L {3}.z0p", DateTime.Now.ToString("yy-MM-dd"), owner, Project.Stackup.GetMetallLayerCount().ToString(), Project.Stackup.Title);
+                else if (!ProjectIsEmpty && !Project.StackupIsEmpty) saveFileDialog.FileName = GetProjectFileName();
             }
 
 
             // If the file name is not an empty string open it for saving.
             if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName != string.Empty)
             {
+                if (CheckIsProtected(saveFileDialog.FileName)) return false;
+
+                ZPlannerManager.Project.IsProtected = false;
                 ZPlannerManager.ProjectFile = saveFileDialog.FileName;
                 BackupProject(ZPlannerManager.ProjectFile);
                 DataProvider.Instance.SaveZPlannerProject(saveFileDialog.FileName, ZPlannerManager.Project);
                 ZPlannerManager.Commands.Clear();
                 RecentFilesManager.AddToRecentFiles(saveFileDialog.FileName);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static string GetProjectFileName()
+        {
+            string owner = Options.TheOptions.Company;
+            if (string.IsNullOrWhiteSpace(owner)) owner = Options.TheOptions.UserName;
+            if (string.IsNullOrWhiteSpace(owner)) owner = "Z-planner";
+
+            return string.Format("{0}-{1}-{2}L {3}.z0p", DateTime.Now.ToString("yy-MM-dd"), owner, Project.Stackup.GetMetallLayerCount().ToString(), Project.Stackup.Title);
+        }
+
+        private static bool CheckIsProtected(string path)
+        {
+            if (Project.IsProtected && ProjectFile == path)
+            {
+                NoteOK("Write Protection", "This stackup was imported from an external source and has been write protected to preserve the original design data." + "\n" +
+                    "Please save this file under a different name if edits have been made to the imported stackup using File > Save Stackup As ...");
                 return true;
             }
 
@@ -1335,8 +1445,7 @@ namespace ZZero.ZPlanner
             switch(dialogResult)
             {
                 case DialogResult.Yes:
-                    SaveProject();
-                    return true;
+                    return SaveProject();
                 case DialogResult.No:
                     return true;
                 case DialogResult.Cancel:
@@ -1420,11 +1529,11 @@ namespace ZZero.ZPlanner
             if (project != null) ZPlannerManager.WriteSettings();
             if (beforeCloseAction != null) beforeCloseAction();
             ZPlannerManager.MessagePanel.ClearMessages();
-            ZPlannerManager.StatusMenu.SetStatus("Closing stackup ...");
+            ZPlannerManager.StatusMenu.SetStatus("Closing Stackup ...");
 
             if (project != null) Project = null;
             if (projectFile != null) ProjectFile = null;
-            if (ZPlannerManager.Commands.UndoCount > 0 || ZPlannerManager.Commands.RedoCount > 0) ZPlannerManager.Commands.Clear();
+            ZPlannerManager.Commands.Clear();
             ZEntity.IdList.Clear();
 
             ZPlannerManager.StatusMenu.SetStatusReady();
@@ -1435,6 +1544,7 @@ namespace ZZero.ZPlanner
         {
             SettingsDialog options = new SettingsDialog();
             options.ShowDialog();
+            NotifyPropertyChanged("Settings");
         }
 
         internal static void ShowFXSandbox()
@@ -1524,6 +1634,7 @@ namespace ZZero.ZPlanner
 
         internal static void ShowProjectView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1536,11 +1647,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.ShowDMLPanel(); 
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowDefaultProjectView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1558,11 +1671,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DRCPanel.Hide();
             
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowStackupPropertiesView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1575,11 +1690,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DMLPanel.Hide(); 
             
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowDefaultStackupPropertiesView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1600,11 +1717,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DRCPanel.Hide();
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowStartPageView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null)
@@ -1619,11 +1738,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DMLPanel.Hide();
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowDefaultStartPageView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             /*if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1646,11 +1767,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DRCPanel.Hide();
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowStackupDmlView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1663,11 +1786,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.ShowDMLPanel();
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowDefaultStackupDmlView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.GoToStackupMenuTab();
@@ -1687,11 +1812,13 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DRCPanel.Hide();
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowDmlView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.Hide();
@@ -1700,15 +1827,17 @@ namespace ZZero.ZPlanner
             ZPlannerManager.ProjectPanel.Hide();
             ZPlannerManager.MessagePanel.Hide();
             ZPlannerManager.DRCPanel.Hide();
-            ZPlannerManager.DMLPanel.SelectFirstMaterial();
+            //ZPlannerManager.DMLPanel.SelectFirstMaterial();
             ZPlannerManager.DMLPanel.Show(ContainerPanel.MainDockPanel, DockState.Document);
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
         internal static void ShowDefaultDmlView()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             IsIgnorePanelVisibleChanged = true;
 
             ZPlannerManager.GoToLibraryMenuTab();
@@ -1729,6 +1858,7 @@ namespace ZZero.ZPlanner
             ZPlannerManager.DRCPanel.Hide();
 
             IsIgnorePanelVisibleChanged = false;
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
             MainMenu.SelectView();
         }
 
@@ -1875,7 +2005,7 @@ namespace ZZero.ZPlanner
         internal static void ShowVias(bool isVisible)
         {
             IsViasVisible = isVisible;
-
+            ZPlannerManager.Project.Stackup.Spans.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             ZPlannerManager.StackupPanel.ShowVias(isVisible);
         }
 
@@ -1982,6 +2112,28 @@ namespace ZZero.ZPlanner
             }
         }
 
+        internal static void SetKeepImportedPressedThickness(bool isKeepImported)
+        {
+            if (!ProjectIsEmpty && !Project.StackupIsEmpty)
+            {
+                ZPlannerManager.IsKeepImportedPressedThickness = isKeepImported;
+
+                bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
+                bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+                try
+                {
+                    CalculatePressedThickness(ZPlannerManager.IsPressedThickness);
+                    if (StackupPanel != null) StackupPanel.RecalculateViaSpanAspectRatio();
+                }
+                finally
+                {
+                    ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                    ZPlannerManager.UpdateActiveStackup();
+                    ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
+                }
+            }
+        }
+
         internal static void SetCopperRoughness(bool isRoughness)
         {
             ZPlannerManager.IsRoughness = isRoughness;
@@ -2034,7 +2186,7 @@ namespace ZZero.ZPlanner
             if (IsRoughness) ++pressedButtonsCount;
             //if (gwsRibbonButton.Checked) ++pressedButtonsCount;
 
-            return pressedButtonsCount < 2;
+            return IsSinglesVisible && pressedButtonsCount < 2;
         }
 
         internal static void CalculatePressedThickness(bool isPressed)
@@ -2130,6 +2282,11 @@ namespace ZZero.ZPlanner
             else
             {
                 FolderBrowserDialog openFolderDialog = new FolderBrowserDialog();
+                if (Options.TheOptions.UseLast)
+                {
+                    openFolderDialog.SelectedPath = Options.TheOptions.ExportPath;
+                }
+                openFolderDialog.Description = "Select the root folder for the ODB++ folder tree." + Environment.NewLine + "The ODB++ root folder exported from Z-pLanner will be: <project>_ODB++.";
 
                 DialogResult result = openFolderDialog.ShowDialog();
                 bOk = (result == DialogResult.OK && !string.IsNullOrWhiteSpace(openFolderDialog.SelectedPath));
@@ -2139,11 +2296,11 @@ namespace ZZero.ZPlanner
             if (bOk)
             {
                 ZPlannerManager.MessagePanel.ClearMessages();
-                ZPlannerManager.StatusMenu.StartProgress("Importing a Stackup ...");
+                ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
                 Cursor currentCursor = Cursor.Current;
                 Cursor.Current = Cursors.WaitCursor;
 
-                ZPlannerManager.Commands.IsIgnoreCommands = true;
+                bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
                 bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
                 if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
 
@@ -2159,22 +2316,20 @@ namespace ZZero.ZPlanner
                         }
                         catch { }
                     }
+
+                    if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(selection);
                 }
                 finally
                 {
-                    ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                    ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                    UpdateActiveStackup();
+                    ZPlannerManager.Commands.Clear(isIgnoreCommand);
                 }
 
-                if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(selection);
-
                 Cursor.Current = currentCursor;
-                ZPlannerManager.StatusMenu.StopProgress("Importing a Stackup ...");
+                ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
                 ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + selection + ".");
-
-                UpdateActiveStackup();
-                ZPlannerManager.Commands.Clear();
             }
-
         }
 
         internal static void ExportODB()
@@ -2182,22 +2337,41 @@ namespace ZZero.ZPlanner
             ZStackup zs = ZPlannerManager.Project.Stackup;
             if (zs == null) return;
 
+            /*
+            string export_folder = "";
             FolderBrowserDialog openFolderDialog = new FolderBrowserDialog();
-            if (Options.TheOptions.UseLast) openFolderDialog.SelectedPath = Options.TheOptions.ExportPath;
+            if (Options.TheOptions.UseLast)
+            {
+                openFolderDialog.SelectedPath = Options.TheOptions.ExportPath;
+
+            }
+            openFolderDialog.Description = "Select the folder where ODB++ export will go." + Environment.NewLine + "It will contain the root folder of ODB++ folders tree <design>_ODBPP as well as these folders compessed to the <design>.tgz file.";
             
             DialogResult result = openFolderDialog.ShowDialog();
-            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(openFolderDialog.SelectedPath))
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(openFolderDialog.SelectedPath)){
+                export_folder = openFolderDialog.SelectedPath;
+            } 
+            */
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "ODB++ Compressed Files (*.TGZ)|*.TGZ";
+            saveFileDialog.Title = "Export to ODB++";
+            if (!Options.TheOptions.UseLast) saveFileDialog.InitialDirectory = Options.TheOptions.ExportPath;
+            saveFileDialog.FileName = (!string.IsNullOrWhiteSpace(ZPlannerManager.ProjectFile)) ? Path.GetFileNameWithoutExtension(ZPlannerManager.ProjectFile) : zs.Title;
+
+            // If the file name is not an empty string open it for saving.
+            if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName != string.Empty)
             {
-                ZPlannerManager.StatusMenu.StartProgress("Exporting a Stackup ...");
+                ZPlannerManager.StatusMenu.StartProgress("Exporting Stackup ...", true);
                 Cursor currentCursor = Cursor.Current;
                 Cursor.Current = Cursors.WaitCursor;
 
-                ODBPP_Exporter exp = new ODBPP_Exporter(openFolderDialog.SelectedPath);
+                ODBPP_Exporter exp = new ODBPP_Exporter(saveFileDialog.FileName);
                 exp.Export();
-
+                    
                 Cursor.Current = currentCursor;
-                ZPlannerManager.StatusMenu.StopProgress("Exporting a Stackup ...");
-                ZPlannerManager.MessagePanel.AddMessage("Stackup was exported to " + openFolderDialog.SelectedPath + ".");
+                ZPlannerManager.StatusMenu.StopProgress("Exporting Stackup ...");
+                ZPlannerManager.MessagePanel.AddMessage("Stackup was exported to " + saveFileDialog.FileName + ".");
             }
         }
 
@@ -2215,11 +2389,11 @@ namespace ZZero.ZPlanner
             if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.FileName != string.Empty)
             {
                 ZPlannerManager.MessagePanel.ClearMessages();
-                ZPlannerManager.StatusMenu.StartProgress("Importing a Stackup ...");
+                ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
                 Cursor currentCursor = Cursor.Current;
                 Cursor.Current = Cursors.WaitCursor;
 
-                ZPlannerManager.Commands.IsIgnoreCommands = true;
+                bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
                 bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
                 if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
 
@@ -2227,21 +2401,19 @@ namespace ZZero.ZPlanner
                 {
                     HL_Parser parser = new HL_Parser(openFileDialog.FileName);
                     parser.Import();
+
+                    if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                 }
                 finally
                 {
-                    ZPlannerManager.ResumeUpdateActiveStackupEvent();
-                }
-
-                if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                    ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                    UpdateActiveStackup();
+                    ZPlannerManager.Commands.Clear(isIgnoreCommand);
+                }    
 
                 Cursor.Current = currentCursor;
-                ZPlannerManager.StatusMenu.StopProgress("Importing a Stackup ...");
+                ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
                 ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
-                
-                UpdateActiveStackup();
-                ZPlannerManager.Commands.Clear();
-
             }
         }
 
@@ -2259,7 +2431,7 @@ namespace ZZero.ZPlanner
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName != string.Empty)
                 {
-                    ZPlannerManager.StatusMenu.StartProgress("Exporting a Stackup ...");
+                    ZPlannerManager.StatusMenu.StartProgress("Exporting Stackup ...", true);
                     Cursor currentCursor = Cursor.Current;
                     Cursor.Current = Cursors.WaitCursor;
 
@@ -2267,7 +2439,7 @@ namespace ZZero.ZPlanner
                     exp.Export();
 
                     Cursor.Current = currentCursor;
-                    ZPlannerManager.StatusMenu.StopProgress("Exporting a Stackup ...");
+                    ZPlannerManager.StatusMenu.StopProgress("Exporting Stackup ...");
                     ZPlannerManager.MessagePanel.AddMessage("Stackup was exported to " + saveFileDialog.FileName + ".");
                 }
             }
@@ -2277,7 +2449,7 @@ namespace ZZero.ZPlanner
         {
             //options
             ExportOptions.TheOptions.ProjectName = (!string.IsNullOrWhiteSpace(ZPlannerManager.ProjectFile)) ? Path.GetFileNameWithoutExtension(ZPlannerManager.ProjectFile) : string.Empty;
-            if (string.IsNullOrWhiteSpace(ExportOptions.TheOptions.DesignRevision)) ExportOptions.TheOptions.DesignRevision = "1.0";
+            ExportOptions.TheOptions.DesignRevision = "1.0";
 
             ExcelOptionsDlg optDlg = new ExcelOptionsDlg();
             optDlg.StartPosition = FormStartPosition.CenterParent;
@@ -2300,15 +2472,19 @@ namespace ZZero.ZPlanner
                     string pName = ExportOptions.TheOptions.ProjectName;
                     //check for standard SaveAs Name
                     bool bAddProject = true;
-                    string aDate = pName.Substring(0, 8);
-                    if (aDate.Length == 8)
+                    if (pName.Length > 8)
                     {
-                        string[] res = aDate.Split(new char [] {'-'});
-                        if (res.Length == 3)
+                        string aDate = pName.Substring(0, 8);
+                        if (aDate.Length == 8)
                         {
-                            int temp;
-                            if (Int32.TryParse(res[0], out temp) && Int32.TryParse(res[1], out temp) && Int32.TryParse(res[2], out temp)){
-                                bAddProject = false;
+                            string[] res = aDate.Split(new char[] { '-' });
+                            if (res.Length == 3)
+                            {
+                                int temp;
+                                if (Int32.TryParse(res[0], out temp) && Int32.TryParse(res[1], out temp) && Int32.TryParse(res[2], out temp))
+                                {
+                                    bAddProject = false;
+                                }
                             }
                         }
                     }
@@ -2368,7 +2544,7 @@ namespace ZZero.ZPlanner
                     }
 
 
-                    ZPlannerManager.StatusMenu.StartProgress("Exporting a Stackup ...");
+                    ZPlannerManager.StatusMenu.StartProgress("Exporting Stackup ...", true);
                     Cursor currentCursor = Cursor.Current;
                     Cursor.Current = Cursors.WaitCursor;
 
@@ -2376,7 +2552,7 @@ namespace ZZero.ZPlanner
                     exp.Export();
 
                     Cursor.Current = currentCursor;
-                    ZPlannerManager.StatusMenu.StopProgress("Exporting a Stackup ...");
+                    ZPlannerManager.StatusMenu.StopProgress("Exporting Stackup ...");
                     ZPlannerManager.MessagePanel.AddMessage("Stackup was exported to " + saveFileDialog.FileName + ".");
                     
                     //try to open excel app
@@ -2405,11 +2581,11 @@ namespace ZZero.ZPlanner
             if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.FileName != string.Empty)
             {
                 ZPlannerManager.MessagePanel.ClearMessages();
-                ZPlannerManager.StatusMenu.StartProgress("Importing a Stackup ...");
+                ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
                 Cursor currentCursor = Cursor.Current;
                 Cursor.Current = Cursors.WaitCursor;
 
-                ZPlannerManager.Commands.IsIgnoreCommands = true;
+                bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
                 bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
                 if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
 
@@ -2417,20 +2593,19 @@ namespace ZZero.ZPlanner
                 {
                     IPC_Parser parser = new IPC_Parser(openFileDialog.FileName);
                     parser.Import();
+
+                    if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                 }
                 finally
                 {
-                    ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                    ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                    UpdateActiveStackup();
+                    ZPlannerManager.Commands.Clear(isIgnoreCommand);
                 }
 
-                if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-
                 Cursor.Current = currentCursor;
-                ZPlannerManager.StatusMenu.StopProgress("Importing a Stackup ...");
+                ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
                 ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
-
-                UpdateActiveStackup();
-                ZPlannerManager.Commands.Clear();
             }
         }
 
@@ -2444,36 +2619,241 @@ namespace ZZero.ZPlanner
             //"Schematic Files (*.FFS)|*.FFS|Stackup Files (*.STK)|*.STK";
             if (!Options.TheOptions.UseLast) openFileDialog.InitialDirectory = Options.TheOptions.ExportPath;
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.FileName != string.Empty)
+            TapestryReader parser = null;
+            while (true)
             {
-                ZPlannerManager.MessagePanel.ClearMessages();
-                ZPlannerManager.StatusMenu.StartProgress("Importing a Stackup ...");
-                Cursor currentCursor = Cursor.Current;
-                Cursor.Current = Cursors.WaitCursor;
-
-                ZPlannerManager.Commands.IsIgnoreCommands = true;
-                bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
-                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
-
-                try
-                {
-                    TapestryReader parser = new TapestryReader(openFileDialog.FileName);
-                    parser.Import();
-                }
-                finally
-                {
-                    ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                if (openFileDialog.ShowDialog() != DialogResult.OK || openFileDialog.FileName == string.Empty){
+                    return; //import canceled
                 }
 
-                if (!ProjectIsEmpty && !Project.StackupIsEmpty) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                //convert to xlsx if needed
+                parser = new TapestryReader(openFileDialog.FileName);
+                if (!parser.Convert())
+                {
+                    return;//couldn't convert xls to xlsx
+                }
 
-                Cursor.Current = currentCursor;
-                ZPlannerManager.StatusMenu.StopProgress("Importing a Stackup ...");
-                ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
+                //check format
+                if (parser.IsValidFile())
+                {
+                    break;
+                }
 
-                UpdateActiveStackup();
-                ZPlannerManager.Commands.Clear();
+                MessageBox.Show("Selected file is not a valid Tapestry file.");
+
             }
+
+            ZPlannerManager.MessagePanel.ClearMessages();
+            ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
+            Cursor currentCursor = Cursor.Current;
+            Cursor.Current = Cursors.WaitCursor;
+
+            bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
+
+            try
+            {
+                parser.Import();
+
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty && Project.Stackup.Title.Length == 0) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+            }
+            finally
+            {
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear(isIgnoreCommand);
+            }
+
+            Cursor.Current = currentCursor;
+            ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
+            ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
+        }
+
+        internal static void ImportISU()
+        {
+            if (!ZPlannerManager.CloseProject()) return;
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.Filter = "Excel Files (*.XLS;*.XLSX)|*.XLS;*.XLSX";
+            //"Schematic Files (*.FFS)|*.FFS|Stackup Files (*.STK)|*.STK";
+            if (!Options.TheOptions.UseLast) openFileDialog.InitialDirectory = Options.TheOptions.ExportPath;
+
+            ISU_Reader parser = null;
+            while (true)
+            {
+                if (openFileDialog.ShowDialog() != DialogResult.OK || openFileDialog.FileName == string.Empty)
+                {
+                    return; //import canceled
+                }
+
+                //convert to xlsx if needed
+                parser = new ISU_Reader(openFileDialog.FileName, true);
+                if (!parser.Convert())
+                {
+                    return;//couldn't convert xls to xlsx
+                }
+
+                //check format
+                if (parser.IsValidFile())
+                {
+                    break;
+                }
+
+                MessageBox.Show("Selected file is not a valid ISU file.");
+
+            }
+
+            ZPlannerManager.MessagePanel.ClearMessages();
+            ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
+            Cursor currentCursor = Cursor.Current;
+            Cursor.Current = Cursors.WaitCursor;
+
+            bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
+
+            try
+            {
+                parser.Import();
+
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty && Project.Stackup.Title.Length == 0) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+            }
+            finally
+            {
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear(isIgnoreCommand);
+            }
+
+            Cursor.Current = currentCursor;
+            ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
+            ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
+        }
+
+        internal static void ImportWUS()
+        {
+            if (!ZPlannerManager.CloseProject()) return;
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.Filter = "Excel Files (*.XLS;*.XLSX;*.XLSM)|*.XLS;*.XLSX;*.XLSM";
+            //"Schematic Files (*.FFS)|*.FFS|Stackup Files (*.STK)|*.STK";
+            if (!Options.TheOptions.UseLast) openFileDialog.InitialDirectory = Options.TheOptions.ExportPath;
+
+            WUS_Reader parser = null;
+            while (true)
+            {
+                if (openFileDialog.ShowDialog() != DialogResult.OK || openFileDialog.FileName == string.Empty)
+                {
+                    return; //import canceled
+                }
+
+                //convert to xlsx if needed
+                parser = new WUS_Reader(openFileDialog.FileName);
+                if (!parser.Convert())
+                {
+                    return;//couldn't convert xls to xlsx
+                }
+
+                //check format
+                if (parser.IsValidFile())
+                {
+                    break;
+                }
+
+                MessageBox.Show("Selected file is not a valid WUS file.");
+
+            }
+
+            ZPlannerManager.MessagePanel.ClearMessages();
+            ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
+            Cursor currentCursor = Cursor.Current;
+            Cursor.Current = Cursors.WaitCursor;
+
+            bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
+
+            try
+            {
+                parser.Import();
+
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty && Project.Stackup.Title.Length == 0) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+            }
+            finally
+            {
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear(isIgnoreCommand);
+            }
+
+            Cursor.Current = currentCursor;
+            ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
+            ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
+        }
+
+        internal static void ImportTTM()
+        {
+            if (!ZPlannerManager.CloseProject()) return;
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.Filter = "Excel Files (*.XLS;*.XLSX;*.XLSM)|*.XLS;*.XLSX;*.XLSM";
+            //"Schematic Files (*.FFS)|*.FFS|Stackup Files (*.STK)|*.STK";
+            if (!Options.TheOptions.UseLast) openFileDialog.InitialDirectory = Options.TheOptions.ExportPath;
+
+            TTM_Reader parser = null;
+            while (true)
+            {
+                if (openFileDialog.ShowDialog() != DialogResult.OK || openFileDialog.FileName == string.Empty)
+                {
+                    return; //import canceled
+                }
+
+                //convert to xlsx if needed
+                parser = new TTM_Reader(openFileDialog.FileName);
+                if (!parser.Convert())
+                {
+                    return;//couldn't convert xls to xlsx
+                }
+
+                //check format
+                if (parser.IsValidFile())
+                {
+                    break;
+                }
+
+                MessageBox.Show("Selected file is not a valid TTM file.");
+
+            }
+
+            ZPlannerManager.MessagePanel.ClearMessages();
+            ZPlannerManager.StatusMenu.StartProgress("Importing Stackup ...");
+            Cursor currentCursor = Cursor.Current;
+            Cursor.Current = Cursors.WaitCursor;
+
+            bool isIgnoreCommand = ZPlannerManager.Commands.SuspendCommandEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
+
+            try
+            {
+                parser.Import();
+
+                if (!ProjectIsEmpty && !Project.StackupIsEmpty && Project.Stackup.Title.Length == 0) Project.Stackup.Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+            }
+            finally
+            {
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear(isIgnoreCommand);
+            }
+
+            Cursor.Current = currentCursor;
+            ZPlannerManager.StatusMenu.StopProgress("Importing Stackup ...");
+            ZPlannerManager.MessagePanel.AddMessage("Stackup was imported from " + openFileDialog.FileName + ".");
         }
 
         internal static void ExportIPC2581()
@@ -2490,7 +2870,7 @@ namespace ZZero.ZPlanner
                 // If the file name is not an empty string open it for saving.
                 if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName != string.Empty)
                 {
-                    ZPlannerManager.StatusMenu.StartProgress("Exporting a Stackup ...");
+                    ZPlannerManager.StatusMenu.StartProgress("Exporting Stackup ...", true);
                     Cursor currentCursor = Cursor.Current;
                     Cursor.Current = Cursors.WaitCursor;
 
@@ -2498,7 +2878,7 @@ namespace ZZero.ZPlanner
                     exp.Export(); 
                     
                     Cursor.Current = currentCursor;
-                    ZPlannerManager.StatusMenu.StopProgress("Exporting a Stackup ...");
+                    ZPlannerManager.StatusMenu.StopProgress("Exporting Stackup ...");
                     ZPlannerManager.MessagePanel.AddMessage("Stackup was exported to " + saveFileDialog.FileName + ".");
                 }
             }
@@ -2552,6 +2932,9 @@ namespace ZZero.ZPlanner
                     bool bConformal = lOutter.GetLayerType() == ZLayerType.SolderMask;
                     lOutter.SetLayerParameterValue(ZStringConstants.ParameterIDConformal, bConformal.ToString());
                 }
+
+                //update glass pitch for not-inited layers
+                stk.UpdateGlassPitch();
 
                 //recalc dynamic properties
 
@@ -2669,7 +3052,7 @@ namespace ZZero.ZPlanner
 
         internal static string GetThicknesStringByCopperWeight(double weight)
         {
-            return GetThicknesByCopperWeight(weight).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture);
+            return GetThicknesByCopperWeight(weight).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture);
         }
 
         internal static void RunFXSandbox()
@@ -2691,9 +3074,9 @@ namespace ZZero.ZPlanner
             if (!ZPlannerManager.CloseProject()) return;
 
             ZPlannerManager.MessagePanel.ClearMessages();
-            ZPlannerManager.StatusMenu.SetStatus("Creating a Generic Stackup ...");
+            ZPlannerManager.StatusMenu.SetStatus("Creating Generic Stackup ...");
 
-            ZPlannerManager.Commands.IsIgnoreCommands = true;
+            ZPlannerManager.Commands.SuspendCommandEvent();
 
             bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
@@ -2708,14 +3091,13 @@ namespace ZZero.ZPlanner
             }
             finally
             {
-                ZPlannerManager.ResumeUpdateActiveStackupEvent();
+                ZPlannerManager.ResumeUpdateActiveStackupEvent();            
+                UpdateActiveStackup();
+                ZPlannerManager.Commands.Clear();
             }
 
             ZPlannerManager.StatusMenu.SetStatusReady();
             ZPlannerManager.MessagePanel.AddMessage(Project.Stackup.GetMetallLayerCount() + " layer Stackup was created.");
-            
-            UpdateActiveStackup();
-            ZPlannerManager.Commands.Clear();
         }
 
         internal static void WriteSettings()
@@ -2758,6 +3140,7 @@ namespace ZZero.ZPlanner
 
         internal static void CreateDefaultLayout()
         {
+            ContainerPanel.MainDockPanel.SuspendLayout(true);
             ZPlannerManager.StartPanel.Show(ContainerPanel.MainDockPanel);
             //ZPlannerManager.FXSandboxPanel.Show();
             //ZPlannerManager.FXSandboxPanel.Hide();
@@ -2776,6 +3159,7 @@ namespace ZZero.ZPlanner
 
             ZPlannerManager.ShowDRCPanel();
             ZPlannerManager.DRCPanel.Hide();
+            ContainerPanel.MainDockPanel.ResumeLayout(true, true);
         }
 
         internal static bool OpenLastLayout()
@@ -2975,12 +3359,6 @@ namespace ZZero.ZPlanner
             return false;
         }
 
-        internal static bool IsUserHaveAccessToTapestryImport()
-        {
-            if (ZPlannerManager.rights != null) return (ZPlannerManager.rights.AllowTapestry);
-            return false;
-        }
-
         internal static ZLibraryCategory GetMeterialCategoryByUser()
         {
             switch (ZPlannerManager.rights.maxRole)
@@ -3028,6 +3406,7 @@ namespace ZZero.ZPlanner
                     return "N2";
                 case ZStringConstants.ParameterIDBulkRes:
                     return "G";
+                case ZStringConstants.ParameterIDDielectricConstant:
                 case ZStringConstants.ParameterIDZo_DielectricConstant:
                 case ZStringConstants.ParameterIDZdiff_DielectricConstant:
                 case ZStringConstants.DMLParameterIDDk_1GHz:
@@ -3037,6 +3416,7 @@ namespace ZZero.ZPlanner
                 case ZStringConstants.DMLParameterIDDk_10GHz:
                 case ZStringConstants.DMLParameterIDDk_20GHz:
                     return "N" + Settings.Options.TheOptions.dkDigits;
+                case ZStringConstants.ParameterIDLossTangent:
                 case ZStringConstants.ParameterIDZo_LossTangent:
                 case ZStringConstants.ParameterIDZdiff_LossTangent:
                 case ZStringConstants.DMLParameterIDDf_1GHz:
@@ -3207,6 +3587,18 @@ namespace ZZero.ZPlanner
             DMLPanel.SetCurrentFilterAndSort(filterString, sortString);
         }
 
+        public static DateTime GetDMLSyncDate()
+        {
+            string localLibraryPath = ZSettings.DMLFile;
+
+            if (File.Exists(localLibraryPath))
+            {
+                return File.GetLastWriteTimeUtc(localLibraryPath);
+            }
+
+            return DateTime.MinValue;
+        }
+
         public static bool SyncronizeDML(bool isSilently)
         {
             if (!rights.AllowDmlUpdate) return false;
@@ -3216,6 +3608,7 @@ namespace ZZero.ZPlanner
             if (String.IsNullOrEmpty(localLibraryPath)) return false;
             string networkLibraryPath = ZSettings.DMLNetworkFile;
 
+            AddInitDialogMessage("Checking for the new dielectric material library ...");
             if (File.Exists(localLibraryPath))
             {
                 DateTime localLibraryModifiedDate = File.GetLastWriteTimeUtc(localLibraryPath);
@@ -3267,7 +3660,8 @@ namespace ZZero.ZPlanner
 
             if (dlg.DialogResult != DialogResult.OK) return false;
 
-            ZPlannerManager.StatusMenu.StartProgress("Z-zero Dielectric Material Library updating ...", true); 
+            ZPlannerManager.StatusMenu.StartProgress("Z-zero Dielectric Material Library updating ...", true);
+            AddInitDialogMessage("Updating dielectric material library ...");
             using (var httpClient = new HttpClient())
             {
                 using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, httpURL))
@@ -3275,11 +3669,16 @@ namespace ZZero.ZPlanner
                     if (File.Exists(localPath)) File.Copy(localPath, localPath + ".backup", true);
                     try
                     {
-                        using (Stream contentStream = (httpClient.SendAsync(request).Result).Content.ReadAsStreamAsync().Result,
+                        using (Stream contentStream = GetContentStream(httpClient, request), //(httpClient.SendAsync(request).Result).Content.ReadAsStreamAsync().Result,
                             stream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None))
                         {
+                            //contentStream.CopyToAsync(stream);
+                            Task task = contentStream.CopyToAsync(stream); //DownloadHttpFileAsync(contentStream, stream);
+                            while (!task.IsCompleted && !task.IsCanceled && !task.IsFaulted)
+                            {
+                                StatusMenu.UpdateProgress();
+                            }
 
-                            contentStream.CopyToAsync(stream);
                             MessagePanel.AddMessage("Z-zero dielectric material library was successfully updated.");
                             return true;
                         }
@@ -3292,15 +3691,39 @@ namespace ZZero.ZPlanner
                     }
                     finally
                     {
-                        ZPlannerManager.StatusMenu.StopProgress("Z-zero dielectric material library updating ..."); 
+                        ZPlannerManager.StatusMenu.StopProgress("Z-zero Dielectric Material Library updating ..."); 
                     }
                 }
             }
         }
 
+        private static async Task DownloadHttpFileAsync(Stream contentStream, Stream stream)
+        {
+            await contentStream.CopyToAsync(stream);
+        }
+
+        private static Stream GetContentStream(HttpClient httpClient, HttpRequestMessage request)
+        {
+            Task<HttpResponseMessage> httpRespTask = httpClient.SendAsync(request);
+
+            while (!httpRespTask.IsCompleted && !httpRespTask.IsCanceled && !httpRespTask.IsFaulted)
+            {
+                StatusMenu.UpdateProgress();
+            }
+
+            Task<Stream> streamTask = httpRespTask.Result.Content.ReadAsStreamAsync();
+
+            while (!streamTask.IsCompleted && !streamTask.IsCanceled && !streamTask.IsFaulted)
+            {
+                StatusMenu.UpdateProgress();
+            }
+
+            return streamTask.Result;
+        }
+
         public static void ReloadDML()
         {
-            ZPlannerManager.StatusMenu.StartProgress("Syncronize Z-zero library.", true);
+            ZPlannerManager.StatusMenu.StartProgress("Syncronize Z-zero library...", true);
             bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
             ZPlannerManager.SuspendCollectionChangedEvent();
 
@@ -3335,7 +3758,7 @@ namespace ZZero.ZPlanner
             {
                 ZPlannerManager.ResumeCollectionChangedEvent();
                 ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
-                ZPlannerManager.StatusMenu.StopProgress("Syncronize Z-zero library.");
+                ZPlannerManager.StatusMenu.StopProgress("Syncronize Z-zero library...");
             }
         }
 
@@ -3648,6 +4071,8 @@ namespace ZZero.ZPlanner
                     ShowHeaders(Options.TheOptions.enabledIsHeadersVisible);
                     ShowDisabledCells(Options.TheOptions.enabledIsColorDisabledCells);
                 }
+
+                SetKeepImportedPressedThickness(IsKeepImportedPressedThickness);
             }
             finally
             {
@@ -3718,6 +4143,90 @@ namespace ZZero.ZPlanner
             CalculateSequentialLaminationParams(out x, out n);
 
             return (x > 0);
+        }
+        
+        internal static bool CompareAsDouble(string sValue1, string sValue2, double precision)
+        {
+            double dValue1, dValue2;
+            sValue1 = sValue1.Replace("%", "").Trim();
+            sValue2 = sValue2.Replace("%", "").Trim();
+
+            return (double.TryParse(sValue1, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue1) &&
+                double.TryParse(sValue2, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue2) &&
+                Math.Abs(dValue1 - dValue2) <= precision);
+        }
+
+        internal static bool CompareAsTable(string sValue1, string sValue2, double precision)
+        {
+            double dValue1, dValue2;
+            sValue1 = sValue1.Trim();
+            if (sValue1 == sValue2.Trim()) return true;
+            if (!double.TryParse(sValue1, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue1)) return false;
+
+            string[] sValue2Array = sValue2.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (sValue2Array.Length == 0) return false;
+
+            if (sValue2Array.Length == 1) return (double.TryParse(sValue2, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue2) && Math.Abs(dValue1 - dValue2) <= precision);
+
+            double dValue2A, dValue2B;
+            string[] sValue2AArray = sValue2Array[0].Split(new char[]{':'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] sValue2BArray = sValue2Array[sValue2Array.Length - 1].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (((sValue2AArray.Length == 2) && Double.TryParse(sValue2AArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out dValue2A))
+                && ((sValue2BArray.Length == 2) && Double.TryParse(sValue2BArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out dValue2B)))
+            {
+                if (dValue2A > dValue2B) return (dValue1 >= dValue2B - precision && dValue1 <= dValue2A + precision);
+                else return (dValue1 >= dValue2A - precision && dValue1 <= dValue2B + precision);
+            }
+
+            return false;
+        }
+
+        internal static bool CompareAsThickness(string sValue1, string sValue2, double precision, bool bCore)
+        {
+            double dValue1, dValue2;
+            if (double.TryParse(sValue1, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue1) && 
+                double.TryParse(sValue2, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue2))
+            {
+                if (bCore)
+                {
+                    return Math.Abs(dValue2 - dValue1) <= precision;
+                }
+                else //just check that unpressed thickness is reasonably greater than pressed
+                {
+                    return ((dValue2 > 1.0 * dValue1) && (dValue2 < 1.5 * dValue1));
+                }
+            }
+            return false;
+        }
+
+        internal static string GetCopperFoilString(string baseValue)
+        {
+            string returnValue = "";
+
+            if (baseValue.Contains("HTE"))
+            {
+                returnValue = "HTE";
+            }
+            else if (baseValue.Contains("RTF"))
+            {
+                returnValue = "RTF";
+            }
+            else if (baseValue.Contains("VLP"))
+            {
+                returnValue = "VLP";
+                if (baseValue.Contains("VLP-2") || baseValue.Contains("VLP 2") || baseValue.Contains("VLP2"))
+                {
+                    returnValue = "VLP2";
+                }
+                else if (baseValue.Contains("HVLP") || baseValue.Contains("H-VLP"))
+                {
+                    returnValue = "HVLP";
+                }
+            }
+
+            return returnValue;
         }
     }
 }

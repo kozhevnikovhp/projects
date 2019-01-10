@@ -9,7 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Commands;
+using ZZero.ZPlanner.Data.Entities;
 using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.UI.Dialogs
 {
@@ -17,6 +19,8 @@ namespace ZZero.ZPlanner.UI.Dialogs
     {
         int xSequentialLamination = 0;
         int nSequentialLamination = 0;
+        bool isRestoredOnImport = false;
+
         public PressedThicknessDialog()
         {
             InitializeComponent();
@@ -24,8 +28,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
             //
             string format = "N" + Options.TheOptions.percentDigits;
 
-            rbPrepregPercent.Checked = !ZPlannerManager.Project.Stackup.ByCopperCoverage;
-            rbPrepregProportional.Checked = ZPlannerManager.Project.Stackup.ByCopperCoverage;
+            isRestoredOnImport = ZPlannerManager.Project.Stackup.CopperCoverageType == Data.Entities.ZCopperCoverageType.RestoredOnImport;
+            rbPrepregPercent.Checked = ZPlannerManager.Project.Stackup.CopperCoverageType == Data.Entities.ZCopperCoverageType.PrepregPercent;
+            rbPrepregProportional.Checked = ZPlannerManager.Project.Stackup.CopperCoverageType == Data.Entities.ZCopperCoverageType.PrepregProportional;
+            rbPrepregManual.Checked = ZPlannerManager.Project.Stackup.CopperCoverageType == Data.Entities.ZCopperCoverageType.ManuallyEntered || isRestoredOnImport;
+
             tbSignal_Signal.Text = ZPlannerManager.Project.Stackup.ForSignalSignal.ToString(format, CultureInfo.InvariantCulture);
             tbSignal_Mixed.Text = ZPlannerManager.Project.Stackup.ForSignalMixed.ToString(format, CultureInfo.InvariantCulture);
             tbSignal_Plane.Text = ZPlannerManager.Project.Stackup.ForSignalPlane.ToString(format, CultureInfo.InvariantCulture);
@@ -38,9 +45,12 @@ namespace ZZero.ZPlanner.UI.Dialogs
             tbForPlane.Text = ZPlannerManager.Project.Stackup.ForPlane.ToString(format, CultureInfo.InvariantCulture);
 
             rbPrepregPercent_CheckedChanged(rbPrepregPercent, EventArgs.Empty);
+            rbPrepregProportional_CheckedChanged(rbPrepregProportional, EventArgs.Empty);
 
             cbShowPressedThickness.Checked = ZPlannerManager.IsPressedThickness;
             cbSequentialLamination.Checked = ZPlannerManager.IsSequentialLamination;
+            cbKeepImportedPressedThickness.Enabled = ZPlannerManager.IsImported;
+            cbKeepImportedPressedThickness.Checked = cbKeepImportedPressedThickness.Enabled && ZPlannerManager.IsKeepImportedPressedThickness;
             checkBoxUpdateSettings.Checked = false;
             
             ZPlannerManager.CalculateSequentialLaminationParams(out xSequentialLamination, out nSequentialLamination);
@@ -50,7 +60,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void DisplaySequentialLamination(int x, int n)
         {
-            lSequentialLamination.Text = string.Format("This stackup (a {0}-{1}-{0} stackup) uses sequential lamination \n" + "with {0} build-up layers added after the \n" + "first lamination pass involving {1} layers.", x, n);
+            lSequentialLamination.Text = string.Format("This stackup uses sequential lamination, with {0} build-up layers added after the first lamination pass involving {1} layers. (A {0}-{1}-{0} stackup.)", x, n);
         }
 
         public bool isShowPressedThickness
@@ -69,6 +79,14 @@ namespace ZZero.ZPlanner.UI.Dialogs
             }
         }
 
+        public bool isKeepImportedPressedThickness
+        {
+            get
+            {
+                return cbKeepImportedPressedThickness.Checked;
+            }
+        }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
             bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
@@ -81,11 +99,16 @@ namespace ZZero.ZPlanner.UI.Dialogs
             oldStructure.IsSequentialLamination = ZPlannerManager.IsSequentialLamination;
             newStructure.IsSequentialLamination = cbSequentialLamination.Checked;
 
+            oldStructure.IsKeepImportedPressedThickness = ZPlannerManager.IsKeepImportedPressedThickness;
+            newStructure.IsKeepImportedPressedThickness = cbKeepImportedPressedThickness.Checked;
+
             //save data
+            //string format = ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent);
             oldStructure.ForSignal = ZPlannerManager.Project.Stackup.ForSignal;
             double val = 0;
             if (Double.TryParse(tbForSignal.Text, out val))
             {
+                //if (ZPlannerManager.Project.Stackup.ForSignal != val) ZPlannerManager.Project.Stackup.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, ZPlannerManager.Project.Stackup.ForSignal.ToString(format, CultureInfo.InvariantCulture), val.ToString(format, CultureInfo.InvariantCulture));
                 ZPlannerManager.Project.Stackup.ForSignal = val;
                 if (checkBoxUpdateSettings.Checked) Options.TheOptions.forSignal = val;
             }
@@ -94,6 +117,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             oldStructure.ForMixed = ZPlannerManager.Project.Stackup.ForMixed;
             if (Double.TryParse(tbForMixed.Text, out val))
             {
+                //if (ZPlannerManager.Project.Stackup.ForMixed != val) ZPlannerManager.Project.Stackup.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, ZPlannerManager.Project.Stackup.ForMixed.ToString(format, CultureInfo.InvariantCulture), val.ToString(format, CultureInfo.InvariantCulture));
                 ZPlannerManager.Project.Stackup.ForMixed = val;
                 if (checkBoxUpdateSettings.Checked) Options.TheOptions.forMixed = val;
             }
@@ -102,6 +126,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             oldStructure.ForPlane = ZPlannerManager.Project.Stackup.ForPlane;
             if (Double.TryParse(tbForPlane.Text, out val))
             {
+                //if (ZPlannerManager.Project.Stackup.ForPlane != val) ZPlannerManager.Project.Stackup.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, ZPlannerManager.Project.Stackup.ForPlane.ToString(format, CultureInfo.InvariantCulture), val.ToString(format, CultureInfo.InvariantCulture));
                 ZPlannerManager.Project.Stackup.ForPlane = val;
                 if (checkBoxUpdateSettings.Checked) Options.TheOptions.forPlane = val;
             }
@@ -155,10 +180,12 @@ namespace ZZero.ZPlanner.UI.Dialogs
             }
             newStructure.ForPlanePlane = ZPlannerManager.Project.Stackup.ForPlanePlane;
 
-            oldStructure.ByCopperCoverage = ZPlannerManager.Project.Stackup.ByCopperCoverage;
-            ZPlannerManager.Project.Stackup.ByCopperCoverage = rbPrepregProportional.Checked;
+            oldStructure.CopperCoverageType = ZPlannerManager.Project.Stackup.CopperCoverageType;
+            ZPlannerManager.Project.Stackup.CopperCoverageType = (rbPrepregManual.Checked)
+                ? ((isRestoredOnImport) ? ZCopperCoverageType.RestoredOnImport : ZCopperCoverageType.ManuallyEntered)
+                : ((rbPrepregProportional.Checked) ? ZCopperCoverageType.PrepregProportional : ZCopperCoverageType.PrepregPercent);
             if (checkBoxUpdateSettings.Checked) Options.TheOptions.ByCopperCoverage = rbPrepregProportional.Checked;
-            newStructure.ByCopperCoverage = ZPlannerManager.Project.Stackup.ByCopperCoverage;
+            newStructure.CopperCoverageType = ZPlannerManager.Project.Stackup.CopperCoverageType;
 
             ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
             if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeStackupPressedThicknessCommand(ZPlannerManager.Project.Stackup, oldStructure, newStructure);
@@ -189,10 +216,14 @@ namespace ZZero.ZPlanner.UI.Dialogs
             tbMixed_Mixed.Enabled = rbPrepregPercent.Checked;
             tbMixed_Plane.Enabled = rbPrepregPercent.Checked;
             tbPlane_Plane.Enabled = rbPrepregPercent.Checked;
+        }
 
-            tbForSignal.Enabled = !rbPrepregPercent.Checked;
-            tbForMixed.Enabled = !rbPrepregPercent.Checked;
-            tbForPlane.Enabled = !rbPrepregPercent.Checked;
+        private void rbPrepregProportional_CheckedChanged(object sender, EventArgs e)
+        {
+            tbForSignal.Enabled = rbPrepregProportional.Checked;
+            tbForMixed.Enabled = rbPrepregProportional.Checked;
+            tbForPlane.Enabled = rbPrepregProportional.Checked;
+
         }
 
         private void cbShowPressedThickness_CheckedChanged(object sender, EventArgs e)

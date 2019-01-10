@@ -23,16 +23,19 @@ namespace ZZero.ZPlanner.Commands
             switch(propertyName)
             {
                 case "IsRoughness":
-                    ZPlannerManager.IsRoughness = (bool)oldValue;
+                    ZPlannerManager.SetCopperRoughness((bool)oldValue);
                     break;
                 case "IsTrapezoidalTraces":
-                    ZPlannerManager.IsTrapezoidalTraces = (bool)oldValue;
+                    ZPlannerManager.SetTrapezoidalTraces((bool)oldValue);
                     break;
                 case "IsPressedThickness":
-                    ZPlannerManager.IsPressedThickness = (bool)oldValue;
+                    ZPlannerManager.SetPressedThickness((bool)oldValue);
                     break;
                 case "IsSequentialLamination":
-                    ZPlannerManager.IsSequentialLamination = (bool)oldValue;
+                    ZPlannerManager.SetSequentialLamination((bool)oldValue);
+                    break;
+                case "IsKeepImportedPressedThickness":
+                    ZPlannerManager.SetKeepImportedPressedThickness((bool)oldValue);
                     break;
                 case "IsGlassPitch":
                     ZPlannerManager.IsGlassPitch = (bool)oldValue;
@@ -51,13 +54,19 @@ namespace ZZero.ZPlanner.Commands
             switch (propertyName)
             {
                 case "IsRoughness":
-                    ZPlannerManager.IsRoughness = (bool)newValue;
+                    ZPlannerManager.SetCopperRoughness((bool)newValue);
                     break;
                 case "IsTrapezoidalTraces":
-                    ZPlannerManager.IsTrapezoidalTraces = (bool)newValue;
+                    ZPlannerManager.SetTrapezoidalTraces((bool)newValue);
                     break;
                 case "IsPressedThickness":
-                    ZPlannerManager.IsPressedThickness = (bool)newValue;
+                    ZPlannerManager.SetPressedThickness((bool)newValue);
+                    break;
+                case "IsSequentialLamination":
+                    ZPlannerManager.SetSequentialLamination((bool)newValue);
+                    break;
+                case "IsKeepImportedPressedThickness":
+                    ZPlannerManager.SetKeepImportedPressedThickness((bool)newValue);
                     break;
                 case "IsGlassPitch":
                     ZPlannerManager.IsGlassPitch = (bool)newValue;

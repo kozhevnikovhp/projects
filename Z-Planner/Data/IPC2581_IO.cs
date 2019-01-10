@@ -11,6 +11,8 @@ using ZZero.ZPlanner.UI;
 using ZZero.ZPlanner.UI.Dialogs;
 using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.ZConfiguration;
+using System.Linq;
+using System.Collections.Specialized;
 
 //design units = MILIMETER, MICRON, INCH
 namespace ZZero.ZPlanner.Translators
@@ -127,7 +129,7 @@ namespace ZZero.ZPlanner.Translators
         public string layerFunction = "";
     }
 //
-    class IPC_Parser
+    class IPC_Parser : IImport
     {
         private string ipcNamespace = "http://webstds.ipc.org/2581";
         private string InputFile;
@@ -144,25 +146,49 @@ namespace ZZero.ZPlanner.Translators
         private cProperty propData = null;  //current prop
 
         private List<cLayer> layers = new List<cLayer>();
-        private cLayer layerData = null;    
+        private cLayer layerData = null;
+        private bool bPressedThickness;
+        private ZLibraryCategory[] libraryPriorityArray;
 
-        public IPC_Parser(string file)
+        public IPC_Parser(string file, bool bPressed = true, ZLibraryCategory[] libraryPriority = null)
         {
             InputFile = file;
+            bPressedThickness = bPressed;
+            libraryPriorityArray = libraryPriority;
+        }
+
+        public bool Convert()
+        {
+            ZPlannerManager.StatusMenu.UpdateProgress();
+            return true;
+        }
+
+        public bool IsValidFile()
+        {
+            return (Path.GetExtension(InputFile).ToUpper() == ".XML" && File.Exists(InputFile));
         }
 
         public bool Import()
         {
+            ZPlannerManager.StatusMenu.UpdateProgress();
             //turn off event handlers
             ZPlannerManager.SuspendFSHandlers();
 
             XDocument xDoc = XDocument.Load(InputFile);
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
             Parse(xDoc);
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
             CreateStackup();
 
             //turn on event handlers
             ZPlannerManager.ResumeFSHandlers();
-
+            ZPlannerManager.Project.Stackup.Singles.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            ZPlannerManager.Project.Stackup.Pairs.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            ZPlannerManager.Project.Stackup.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             return true;
         }
 
@@ -186,25 +212,135 @@ namespace ZZero.ZPlanner.Translators
 
             foreach (ZParameter parameter in project.GetDefaultParameters())
             {
+                if (parameter.ID == ZStringConstants.ParameterIDFoilTreatment)
+                    parameter.IsHidden = false;
+
                 project.Parameters.Add(parameter);
                 if (parameter.SubParameters != null && parameter.SubParameters.Count > 0) project.SubParameters.AddRange(parameter.SubParameters);
             }
 
-            stackup.ActivePair = stackup.Pairs[0];
+            int iLastParameter = project.Parameters.Count - 1;
+            int order = project.Parameters[iLastParameter].Order;
 
-            // parse file
-            InitStackup(stackup);
+            stackup.ActivePair = stackup.Pairs[0];
 
             project.Stackup = stackup;
             ZPlannerManager.Project = project;
 
-            CopperThicknessDialog dlg = new CopperThicknessDialog(stackup);
-            dlg.ShowDialog();
-            //if (dlg.DialogResult == DialogResult.OK) ;
+            // parse file
+            InitStackup(stackup);
+
+            //remove ActiveSingle
+            if (stackup.Singles.Count > 1)
+            {
+                stackup.Singles.RemoveAt(0);
+                stackup.ActiveSingle = stackup.Singles[0];
+            }
+
+            //remove ActivePair
+            if (stackup.Pairs.Count > 1)
+            {
+                stackup.Pairs.RemoveAt(0);
+                stackup.ActivePair = stackup.Pairs[0];
+            }
+
+            SortImpedances(stackup);
+            UpdateUsed(stackup);
+
+            if (bPressedThickness)
+            {
+                stackup.IsKeepImportedPressedThickness = true;
+            }
+            //CopperThicknessDialog dlg = new CopperThicknessDialog(stackup);
+            //dlg.ShowDialog();
+            ////if (dlg.DialogResult == DialogResult.OK) ;
+            ZPlannerManager.Project.Stackup.CopperCoverageType = ZCopperCoverageType.ManuallyEntered;
 
             //ui
             ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
             ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
+        }
+
+        void UpdateUsed(ZStackup stackup)
+        {
+            /*ParameterIDZo_IsUsed = "Zo_IsUsed";
+        public const string ParameterIDZdiff_IsUsed = "Zdiff_IsUsed";
+            */
+            foreach (ZSingle single in stackup.Singles)
+            {
+                foreach (ZLayer singleLayer in single.Layers)
+                {
+                    switch (singleLayer.GetLayerType())
+                    {
+                        case ZLayerType.Signal:
+                        case ZLayerType.SplitMixed:
+                            string Zo = singleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Zo);
+                            if (!string.IsNullOrEmpty(Zo))
+                            {
+                                singleLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed, "true");
+                            }
+                            else
+                            {
+                                singleLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed, "false");
+                            }
+                            break;
+                    }
+                }
+            }
+
+            foreach (ZPair pair in stackup.Pairs)
+            {
+                foreach (ZLayer pairLayer in pair.Layers)
+                {
+                    switch (pairLayer.GetLayerType())
+                    {
+                        case ZLayerType.Signal:
+                        case ZLayerType.SplitMixed:
+                            //ZLayer baseLayer = stackup.GetLayerOfStackup(pairLayer.ID);
+                            //string aname = baseLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName);
+                            string Zo = pairLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Zdiff);
+                            if (!string.IsNullOrEmpty(Zo))
+                            {
+                                pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed, "true");
+                            }
+                            else
+                            {
+                                pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed, "false");
+                            }
+                            break;
+                    }
+                }
+            }
+
+        }
+
+
+        private void SortImpedances(ZStackup stackup)
+        {
+            char[] sep = { '~', ' ' };
+            foreach (ZSingle s in stackup.Singles)
+            {
+                string[] x = s.Title.Split(sep);
+                x = x.Where(w => !string.IsNullOrEmpty(w)).ToArray();
+
+                double z;
+                if ((x.Length == 3) && Double.TryParse(x[1], out z)){
+                    s.ImpedanceTarget = z;
+                }
+            }
+            foreach (ZPair s in stackup.Pairs)
+            {
+                string[] x = s.Title.Split(sep);
+                x = x.Where(w => !string.IsNullOrEmpty(w)).ToArray();
+
+                double z;
+                if ((x.Length == 3) && Double.TryParse(x[1], out z)){
+                    s.ImpedanceTarget = z;
+                }
+            }
+
+            stackup.Singles.Sort((x, y) => x.ImpedanceTarget.CompareTo(y.ImpedanceTarget));
+            stackup.Pairs.Sort((x, y) => x.ImpedanceTarget.CompareTo(y.ImpedanceTarget));
         }
 
         void InitStackup(ZStackup stackup)
@@ -220,9 +356,11 @@ namespace ZZero.ZPlanner.Translators
 
             foreach (cLayer lay in layers)
             {
-                //parameters map
-                Dictionary<string, string> parMap = new Dictionary<string, string>();
-                
+                //parameters maps
+                Dictionary<string, Dictionary<string, string>> allParMap = new Dictionary<string, Dictionary<string, string>>();
+                Dictionary<string, string> layerParMap = new Dictionary<string, string>();
+                allParMap.Add("layer", layerParMap);
+
                 //type
                 ZLayerType zType = ZLayerType.Signal;
                 switch (lay.layerFunction)
@@ -236,9 +374,26 @@ namespace ZZero.ZPlanner.Translators
                     default: break; //throw exception..
                 }
 
-                parMap.Add(ZStringConstants.ParameterIDLayerName, lay.name);
+                layerParMap.Add(ZStringConstants.ParameterIDLayerName, lay.name);
                 double th = lay.thickness * lenCoef;
-                parMap.Add(ZStringConstants.ParameterIDThickness, th.ToString());
+
+                if (zType == ZLayerType.Prepreg)
+                {
+                    if (bPressedThickness)
+                    {
+                        layerParMap.Add(ZStringConstants.ParameterIDPrepregThickness, th.ToString());
+                        layerParMap.Add(ZStringConstants.ParameterIDFabricatorThickness, th.ToString());
+                    }
+                    else
+                    {
+                        layerParMap.Add(ZStringConstants.ParameterIDOriginThickness, th.ToString());
+                        layerParMap.Add(ZStringConstants.ParameterIDThickness, th.ToString());
+                    }
+                }
+                else
+                {
+                    layerParMap.Add(ZStringConstants.ParameterIDThickness, th.ToString());
+                }
                 //params from spec
                 if (lay.spec != null)//just in case spec wasn't defined
                 {
@@ -260,7 +415,15 @@ namespace ZZero.ZPlanner.Translators
                                         }
                                     }
                                     //parMap.Add(ZStringConstants.ParameterIDDescription, description);
-                                    parMap.Add(ZStringConstants.ParameterIDMaterial, description);
+                                    layerParMap.Add(ZStringConstants.ParameterIDMaterial, description);
+                                }
+                                else if (group.type == "OTHER" && group.comment == "COMMENTS")
+                                {
+                                    cProperty p = group.props[0];
+                                    if (p.text.Length > 0)
+                                    {
+                                        layerParMap.Add(ZStringConstants.ParameterIDComments, p.text);
+                                    }
                                 }
                                 break;
                             case "Conductor":  //CONDUCTIVITY,SURFACE_ROUGHNESS_UPFACING, SURFACE_ROUGHNESS_DOWNFACING,
@@ -298,10 +461,10 @@ namespace ZZero.ZPlanner.Translators
                                                 {
                                                     switch (p.unit)
                                                     {
-                                                        //MM,INCH,MICRO
-                                                        case "INCH": coef = Units.InchToMils; break;
-                                                        case "MM": coef = Units.MilimeterToMils; break;
-                                                        case "MICRO": coef = Units.MicronToMils; break;
+                                                        //MM,INCH,MICRO - convert to Microns
+                                                        case "INCH": coef = 1000*Units.MilToMicrons; break;
+                                                        case "MM": coef = 1000; break;
+                                                        case "MICRO": coef = 1; break;
                                                     }
                                                 }
                                                 if (p.refUnit.Length > 0)
@@ -316,11 +479,11 @@ namespace ZZero.ZPlanner.Translators
                                                 double v = p.value * coef;
                                                 if (group.type == "SURFACE_ROUGHNESS_UPFACING")
                                                 {
-                                                    parMap.Add(ZStringConstants.ParameterIDRoughTop, v.ToString());
+                                                    layerParMap.Add(ZStringConstants.ParameterIDRoughTop, v.ToString());
                                                 }
                                                 else
                                                 {
-                                                    parMap.Add(ZStringConstants.ParameterIDRoughBottom, v.ToString());
+                                                    layerParMap.Add(ZStringConstants.ParameterIDRoughBottom, v.ToString());
                                                 }
                                             }
                                         }
@@ -331,11 +494,34 @@ namespace ZZero.ZPlanner.Translators
                                             cProperty p = group.props[0];
                                             if (p.type == "value")
                                             {
-                                                parMap.Add(ZStringConstants.ParameterIDEtchFactor, p.value.ToString());
+                                                layerParMap.Add(ZStringConstants.ParameterIDEtchFactor, p.value.ToString());
                                             }
                                         }
                                         break;
                                     case "FINISHED_HEIGHT": break;
+                                    case "OTHER":
+                                        switch (group.comment)
+                                        {
+                                            case "COPPER_PERCENT":
+                                            {
+                                                cProperty p = group.props[0];
+                                                layerParMap.Add(ZStringConstants.ParameterIDCopperPercent, p.value.ToString());
+                                            }
+                                            break;
+                                            case "COPPER_FOIL":
+                                            {
+                                                cProperty p = group.props[0];
+                                                layerParMap.Add(ZStringConstants.ParameterIDFoilTreatment, ZPlannerManager.GetCopperFoilString(p.text));
+                                            }
+                                            break;
+                                            case "COPPER_WEIGHT":
+                                            {
+                                                cProperty p = group.props[0];
+                                                layerParMap.Add(ZStringConstants.ParameterIDCopperThickness, p.text);
+                                            }
+                                            break;
+                                        }
+                                        break;
                                 }
 
                                 break;
@@ -343,34 +529,93 @@ namespace ZZero.ZPlanner.Translators
                                 //PROCESSABILITY_TEMPERATURE,OTHER
                                 switch (group.type)
                                 {
-                                    case "DIELECTRIC_CONSTANT":
-                                        foreach (cProperty p in group.props)//Dk(f)
+                                    case "OTHER":
+                                        switch (group.comment)
                                         {
-                                            //we currently have 1 value
-                                            parMap.Add(ZStringConstants.ParameterIDZo_DielectricConstant, p.value.ToString());
-                                            break;
+                                            case "THICKNESS":
+                                                cProperty p = group.props[0];
+                                                layerParMap.Add(ZStringConstants.ParameterIDOriginThickness, (p.value * Units.InchToMils).ToString());
+                                                break;
+                                        }
+                                        break;
+                                    case "DIELECTRIC_CONSTANT":
+                                        {
+                                            cProperty p1 = group.props[0];
+                                            if (group.comment.Length == 0)
+                                            {
+                                                //we currently have 1 value
+                                                layerParMap.Add(ZStringConstants.ParameterIDDielectricConstant, p1.value.ToString());
+                                            }
+                                            else //single-ended or diff Dk
+                                            {
+                                                string impName = group.comment;
+                                                Dictionary<string, string> impMap = null;
+                                                if (allParMap.ContainsKey(impName))
+                                                {
+                                                    impMap = allParMap[impName];
+                                                }
+                                                else
+                                                {
+                                                    impMap = new Dictionary<string, string>();
+                                                    allParMap.Add(impName, impMap);
+                                                }
+                                                if (impName.Contains("Zdiff"))
+                                                {
+                                                    impMap.Add(ZStringConstants.ParameterIDZdiff_DielectricConstant, p1.value.ToString());
+                                                }
+                                                else
+                                                {
+                                                    impMap.Add(ZStringConstants.ParameterIDZo_DielectricConstant, p1.value.ToString());
+                                                }
+                                            }
+                                            
                                         }
                                         break;
                                     case "LOSS_TANGENT":
-                                        foreach (cProperty p in group.props)//Dk(f)
                                         {
-                                            //we currently have 1 value
-                                            parMap.Add(ZStringConstants.ParameterIDZo_LossTangent, p.value.ToString());
-                                            break;
+                                            cProperty p1 = group.props[0];
+                                            if (group.comment.Length == 0)
+                                            {
+                                                //we currently have 1 value
+                                                layerParMap.Add(ZStringConstants.ParameterIDLossTangent, p1.value.ToString());
+                                            }
+                                            else
+                                            {
+                                                string impName = group.comment;
+                                                Dictionary<string, string> impMap = null;
+                                                if (allParMap.ContainsKey(impName))
+                                                {
+                                                    impMap = allParMap[impName];
+                                                }
+                                                else
+                                                {
+                                                    impMap = new Dictionary<string, string>();
+                                                    allParMap.Add(impName, impMap);
+                                                }
+                                                if (impName.Contains("Zdiff"))
+                                                {
+                                                    impMap.Add(ZStringConstants.ParameterIDZdiff_LossTangent, p1.value.ToString());
+                                                }
+                                                else
+                                                {
+                                                    impMap.Add(ZStringConstants.ParameterIDZo_LossTangent, p1.value.ToString());
+                                                }
+                                            }
                                         }
                                         break;
                                     case "GLASS_TYPE": break;
                                     case "GLASS_STYLE":
                                         {
                                             cProperty p1 = group.props[0];
-                                            parMap.Add(ZStringConstants.ParameterIDConstruction, p1.text);
+                                            layerParMap.Add(ZStringConstants.ParameterIDConstruction, p1.text);
                                         }
                                         break;
                                     case "RESIN_CONTENT":
                                         {
                                             cProperty p1 = group.props[0];
-                                            parMap.Add(ZStringConstants.ParameterIDResinContent, p1.value.ToString());
-                                        } break;
+                                            layerParMap.Add(ZStringConstants.ParameterIDResinContent, p1.value.ToString());
+                                        } 
+                                        break;
                                     case "PROCESSABILITY_TEMPERATURE": break;
                                 }
                                 break;
@@ -380,6 +625,16 @@ namespace ZZero.ZPlanner.Translators
                                 //COPLANAR_WAVEGUIDE_STRIPLINE,COPLANAR_WAVEGUIDE_EMBEDDED, COPLANAR_WAVEGUIDE_NO_MASK, 
                                 //COPLANAR_WAVEGUIDE_MASK_COVERED, COPLANAR_WAVEGUIDE_DUAL_MASK_COVERED
                                 //transmission - SINGLE_ENDED, EDGE_COUPLED, BROADSIDE_COUPLED, OTHER
+                                string impGroup = group.comment;
+                                Dictionary<string, string> impParMap = null;
+                                if (allParMap.ContainsKey(impGroup))
+                                {
+                                    impParMap = allParMap[impGroup];
+                                }
+                                else {
+                                    impParMap = new Dictionary<string, string>();
+                                    allParMap.Add(impGroup, impParMap);
+                                }
                                 switch (group.transmission)
                                 {
                                     case "SINGLE_ENDED":
@@ -391,11 +646,11 @@ namespace ZZero.ZPlanner.Translators
                                                     cProperty p1 = group.props[0];//in Ohms
                                                     if (group.transmission == "SINGLE_ENDED")
                                                     {
-                                                        parMap.Add(ZStringConstants.ParameterIDZo_Zo, p1.value.ToString());
+                                                        impParMap.Add(ZStringConstants.ParameterIDZo_Zo, p1.value.ToString());
                                                     }
                                                     else if (group.transmission == "EDGE_COUPLED")
                                                     {
-                                                        parMap.Add(ZStringConstants.ParameterIDZdiff_Zdiff, p1.value.ToString());
+                                                        impParMap.Add(ZStringConstants.ParameterIDZdiff_Zdiff, p1.value.ToString());
                                                     }
                                                 } break;
                                             case "LINEWIDTH":
@@ -417,11 +672,11 @@ namespace ZZero.ZPlanner.Translators
                                                         double v = p.value * coef;
                                                         if (group.transmission == "SINGLE_ENDED")
                                                         {
-                                                            parMap.Add(ZStringConstants.ParameterIDZo_TraceWidth, v.ToString());
+                                                            impParMap.Add(ZStringConstants.ParameterIDZo_TraceWidth, v.ToString());
                                                         }
                                                         else if (group.transmission == "EDGE_COUPLED")
                                                         {
-                                                            parMap.Add(ZStringConstants.ParameterIDZdiff_TraceWidth, v.ToString());
+                                                            impParMap.Add(ZStringConstants.ParameterIDZdiff_TraceWidth, v.ToString());
                                                         }
                                                     }
                                                 }
@@ -445,12 +700,39 @@ namespace ZZero.ZPlanner.Translators
                                                         double v = p.value * coef;
                                                         if (group.transmission == "EDGE_COUPLED")
                                                         {
-                                                            parMap.Add(ZStringConstants.ParameterIDZdiff_TraceSpacing, v.ToString());
+                                                            impParMap.Add(ZStringConstants.ParameterIDZdiff_TraceSpacing, v.ToString());
                                                         }
                                                     }
                                                 }
                                                 break;
-                                            case "REF_PLANE_LAYER_ID": break;
+                                            case "REF_PLANE_LAYER_ID":
+                                                cProperty pRef1 = group.props[0];
+                                                cProperty pRef2 = group.props[1];
+
+                                                string ref1 = pRef1.text;
+                                                string ref2 = pRef2.text;
+                                                if (ref1.Length > 0) {
+                                                    if (group.transmission == "SINGLE_ENDED")
+                                                    {
+                                                        impParMap.Add(ZStringConstants.ParameterIDZo_TopReference, ref1);
+                                                    }
+                                                    else if (group.transmission == "EDGE_COUPLED")
+                                                    {
+                                                        impParMap.Add(ZStringConstants.ParameterIDZdiff_TopReference, ref1);
+                                                    }
+                                                }
+                                                if (ref2.Length > 0)
+                                                {
+                                                    if (group.transmission == "SINGLE_ENDED")
+                                                    {
+                                                        impParMap.Add(ZStringConstants.ParameterIDZo_BottomReference, ref2);
+                                                    }
+                                                    else if (group.transmission == "EDGE_COUPLED")
+                                                    {
+                                                        impParMap.Add(ZStringConstants.ParameterIDZdiff_BottomReference, ref2);
+                                                    }
+                                                }
+                                                break;
                                         }
                                         break;
                                 }
@@ -462,25 +744,55 @@ namespace ZZero.ZPlanner.Translators
                 // create layer
                 string layerID = stackup.AddLayer(zType);
                 ZLayer zLayer = stackup.GetLayerOfStackup(layerID);
-                //set actual parameters
-                foreach (KeyValuePair<string, string> kvp in parMap)
-                {
-                    ZLayerParameter layerParameter = zLayer.GetLayerParameter(kvp.Key);
-                    if (layerParameter != null) layerParameter.SetEditedValue(kvp.Value);
-                }
 
-                zLayer = stackup.ActiveSingle.GetLayerOfSingleImpedance(layerID);
-                foreach (KeyValuePair<string, string> kvp in parMap)
+                foreach (KeyValuePair<string, Dictionary<string,string>> kvp in allParMap)
                 {
-                    ZLayerParameter layerParameter = zLayer.GetLayerParameter(kvp.Key);
-                    if (layerParameter != null) layerParameter.SetEditedValue(kvp.Value);
-                }
+                    string key = kvp.Key;
+                    Dictionary<string, string> parMap = kvp.Value;
 
-                zLayer = stackup.GetLayerOfPairImpedance(layerID, stackup.ActivePair.ID);
-                foreach (KeyValuePair<string, string> kvp in parMap)
-                {
-                    ZLayerParameter layerParameter = zLayer.GetLayerParameter(kvp.Key);
-                    if (layerParameter != null) layerParameter.SetEditedValue(kvp.Value);
+                    if (key == "layer")
+                    {
+                        foreach (KeyValuePair<string, string> kvp1 in parMap)
+                        {
+                            ZLayerParameter layerParameter = zLayer.GetLayerParameter(kvp1.Key);
+                            if (layerParameter != null) layerParameter.SetEditedValue(kvp1.Value);
+                        }
+                    }
+                    else if (key.Contains("Zdiff"))
+                    {
+                        ZPair pair = stackup.Pairs.Find(x => x.Title == key);
+                        if (pair == null)
+                        {
+                            pair = new ZPair(stackup);
+                            pair.Title = key;
+                            stackup.Pairs.Add(pair);
+                        }
+
+                        ZLayer zDiffLayer = pair.GetLayerOfPairImpedance(layerID);
+                        foreach (KeyValuePair<string, string> kvp1 in parMap)
+                        {
+                            ZLayerParameter layerParameter = zDiffLayer.GetLayerParameter(kvp1.Key);
+                            if (layerParameter != null) layerParameter.SetEditedValue(kvp1.Value);
+                        }
+                    }
+                    else if (key.Contains("Zo"))
+                    {
+                        ZSingle single = stackup.Singles.Find(x => x.Title == key);
+                        if (single == null)
+                        {
+                            single = new ZSingle(stackup);
+                            single.Title = key;
+                            stackup.Singles.Add(single);
+                        }
+
+                        ZLayer zSingleLayer = single.GetLayerOfSingleImpedance(layerID);
+                        foreach (KeyValuePair<string, string> kvp1 in parMap)
+                        {
+                            ZLayerParameter layerParameter = zSingleLayer.GetLayerParameter(kvp1.Key);
+                            if (layerParameter != null) layerParameter.SetEditedValue(kvp1.Value);
+                        }
+
+                    }
                 }
             }
         }
@@ -570,13 +882,29 @@ namespace ZZero.ZPlanner.Translators
             //attributes
             XAttribute a = group.Attribute("type");
             if (a!=null) groupData.type = a.Value;
-            if (groupName == "Impedance") { 
-                a = group.Attribute("structure");
-                if (a != null) groupData.structure = a.Value;
-                a = group.Attribute("transmission");
-                if (a != null) groupData.transmission = a.Value;
+            switch (groupName)
+            {
+                case "Impedance":
+                    a = group.Attribute("structure");
+                    if (a != null) groupData.structure = a.Value;
+                    a = group.Attribute("transmission");
+                    if (a != null) groupData.transmission = a.Value;
+                    a = group.Attribute("comment");
+                    if (a != null) groupData.comment = a.Value;
+                    break;
+                case "General":
+                    a = group.Attribute("comment");
+                    if (a != null) groupData.comment = a.Value;
+                    break;
+                case "Conductor":
+                    a = group.Attribute("comment");
+                    if (a != null) groupData.comment = a.Value;
+                    break;
+                case "Dielectric":
+                    a = group.Attribute("comment");
+                    if (a != null) groupData.comment = a.Value;
+                    break;
             }
-
             //properties
             IEnumerable<XElement> props = group.Elements();
             foreach (XElement z in props)
@@ -600,7 +928,7 @@ namespace ZZero.ZPlanner.Translators
             a = prop.Attribute("text");
             if (a != null) propData.text = a.Value;
             a = prop.Attribute("value");
-            if (a != null) propData.value = Double.Parse(a.Value);
+            if (a != null) Double.TryParse(a.Value, out propData.value);
             a = prop.Attribute("unit");
             if (a != null) propData.unit = a.Value;
             a = prop.Attribute("refUnit");
@@ -608,9 +936,9 @@ namespace ZZero.ZPlanner.Translators
             a = prop.Attribute("tolPercent");
             if (a != null) propData.tolPrecent = a.Value == "TRUE" ? true : false;
             a = prop.Attribute("minusTol");
-            if (a != null) propData.tolMinus = Double.Parse(a.Value);
+            if (a != null) Double.TryParse(a.Value, out propData.tolMinus);
             a = prop.Attribute("plusTol");
-            if (a != null) propData.tolPlus = Double.Parse(a.Value);
+            if (a != null) Double.TryParse(a.Value, out propData.tolPlus);
             a = prop.Attribute("layerOrGroupRef");
             if (a != null) propData.layerOrGroupRef = a.Value;
         }
@@ -658,7 +986,7 @@ namespace ZZero.ZPlanner.Translators
             //--a = stackup.Attribute("tolMinus");
             //--a = stackup.Attribute("tolPlus");
             a = stackup.Attribute("overallThickness");//!total thickness
-            if (a != null) totalThickness = Double.Parse(a.Value);
+            if (a != null) Double.TryParse(a.Value, out totalThickness);
 
             //get stackup group
             XElement group = null;
@@ -687,7 +1015,7 @@ namespace ZZero.ZPlanner.Translators
                 int seqId = -1;
                 if (a != null)
                 {
-                    seqId = Int16.Parse(a.Value);
+                    Int32.TryParse(a.Value, out seqId);
                     if (seqId < 2 || seqId > layers.Count) seqId = -1; //valid ids start with 2
                 }
 
@@ -1059,13 +1387,12 @@ namespace ZZero.ZPlanner.Translators
 
         private string Spec(ZLayer zl, int iLay)
         {
-            ZLayer singleEnded = stackup.ActiveSingle.GetLayerOfSingleImpedance(zl.ID);
-            ZLayer diffPair = stackup.GetLayerOfPairImpedance(zl.ID, stackup.ActivePair.ID);
-
             string materialName = zl.GetLayerParameterValue(ZStringConstants.ParameterIDMaterial);
 
             string name = "SPEC_" + layNames[iLay];
             string s = "<Spec name=\"" + name + "\">" + Environment.NewLine;
+
+        //----- General layer properties ------
             string dielType = "";
             switch (zl.GetLayerType())
             {
@@ -1079,7 +1406,6 @@ namespace ZZero.ZPlanner.Translators
                     dielType = "Mask";
                     break;
             }
-
             s += "<General type=\"MATERIAL\">" + Environment.NewLine;
             s += "<Property text=\"" + materialName + "\"/>" + Environment.NewLine;
             s += "</General>" + Environment.NewLine;
@@ -1095,19 +1421,31 @@ namespace ZZero.ZPlanner.Translators
                 s += "<Property text=\"" + dielType + "\"/>" + Environment.NewLine;
             }
             s += "</General>" + Environment.NewLine;
-            
+
+            string comments = zl.GetLayerParameterValue(ZStringConstants.ParameterIDComments);
+            if (comments.Length > 0)
+            {
+                s += "<General type=\"OTHER\" comment=\"" + "COMMENTS\">" + Environment.NewLine;
+                s += "<Property text=\"" + comments + "\"/>" + Environment.NewLine;
+                s += "</General>" + Environment.NewLine;
+            }
+
             switch (zl.GetLayerType())
             {
                 case ZLayerType.Core:
                 case ZLayerType.Prepreg:
                 case ZLayerType.SolderMask:
-                    string dk = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
+                    //common Dk,Df
+                    string dk = zl.GetLayerParameterValue(ZStringConstants.ParameterIDDielectricConstant);
                     double dk_dbl = 0;
                     ZPlannerManager.GetFirstValueFromTable(dk, out dk_dbl);
 
-                    string df = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
+                    string df = zl.GetLayerParameterValue(ZStringConstants.ParameterIDLossTangent);
                     double df_dbl = 0;
                     ZPlannerManager.GetFirstValueFromTable(df, out df_dbl);
+
+                    double t = 0;
+                    Double.TryParse(zl.GetLayerParameterValue(ZStringConstants.ParameterIDOriginThickness), out t);
 
                     s += "<Dielectric type=\"DIELECTRIC_CONSTANT\">" + Environment.NewLine;
                     s += "<Property value=\"" + dk_dbl.ToString() + "\"/>" + Environment.NewLine;
@@ -1116,37 +1454,37 @@ namespace ZZero.ZPlanner.Translators
                     s += "<Dielectric type=\"LOSS_TANGENT\">" + Environment.NewLine;
                     s += "<Property value=\"" + df_dbl.ToString() + "\"/>" + Environment.NewLine;
                     s += "</Dielectric>" + Environment.NewLine;
+
+                    if (zl.GetLayerType() != ZLayerType.SolderMask)
+                    {
+                        string construction = zl.GetLayerParameterValue(ZStringConstants.ParameterIDConstruction);
+                        string resin = zl.GetLayerParameterValue(ZStringConstants.ParameterIDResinContent);
+
+                        s += "<Dielectric type=\"GLASS_STYLE\">" + Environment.NewLine;
+                        s += "<Property text=\"" + construction + "\"/>" + Environment.NewLine;
+                        s += "</Dielectric>" + Environment.NewLine;
+                        
+                        s += "<Dielectric type=\"RESIN_CONTENT\">" + Environment.NewLine;
+                        s += "<Property value=\"" + resin + "\" unit=\"PERCENT\"/>" + Environment.NewLine;
+                        s += "</Dielectric>" + Environment.NewLine;
+
+                        s += "<Dielectric type=\"OTHER\" comment=\"THICKNESS\">" + Environment.NewLine;
+                        s += "<Property value=\"" + (t*Units.MilsToInch).ToString() + "\" unit=\"INCH\"/>" + Environment.NewLine;
+                        s += "</Dielectric>" + Environment.NewLine;
+                    }
                     break;
                 case ZLayerType.Signal:
+                case ZLayerType.Plane:
                 case ZLayerType.SplitMixed:
-                    //--ZLayer singleEnded = stackup.GetLayerOfSingleImpedance(zl.ID);
-                    //--ZLayer diffPair = stackup.GetLayerOfPairImpedance(zl.ID, stackup.ActivePair.ID);
-
+                    //roughness
                     double dVal = 0;
-                    string wSingle = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_TraceWidth);
-                    wSingle = Double.TryParse(wSingle, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
-
-                    string zSingle = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Zo);
-                    zSingle = Double.TryParse(zSingle, out dVal) ? dVal.ToString("N2") : "";
-
-                    string wDiff = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceWidth);
-                    wDiff = Double.TryParse(wDiff, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
-
-                    string sDiff = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceSpacing);
-                    sDiff = Double.TryParse(sDiff, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
-
-                    string zDiff = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Zdiff);
-                    zDiff = Double.TryParse(zDiff, out dVal) ? (dVal).ToString("N2") : "";
-
                     string rTop = zl.GetLayerParameterValue(ZStringConstants.ParameterIDRoughTop);
                     if (string.IsNullOrWhiteSpace(rTop)) rTop = zl.GetLayerParameterValue(ZStringConstants.ParameterIDCalcRoughTop);
-                    rTop = Double.TryParse(rTop, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
+                    rTop = Double.TryParse(rTop, out dVal) ? dVal.ToString() : "";
 
                     string rBot = zl.GetLayerParameterValue(ZStringConstants.ParameterIDRoughBottom);
                     if (string.IsNullOrWhiteSpace(rBot)) rBot = zl.GetLayerParameterValue(ZStringConstants.ParameterIDCalcRoughBottom);
-                    rBot = Double.TryParse(rBot, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
-
-                    string structure = Structure(zl, iLay);
+                    rBot = Double.TryParse(rBot, out dVal) ? dVal.ToString() : "";
 
                     s += "<Conductor type=\"SURFACE_ROUGHNESS_UPFACING\">" + Environment.NewLine;
                     s += "<Property value=\"" + rTop + "\" unit=\"MICRON\" refUnit=\"RZ\"/>" + Environment.NewLine;
@@ -1155,25 +1493,166 @@ namespace ZZero.ZPlanner.Translators
                     s += "<Property value=\"" + rBot + "\" unit=\"MICRON\" refUnit=\"RZ\"/>" + Environment.NewLine;
                     s += "</Conductor>" + Environment.NewLine;
 
-                    s += "<Impedance type=\"IMPEDANCE\" transmission=\"SINGLE_ENDED\" structure=\"" + structure + "\">" + Environment.NewLine;
-                    s += "<Property value=\"" + zSingle + "\" unit=\"OHM\"/>" + Environment.NewLine;
-                    s += "</Impedance>" + Environment.NewLine;
-                    s += "<Impedance type=\"LINEWIDTH\" transmission=\"SINGLE_ENDED\" structure=\"" + structure + "\">" + Environment.NewLine;
-                    s += "<Property value=\"" + wSingle + "\" unit=\"INCH\"/>" + Environment.NewLine;
-                    s += "</Impedance>" + Environment.NewLine;
-
-                    s += "<Impedance type=\"IMPEDANCE\" transmission=\"EDGE_COUPLED\" structure=\"" + structure + "\">" + Environment.NewLine;
-                    s += "<Property value=\"" + zDiff + "\" unit=\"OHM\" tolPercent=\"TRUE\" />" + Environment.NewLine;
-                    s += "</Impedance>" + Environment.NewLine;
-                    s += "<Impedance type=\"LINEWIDTH\" transmission=\"EDGE_COUPLED\" structure=\"" + structure + "\">" + Environment.NewLine;
-                    s += "<Property value=\"" + wDiff + "\" unit=\"INCH\"/>" + Environment.NewLine;
-                    s += "</Impedance>" + Environment.NewLine;
-                    s += "<Impedance type=\"SPACING\" transmission=\"EDGE_COUPLED\" structure=\"" + structure + "\">" + Environment.NewLine;
-                    s += "<Property value=\"" + sDiff + "\" unit=\"INCH\"/>" + Environment.NewLine;
-                    s += "</Impedance>" + Environment.NewLine;
-
+                    //copper fill %
+                    string fill = zl.GetLayerParameterValue(ZStringConstants.ParameterIDCopperPercent);
+                    if (fill.Length > 0)
+                    {
+                        s += "<Conductor type=\"OTHER\" comment=\"" + "COPPER_PERCENT\">" + Environment.NewLine;
+                        s += "<Property value=\"" + fill + "\" unit=\"PERCENT\"/>" + Environment.NewLine;
+                        s += "</Conductor>" + Environment.NewLine;
+                    }
+                    //copper foil
+                    string foil = zl.GetLayerParameterValue(ZStringConstants.ParameterIDFoilTreatment);
+                    if (foil.Length > 0)
+                    {
+                        s += "<Conductor type=\"OTHER\" comment=\"" + "COPPER_FOIL\">" + Environment.NewLine;
+                        s += "<Property text=\"" + foil + "\"/>" + Environment.NewLine;
+                        s += "</Conductor>" + Environment.NewLine;
+                    }
+                    //copper weight
+                    string weight = zl.GetLayerParameterValue(ZStringConstants.ParameterIDCopperThickness);
+                    if (weight.Length > 0)
+                    {
+                        s += "<Conductor type=\"OTHER\" comment=\"" + "COPPER_WEIGHT\">" + Environment.NewLine;
+                        s += "<Property text=\"" + weight + "\" unit=\"OTHER\" comment=\"OUNCE\"/>" + Environment.NewLine;
+                        s += "</Conductor>" + Environment.NewLine;
+                    }
                     break;
             }
+
+            //---- impedance data -----
+            
+            foreach (ZSingle single in stackup.Singles){
+                string title = single.Title;
+                ZLayer singleEnded = single.GetLayerOfSingleImpedance(zl.ID);
+
+                bool bUsed = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed) == "true";
+
+                switch (singleEnded.GetLayerType())
+                {
+                    case ZLayerType.Core:
+                    case ZLayerType.Prepreg:
+                    case ZLayerType.SolderMask:
+                        //specific Dk(f), Df(f)
+                        string dk = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
+                        double dk_dbl = 0;
+                        if (ZPlannerManager.GetFirstValueFromTable(dk, out dk_dbl))
+                        {
+                            s += "<Dielectric type=\"DIELECTRIC_CONSTANT\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + dk_dbl.ToString() + "\"/>" + Environment.NewLine;
+                            s += "</Dielectric>" + Environment.NewLine;
+                        }
+
+                        string df = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
+                        double df_dbl = 0;
+                        if (ZPlannerManager.GetFirstValueFromTable(df, out df_dbl))
+                        {
+                            s += "<Dielectric type=\"LOSS_TANGENT\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + df_dbl.ToString() + "\"/>" + Environment.NewLine;
+                            s += "</Dielectric>" + Environment.NewLine;
+                        }
+                        break;
+                    case ZLayerType.Signal:
+                    case ZLayerType.SplitMixed:
+                        if (bUsed)
+                        {
+                            double dVal = 0;
+                            string wSingle = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_TraceWidth);
+                            wSingle = Double.TryParse(wSingle, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
+
+                            string zSingle = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Zo);
+                            zSingle = Double.TryParse(zSingle, out dVal) ? dVal.ToString("N2") : "";
+
+                            string ref1 = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_TopReference);
+                            string ref2 = singleEnded.GetLayerParameterValue(ZStringConstants.ParameterIDZo_BottomReference);
+
+                            string structure = Structure(zl, iLay);
+
+                            s += "<Impedance type=\"IMPEDANCE\" transmission=\"SINGLE_ENDED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + zSingle + "\" unit=\"OHM\"/>" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+                            s += "<Impedance type=\"LINEWIDTH\" transmission=\"SINGLE_ENDED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + wSingle + "\" unit=\"INCH\"/>" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+
+
+                            s += "<Impedance type=\"REF_PLANE_LAYER_ID\" transmission=\"SINGLE_ENDED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property text=\"" + ref1 + "\"/>" + Environment.NewLine;
+                            s += "<Property text=\"" + ref2 + "\"/>" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+                        }
+                        break;
+                }
+            }//single's layer
+
+            foreach (ZPair pair in stackup.Pairs)
+            {
+                ZLayer diffPair = pair.GetLayerOfPairImpedance(zl.ID);
+                string title = pair.Title;
+
+                bool bUsed = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed) == "true";
+
+                switch (zl.GetLayerType())
+                {
+                    case ZLayerType.Core:
+                    case ZLayerType.Prepreg:
+                    case ZLayerType.SolderMask:
+                        //specific Dk(f), Df(f)
+                        string dk = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_DielectricConstant);
+                        double dk_dbl = 0;
+                        ZPlannerManager.GetFirstValueFromTable(dk, out dk_dbl);
+
+                        string df = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_LossTangent);
+                        double df_dbl = 0;
+                        ZPlannerManager.GetFirstValueFromTable(df, out df_dbl);
+
+                        s += "<Dielectric type=\"DIELECTRIC_CONSTANT\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                        s += "<Property value=\"" + dk_dbl.ToString() + "\"/>" + Environment.NewLine;
+                        s += "</Dielectric>" + Environment.NewLine;
+
+                        s += "<Dielectric type=\"LOSS_TANGENT\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                        s += "<Property value=\"" + df_dbl.ToString() + "\"/>" + Environment.NewLine;
+                        s += "</Dielectric>" + Environment.NewLine;
+                        break;
+                    case ZLayerType.Signal:
+                    case ZLayerType.SplitMixed:
+                        if (bUsed)
+                        {
+                            double dVal = 0;
+
+                            string wDiff = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceWidth);
+                            wDiff = Double.TryParse(wDiff, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
+
+                            string sDiff = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceSpacing);
+                            sDiff = Double.TryParse(sDiff, out dVal) ? (dVal * Units.MilsToInch).ToString() : "";
+
+                            string zDiff = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Zdiff);
+                            zDiff = Double.TryParse(zDiff, out dVal) ? (dVal).ToString("N2") : "";
+
+                            string ref1 = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TopReference);
+                            string ref2 = diffPair.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_BottomReference);
+
+                            string structure = Structure(zl, iLay);
+
+                            s += "<Impedance type=\"IMPEDANCE\" transmission=\"EDGE_COUPLED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + zDiff + "\" unit=\"OHM\" tolPercent=\"TRUE\" />" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+                            s += "<Impedance type=\"LINEWIDTH\" transmission=\"EDGE_COUPLED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + wDiff + "\" unit=\"INCH\"/>" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+                            s += "<Impedance type=\"SPACING\" transmission=\"EDGE_COUPLED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property value=\"" + sDiff + "\" unit=\"INCH\"/>" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+
+                            s += "<Impedance type=\"REF_PLANE_LAYER_ID\" transmission=\"SINGLE_ENDED\" structure=\"" + structure + "\"" + " comment=\"" + title + "\">" + Environment.NewLine;
+                            s += "<Property text=\"" + ref1 + "\"/>" + Environment.NewLine;
+                            s += "<Property text=\"" + ref2 + "\"/>" + Environment.NewLine;
+                            s += "</Impedance>" + Environment.NewLine;
+                        }
+                        break;
+                }
+            }//pair's layer
+
 
             s += "</Spec>" + Environment.NewLine;
             return s;
@@ -1274,7 +1753,18 @@ namespace ZZero.ZPlanner.Translators
                 seq++;//starts from 2
                 string name = layNames[iLay];
                 double t = 0;
-                string layThick = Double.TryParse(zl.GetLayerParameterValue(ZStringConstants.ParameterIDThickness), out t) ?  (t*Units.MilsToInch).ToString() : "";
+                bool bThick =  false;
+                //by default we export pressed prepreg thickness
+                if (zl.GetLayerType() == ZLayerType.Prepreg)
+                {
+                    bThick = Double.TryParse(zl.GetLayerParameterValue(ZStringConstants.ParameterIDPrepregThickness), out t);
+                }
+                else
+                {
+                    bThick = Double.TryParse(zl.GetLayerParameterValue(ZStringConstants.ParameterIDThickness), out t);
+                }
+                string layThick = bThick ? (t * Units.MilsToInch).ToString() : ""; 
+
                 //string layThick = t.ToString();
                 s += "<StackupLayer layerOrGroupRef=\"" + name + "\" thickness= \"" + layThick + "\" tolPlus=\"0.0\" tolMinus=\"0.0\"" + " sequence=\"" + seq.ToString() + "\">" + Environment.NewLine;
                 s += "<SpecRef id=\"" + "SPEC_" + name + "\"/>" + Environment.NewLine;

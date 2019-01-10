@@ -123,6 +123,26 @@ namespace ZZero.ZPlanner.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Apply16 {
+            get {
+                object obj = ResourceManager.GetObject("Apply16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Apply32 {
+            get {
+                object obj = ResourceManager.GetObject("Apply32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ASC {
             get {
                 object obj = ResourceManager.GetObject("ASC", resourceCulture);
@@ -923,6 +943,26 @@ namespace ZZero.ZPlanner.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap InitBg {
+            get {
+                object obj = ResourceManager.GetObject("InitBg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap InitBg2 {
+            get {
+                object obj = ResourceManager.GetObject("InitBg2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Insert_Blank_Row_16 {
             get {
                 object obj = ResourceManager.GetObject("Insert Blank Row 16", resourceCulture);
@@ -1607,6 +1647,26 @@ namespace ZZero.ZPlanner.Properties {
             get {
                 object obj = ResourceManager.GetObject("SaveStackup", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Select_Stackup_16 {
+            get {
+                object obj = ResourceManager.GetObject("Select Stackup 16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Select_Stackup_32 {
+            get {
+                object obj = ResourceManager.GetObject("Select Stackup 32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

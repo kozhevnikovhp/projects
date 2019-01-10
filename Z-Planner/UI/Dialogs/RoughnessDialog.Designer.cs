@@ -238,7 +238,8 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(392, 556);
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(392, 525);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(82, 23);
@@ -249,7 +250,8 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(478, 556);
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.Location = new System.Drawing.Point(478, 525);
             this.btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(82, 23);
@@ -337,7 +339,7 @@
             // checkBoxUpdateSettings
             // 
             this.checkBoxUpdateSettings.AutoSize = true;
-            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(20, 527);
+            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(311, 11);
             this.checkBoxUpdateSettings.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxUpdateSettings.Name = "checkBoxUpdateSettings";
             this.checkBoxUpdateSettings.Size = new System.Drawing.Size(257, 17);
@@ -348,7 +350,7 @@
             // RoughnessDialog
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(579, 596);
+            this.ClientSize = new System.Drawing.Size(579, 565);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.checkBoxUpdateSettings);

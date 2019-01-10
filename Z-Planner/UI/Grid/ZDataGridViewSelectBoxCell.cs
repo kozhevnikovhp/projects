@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Data.Entities;
+using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.UI.Grid
 {
@@ -111,6 +112,23 @@ namespace ZZero.ZPlanner.UI.Grid
 
         protected override object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
         {
+            ZParameter parameter = this.OwningColumn.Tag as ZParameter;
+            ZLayerParameter layerParameter = Tag as ZLayerParameter;
+            ZLayerType? layerType = (layerParameter != null) ? layerParameter.Layer.GetLayerType() : null;
+
+            string isUsed = string.Empty;
+            if (parameter != null && parameter.Table == ZTableType.Single)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
+            }
+            else if (parameter != null && parameter.Table == ZTableType.Pair)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
+            }
+
+            string[] IsUsedIgnoreList = new string[] { };
+            if ((layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) && !string.IsNullOrWhiteSpace(isUsed) && isUsed.ToLower() != "true" && !IsUsedIgnoreList.Contains(this.OwningColumn.Name)) return string.Empty;
+
             return value;
         }
 

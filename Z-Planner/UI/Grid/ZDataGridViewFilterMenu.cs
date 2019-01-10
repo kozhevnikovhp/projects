@@ -609,12 +609,12 @@ namespace ZZero.ZPlanner.UI.Grid
         {
             var vals =
                 useFormatedValue ?
-                    from DataGridViewRow r in grid.Rows
-                    where r.IsNewRow == false //&& r.Visible == true
+                    from ZDataGridViewRow r in grid.Rows
+                    where r.IsNewRow == false && r.Name != ZStringConstants.EmptyMaterialID //&& r.Visible == true
                     select r.Cells[columnName].FormattedValue
                 :
-                    from DataGridViewRow r in grid.Rows
-                    where r.IsNewRow == false //&& r.Visible == true
+                    from ZDataGridViewRow r in grid.Rows
+                    where r.IsNewRow == false && r.Name != ZStringConstants.EmptyMaterialID //&& r.Visible == true
                     select r.Cells[columnName].Value;
 
             return vals.Distinct();
@@ -624,12 +624,12 @@ namespace ZZero.ZPlanner.UI.Grid
         {
             var vals =
                 useFormatedValue ?
-                    from DataGridViewRow r in grid.Rows
-                    where r.IsNewRow == false && r.Visible == true
+                    from ZDataGridViewRow r in grid.Rows
+                    where r.IsNewRow == false && r.Name != ZStringConstants.EmptyMaterialID && r.Visible == true
                     select r.Cells[columnName].FormattedValue
                 :
-                    from DataGridViewRow r in grid.Rows
-                    where r.IsNewRow == false && r.Visible == true
+                    from ZDataGridViewRow r in grid.Rows
+                    where r.IsNewRow == false && r.Name != ZStringConstants.EmptyMaterialID && r.Visible == true
                     select r.Cells[columnName].Value;
 
             return vals.Distinct();

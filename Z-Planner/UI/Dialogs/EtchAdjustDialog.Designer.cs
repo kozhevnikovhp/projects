@@ -136,7 +136,7 @@
             // checkBoxUpdateSettings
             // 
             this.checkBoxUpdateSettings.AutoSize = true;
-            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(24, 237);
+            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(339, 15);
             this.checkBoxUpdateSettings.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxUpdateSettings.Name = "checkBoxUpdateSettings";
             this.checkBoxUpdateSettings.Size = new System.Drawing.Size(257, 17);
@@ -146,9 +146,8 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(421, 274);
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(421, 233);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(82, 23);
@@ -159,9 +158,8 @@
             // 
             // btnOK
             // 
-            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(507, 274);
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.Location = new System.Drawing.Point(507, 233);
             this.btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(82, 23);
@@ -174,7 +172,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(607, 314);
+            this.ClientSize = new System.Drawing.Size(607, 273);
             this.Controls.Add(this.checkBoxUpdateSettings);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);

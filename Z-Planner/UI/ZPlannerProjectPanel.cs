@@ -215,7 +215,8 @@ namespace ZZero.ZPlanner.UI
                     ZPlannerStackupPanel stackupPanel = ZPlannerManager.StackupPanel;
                     //ZPlannerManager.ShowStackupPanel();
                     stackupPanel.Focus();
-                    stackupPanel.LoadSingle(single);
+                    //stackupPanel.LoadSingle(single);
+                    stackupPanel.Stackup.ActiveSingle = single;
                     //stackupPanel.SetReadOnlyCells();
                     //stackupPanel.FormatGridView();
                     //stackupPanel.ClearRowSelection();
@@ -228,7 +229,8 @@ namespace ZZero.ZPlanner.UI
                     ZPlannerStackupPanel stackupPanel = ZPlannerManager.StackupPanel;
                     //ZPlannerManager.ShowStackupPanel();
                     stackupPanel.Focus();
-                    stackupPanel.LoadPair(pair);
+                    //stackupPanel.LoadPair(pair);
+                    stackupPanel.Stackup.ActivePair = pair;
                     //stackupPanel.SetReadOnlyCells();
                     //stackupPanel.FormatGridView();
                     //stackupPanel.ClearRowSelection();

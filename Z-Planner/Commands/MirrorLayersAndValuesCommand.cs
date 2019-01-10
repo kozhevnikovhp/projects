@@ -23,20 +23,27 @@ namespace ZZero.ZPlanner.Commands
         {
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
             ZPlannerManager.SuspendCollectionChangedEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
 
-            // Clear Layer Selection
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
-
-            foreach (LayersCommandStructure layerStructure in layerStructureDictionary.Keys)
+            try
             {
-                currentObject.InternalReplaceLayer(layerStructure, false);
+                // Clear Layer Selection
+                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
+
+                foreach (LayersCommandStructure layerStructure in layerStructureDictionary.Keys)
+                {
+                    currentObject.InternalReplaceLayer(layerStructure, false);
+                }
             }
+            finally
+            { 
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                ZPlannerManager.ResumeCollectionChangedEvent();
+                currentObject.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
-            ZPlannerManager.ResumeCollectionChangedEvent();
-            currentObject.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
-            ZPlannerManager.MainMenu.UpdateMenu();
+                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
+                ZPlannerManager.MainMenu.UpdateMenu();
+            }
         }
 
         /// <summary>
@@ -46,20 +53,27 @@ namespace ZZero.ZPlanner.Commands
         {
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = false;
             ZPlannerManager.SuspendCollectionChangedEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
 
-            // Clear Layer Selection
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
-
-            foreach (LayersCommandStructure layerStructure in layerStructureDictionary.Keys)
+            try
             {
-                currentObject.InternalReplaceLayer(layerStructureDictionary[layerStructure], false);
+                // Clear Layer Selection
+                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
+
+                foreach (LayersCommandStructure layerStructure in layerStructureDictionary.Keys)
+                {
+                    currentObject.InternalReplaceLayer(layerStructureDictionary[layerStructure], false);
+                }
             }
+            finally
+            { 
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                ZPlannerManager.ResumeCollectionChangedEvent();
+                currentObject.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
-            ZPlannerManager.ResumeCollectionChangedEvent();
-            currentObject.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = true;
-            ZPlannerManager.MainMenu.UpdateMenu();
+                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.IsAutoMirror = true;
+                ZPlannerManager.MainMenu.UpdateMenu();            
+            }
         }
     }
 }

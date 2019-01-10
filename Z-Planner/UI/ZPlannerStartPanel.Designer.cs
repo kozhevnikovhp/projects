@@ -39,15 +39,16 @@
             this.startRibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.newStackupRibbonButton = new System.Windows.Forms.RibbonButton();
             this.stackupWizardRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.importWizardRibbonButton = new System.Windows.Forms.RibbonButton();
             this.genericStackupsRibbonButton = new System.Windows.Forms.RibbonButton();
             this.openStackupRibbonButton = new System.Windows.Forms.RibbonButton();
             this.fieldSolverRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.syncZoLibRibbonButton = new System.Windows.Forms.RibbonButton();
             this.recentRibbonMenu = new System.Windows.Forms.Ribbon();
             this.recentRibbonTab = new System.Windows.Forms.RibbonTab();
             this.recentRibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.tutorialPanel = new ZZero.ZPlanner.UI.Help.HelpTopicsPanel();
+            this.syncZoLibRibbonButton = new System.Windows.Forms.RibbonButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -189,6 +190,7 @@
             this.startRibbonPanel.ButtonMoreVisible = false;
             this.startRibbonPanel.Items.Add(this.newStackupRibbonButton);
             this.startRibbonPanel.Items.Add(this.stackupWizardRibbonButton);
+            this.startRibbonPanel.Items.Add(this.importWizardRibbonButton);
             this.startRibbonPanel.Items.Add(this.genericStackupsRibbonButton);
             this.startRibbonPanel.Items.Add(this.openStackupRibbonButton);
             this.startRibbonPanel.Items.Add(this.fieldSolverRibbonButton);
@@ -217,11 +219,22 @@
             this.stackupWizardRibbonButton.Click += new System.EventHandler(this.stackupWizardRibbonButton_Click);
             this.stackupWizardRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
+            // importWizardRibbonButton
+            // 
+            this.importWizardRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Import_32;
+            this.importWizardRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
+            this.importWizardRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Import_32;
+            this.importWizardRibbonButton.Text = "Import Stackup";
+            this.importWizardRibbonButton.ToolTip = "Import Stackup";
+            this.importWizardRibbonButton.Value = "ImportWizard";
+            this.importWizardRibbonButton.Click += new System.EventHandler(this.importWizardRibbonButton_Click);
+            this.importWizardRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
             // genericStackupsRibbonButton
             // 
             this.genericStackupsRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("genericStackupsRibbonButton.Image")));
             this.genericStackupsRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
-            this.genericStackupsRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Generic_Stackups_32;
+            this.genericStackupsRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Select_Stackup_32;
             this.genericStackupsRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.DropDown;
             this.genericStackupsRibbonButton.Text = "Generic Stackups";
             this.genericStackupsRibbonButton.ToolTip = "Generic Stackups";
@@ -250,17 +263,6 @@
             this.fieldSolverRibbonButton.Value = "FieldSolver";
             this.fieldSolverRibbonButton.Click += new System.EventHandler(this.fieldSolverRibbonButton_Click);
             this.fieldSolverRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
-            // syncZoLibRibbonButton
-            // 
-            this.syncZoLibRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("syncZoLibRibbonButton.Image")));
-            this.syncZoLibRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
-            this.syncZoLibRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Sync_Zo_Lib_32;
-            this.syncZoLibRibbonButton.Text = "Sync Zo Lib";
-            this.syncZoLibRibbonButton.ToolTip = "Sync Zo Lib";
-            this.syncZoLibRibbonButton.Value = "SyncZzeroLib";
-            this.syncZoLibRibbonButton.Click += new System.EventHandler(this.syncZoLibRibbonButton_Click);
-            this.syncZoLibRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // recentRibbonMenu
             // 
@@ -339,6 +341,17 @@
             this.tutorialPanel.Size = new System.Drawing.Size(560, 638);
             this.tutorialPanel.TabIndex = 2;
             // 
+            // syncZoLibRibbonButton
+            // 
+            this.syncZoLibRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("syncZoLibRibbonButton.Image")));
+            this.syncZoLibRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
+            this.syncZoLibRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Sync_Zo_Lib_32;
+            this.syncZoLibRibbonButton.Text = "Sync Zo Lib";
+            this.syncZoLibRibbonButton.ToolTip = "Sync Zo Lib";
+            this.syncZoLibRibbonButton.Value = "SyncZzeroLib";
+            this.syncZoLibRibbonButton.Click += new System.EventHandler(this.syncZoLibRibbonButton_Click);
+            this.syncZoLibRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
             // ZPlannerStartPanel
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -385,5 +398,6 @@
         private System.Windows.Forms.RibbonPanel recentRibbonPanel;
         private System.Windows.Forms.Label label4;
         private ZZero.ZPlanner.UI.Help.HelpTopicsPanel tutorialPanel;
+        private System.Windows.Forms.RibbonButton importWizardRibbonButton;
     }
 }

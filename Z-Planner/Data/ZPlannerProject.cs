@@ -17,6 +17,7 @@ namespace ZZero.ZPlanner.Data
             Parameters = new ZList<ZParameter>(this);
             SubParameters = new ZList<ZParameter>(this);
             Lists = new ZList<SelectList>(this);
+            Created = DateTime.Now;
             Version = 1.1F;
         }
 
@@ -28,6 +29,8 @@ namespace ZZero.ZPlanner.Data
 
         internal DateTime Created { get; set; }
         internal DateTime Edited { get; set; }
+
+        internal bool IsProtected { get; set; }
 
         internal ZStackup Stackup 
         {
@@ -356,8 +359,8 @@ namespace ZZero.ZPlanner.Data
                 System.Diagnostics.Debug.Assert(layerParameter != null, string.Format("{0} layer parameter is missing in {1}", parameterName, layer.Owner.GetType().Name));
                 if (layerParameter != null)
                 {
-                    if (isEdited) layerParameter.SetEditedValue ((!double.IsNaN(value)) ? value.ToString(ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), CultureInfo.InvariantCulture) : string.Empty);
-                    else layerParameter.Value = (!double.IsNaN(value)) ? value.ToString(ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), CultureInfo.InvariantCulture) : string.Empty;
+                    if (isEdited) layerParameter.SetEditedValue ((!double.IsNaN(value)) ? value.ToString(/*ZPlannerManager.GetFormatByParameter(layerParameter.Parameter),*/ CultureInfo.InvariantCulture) : string.Empty);
+                    else layerParameter.Value = (!double.IsNaN(value)) ? value.ToString(/*ZPlannerManager.GetFormatByParameter(layerParameter.Parameter),*/ CultureInfo.InvariantCulture) : string.Empty;
                     return true;
                 }
             }
@@ -373,8 +376,8 @@ namespace ZZero.ZPlanner.Data
                 System.Diagnostics.Debug.Assert(layerParameter != null, string.Format("{0} layer parameter is missing in {1}", parameterName, layer.Owner.GetType().Name));
                 if (layerParameter != null)
                 {
-                    if (isEdited) layerParameter.SetEditedValue(value.ToString(ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), CultureInfo.InvariantCulture));
-                    else layerParameter.Value = value.ToString(ZPlannerManager.GetFormatByParameter(layerParameter.Parameter), CultureInfo.InvariantCulture);
+                    if (isEdited) layerParameter.SetEditedValue(value.ToString(/*ZPlannerManager.GetFormatByParameter(layerParameter.Parameter),*/ CultureInfo.InvariantCulture));
+                    else layerParameter.Value = value.ToString(/*ZPlannerManager.GetFormatByParameter(layerParameter.Parameter),*/ CultureInfo.InvariantCulture);
                     return true;
                 }
             }
@@ -437,7 +440,8 @@ namespace ZZero.ZPlanner.Data
         {
             ZList<SelectList> selectLists = new ZList<SelectList>(this);
 
-            SelectList selectList = new SelectList("CopperThicknessList");
+            SelectList selectList = new SelectList(ZStringConstants.ListIDCopperThickness);
+            selectList.AddValue("3/8");
             selectList.AddValue("0.5");
             selectList.AddValue("1.0");
             selectList.AddValue("1.5");
@@ -445,9 +449,18 @@ namespace ZZero.ZPlanner.Data
             selectList.AddValue("2.5");
             selectLists.Add(selectList);
 
-            selectList = new SelectList("ViaSpanFilledList");
+            selectList = new SelectList(ZStringConstants.ListIDViaSpanFilled);
             selectList.AddValue("Resin Filled");
             selectList.AddValue("Copper Filled");
+            selectLists.Add(selectList);
+
+            selectList = new SelectList(ZStringConstants.ListIDCopperFoil);
+            selectList.AddValue("");
+            selectList.AddValue("HTE");
+            selectList.AddValue("RTF");
+            selectList.AddValue("VLP");
+            selectList.AddValue("VLP2");
+            selectList.AddValue("HVLP");
             selectLists.Add(selectList);
 
             return selectLists;
@@ -549,15 +562,34 @@ namespace ZZero.ZPlanner.Data
             parameter.Order = order++;
             parameters.Add(parameter);
 
+            parameter = new ZParameter(ZStringConstants.ParameterIDDielectricConstant);
+            parameter.Title = "Dk (f)";
+            parameter.Description = "Dielectric Constant (aka: Er; Relative Permitivity) at frequency shown.";
+            parameter.Table = ZTableType.Stackup;
+            parameter.ValueType = ZValueType.Table;
+            parameter.IsPrivate = false;
+            parameter.Width = 60;
+            parameter.Order = order++;
+            parameters.Add(parameter);
+
+            parameter = new ZParameter(ZStringConstants.ParameterIDLossTangent);
+            parameter.Title = "Df (f)";
+            parameter.Description = "Dissipation Factor (aka: Loss Tangent) at frequency shown.";
+            parameter.Table = ZTableType.Stackup;
+            parameter.ValueType = ZValueType.Table;
+            parameter.IsPrivate = false;
+            parameter.Width = 60;
+            parameter.Order = ++order;
+            parameters.Add(parameter);
+
             parameter = new ZParameter(ZStringConstants.ParameterIDCopperPercent);
-            parameter.Title = "% Copper (%)";
+            parameter.Title = "% Copper";
             parameter.Description = "% Copper coverage.";
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Percent;
             parameter.Measure = ZMeasures.Percent;
             parameter.DisplayMeasure = ZMeasures.Percent;
             parameter.DisplayFactor = 1.0;
-            parameter.IsHidden = true;
             parameter.Width = 70;
             parameter.Order = order++;
             parameters.Add(parameter);
@@ -567,10 +599,21 @@ namespace ZZero.ZPlanner.Data
             parameter.Description = "Copper Weight. (E.g., 1/2, 1, or 2 oz.)";
             parameter.Table = ZTableType.Stackup;
             parameter.ValueType = ZValueType.Select;
-            parameter.List = Lists.Find( x => x.ID == "CopperThicknessList" );
+            parameter.List = Lists.Find(x => x.ID == ZStringConstants.ListIDCopperThickness);
             parameter.Measure = ZMeasures.Oz;
             parameter.DisplayMeasure = ZMeasures.Oz;
             parameter.DisplayFactor = 1.0;
+            parameter.Width = 70;
+            parameter.Order = order++;
+            parameters.Add(parameter);
+
+            parameter = new ZParameter(ZStringConstants.ParameterIDFoilTreatment);
+            parameter.Title = "Copper Foil";
+            parameter.Description = "Specifies foil treatment process";
+            parameter.Table = ZTableType.Stackup;
+            parameter.ValueType = ZValueType.Select;
+            parameter.List = Lists.Find(x => x.ID == ZStringConstants.ListIDCopperFoil);
+            parameter.IsHidden = true;
             parameter.Width = 70;
             parameter.Order = order++;
             parameters.Add(parameter);
@@ -583,7 +626,7 @@ namespace ZZero.ZPlanner.Data
             parameter.Measure = ZMeasures.Mils;
             parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
-            parameter.IsReadOnly = true;
+            parameter.IsReadOnly = false;
             parameter.IsPrivate = true;
             parameter.Width = 60;
             parameter.Order = order++;
@@ -609,30 +652,24 @@ namespace ZZero.ZPlanner.Data
             parameter.Measure = ZMeasures.Mils;
             parameter.DisplayMeasure = ZMeasures.Mils;
             parameter.DisplayFactor = 1.0;
-            parameter.IsReadOnly = true;
+            parameter.IsReadOnly = false;
             parameter.IsPrivate = true;
             parameter.Width = 60;
             parameter.Order = order++;
             parameters.Add(parameter);
 
-            parameter = new ZParameter(ZStringConstants.ParameterIDDielectricConstant);
-            parameter.Title = "Dk (f)";
-            parameter.Description = "Dielectric Constant (aka: Er; Relative Permitivity) at frequency shown.";
+            parameter = new ZParameter(ZStringConstants.ParameterIDFabricatorThickness);
+            parameter.Title = "Fabricator Thickness (mils)";
+            parameter.Description = "Fabricator pressed thickness.";
             parameter.Table = ZTableType.Stackup;
-            parameter.ValueType = ZValueType.Table;
+            parameter.ValueType = ZValueType.Number;
+            parameter.Measure = ZMeasures.Mils;
+            parameter.DisplayMeasure = ZMeasures.Mils;
+            parameter.DisplayFactor = 1.0;
+            parameter.IsReadOnly = false;
             parameter.IsPrivate = true;
             parameter.Width = 60;
             parameter.Order = order++;
-            parameters.Add(parameter);
-
-            parameter = new ZParameter(ZStringConstants.ParameterIDLossTangent);
-            parameter.Title = "Df (f)";
-            parameter.Description = "Dissipation Factor (aka: Loss Tangent) at frequency shown.";
-            parameter.Table = ZTableType.Stackup;
-            parameter.ValueType = ZValueType.Table;
-            parameter.IsPrivate = true;
-            parameter.Width = 60;
-            parameter.Order = ++order;
             parameters.Add(parameter);
 
             parameter = new ZParameter(ZStringConstants.ParameterIDRoughTop);
@@ -998,8 +1035,8 @@ namespace ZZero.ZPlanner.Data
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZo_PropagationVelocity);
-            subparameter.Title = "Propagation Velocity (in/ns)";
-            subparameter.Description = "Propagation Velocity for signal/mixed layers.";
+            subparameter.Title = "Propagation Speed (in/ns)";
+            subparameter.Description = "Propagation Speed for signal/mixed layers.";
             subparameter.Table = ZTableType.Single;
             subparameter.ValueType = ZValueType.Number;
             subparameter.Measure = ZMeasures.In_per_Ns;
@@ -1007,12 +1044,13 @@ namespace ZZero.ZPlanner.Data
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
             subparameter.Width = 70;
+            subparameter.ParameterGroup = "Loss Planning";
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZo_PropagationDelay);
-            subparameter.Title = "Propagation Delay (ns)";
-            subparameter.Description = "Propagation Delay for signal/mixed layers.";
+            subparameter.Title = "Total Delay (ns)";
+            subparameter.Description = "Total Delay for signal/mixed layers.";
             subparameter.Table = ZTableType.Single;
             subparameter.ValueType = ZValueType.Number;
             subparameter.Measure = ZMeasures.Ns;
@@ -1020,6 +1058,7 @@ namespace ZZero.ZPlanner.Data
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
             subparameter.Width = 70;
+            subparameter.ParameterGroup = "Loss Planning";
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 
@@ -1137,6 +1176,19 @@ namespace ZZero.ZPlanner.Data
             subparameter.IsHidden = true;
             subparameter.Width = 80;
             subparameter.ParameterGroup = "Glass Pitch";
+            subparameter.Order = order++;
+            parameter.SubParameters.Add(subparameter);
+
+            subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_Target);
+            subparameter.Title = "Target Zdiff (ohms)";
+            subparameter.Description = "Target value for differential impedance.";
+            subparameter.Table = ZTableType.Pair;
+            subparameter.ValueType = ZValueType.Number;
+            subparameter.Measure = ZMeasures.Ohm;
+            subparameter.DisplayMeasure = ZMeasures.Ohm;
+            subparameter.IsPrivate = true;
+            subparameter.Width = 50;
+            subparameter.IsReadOnly = true;
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 
@@ -1304,30 +1356,32 @@ namespace ZZero.ZPlanner.Data
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_PropagationVelocity);
-            subparameter.Title = "Diff. Propagation Velocity (in/ns)";
-            subparameter.Description = "Propagation Velocity for signal/mixed layers.";
+            subparameter.Title = "Diff. Propagation Speed (in/ns)";
+            subparameter.Description = "Propagation Speed for signal/mixed layers.";
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
             subparameter.Measure = ZMeasures.In_per_Ns;
             subparameter.DisplayMeasure = ZMeasures.In_per_Ns;
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
-            subparameter.IsPrivate = true;
+            subparameter.IsPrivate = false;
             subparameter.Width = 70;
+            subparameter.ParameterGroup = "Loss Planning";
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 
             subparameter = new ZParameter(ZStringConstants.ParameterIDZdiff_PropagationDelay);
-            subparameter.Title = "Diff. Propagation Delay (ns)";
-            subparameter.Description = "Propagation Delay for signal/mixed layers.";
+            subparameter.Title = "Diff. Total Delay (ns)";
+            subparameter.Description = "Total Delay for signal/mixed layers.";
             subparameter.Table = ZTableType.Pair;
             subparameter.ValueType = ZValueType.Number;
             subparameter.Measure = ZMeasures.Ns;
             subparameter.DisplayMeasure = ZMeasures.Ns;
             subparameter.IsReadOnly = true;
             subparameter.IsHidden = true;
-            subparameter.IsPrivate = true;
+            subparameter.IsPrivate = false;
             subparameter.Width = 70;
+            subparameter.ParameterGroup = "Loss Planning";
             subparameter.Order = order++;
             parameter.SubParameters.Add(subparameter);
 

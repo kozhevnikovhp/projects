@@ -62,20 +62,21 @@
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.cbFrequency = new System.Windows.Forms.CheckBox();
-            this.cbDf = new System.Windows.Forms.CheckBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
+            this.cbFrequency = new System.Windows.Forms.CheckBox();
+            this.cbDf = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.cbLoss = new System.Windows.Forms.CheckBox();
             this.cbRz = new System.Windows.Forms.CheckBox();
             this.cbMetalThickness = new System.Windows.Forms.CheckBox();
             this.cbCopperWeight = new System.Windows.Forms.CheckBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
+            this.cbLoss = new System.Windows.Forms.CheckBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.cbSE = new System.Windows.Forms.CheckBox();
             this.cbDiff = new System.Windows.Forms.CheckBox();
+            this.cbSE = new System.Windows.Forms.CheckBox();
+            this.cbDiffZ0 = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -277,15 +278,15 @@
             this.cbNotes.Location = new System.Drawing.Point(139, 105);
             this.cbNotes.Margin = new System.Windows.Forms.Padding(2);
             this.cbNotes.Name = "cbNotes";
-            this.cbNotes.Size = new System.Drawing.Size(54, 17);
+            this.cbNotes.Size = new System.Drawing.Size(75, 17);
             this.cbNotes.TabIndex = 24;
-            this.cbNotes.Text = "Notes";
+            this.cbNotes.Text = "Comments";
             this.cbNotes.UseVisualStyleBackColor = true;
             // 
             // cbRefLayer
             // 
             this.cbRefLayer.AutoSize = true;
-            this.cbRefLayer.Location = new System.Drawing.Point(343, 144);
+            this.cbRefLayer.Location = new System.Drawing.Point(343, 158);
             this.cbRefLayer.Margin = new System.Windows.Forms.Padding(2);
             this.cbRefLayer.Name = "cbRefLayer";
             this.cbRefLayer.Size = new System.Drawing.Size(101, 17);
@@ -296,7 +297,7 @@
             // cbDiffImpedance
             // 
             this.cbDiffImpedance.AutoSize = true;
-            this.cbDiffImpedance.Location = new System.Drawing.Point(343, 123);
+            this.cbDiffImpedance.Location = new System.Drawing.Point(343, 118);
             this.cbDiffImpedance.Margin = new System.Windows.Forms.Padding(2);
             this.cbDiffImpedance.Name = "cbDiffImpedance";
             this.cbDiffImpedance.Size = new System.Drawing.Size(109, 17);
@@ -307,7 +308,7 @@
             // cbImpedance
             // 
             this.cbImpedance.AutoSize = true;
-            this.cbImpedance.Location = new System.Drawing.Point(343, 102);
+            this.cbImpedance.Location = new System.Drawing.Point(343, 98);
             this.cbImpedance.Margin = new System.Windows.Forms.Padding(2);
             this.cbImpedance.Name = "cbImpedance";
             this.cbImpedance.Size = new System.Drawing.Size(101, 17);
@@ -318,7 +319,7 @@
             // cbTraceWidth
             // 
             this.cbTraceWidth.AutoSize = true;
-            this.cbTraceWidth.Location = new System.Drawing.Point(343, 81);
+            this.cbTraceWidth.Location = new System.Drawing.Point(343, 78);
             this.cbTraceWidth.Margin = new System.Windows.Forms.Padding(2);
             this.cbTraceWidth.Name = "cbTraceWidth";
             this.cbTraceWidth.Size = new System.Drawing.Size(82, 17);
@@ -394,7 +395,7 @@
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(179, 81);
+            this.textBox1.Size = new System.Drawing.Size(179, 48);
             this.textBox1.TabIndex = 0;
             this.textBox1.TabStop = false;
             this.textBox1.Text = "Enter project-specific data here. User and company data come from the User tab in" +
@@ -451,28 +452,6 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Dielectric material data";
             // 
-            // cbFrequency
-            // 
-            this.cbFrequency.AutoSize = true;
-            this.cbFrequency.Location = new System.Drawing.Point(343, 60);
-            this.cbFrequency.Margin = new System.Windows.Forms.Padding(2);
-            this.cbFrequency.Name = "cbFrequency";
-            this.cbFrequency.Size = new System.Drawing.Size(76, 17);
-            this.cbFrequency.TabIndex = 21;
-            this.cbFrequency.Text = "Frequency";
-            this.cbFrequency.UseVisualStyleBackColor = true;
-            // 
-            // cbDf
-            // 
-            this.cbDf.AutoSize = true;
-            this.cbDf.Location = new System.Drawing.Point(343, 39);
-            this.cbDf.Margin = new System.Windows.Forms.Padding(2);
-            this.cbDf.Name = "cbDf";
-            this.cbDf.Size = new System.Drawing.Size(127, 17);
-            this.cbDf.TabIndex = 20;
-            this.cbDf.Text = "Dissipation factor (Df)";
-            this.cbDf.UseVisualStyleBackColor = true;
-            // 
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.textBox3);
@@ -497,6 +476,28 @@
     "ncy. Alternatively, a single frequency for the entire stackup can be included in" +
     " the Notes field.";
             // 
+            // cbFrequency
+            // 
+            this.cbFrequency.AutoSize = true;
+            this.cbFrequency.Location = new System.Drawing.Point(343, 58);
+            this.cbFrequency.Margin = new System.Windows.Forms.Padding(2);
+            this.cbFrequency.Name = "cbFrequency";
+            this.cbFrequency.Size = new System.Drawing.Size(76, 17);
+            this.cbFrequency.TabIndex = 21;
+            this.cbFrequency.Text = "Frequency";
+            this.cbFrequency.UseVisualStyleBackColor = true;
+            // 
+            // cbDf
+            // 
+            this.cbDf.AutoSize = true;
+            this.cbDf.Location = new System.Drawing.Point(343, 38);
+            this.cbDf.Margin = new System.Windows.Forms.Padding(2);
+            this.cbDf.Name = "cbDf";
+            this.cbDf.Size = new System.Drawing.Size(127, 17);
+            this.cbDf.TabIndex = 20;
+            this.cbDf.Text = "Dissipation factor (Df)";
+            this.cbDf.UseVisualStyleBackColor = true;
+            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.cbRz);
@@ -511,17 +512,6 @@
             this.groupBox5.TabIndex = 31;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Copper and notes";
-            // 
-            // cbLoss
-            // 
-            this.cbLoss.AutoSize = true;
-            this.cbLoss.Location = new System.Drawing.Point(343, 165);
-            this.cbLoss.Margin = new System.Windows.Forms.Padding(2);
-            this.cbLoss.Name = "cbLoss";
-            this.cbLoss.Size = new System.Drawing.Size(87, 17);
-            this.cbLoss.TabIndex = 29;
-            this.cbLoss.Text = "Insertion loss";
-            this.cbLoss.UseVisualStyleBackColor = true;
             // 
             // cbRz
             // 
@@ -581,8 +571,20 @@
     "e adjusted to accommodate changes due to resin flow around copper in PCB fabrica" +
     "tion.";
             // 
+            // cbLoss
+            // 
+            this.cbLoss.AutoSize = true;
+            this.cbLoss.Location = new System.Drawing.Point(343, 178);
+            this.cbLoss.Margin = new System.Windows.Forms.Padding(2);
+            this.cbLoss.Name = "cbLoss";
+            this.cbLoss.Size = new System.Drawing.Size(87, 17);
+            this.cbLoss.TabIndex = 29;
+            this.cbLoss.Text = "Insertion loss";
+            this.cbLoss.UseVisualStyleBackColor = true;
+            // 
             // groupBox9
             // 
+            this.groupBox9.Controls.Add(this.cbDiffZ0);
             this.groupBox9.Controls.Add(this.cbDiff);
             this.groupBox9.Controls.Add(this.cbSE);
             this.groupBox9.Controls.Add(this.cbDk);
@@ -600,6 +602,19 @@
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Impedance";
             // 
+            // cbDiff
+            // 
+            this.cbDiff.AutoSize = true;
+            this.cbDiff.Checked = true;
+            this.cbDiff.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbDiff.Location = new System.Drawing.Point(139, 42);
+            this.cbDiff.Margin = new System.Windows.Forms.Padding(2);
+            this.cbDiff.Name = "cbDiff";
+            this.cbDiff.Size = new System.Drawing.Size(111, 17);
+            this.cbDiff.TabIndex = 31;
+            this.cbDiff.Text = "Differential signals";
+            this.cbDiff.UseVisualStyleBackColor = true;
+            // 
             // cbSE
             // 
             this.cbSE.AutoSize = true;
@@ -613,18 +628,16 @@
             this.cbSE.Text = "Single-ended signals";
             this.cbSE.UseVisualStyleBackColor = true;
             // 
-            // cbDiff
+            // cbDiffZ0
             // 
-            this.cbDiff.AutoSize = true;
-            this.cbDiff.Checked = true;
-            this.cbDiff.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbDiff.Location = new System.Drawing.Point(139, 42);
-            this.cbDiff.Margin = new System.Windows.Forms.Padding(2);
-            this.cbDiff.Name = "cbDiff";
-            this.cbDiff.Size = new System.Drawing.Size(111, 17);
-            this.cbDiff.TabIndex = 31;
-            this.cbDiff.Text = "Differential signals";
-            this.cbDiff.UseVisualStyleBackColor = true;
+            this.cbDiffZ0.AutoSize = true;
+            this.cbDiffZ0.Location = new System.Drawing.Point(343, 138);
+            this.cbDiffZ0.Margin = new System.Windows.Forms.Padding(2);
+            this.cbDiffZ0.Name = "cbDiffZ0";
+            this.cbDiffZ0.Size = new System.Drawing.Size(123, 17);
+            this.cbDiffZ0.TabIndex = 32;
+            this.cbDiffZ0.Text = "Impedance (Diff. Zo)";
+            this.cbDiffZ0.UseVisualStyleBackColor = true;
             // 
             // ExcelOptionsDlg
             // 
@@ -718,5 +731,6 @@
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.CheckBox cbDiff;
         private System.Windows.Forms.CheckBox cbSE;
+        private System.Windows.Forms.CheckBox cbDiffZ0;
     }
 }

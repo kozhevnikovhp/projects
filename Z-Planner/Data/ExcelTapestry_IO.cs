@@ -14,11 +14,16 @@ using ZZero.ZPlanner.ZConfiguration;
 using System.Collections.Generic;
 using ZZero.ZPlanner.UI;
 using System.Windows.Forms;
+using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.UI.Dialogs;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Collections.Specialized;
 
 namespace ZZero.ZPlanner.Translators
 {
 
-    public class TapestryReader
+    public class TapestryReader : IImport
     {
         //properties sheet
         private const int iColPropName = 1;
@@ -75,10 +80,14 @@ namespace ZZero.ZPlanner.Translators
         
         private int iPlating;
         private double[] plating_thick;
+        private bool bPressedThickness;
+        private ZLibraryCategory[] libraryPriorityArray;
 
-        public TapestryReader(string file)
+        public TapestryReader(string file, bool bPressed = false, ZLibraryCategory[] libraryPriority = null)
         {
             fileName = file;
+            bPressedThickness = bPressed;
+            libraryPriorityArray = libraryPriority;
             skipped_rows = new HashSet<int>();
             iPlating = 0;
             plating_thick = new double[2];
@@ -87,52 +96,104 @@ namespace ZZero.ZPlanner.Translators
 
         public bool Import()
         {
-            bool bConvert = Path.GetExtension(fileName).ToUpper() == ".XLS";
-            string fileToImport = fileName;
-            if (bConvert)
-            {
-                fileToImport = Convert(fileName);
-                if (fileToImport.Length > 0)
-                {
-                    fileName = fileToImport;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
             return ImportStackup();
         }
 
-        private string Convert(string origFile)
+        public bool Convert()
         {
-            //1. convert xls to xlsx
-            string retFile = Path.ChangeExtension(origFile, ".xlsx");
+            string origFile = fileName;
+            bool retval = false;
+            bool bConvert = Path.GetExtension(origFile) == ".xls";
+            if (bConvert)
+            {
+                //1. convert xls to xlsx
+                string retFile = "";
 
+                try
+                {
+                    var application = new Microsoft.Office.Interop.Excel.Application();
+                    var workbook = application.Workbooks.Open(origFile);
+                    ZPlannerManager.StatusMenu.UpdateProgress();
+
+                    string ext = ".xlsx";
+                    XlFileFormat fmt = XlFileFormat.xlOpenXMLWorkbook;
+                    if (workbook.HasVBProject)
+                    {
+                        ext = ".xlsm";
+                        fmt = XlFileFormat.xlOpenXMLWorkbookMacroEnabled;
+                    }
+
+                    ZPlannerManager.StatusMenu.UpdateProgress();
+
+                    retFile = Path.ChangeExtension(origFile, ext);
+
+                    if (File.Exists(retFile))
+                    {
+                        File.Delete(retFile);
+                    }
+                    workbook.SaveAs(retFile, fmt);
+                    ZPlannerManager.StatusMenu.UpdateProgress();
+                    workbook.Close();
+                    fileName = retFile;
+                    retval = true;
+                }
+                catch (Exception e)
+                {
+                    //TODO: add warning dialog (no Office on PC or file is opened by another app)
+                    //MessageBox.Show(e.Message);
+                    retFile = "";
+                    retval = false;
+                    throw e;
+                }
+            }
+            else
+            {
+                fileName = origFile;
+                retval = true;
+            }
+
+            return retval;
+        }
+
+        public bool IsValidFile()
+        {
+            XLWorkbook workbook = null;
             try
             {
-                var application = new Microsoft.Office.Interop.Excel.Application();
-                var workbook = application.Workbooks.Open(origFile);
-                if (File.Exists(retFile))
+                workbook = new XLWorkbook(fileName);
+                if (!workbook.TryGetWorksheet("Layers", out ws) || !workbook.TryGetWorksheet("Properties", out wsProps)) return false;
+
+                ZPlannerManager.StatusMenu.UpdateProgress();
+                if (ws != null && wsProps != null)
                 {
-                    File.Delete(retFile);
+                    string s = wsProps.Cell(1, 1).Value.ToString();
+                    string [] words = s.Split(' ');
+                    if (words[0] == "Cisco"){
+                        return true;
+                    }
                 }
-                workbook.SaveAs(retFile, XlFileFormat.xlOpenXMLWorkbook);
-                workbook.Close();
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                //TODO: add warning dialog (no Office on PC or file is opened by another app)
-                MessageBox.Show(e.Message);
-                retFile =  "";
+                throw e;
+            }
+            finally
+            {
+                if (workbook != null) workbook.Dispose();
             }
 
-            return retFile;
+            return false;
         }
 
         public bool ImportStackup()
         {
+            if (!IsValidFile())
+            {
+                MessageBox.Show("Selected file is not a valid Tapestry file.");
+                return false;
+            }
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
             ZPlannerManager.SuspendFSHandlers();
 
             ZPlannerProject project = new ZPlannerProject();
@@ -150,6 +211,9 @@ namespace ZZero.ZPlanner.Translators
 
             foreach (ZParameter parameter in project.GetDefaultParameters())
             {
+                if (parameter.ID == ZStringConstants.ParameterIDFoilTreatment)
+                    parameter.IsHidden = false;
+
                 project.Parameters.Add(parameter);
                 if (parameter.SubParameters != null && parameter.SubParameters.Count > 0) project.SubParameters.AddRange(parameter.SubParameters);
             }
@@ -165,26 +229,47 @@ namespace ZZero.ZPlanner.Translators
             par.ValueType = ZValueType.Text;
             par.IsReadOnly = true;
             par.IsCustom = true;
+            par.IsHidden = true;
+            par.Width = 70;
+            par.Order = order++;
+            project.Parameters.Add(par);
+
+
+            par = new ZParameter(ZStringConstants.ParameterIDPlaneType);
+            par.Title = "Plane Type";
+            par.Description = "Specifies if plane is power or ground";
+            par.Table = ZTableType.Stackup;
+            par.ValueType = ZValueType.Text;
+            par.IsReadOnly = true;
+            par.IsCustom = true;
+            par.IsHidden = true;
             par.Width = 70;
             par.Order = order++;
             project.Parameters.Add(par);
             //============================================================================
 
-            // parse file
-            Translate(stackup);
-
             project.Stackup = stackup;
             ZPlannerManager.Project = project;
 
-            //--CopperThicknessDialog dlg = new CopperThicknessDialog(stackup);
-            //--dlg.ShowDialog();
-            //if (dlg.DialogResult == DialogResult.OK) ;
+            // parse file
+            Translate(stackup);
+
+            //CopperThicknessDialog dlg = new CopperThicknessDialog(stackup);
+            //dlg.ShowDialog();
+            ////if (dlg.DialogResult == DialogResult.OK) ;
+            ZPlannerManager.Project.Stackup.CopperCoverageType = ZCopperCoverageType.ManuallyEntered;
 
             //ui
             ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
             ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
 
+            ZPlannerManager.IsPressedThickness = bPressedThickness;
+            stackup.IsPressedThickness = bPressedThickness;
+
             ZPlannerManager.ResumeFSHandlers();
+            stackup.Singles.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            stackup.Pairs.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            stackup.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             return true;
 
         }
@@ -225,11 +310,13 @@ namespace ZZero.ZPlanner.Translators
                             bFirstMetal = false;
                             double w = 0;
                             ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, ref w);
+
+                            string comment = String.Format("Includes plating ({0} + {1})", w, plating_thick[0]);
+                            ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDComments, comment);
+
                             w += plating_thick[0];
                             ZLayerParameter layerParameter = zl.GetLayerParameter(ZStringConstants.ParameterIDThickness);
                             if (layerParameter != null) layerParameter.SetEditedValue(w.ToString("N2"));
-
-                            ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDComments, "Includes plating");
                         }
                     }
                 }
@@ -237,10 +324,12 @@ namespace ZZero.ZPlanner.Translators
                 {
                     double w2 = 0;
                     ZPlannerProject.GetLayerParameterValue(zLast, ZStringConstants.ParameterIDThickness, ref w2);
+                    string comment = String.Format("Includes plating ({0} + {1})", w2, plating_thick[1]);
+                    ZPlannerProject.SetLayerParameterValue(zLast, ZStringConstants.ParameterIDComments, comment);
+
                     w2 += plating_thick[1];
                     ZLayerParameter layerParameter = zLast.GetLayerParameter(ZStringConstants.ParameterIDThickness);
                     if (layerParameter != null) layerParameter.SetEditedValue(w2.ToString("N2"));
-                    ZPlannerProject.SetLayerParameterValue(zLast, ZStringConstants.ParameterIDComments, "Includes plating");
                 }
             }
         }
@@ -279,13 +368,34 @@ namespace ZZero.ZPlanner.Translators
                         freq = ParseFreq(sfreq);
                     }
                     catch { }
-                    break;
+                }
+                else if (s == "Project")
+                {
+                    string v = wsProps.Cell(i, iColPropName + 1).GetValue<string>();
+                    ExportOptions.TheOptions.ProjectName = v;
+                    if (v != null && v.Length > 0) stackup.Title = v;
+                }
+                else if (s == "Stackup Revision")
+                {
+                    string v = wsProps.Cell(i, iColPropName + 1).GetValue<string>();
+                    ExportOptions.TheOptions.DesignRevision = v;
+                }
+                else if (s == "PCB Supplier")
+                {
+                    string v = wsProps.Cell(i, iColPropName + 1).GetValue<string>();
+                    ExportOptions.TheOptions.Fabricator = v;
+                }
+                else if (s == "PCB Supplier Contact")
+                {
+                    string v = wsProps.Cell(i, iColPropName + 1).GetValue<string>();
+                    ExportOptions.TheOptions.FabContact = v;
                 }
             }
             if (freq > 0)
             {
                 stackup.Frequency = freq;
             }
+            
             return true;
         }
 
@@ -306,6 +416,8 @@ namespace ZZero.ZPlanner.Translators
                 return false;
             }
 
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
             for (int iRow = iFirstRow; iRow <= iLastUsedRow; iRow++)
             {
                 if (!isValidRow(iRow))
@@ -317,9 +429,12 @@ namespace ZZero.ZPlanner.Translators
             }
             if (iLastRow < 0) iLastRow = iLastUsedRow - 1 ;
 
+            ZPlannerManager.StatusMenu.UpdateProgress();
 
             //singles
             int iDiffPair = ReadAllSingleEnded();
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
 
             //diffpairs
             if (iDiffPair > 0)
@@ -327,13 +442,286 @@ namespace ZZero.ZPlanner.Translators
                 ReadAllDiffPairs(iDiffPair);
             }
 
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
             UpdatePlating();
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
 
             UpdateRefPlanes();
 
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
             GetProps();
 
+            MatchMaterials();
+            //if (bPressedThickness)
+            //{
+            //    RestoreUnpressedThickness();
+            //}
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
+            UpdateUsed();
+
+            SortImpedances();
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
+
             return true;
+        }
+
+        void UpdateUsed()
+        {
+            /*ParameterIDZo_IsUsed = "Zo_IsUsed";
+        public const string ParameterIDZdiff_IsUsed = "Zdiff_IsUsed";
+            */
+            foreach (ZSingle single in stackup.Singles)
+            {
+                foreach (ZLayer singleLayer in single.Layers)
+                {
+                    switch (singleLayer.GetLayerType())
+                    {
+                        case ZLayerType.Signal:
+                        case ZLayerType.SplitMixed:
+                            string Zo = singleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_Zo);
+                            if (!string.IsNullOrEmpty(Zo))
+                            {
+                                singleLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed, "true");
+                            }
+                            else
+                            {
+                                singleLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed, "false");
+                            }
+                            break;
+                    }
+                }
+            }
+
+            foreach (ZPair pair in stackup.Pairs)
+            {
+                foreach (ZLayer pairLayer in pair.Layers)
+                {
+                    switch (pairLayer.GetLayerType())
+                    {
+                        case ZLayerType.Signal:
+                        case ZLayerType.SplitMixed:
+                            //ZLayer baseLayer = stackup.GetLayerOfStackup(pairLayer.ID);
+                            //string aname = baseLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName);
+                            string Zo = pairLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Zdiff);
+                            if (!string.IsNullOrEmpty(Zo))
+                            {
+                                pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed, "true");
+                            }
+                            else
+                            {
+                                pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed, "false");
+                            }
+                            break;
+                    }
+                }
+            }
+
+        }
+
+        public class MaterialData
+        {
+            public string ID { get; set; }
+            public string H { get; set; }
+            public ZLibraryCategory Category { get; set; }
+        }
+
+
+        internal static bool CompareResin(ZMaterial m, double value, double threshold)
+        {
+            try
+            {
+                string s = m.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDResin).Value.TrimEnd('%');
+                double a = System.Convert.ToDouble(s);
+                return Math.Abs(a - value) <= threshold;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        internal static bool CompareMaterial(ZMaterial m, string mName)
+        {
+            string materialName = m.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDMaterial).Value;
+            materialName = Regex.Replace(materialName, @"[- ]", String.Empty);
+            materialName = materialName.ToUpper();
+            mName = Regex.Replace(mName, @"[- ]", String.Empty);
+            mName = mName.ToUpper();
+
+            return mName == materialName;
+        }
+
+        internal static ZLibraryCategory GetLibraryCategory(string sCat)
+        {
+            ZLibraryCategory z = ZLibraryCategory.ZZero;
+            if (ZMaterial.LibraryCategoryDictionary.ContainsKey(sCat))
+            {
+                z = ZMaterial.LibraryCategoryDictionary[sCat];
+            }
+            return z;
+        }
+
+
+        void MatchMaterials()
+        {
+            foreach (ZLayer zl in stackup.Layers)
+            {
+                switch (zl.GetLayerType())
+                {
+                    case ZLayerType.Prepreg:
+                        {
+                            if (bPressedThickness)
+                            {
+                                //ParameterIDThickness has pressed thickness
+                                //ParameterIDPrepregThickness should have it
+                                //Unpressed thickness should go to ParameterIDOrigThickness and ParameterIDThickness
+
+                                //look for material in DML and get thickness from there
+                                double pressedThickness = 0;
+                                ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, ref pressedThickness);
+                                ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, pressedThickness);
+                                ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDFabricatorThickness, pressedThickness);
+                            }
+                            DMLMatch match = new DMLMatch(libraryPriorityArray);
+                            ZMaterial m;
+                            double th = 0;
+                            if (match.MatchMaterial(zl, out m))
+                            {
+                                List<ZLayer> l = new List<ZLayer>();
+                                l.Add(zl);
+                                stackup.AssignMaterialToStackup(m, l);
+                                Double.TryParse(m.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDH).Value, out th);
+                            }
+                            else
+                            {
+                                if (bPressedThickness)
+                                {
+                                    th = stackup.RestorePrepregUnpressedThickness(zl);
+                                }
+                            }
+                            if (th > 0)
+                            {
+                                ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDOriginThickness, th);
+                                ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, th);
+                            }
+                        }
+                        break;
+                    case ZLayerType.Core:
+                        {
+                            DMLMatch match = new DMLMatch(libraryPriorityArray, true);
+                            ZMaterial m;
+                            if (match.MatchMaterial(zl, out m))
+                            {
+                                List<ZLayer> l = new List<ZLayer>();
+                                l.Add(zl);
+                                stackup.AssignMaterialToStackup(m, l);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+
+
+        void RestoreUnpressedThickness()
+        {
+            foreach (ZLayer zl in stackup.Layers)
+            {
+                if (zl.GetLayerType() == ZLayerType.Prepreg)
+                {
+                    //ParameterIDThickness has pressed thickness
+                    //ParameterIDPrepregThickness should have it
+                    //Unpressed thickness should go to ParameterIDOrigThickness and ParameterIDThickness
+
+
+                    //look for material in DML and get thickness from there
+                    double pressedThickness = 0;
+                    string construction = "";
+                    double resin = 0;
+                    string materialName = "";
+                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, ref pressedThickness);
+                    ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, pressedThickness);
+                    ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDFabricatorThickness, pressedThickness);
+
+
+                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDConstruction, ref construction);
+                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDResinContent, ref resin);
+                    ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDMaterial, ref materialName);
+
+                    List<MaterialData> mData;
+                    mData = (from material in ZPlannerManager.Dml.Materials
+                             where (
+                                    (material.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDType).Value == "Prepreg") &&
+                                    CompareMaterial(material, materialName) &&
+                                    (material.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDNormalizedConstruction).Value == construction) &&
+                                    (libraryPriorityArray.Contains(GetLibraryCategory(material.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDCategory).Value))) &&
+                                    CompareResin(material, resin, 0.01)
+                                    )
+                             select new MaterialData
+                             {
+                                 ID = material.ID,
+                                 H = material.MaterialParameters.GetByID(ZStringConstants.DMLParameterIDH).Value,//GetValue(material, ZStringConstants.DMLParameterIDH)//
+                             }).ToList();
+
+                    double th = 0;
+                    if (mData.Count > 0 && Double.TryParse(mData[0].H, out th))
+                    {
+                        mData.Sort(
+                            delegate(MaterialData m1, MaterialData m2)
+                            {
+                                int retval = 0;
+                                int p1 = Array.IndexOf(libraryPriorityArray, m1.Category);
+                                int p2 = Array.IndexOf(libraryPriorityArray, m2.Category);
+                                if (p1 > p2) retval = 1;
+                                if (p1 < p2) retval = -1;
+
+                                return retval;
+                            }
+                        );
+
+                        ZMaterial m = ZPlannerManager.Dml.Materials.Find(x => x.ID == mData[0].ID);
+                        List<ZLayer> l = new List<ZLayer>();
+                        l.Add(zl);
+                        stackup.AssignMaterialToStackup(m, l);
+                        //---ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDComments, "Unpressed thicknesses from Library.");
+                    }
+                    else
+                    {
+                        th = stackup.RestorePrepregUnpressedThickness(zl);
+                    }
+
+                    ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDOriginThickness, th);
+                    ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, th);
+                }
+            }
+        }
+
+        private void SortImpedances()
+        {
+            stackup.Singles.Sort((x, y) => x.ImpedanceTarget.CompareTo(y.ImpedanceTarget));
+            stackup.Pairs.Sort((x, y) => x.ImpedanceTarget.CompareTo(y.ImpedanceTarget));
+
+            //rename impedances to force correct order by Title
+            char[] sep = { '~', ' ' };
+            foreach (ZSingle s in stackup.Singles)
+            {
+                string[] x = s.Title.Split(sep);
+                double z;
+                if ((x.Length == 3) && Double.TryParse(x[1], out z) && (z < 100)) s.Title = x[0] + "~ " + z.ToString() + " ohms";
+            }
+            foreach (ZPair s in stackup.Pairs)
+            {
+                string[] x = s.Title.Split(sep);
+                double z;
+                if ((x.Length == 3) && Double.TryParse(x[1], out z) && (z < 100)) s.Title = x[0] + "~ " + z.ToString() + " ohms";
+            }
+
         }
 
         private bool isValidRow(int iRow)
@@ -348,11 +736,8 @@ namespace ZZero.ZPlanner.Translators
         private int ReadInt(int iRow, int colNum)
         {
             int num = 0;
-            try
-            {
-                num = ws.Cell(iRow, colNum).GetValue<int>();
-            }
-            catch { }
+            string snum = ReadString(iRow, colNum);
+            if (!Int32.TryParse(snum, out num)) num = 0;
 
             return num;
         }
@@ -360,11 +745,8 @@ namespace ZZero.ZPlanner.Translators
         private double ReadDouble(int iRow, int colNum)
         {
             double num = 0;
-            try
-            {
-                num = ws.Cell(iRow, colNum).GetValue<double>();
-            }
-            catch { }
+            string snum = ReadString(iRow, colNum);
+            if (!Double.TryParse(snum, out num)) num = 0;
 
             return num;
         }
@@ -372,11 +754,8 @@ namespace ZZero.ZPlanner.Translators
         private bool ReadBool(int iRow, int colNum)
         {
             bool num = false;
-            try
-            {
-                num = ws.Cell(iRow, colNum).GetValue<bool>();
-            }
-            catch { }
+            string snum = ReadString(iRow, colNum);
+            if (!Boolean.TryParse(snum, out num)) num = false;
 
             return num;
         }
@@ -386,7 +765,7 @@ namespace ZZero.ZPlanner.Translators
             string num = "";
             try
             {
-                num = ws.Cell(iRow, colNum).GetValue<string>();
+                num = ws.Cell(iRow, colNum).Value.ToString();//GetValue<string>();
             }
             catch { }
 
@@ -411,6 +790,7 @@ namespace ZZero.ZPlanner.Translators
             double thickness = ReadDouble(iRow, dFinishedThickness);
             double Dk = ReadDouble(iRow, dDkVendor);
             double Df = ReadDouble(iRow, dDfVendor);
+            string foilTreatment = ReadString(iRow, sFoilTreatment);
             string planeVoltage = ReadString(iRow, sPlaneVoltage);
 
             //fill in layer parameters
@@ -420,6 +800,7 @@ namespace ZZero.ZPlanner.Translators
             }
             //type
             ZLayerType? lType = null;
+            string planeType = "";
 
             if (description.Length > 0){
                 switch (description)
@@ -446,7 +827,11 @@ namespace ZZero.ZPlanner.Translators
                         lType = ZLayerType.Signal;
                         break;
                     case "G":
+                        planeType = ZStringConstants.LayerTypePlaneGround;
+                        lType = ZLayerType.Plane;
+                        break;
                     case "P":
+                        planeType = ZStringConstants.LayerTypePlanePower;
                         lType = ZLayerType.Plane;
                         break;
                 }
@@ -456,6 +841,7 @@ namespace ZZero.ZPlanner.Translators
                 //no type - return;
                 return;
             }
+
 
             if (material.Length > 0)
             {
@@ -484,11 +870,62 @@ namespace ZZero.ZPlanner.Translators
             if (cuDensity > 0)
             {
                 parMap.Add(ZStringConstants.ParameterIDCopperPercent, cuDensity.ToString());
+
+                switch (lType)
+                {
+                    case ZLayerType.Signal:
+                        stackup.ForSignal = cuDensity;
+                        break;
+                    case ZLayerType.Plane:
+                        stackup.ForPlane = cuDensity;
+                        break;
+                    case ZLayerType.SplitMixed:
+                        stackup.ForMixed = cuDensity;
+                        break;
+                }
             }
 
             if (planeVoltage.Length > 0)
             {
                 parMap.Add(ZStringConstants.ParameterIDPlaneVoltage, planeVoltage);
+            }
+
+            if (planeType.Length > 0)
+            {
+                parMap.Add(ZStringConstants.ParameterIDPlaneType, planeType);
+            }
+
+            if (foilTreatment.Length > 0)
+            {
+                //analyze the string
+                string treat = "";
+                string sval = foilTreatment;
+                if (sval.Contains("HTE"))
+                {
+                    treat = "HTE"; // 7.5;
+                }
+                else if (sval.Contains("RTF"))
+                {
+                    treat = "RTF"; // 5;
+                }
+                else if (sval.Contains("VLP"))
+                {
+                    treat = "VLP"; // 3;
+                    if (sval.Contains("VLP-2") || sval.Contains("VLP 2") || sval.Contains("VLP2"))
+                    {
+                        treat = "VLP2"; // 2;
+                    }
+                    else if (sval.Contains("HVLP"))
+                    {
+                        treat = "HVLP"; // 1;
+                    }
+                }
+
+                //
+                if (treat.Length > 0)
+                {
+                    parMap.Add(ZStringConstants.ParameterIDFoilTreatment, ZPlannerManager.GetCopperFoilString(treat));//foilTreatment);
+                }
             }
 
             if (resin.Length > 0)
@@ -585,6 +1022,16 @@ namespace ZZero.ZPlanner.Translators
             double calcZ = ReadDouble(iRow, iStartCol + dCalcZ);
 
 
+            if (targetZ > 0)
+            {
+                if (!single.Title.Contains("ohms"))
+                {
+                    string blank = targetZ < 100 ? " " : "";
+                    single.Title = "Zo~" + blank + targetZ.ToString() + " ohms";
+                    single.ImpedanceTarget = targetZ;
+                }
+            }
+
             if (Dk > 0)
             {
                 parMap.Add(ZStringConstants.ParameterIDZo_DielectricConstant, Dk.ToString());
@@ -599,9 +1046,13 @@ namespace ZZero.ZPlanner.Translators
                 parMap.Add(ZStringConstants.ParameterIDZo_Target, targetZ.ToString());
 
             }
-            if (DLW > 0)
+            if (FLW > 0)
             {
-                parMap.Add(ZStringConstants.ParameterIDZo_TraceWidth, DLW.ToString());
+                parMap.Add(ZStringConstants.ParameterIDZo_TraceWidth, FLW.ToString());
+            }
+            if (calcZ > 0)
+            {
+                parMap.Add(ZStringConstants.ParameterIDZo_Zo, calcZ.ToString());
             }
 
             
@@ -703,6 +1154,16 @@ namespace ZZero.ZPlanner.Translators
             double FLW = ReadDouble(iRow, iStartCol + dFLW_dp);
             double calcZ = ReadDouble(iRow, iStartCol + dCalcZ_dp);
 
+            if (targetZ > 0)
+            {
+                if (!pair.Title.Contains("ohms"))
+                {
+                    string blank = targetZ < 100 ? " " : "";
+                    pair.Title = "Zdiff~" + blank + targetZ.ToString() + " ohms";
+                    pair.ImpedanceTarget = targetZ;
+                }
+            }
+
             if (Dk > 0)
             {
                 parMap.Add(ZStringConstants.ParameterIDZdiff_DielectricConstant, Dk.ToString());
@@ -714,16 +1175,20 @@ namespace ZZero.ZPlanner.Translators
 
             if (targetZ > 0)
             {
-                parMap.Add(ZStringConstants.ParameterIDZo_Target, DLW.ToString());
+                parMap.Add(ZStringConstants.ParameterIDZo_Target, targetZ.ToString());
 
             }
-            if (DLW > 0)
+            if (FLW > 0)
             {
-                parMap.Add(ZStringConstants.ParameterIDZdiff_TraceWidth, DLW.ToString());
+                parMap.Add(ZStringConstants.ParameterIDZdiff_TraceWidth, FLW.ToString());
             }
             if (spacing > 0)
             {
                 parMap.Add(ZStringConstants.ParameterIDZdiff_TraceSpacing, spacing.ToString());
+            }
+            if (calcZ > 0)
+            {
+                parMap.Add(ZStringConstants.ParameterIDZdiff_Zdiff, calcZ.ToString());
             }
 
             ZLayer zLayer = pair.GetLayerOfPairImpedance(iLayIndex - 1);

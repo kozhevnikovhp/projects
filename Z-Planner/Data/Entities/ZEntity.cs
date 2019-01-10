@@ -9,13 +9,18 @@ using ZZero.ZPlanner.Commands;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 using System.Windows.Forms;
+using ZZero.ZPlanner.Translators;
+using ZZero.ZPlanner.Data.Attributes;
 
 namespace ZZero.ZPlanner.Data.Entities
 {
     enum ZValueType { Text, Number, Boolean, Select, Span, Container, Percent, Link, Ratio, Table}
     enum ZMeasures { None, In, Um, C, GHz, Mils, Percent, Oz, Db, Db_per_In, Ns, In_per_Ns, Ohm, Ohm_by_M, Gb_per_s, pS }
     enum ZLayerType {Core, Prepreg, SolderMask, Plane, Signal, SplitMixed }
-    enum ZLibraryCategory { ZZero, Corporate, Local}
+    public enum ZLibraryCategory { ZZero, Corporate, Local}
+    enum ZCopperCoverageType { ManuallyEntered, PrepregProportional, PrepregPercent, RestoredOnImport }
+
+    enum OxideAlternativeTreatmentsType {MacDermidMultiBond100LE, MacDermidEnthoneAlphaPrep, MacDermidMultiBond100ZK, AtotechBondFilm, MECetchBONDCZ8100, MacDermidMultiBond100HP}
     public enum ZTableType { Undefined, Stackup, Viaspan, Single, Pair }
 
     public interface IOrder
@@ -35,8 +40,8 @@ namespace ZZero.ZPlanner.Data.Entities
             set 
             { 
                 _id = value; 
-                string foundID = idList.Find(x => x == _id);
-                if (foundID == null) idList.Add(_id); 
+                if (!idList.Contains(_id));
+                    idList.Add(_id); 
             } 
         }
 
@@ -66,8 +71,8 @@ namespace ZZero.ZPlanner.Data.Entities
             for (uint i = 1; i < uint.MaxValue; ++i )
             {
                 newID = prefix + "_" + i;
-                string foundID = idList.Find(x => x == newID);
-                if (foundID == null) break;
+                if (!idList.Contains(newID))
+                break;
             }
 
             return newID;
@@ -89,10 +94,10 @@ namespace ZZero.ZPlanner.Data.Entities
             return newTitle;
         }
 
-        internal static List<string> IdList
+        internal static HashSet<string> IdList
         { get { return idList; } }
 
-        protected static List<string> idList = new List<string>();
+        protected static HashSet<string> idList = new HashSet<string>();
 
         public override string ToString()
         {
@@ -636,15 +641,20 @@ namespace ZZero.ZPlanner.Data.Entities
             ZMaterialParameter materialParameter = this.MaterialParameters.Find(x => x.ID == ZStringConstants.DMLParameterIDCategory);
             if (materialParameter != null)
             {
-                string sCategory = "Local";
-                switch (libCategory)
-                {
-                    case ZLibraryCategory.Local: sCategory = "Local"; break;
-                    case ZLibraryCategory.Corporate: sCategory = "Corporate"; break;
-                    case ZLibraryCategory.ZZero: sCategory = "Z-zero"; break;
-                }
-                SetMaterialParameterValue(ZStringConstants.DMLParameterIDCategory, sCategory);
+                materialParameter.Value = GetMaterialCategoryString(libCategory);
             }
+        }
+
+        public string GetMaterialCategoryString(ZLibraryCategory category)
+        {
+            switch (category)
+            {
+                case ZLibraryCategory.Local: return "Local";
+                case ZLibraryCategory.Corporate: return "Corporate";
+                case ZLibraryCategory.ZZero: return "Z-zero";
+            }
+
+            return "Local";
         }
 
         public ZLayerType? GetMaterialType()
@@ -734,7 +744,7 @@ namespace ZZero.ZPlanner.Data.Entities
                     NotifyPropertyChanged("IsEdited");
                 }
 
-                if (value && ZPlannerManager.Dml != null) ZPlannerManager.Dml.IsEdited = true;
+                if (value && !ZPlannerManager.DmlIsEmpty) ZPlannerManager.Dml.IsEdited = true;
             }
         }
 
@@ -1008,10 +1018,126 @@ namespace ZZero.ZPlanner.Data.Entities
             return layerThickness;
         }
 
+        public string GetLayerCopperCoverage(string format = null)
+        {
+            string value = string.Empty;
+            ZLayer layer = this; //Stackup.GetLayerOfStackup(ID);
+            if (layer == null) return string.Empty;
+
+            ZLayerType? layerType = layer.GetLayerType();
+            if (layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed)
+            {
+                switch (layer.Stackup.CopperCoverageType)
+                {
+                    case ZCopperCoverageType.PrepregPercent:
+                        //value = string.Empty;
+                        break;
+                    case ZCopperCoverageType.PrepregProportional:
+                        if (layerType == ZLayerType.Plane) value = Stackup.ForPlane.ToString(ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent), CultureInfo.InvariantCulture);
+                        else if (layerType == ZLayerType.Signal) value = Stackup.ForSignal.ToString(ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent), CultureInfo.InvariantCulture);
+                        else if (layerType == ZLayerType.SplitMixed) value = Stackup.ForMixed.ToString(ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent), CultureInfo.InvariantCulture);
+                        break;
+                    case ZCopperCoverageType.ManuallyEntered:
+                    case ZCopperCoverageType.RestoredOnImport:
+                        double dval;
+                        if (layer.GetLayerParameterValue(ZStringConstants.ParameterIDCopperPercent, out dval))
+                        {
+                            value = (format != null) 
+                            ? dval.ToString(format)
+                            : dval.ToString();
+                        }
+                        else
+                        {
+                            if (layerType == ZLayerType.Plane) value = Stackup.ForPlane.ToString(ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent), CultureInfo.InvariantCulture);
+                            else if (layerType == ZLayerType.Signal) value = Stackup.ForSignal.ToString(ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent), CultureInfo.InvariantCulture);
+                            else if (layerType == ZLayerType.SplitMixed) value = Stackup.ForMixed.ToString(ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent), CultureInfo.InvariantCulture);
+                        }
+                        break;
+                }
+            }
+
+            return value;
+        }
+
+        internal ZMaterial GetMaterialFromLayer()
+        {
+            ZLayer layer = Stackup.GetLayerOfStackup(this.ID);
+            if (layer == null) return null;
+
+            ZLayerType? layerType;
+            if (!layer.isDielectric(out layerType)) return null;
+
+            bool isIgnoreCommands = ZPlannerManager.Commands.SuspendCommandEvent();
+
+            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDComments });
+            ZMaterial material;
+
+            try
+            {
+                material = new ZMaterial((ZLayerType)layerType);
+                Dictionary<ZMaterialParameter, string> newValueByMaterialParameter = new Dictionary<ZMaterialParameter, string>();
+
+
+                //newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDMaterial), layer.GetLayerParameterValue(ZStringConstants.ParameterIDMaterial));
+                newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDNormalizedConstruction), layer.GetLayerParameterValue(ZStringConstants.ParameterIDConstruction));
+                string thickness = layer.GetLayerParameterValue(ZStringConstants.ParameterIDOriginThickness);
+                if (string.IsNullOrWhiteSpace(thickness)) thickness = layer.GetLayerParameterValue(ZStringConstants.ParameterIDThickness);
+                newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDH), thickness);
+                //newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDWarpYarnCount), layer.GetLayerParameterValue(ZStringConstants.ParameterIDWarpYarnCount));
+                //newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDFillYarnCount), layer.GetLayerParameterValue(ZStringConstants.ParameterIDFillYarnCount));
+                //newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDManufacturer), layer.GetLayerParameterValue(ZStringConstants.ParameterIDManufacturer));
+                newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDResin), layer.GetLayerParameterValue(ZStringConstants.ParameterIDResinContent));
+
+                newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDDk), layer.GetLayerParameterValue(ZStringConstants.ParameterIDDielectricConstant));
+                newValueByMaterialParameter.Add(material.GetMaterialParameter(ZStringConstants.DMLParameterIDDf), layer.GetLayerParameterValue(ZStringConstants.ParameterIDLossTangent));
+
+                foreach (ZMaterialParameter mParameter in material.MaterialParameters)
+                {
+                    if (layerParametersToBeIgnored.Contains(mParameter.ID)) continue;
+                    ZLayerParameter layerParameter = layer.GetLayerParameter(mParameter.ID);
+                    if (layerParameter != null && mParameter != null && !newValueByMaterialParameter.Keys.Contains(mParameter)) newValueByMaterialParameter.Add(mParameter, layerParameter.Value);
+                }
+
+                foreach (ZMaterialParameter mParameter in newValueByMaterialParameter.Keys)
+                {
+                    mParameter.Value = newValueByMaterialParameter[mParameter] ?? string.Empty;
+                }
+
+                //material.IsFiltered = !ZPlannerManager.MainMenu.IsLocalLibraryEnabled();
+            }
+            finally
+            {
+                ZPlannerManager.Commands.ResumeCommandEvent(isIgnoreCommands);
+            }
+
+            return material;
+        }
+
+        public bool isDummyCore()
+        {
+            string par = GetLayerParameterValue(ZStringConstants.ParameterIDLayerTypeDummyCore);
+            if (!string.IsNullOrWhiteSpace(par))
+            {
+                bool bval;
+                if (Boolean.TryParse(par, out bval)){
+                    return bval;
+                }
+            }
+            return false;
+        }
+
+
         public bool isMetal()
         {
+            ZLayerType? layerType;
+            return isMetal(out layerType); 
+        }
+
+        public bool isMetal(out ZLayerType? layerType)
+        {
             var metals = new List<ZLayerType?> { ZLayerType.Signal, ZLayerType.Plane, ZLayerType.SplitMixed };
-            return metals.Contains(GetLayerType()); 
+            layerType = GetLayerType();
+            return metals.Contains(layerType);
         }
 
         public bool isSignalOrMixed()
@@ -1022,8 +1148,22 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public bool isDielectric()
         {
+            ZLayerType? layerType;
+            return isDielectric(out layerType);
+        }
+
+        public bool isDielectric(out ZLayerType? layerType)
+        {
             var dielectrics = new List<ZLayerType?> { ZLayerType.Core, ZLayerType.Prepreg, ZLayerType.SolderMask };
-            return dielectrics.Contains(GetLayerType());
+            layerType = GetLayerType();
+            return dielectrics.Contains(layerType);
+        }
+
+        public bool isCoreOrPrepreg(out ZLayerType? layerType)
+        {
+            var dielectrics = new List<ZLayerType?> { ZLayerType.Core, ZLayerType.Prepreg };
+            layerType = GetLayerType();
+            return dielectrics.Contains(layerType);
         }
 
         internal bool HasValues()
@@ -1208,6 +1348,34 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
+        internal void SetDefaultLayerParameterValue(string parameterName, bool isEdited = false)
+        {
+            ZLayerType? layerType = GetLayerType();
+            ZLayerParameter layerParameter = LayerParameters.Find(x => x.ID == ZStringConstants.ParameterIDLayerType);
+            if (layerParameter != null && layerParameter.Value != null && LayerTypeDictionary.ContainsKey(layerParameter.Value))
+            {
+                layerType = LayerTypeDictionary[layerParameter.Value];
+            }
+            else
+            {
+                layerType = null;
+            }
+
+            SetDefaultLayerParameterValue(parameterName, layerType, isEdited);
+        }
+
+        internal void SetDefaultLayerParameterValue(string parameterName, ZLayerType? layerType, bool isEdited = false)
+        {
+            ZLayerParameter layerParameter = LayerParameters.Find(x => x.ID == parameterName);
+            System.Diagnostics.Debug.Assert(layerParameter != null, string.Format("{0} layer parameter is missing in {1}", parameterName, Owner.GetType().Name));
+            if (layerParameter != null)
+            {
+                string value = (layerType == null) ? string.Empty : layerParameter.GetDefaulLayerParameterValue((ZLayerType)layerType);
+                if (isEdited) layerParameter.SetEditedValue(value);
+                else layerParameter.Value = value;
+            }
+        }
+
         //calculates Dk(f), where f is the current layer frequency
         internal bool GetDk(out double val)
         {
@@ -1218,6 +1386,7 @@ namespace ZZero.ZPlanner.Data.Entities
             {
                 if (ZPlannerManager.TryParseDependedValue(layerParameter.Value, GetFrequency(), out val))
                 {
+                    if (double.IsNaN(val)) return false;
                     return true;
                 }
             }
@@ -1235,6 +1404,7 @@ namespace ZZero.ZPlanner.Data.Entities
             {
                 if (ZPlannerManager.TryParseDependedValue(layerParameter.Value, GetFrequency(), out val))
                 {
+                    if (double.IsNaN(val)) return false;
                     return true;
                 }
             }
@@ -1252,6 +1422,28 @@ namespace ZZero.ZPlanner.Data.Entities
             List<ZEntity> stackupLayerParameters = new List<ZEntity>();
             stackupLayerParameters.Add(stackupLayerParameter.Clone());
             ZPlannerManager.Clipboard.Add(ZStringConstants.ClipbordKeyStackupLayerParameters, stackupLayerParameters);
+        }
+
+        public static string GetLayerTypeString(ZLayerType? layerType)
+        {
+            if (layerType == null) return string.Empty;
+
+            return GetLayerTypeString((ZLayerType)layerType);
+        }
+
+        public static string GetLayerTypeString(ZLayerType layerType)
+        {
+            switch (layerType)
+            {
+                case ZLayerType.Core: return ZStringConstants.LayerTypeCore;
+                case ZLayerType.Prepreg: return ZStringConstants.LayerTypePrepreg;
+                case ZLayerType.SolderMask: return ZStringConstants.LayerTypeSolderMask;
+                case ZLayerType.Signal: return ZStringConstants.LayerTypeSignal;
+                case ZLayerType.SplitMixed: return ZStringConstants.LayerTypeSplitMixed;
+                case ZLayerType.Plane: return ZStringConstants.LayerTypePlane;
+            }
+
+            return string.Empty;
         }
 
         public static Dictionary<string, ZLayerType> LayerTypeDictionary = new Dictionary<string, ZLayerType>();
@@ -1439,6 +1631,13 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public bool isGround()
         {
+            //first check layer parameter
+            string stringValue = GetLayerParameterValue(ZStringConstants.ParameterIDPlaneType);
+            if (stringValue != null && stringValue.Length > 0 && stringValue == ZStringConstants.LayerTypePlaneGround)
+            {
+                return true;
+            }
+
             string[] substrings = {"GND", "GROUND"};
             string layerName = GetLayerParameterValue(ZStringConstants.ParameterIDLayerName).ToUpper();
             foreach (string substring in substrings)
@@ -1451,6 +1650,13 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public bool isPower()
         {
+            //first check layer parameter
+            string stringValue = GetLayerParameterValue(ZStringConstants.ParameterIDPlaneType);
+            if (stringValue != null && stringValue.Length > 0 && stringValue == ZStringConstants.LayerTypePlanePower)
+            {
+                return true;
+            }
+
             string[] substrings = { "VDD", "VCC", "VSS" };
             string layerName = GetLayerParameterValue(ZStringConstants.ParameterIDLayerName).ToUpper();
             foreach (string substring in substrings)
@@ -1515,11 +1721,13 @@ namespace ZZero.ZPlanner.Data.Entities
         public string Value 
         { 
             get 
-            { 
+            {
+                ZPlannerManager.StatusMenu.UpdateProgress();
                 return _value; 
             }
             set 
-            { 
+            {
+                ZPlannerManager.StatusMenu.UpdateProgress();
                 if (value != _value) 
                 {
                     //if (IsReadOnly(true)) { _value = string.Empty; return; }
@@ -1551,6 +1759,28 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public void SetEditedValue(string value)
         {
+            if (ID == ZStringConstants.ParameterIDCopperThickness && Parameter != null && Parameter.List != null)
+            {
+                value = Parameter.List.AddValue(value);
+
+                if (!ZPlannerManager.ProjectIsEmpty)
+                {
+                    SelectList listCopperThickness = ZPlannerManager.Project.Lists.Find(x => x.ID == ZStringConstants.ListIDCopperThickness);
+                    if (listCopperThickness != null) listCopperThickness.AddValue(value);
+                }
+            }
+
+            if (ID == ZStringConstants.ParameterIDFoilTreatment && Parameter != null && Parameter.List != null && !Parameter.List.GetValues().Contains(value))
+            {
+                value = Parameter.List.AddValue(value);
+
+                if (!ZPlannerManager.ProjectIsEmpty)
+                {
+                    SelectList listCopperFoil = ZPlannerManager.Project.Lists.Find(x => x.ID == ZStringConstants.ListIDCopperFoil);
+                    if (listCopperFoil != null) listCopperFoil.AddValue(value);
+                }
+            }
+
             if (value != _value)
             {
                 if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeLayerParameterValueCommand(this, _value, value, IsEdited, true);
@@ -1598,13 +1828,17 @@ namespace ZZero.ZPlanner.Data.Entities
                 case ZStringConstants.ParameterIDFillYarnCount:
                     return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || !(layerType == ZLayerType.Core || layerType == ZLayerType.Prepreg) || Layer.IsMaterialAssigned && !isIgnoreMaterialAssigned;
                 case ZStringConstants.ParameterIDCopperThickness:
-                case ZStringConstants.ParameterIDCopperPercent:
+                case ZStringConstants.ParameterIDFoilTreatment:
                 case ZStringConstants.ParameterIDPlaneReference:
                 case ZStringConstants.ParameterIDRoughTop:
                 case ZStringConstants.ParameterIDRoughBottom:
                 case ZStringConstants.ParameterIDZdiff_RoughTop:
                 case ZStringConstants.ParameterIDZdiff_RoughBottom:
                     return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || !(layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed);
+                case ZStringConstants.ParameterIDCopperPercent:
+                    return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || !((layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) && Layer.Stackup.CopperCoverageType == ZCopperCoverageType.ManuallyEntered && !ZPlannerManager.IsKeepImportedPressedThickness) && !isIgnoreCustomParameters || Layer.Stackup.CopperCoverageType == ZCopperCoverageType.RestoredOnImport;
+                case ZStringConstants.ParameterIDComments:
+                    return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter;
                 case ZStringConstants.ParameterIDZo_Frequency:
                 case ZStringConstants.ParameterIDZdiff_Frequency:
                 case ZStringConstants.ParameterIDZo_TopReference:
@@ -1637,6 +1871,11 @@ namespace ZZero.ZPlanner.Data.Entities
                     return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || !(layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed);
                 case ZStringConstants.ParameterIDThickness:
                     return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || (layerType == ZLayerType.Prepreg && ZPlannerManager.StackupPanel != null && ZPlannerManager.IsPressedThickness) || Layer.IsMaterialAssigned && !isIgnoreMaterialAssigned;
+                case ZStringConstants.ParameterIDFillPitch:
+                case ZStringConstants.ParameterIDWeavePitch:
+                case ZStringConstants.ParameterIDZdiff_FillPitch:
+                case ZStringConstants.ParameterIDZdiff_WeavePitch:
+                    return ((Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter|| Layer.IsMaterialAssigned && !isIgnoreMaterialAssigned) && !isIgnoreCustomParameters;;
             }
 
             return (Layer.IsReadOnly || Parameter.IsReadOnly) && !isIgnoreLayerAndParameter || Layer.IsMaterialAssigned && !isIgnoreMaterialAssigned;
@@ -1718,7 +1957,7 @@ namespace ZZero.ZPlanner.Data.Entities
                         }
                         break;
                 case ZStringConstants.ParameterIDCopperThickness:
-                        switch (layerType)
+                        /*switch (layerType)
                         {
                             case ZLayerType.Plane:
                             case ZLayerType.Signal:
@@ -1726,11 +1965,11 @@ namespace ZZero.ZPlanner.Data.Entities
                                 return Options.TheOptions.copper_foil_thickness.ToString(); //oz inner layer
 
                             //dielectric
-                            default:
+                            default:*/
                                 return string.Empty;
-                        }
+                        //}
                 case ZStringConstants.ParameterIDCopperPercent:
-                        switch (layerType){
+                        /*switch (layerType){
                             case ZLayerType.Plane:
                                 return Layer.Stackup.ForPlane.ToString();
                             case ZLayerType.Signal:
@@ -1739,9 +1978,10 @@ namespace ZZero.ZPlanner.Data.Entities
                                 return Layer.Stackup.ForMixed.ToString();
 
                             //dielectric
-                            default:
+                            default:*/
                                 return string.Empty;
-                        }
+                        //}
+                case ZStringConstants.ParameterIDDielectricConstant:
                 case ZStringConstants.ParameterIDZo_DielectricConstant:
                 case ZStringConstants.ParameterIDZdiff_DielectricConstant:
                         switch (layerType)
@@ -1760,7 +2000,8 @@ namespace ZZero.ZPlanner.Data.Entities
                         }
                         //break;
 
-                    //-- return dielectricconstant[(int)layerType];;
+                    //-- return dielectricconstant[(int)layerType];
+                case ZStringConstants.ParameterIDLossTangent:
                 case ZStringConstants.ParameterIDZo_LossTangent:
                 case ZStringConstants.ParameterIDZdiff_LossTangent:
                         switch (layerType)
@@ -1959,11 +2200,13 @@ namespace ZZero.ZPlanner.Data.Entities
         public string Value
         {
             get 
-            { 
+            {
+                ZPlannerManager.StatusMenu.UpdateProgress();
                 return _value; 
             }
             set 
-            { 
+            {
+                ZPlannerManager.StatusMenu.UpdateProgress();
                 if (value != _value) 
                 {
                     if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeMaterialParameterValueCommand(this, _value, value);
@@ -2467,8 +2710,30 @@ namespace ZZero.ZPlanner.Data.Entities
             return hasValues;
         }
 
+        internal bool IsUsed()
+        {
+            bool isUsed = false;
+            foreach (ZLayer layer in this.Layers)
+            {
+                if (layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed) == "true")
+                {
+                    isUsed = true;
+                    break;
+                }
+            }
+
+            return isUsed;
+        }
+
         public ZStackup Stackup { get; private set; }
         public ZList<ZLayer> Layers { get; private set; }
+
+        private double impedanceTarget = 0.0;
+        public double ImpedanceTarget
+        {
+            get { return impedanceTarget; }
+            set { if (value != impedanceTarget) { new ChangePairImpedanceTargetCommand(this, impedanceTarget, value); impedanceTarget = value; NotifyPropertyChanged("ImpedanceTarget"); } }
+        }
     }
 
     class ZSingle : ZEntity
@@ -2509,7 +2774,7 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }*/
 
-        public ZSingle(ZStackup stackup) 
+        public ZSingle(ZStackup stackup)
         {
             ID = GenerateID("Single");
             Title = GenerateTitle(stackup.Singles, "Zo");
@@ -2651,8 +2916,30 @@ namespace ZZero.ZPlanner.Data.Entities
             return hasValues;
         }
 
+        internal bool IsUsed()
+        {
+            bool isUsed = false;
+            foreach (ZLayer layer in this.Layers)
+            {
+                if (layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed) == "true")
+                {
+                    isUsed = true;
+                    break;
+                }
+            }
+
+            return isUsed;
+        }
+
         public ZStackup Stackup { get; private set; }
         public ZList<ZLayer> Layers { get; private set; }
+
+        private double impedanceTarget = 0.0;
+        public double ImpedanceTarget
+        {
+            get { return impedanceTarget; }
+            set { if (value != impedanceTarget) { new ChangeSingleImpedanceTargetCommand(this, impedanceTarget, value); impedanceTarget = value; NotifyPropertyChanged("ImpedanceTarget"); } }
+        }
     }
 
     class ZStackup : ZEntity
@@ -2675,6 +2962,7 @@ namespace ZZero.ZPlanner.Data.Entities
             Spans = new ZList<ZSpan>(this);
 
             SetDefaultProperties();
+            ExportOptions.TheOptions.ProjectName = "";
         }
 
         public ZStackup(ZPlannerProject project, string id)
@@ -2692,6 +2980,7 @@ namespace ZZero.ZPlanner.Data.Entities
             Spans = new ZList<ZSpan>(this);
 
             SetDefaultProperties();
+            ExportOptions.TheOptions.ProjectName = "";
         }
 
         private void SetDefaultProperties()
@@ -2701,8 +2990,23 @@ namespace ZZero.ZPlanner.Data.Entities
             LaminateSideRoughness = Options.TheOptions.laminate_side_roughness;
             PrepregSideRoughness = Options.TheOptions.prepreg_side_roughness;
 
+            //core-side roughness
+            CoreSideRoughnessHTE = Options.TheOptions.core_side_roughness_hte;
+            CoreSideRoughnessRTF = Options.TheOptions.core_side_roughness_rtf;
+            CoreSideRoughnessVLP = Options.TheOptions.core_side_roughness_vlp;
+            CoreSideRoughnessVLP2 = Options.TheOptions.core_side_roughness_vlp2;
+            CoreSideRoughnessHVLP = Options.TheOptions.core_side_roughness_hvlp;
+
+            //prepreg-side roughness
+            PrepregSideRoughnessMB100LE = Options.TheOptions.prepreg_side_roughness_mb100le;
+            PrepregSideRoughnessAlphaPrep = Options.TheOptions.prepreg_side_roughness_alphaprep;
+            PrepregSideRoughnessMB100ZK = Options.TheOptions.prepreg_side_roughness_mb100zk;
+            PrepregSideRoughnessBF = Options.TheOptions.prepreg_side_roughness_bf;
+            PrepregSideRoughnessCZ8100 = Options.TheOptions.prepreg_side_roughness_cz8100;
+            PrepregSideRoughnessMB100HP = Options.TheOptions.prepreg_side_roughness_mb100hp;
+
             //pressed thickness
-            ByCopperCoverage = Options.TheOptions.ByCopperCoverage;
+            CopperCoverageType = Options.TheOptions.ByCopperCoverage ? ZCopperCoverageType.PrepregProportional : ZCopperCoverageType.PrepregPercent;
             ForSignal = Options.TheOptions.forSignal;
             ForMixed = Options.TheOptions.forMixed;
             ForPlane = Options.TheOptions.forPlane;
@@ -2719,6 +3023,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             int index = 0;
             foreach (ZLayer layer in Layers)
             {
@@ -2726,7 +3031,6 @@ namespace ZZero.ZPlanner.Data.Entities
                 layer.SetTitle("Row " + (index < 10 ? " " : "") + index);
             }
             CalculateLayerNumber();
-            if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
         }
 
         void Layers_BeforeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -2749,6 +3053,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         void Singles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            //if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             if (this.Singles.Count == 0)
                 Singles.Add(new ZSingle(this));
             if (ActiveSingle != null && !Singles.Contains(ActiveSingle) || ActiveSingle == null) ActiveSingle = Singles[0];
@@ -2757,6 +3062,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         void Pairs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            //if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             if (this.Pairs.Count == 0) 
                 Pairs.Add(new ZPair(this));
             if (ActivePair != null && !Pairs.Contains(ActivePair) || ActivePair == null) ActivePair = Pairs[0];
@@ -2774,9 +3080,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public ZLayer GetLayerOfStackup(string id)
         {
-            ZLayer layer = this.Layers.Find(x => x.ID == id);
-            if (layer == null) throw new IndexOutOfRangeException("The row with specified id was not found.");
-            return layer;
+            return this.Layers.Find(x => x.ID == id);
         }
 
         public int GetLayerOfStackupIndex(string id)
@@ -2796,10 +3100,8 @@ namespace ZZero.ZPlanner.Data.Entities
         public ZLayer GetLayerOfSingleImpedance(string id, string singleID)
         {
             ZSingle single = this.Singles.Find(x => x.ID == singleID);
-            if (single == null) throw new IndexOutOfRangeException("The single-ended signal with specified id was not found.");
-            ZLayer layer = single.Layers.Find(x => x.ID == id);
-            if (layer == null) throw new IndexOutOfRangeException("The row with specified id was not found.");
-            return layer;
+            if (single == null) return null;
+            return single.Layers.Find(x => x.ID == id);
         }
 
         public ZLayer GetLayerOfPairImpedance(int index, string pairID)
@@ -2814,10 +3116,8 @@ namespace ZZero.ZPlanner.Data.Entities
         public ZLayer GetLayerOfPairImpedance(string id, string pairID)
         {
             ZPair pair = this.Pairs.Find(x => x.ID == pairID);
-            if (pair == null) throw new IndexOutOfRangeException("The differential signal with specified id was not found.");
-            ZLayer layer = pair.Layers.Find(x => x.ID == id);
-            if (layer == null) throw new IndexOutOfRangeException("The row with specified id was not found.");
-            return layer;
+            if (pair == null) return null;
+            return pair.Layers.Find(x => x.ID == id);
         }
 
         public string AddLayer(int index)
@@ -2931,8 +3231,9 @@ namespace ZZero.ZPlanner.Data.Entities
         public string AddLayer(int index, ZLayerType layerType, bool isCoreLocked = false)
         {
             int count = this.Layers.Count;
-            ZLayer middleLayer = (count > 0) ? Layers[(int)(count * 0.5)] : null;
-            if (middleLayer != null &&  middleLayer.GetLayerType() != layerType) middleLayer = null;
+            // Uncomment middleLayer to create new row using the middle row
+            //ZLayer middleLayer = (count > 0) ? Layers[(int)(count * 0.5)] : null;
+            //if (middleLayer != null &&  middleLayer.GetLayerType() != layerType) middleLayer = null;
             // Clear Layer Selection
             if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
 
@@ -2978,7 +3279,8 @@ namespace ZZero.ZPlanner.Data.Entities
                     layerStructureList.Add(copperLayerStructure);
                 }
 
-                currentLayerStructure = (middleLayer != null) ? CreateLayersCommandStructureByLayer(index, middleLayer) : CreateLayersCommandStructureByType(index, layerType);
+                //currentLayerStructure = (middleLayer != null) ? CreateLayersCommandStructureByLayer(index, middleLayer) : CreateLayersCommandStructureByType(index, layerType);
+                currentLayerStructure = CreateLayersCommandStructureByType(index, layerType);
                 InternalInsertLayer(currentLayerStructure);
                 layerStructureList.Add(currentLayerStructure);
 
@@ -3285,6 +3587,52 @@ namespace ZZero.ZPlanner.Data.Entities
                     }
                 }
                 */
+            }
+
+            // ViaSpans.
+            /*currentLayerStructure.RemovedSpans = new Dictionary<ZSpan, int>();
+            for (int i = this.Spans.Count - 1; i >= 0; --i)
+            {
+                ZSpan span = this.Spans[i];
+                if (span.FirstLayer.ID == currentLayerStructure.Id || span.LastLayer.ID == currentLayerStructure.Id)
+                {
+                    currentLayerStructure.RemovedSpans.Add(span, Spans.IndexOf(span));
+                }
+            }*/
+
+            return currentLayerStructure;
+        }
+
+        private LayersCommandStructure GetLayersCommandStructureByLayerParts(int index, ZLayer stackupLayer, Dictionary<string, ZLayer> singlesDict, Dictionary<string, ZLayer> pairsDict)
+        {
+            LayersCommandStructure currentLayerStructure = new LayersCommandStructure();
+
+            currentLayerStructure.Id = stackupLayer.ID;
+            currentLayerStructure.Index = index;
+            // Stackup Layer.
+            currentLayerStructure.StackupLayer = stackupLayer;
+            currentLayerStructure.StackupLayer.ID = currentLayerStructure.Id;
+
+            // Single Layer.
+            currentLayerStructure.SingleLayers = new Dictionary<string, ZLayer>();
+            currentLayerStructure.RemovedSingles = new Dictionary<ZSingle, int>();
+            foreach (ZSingle single in Singles)
+            {
+                if (singlesDict.Keys.Contains(single.ID))
+                    currentLayerStructure.SingleLayers.Add(single.ID, singlesDict[single.ID]);
+                else if (singlesDict.Count > 0)
+                    currentLayerStructure.SingleLayers.Add(single.ID, singlesDict.FirstOrDefault().Value);
+            }
+
+            // Pair Layers
+            currentLayerStructure.PairLayers = new Dictionary<string, ZLayer>();
+            currentLayerStructure.RemovedPairs = new Dictionary<ZPair, int>();
+            foreach (ZPair pair in Pairs)
+            {
+                if (pairsDict.Keys.Contains(pair.ID))
+                    currentLayerStructure.PairLayers.Add(pair.ID, pairsDict[pair.ID]);
+                else if (pairsDict.Count > 0)
+                    currentLayerStructure.PairLayers.Add(pair.ID, pairsDict.FirstOrDefault().Value);
             }
 
             // ViaSpans.
@@ -3644,6 +3992,7 @@ namespace ZZero.ZPlanner.Data.Entities
                     LayersCommandStructure currentLayerStructure = new LayersCommandStructure();
 
                     currentLayerStructure.Id = Layers[index].ID;
+                    currentLayerStructure.Index = index;
                     // Stackup Layer.
                     currentLayerStructure.StackupLayer = Layers[index];
                     if (currentLayerStructure.StackupLayer == null) continue;
@@ -3678,6 +4027,7 @@ namespace ZZero.ZPlanner.Data.Entities
                     LayersCommandStructure currentLayerStructure = new LayersCommandStructure();
 
                     currentLayerStructure.Id = Layers[index].ID;
+                    currentLayerStructure.Index = index;
                     // Stackup Layer.
                     currentLayerStructure.StackupLayer = Layers[index];
                     if (currentLayerStructure.StackupLayer == null) continue;
@@ -3723,6 +4073,7 @@ namespace ZZero.ZPlanner.Data.Entities
                     LayersCommandStructure currentLayerStructure = overList[id];
                     currentLayerStructure.Index = index + 1;
                     InternalInsertLayer(currentLayerStructure, false);
+                    overList.Remove(id);
                 }
 
                 if (underList.ContainsKey(id))
@@ -3730,6 +4081,7 @@ namespace ZZero.ZPlanner.Data.Entities
                     LayersCommandStructure currentLayerStructure = underList[id];
                     currentLayerStructure.Index = index;
                     InternalInsertLayer(currentLayerStructure, false);
+                    underList.Remove(id);
                 }
             }            
         }
@@ -4091,7 +4443,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public void PasteLayers(int index = -1, bool isCoreLocked = false)
         {
-            if (!ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers) || !ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeySingleLayers)) return;
+            if (!ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers)) return;
             List<ZEntity> stackupLayers = ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyStackupLayers] as List<ZEntity>;
             Dictionary<string, List<ZEntity>> singlesDict = new Dictionary<string, List<ZEntity>>();
             Dictionary<string, List<ZEntity>> pairsDict = new Dictionary<string, List<ZEntity>>();
@@ -4363,6 +4715,689 @@ namespace ZZero.ZPlanner.Data.Entities
             }
 
             //ZPlannerManager.Clipboard.Clear();
+        }
+
+        /*public void ReplaceLayers(int index = -1, bool isCoreLocked = false)
+        {
+            if (!ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers)) return;
+            List<ZEntity> stackupLayers = ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyStackupLayers] as List<ZEntity>;
+            Dictionary<string, List<ZEntity>> singlesDict = new Dictionary<string, List<ZEntity>>();
+            Dictionary<string, List<ZEntity>> pairsDict = new Dictionary<string, List<ZEntity>>();
+
+            foreach (string key in ZPlannerManager.Clipboard.Keys)
+            {
+                if (key.StartsWith(ZStringConstants.ClipbordKeySingleLayers)) singlesDict.Add(key.Substring(ZStringConstants.ClipbordKeySingleLayers.Length), ZPlannerManager.Clipboard[key] as List<ZEntity>);
+                else if (key.StartsWith(ZStringConstants.ClipbordKeyPairLayers)) pairsDict.Add(key.Substring(ZStringConstants.ClipbordKeyPairLayers.Length), ZPlannerManager.Clipboard[key] as List<ZEntity>);
+            }
+
+            if (stackupLayers == null || stackupLayers.Count < 1)
+            {
+                ZPlannerManager.Clipboard.Clear();
+                return;
+            }
+
+            foreach (List<ZEntity> singleLayers in singlesDict.Values)
+            {
+                if (singleLayers == null || stackupLayers.Count != singleLayers.Count)
+                {
+                    ZPlannerManager.Clipboard.Clear();
+                    return;
+                }
+            }
+
+            foreach (List<ZEntity> pairLayers in pairsDict.Values)
+            {
+                if (pairLayers == null || stackupLayers.Count != pairLayers.Count)
+                {
+                    ZPlannerManager.Clipboard.Clear();
+                    return;
+                }
+            }
+
+            bool isComplexCommandStarted = ZPlannerManager.Commands.IsComplexCommandStarted();
+            if (!isComplexCommandStarted) ZPlannerManager.Commands.StartComplexCommand();
+
+            ZPlannerManager.SuspendCollectionChangedEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+
+            bool isAutoMirror = ZPlannerManager.IsAutoMirror;
+            ZPlannerManager.IsAutoMirror = false;
+
+            try
+            {
+                // Clear Layer Selection
+                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
+
+                int count = this.Layers.Count;
+                ZLayer middleLayer = (count > 0) ? Layers[(int)(count * 0.5)] : null;
+                ZLayerType? middleLayerType = (middleLayer != null) ? middleLayer.GetLayerType() : null;
+                Dictionary<LayersCommandStructure, LayersCommandStructure> layerStructureDictionary = new Dictionary<LayersCommandStructure,LayersCommandStructure>();
+                List<LayersCommandStructure> layerStructureList = new List<LayersCommandStructure>();
+
+                Dictionary<string, LayersCommandStructure> underList = new Dictionary<string, LayersCommandStructure>();
+                Dictionary<string, LayersCommandStructure> overList = new Dictionary<string, LayersCommandStructure>();
+
+                // LockingCore
+                if (isCoreLocked)
+                {
+                    CollapseLockedLayers(underList, overList);
+                }
+
+                bool isIndexIncorrect = (index < 0 || index > this.Layers.Count);
+
+                foreach (ZSingle single in this.Singles)
+                {
+                    isIndexIncorrect = isIndexIncorrect || index > single.Layers.Count;
+                }
+
+                foreach (ZPair pair in this.Pairs)
+                {
+                    isIndexIncorrect = isIndexIncorrect || index > pair.Layers.Count;
+                }
+
+                if (isIndexIncorrect) throw new IndexOutOfRangeException("The specified index is out of range.");
+
+                ZLayer currentStackupLayer = null;
+                ZLayer mirrorStackupLayer = null;
+
+                int i = 0;
+                
+                LayersCommandStructure currentNewLayerStructure = new LayersCommandStructure();
+                LayersCommandStructure mirrorNewLayerStructure = new LayersCommandStructure();
+                LayersCommandStructure currentOldLayerStructure = new LayersCommandStructure();
+                LayersCommandStructure mirrorOldLayerStructure = new LayersCommandStructure();
+
+                currentStackupLayer = Layers[index];
+                if (currentStackupLayer == null) return;
+
+                currentNewLayerStructure.Index = index;
+                currentOldLayerStructure.Index = index;
+
+                // Stackup Layers.
+                currentNewLayerStructure.StackupLayer = stackupLayers[i] as ZLayer;
+                if (currentNewLayerStructure.StackupLayer == null) return;
+
+                bool isLayerTypeChanged = (currentStackupLayer.GetLayerType() != currentNewLayerStructure.StackupLayer.GetLayerType());
+
+                currentNewLayerStructure.StackupLayer = currentNewLayerStructure.StackupLayer.Clone();
+                currentNewLayerStructure.StackupLayer.ID = currentStackupLayer.ID;
+                currentNewLayerStructure.Id = currentStackupLayer.ID;
+
+                currentOldLayerStructure.StackupLayer = currentStackupLayer.Clone();
+                currentOldLayerStructure.StackupLayer.ID = currentStackupLayer.ID;
+                currentOldLayerStructure.Id = currentStackupLayer.ID;
+
+                if (isLayerTypeChanged)
+                    currentNewLayerStructure.StackupLayer.SetDefaultLayerParameterValue(ZStringConstants.ParameterIDLayerName);
+                else
+                    currentNewLayerStructure.StackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, currentStackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+
+                // Insert Stackup Layer at the end of the code block, because Grid redraw after insert of Stackup Layer.
+
+                // Single Layers.
+                currentNewLayerStructure.SingleLayers = new Dictionary<string, ZLayer>();
+                currentOldLayerStructure.SingleLayers = new Dictionary<string, ZLayer>();
+
+                List<ZParameter> singleSubparameters = new List<ZParameter>();
+                foreach (ZParameter singleParameter in Project.Parameters.FindAll(x => x.Table == ZTableType.Single))
+                {
+                    if (singleParameter.SubParameters != null && singleParameter.SubParameters.Count > 0) singleSubparameters.AddRange(singleParameter.SubParameters);
+                    else singleSubparameters.Add(singleParameter);
+                }
+
+                foreach (ZSingle single in this.Singles)
+                {
+                    ZLayer currentSingleLayer = single.Layers[index];
+                    if (currentSingleLayer == null) return;
+
+                    ZLayer singleLayer = null;
+
+                    if (singlesDict.Keys.Contains(single.ID))
+                    {
+                        singleLayer = (singlesDict[single.ID])[i] as ZLayer;
+                    }
+                    else
+                    {
+                        if (singlesDict.Count > 0)
+                            singleLayer = (singlesDict.First().Value)[i] as ZLayer;
+                    }
+
+                    if (singleLayer == null) return;
+                        
+                    singleLayer = singleLayer.Clone();
+                    singleLayer.ID = currentSingleLayer.ID;
+                    currentNewLayerStructure.SingleLayers.Add(single.ID, singleLayer);
+
+                    currentOldLayerStructure.SingleLayers.Add(single.ID, currentSingleLayer.Clone());
+                    currentOldLayerStructure.SingleLayers[single.ID].ID = currentSingleLayer.ID;
+                }
+
+                // Pair Layers.
+                currentNewLayerStructure.PairLayers = new Dictionary<string, ZLayer>();
+                currentOldLayerStructure.PairLayers = new Dictionary<string, ZLayer>();
+
+                List<ZParameter> pairSubparameters = new List<ZParameter>();
+                foreach (ZParameter pairParameter in Project.Parameters.FindAll(x => x.Table == ZTableType.Pair))
+                {
+                    if (pairParameter.SubParameters != null && pairParameter.SubParameters.Count > 0) pairSubparameters.AddRange(pairParameter.SubParameters);
+                    else pairSubparameters.Add(pairParameter);
+                }
+
+                foreach (ZPair pair in this.Pairs)
+                {
+                    ZLayer currentPairLayer = pair.Layers[index];
+                    if (currentPairLayer == null) return;
+
+                    ZLayer pairLayer = null;
+
+                    if (pairsDict.Keys.Contains(pair.ID))
+                    {
+                        pairLayer = (pairsDict[pair.ID])[i] as ZLayer;
+                    }
+                    else
+                    {
+                        if (pairsDict.Count > 0)
+                            pairLayer = (pairsDict.First().Value)[i] as ZLayer;
+                    }
+
+                    if (pairLayer == null) return;
+                        
+                    pairLayer = pairLayer.Clone();
+                    pairLayer.ID = currentPairLayer.ID;
+                    currentNewLayerStructure.PairLayers.Add(pair.ID, pairLayer);
+
+                    currentOldLayerStructure.PairLayers.Add(pair.ID, currentPairLayer.Clone());
+                    currentOldLayerStructure.PairLayers[pair.ID].ID = currentPairLayer.ID;
+                }
+
+                int layersCount = Layers.Count;
+                int mirrorIndex = layersCount - 1 - index;
+
+                InternalReplaceLayer(currentNewLayerStructure, true);
+
+                if (ZPlannerManager.StackupPanel != null && isAutoMirror && !IsMirroredByTypesAndValues())
+                {
+                    mirrorNewLayerStructure.Index = mirrorIndex;
+                    mirrorOldLayerStructure.Index = mirrorIndex;
+
+                    if (mirrorNewLayerStructure.Index >= 0 && mirrorNewLayerStructure.Index != currentNewLayerStructure.Index)
+                    {
+                        mirrorStackupLayer = Layers[mirrorIndex];
+                        if (mirrorStackupLayer == null) return;
+
+                        mirrorNewLayerStructure.StackupLayer = currentNewLayerStructure.StackupLayer.Clone();
+                        mirrorNewLayerStructure.StackupLayer.ID = mirrorStackupLayer.ID;
+                        mirrorNewLayerStructure.Id = mirrorStackupLayer.ID;
+
+                        mirrorOldLayerStructure.StackupLayer = mirrorStackupLayer.Clone();
+                        mirrorOldLayerStructure.StackupLayer.ID = mirrorStackupLayer.ID;
+                        mirrorOldLayerStructure.Id = mirrorStackupLayer.ID;
+
+                        if (isLayerTypeChanged)
+                            mirrorNewLayerStructure.StackupLayer.SetDefaultLayerParameterValue(ZStringConstants.ParameterIDLayerName);
+                        else
+                            mirrorNewLayerStructure.StackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, mirrorStackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+
+                        mirrorNewLayerStructure.SingleLayers = new Dictionary<string, ZLayer>();
+                        mirrorOldLayerStructure.SingleLayers = new Dictionary<string, ZLayer>();
+                        foreach (ZSingle single in this.Singles)
+                        {
+                            if (!currentNewLayerStructure.SingleLayers.ContainsKey(single.ID)) return;
+
+                            ZLayer mirrorSingleLayer = single.Layers[mirrorIndex];
+                            if (mirrorSingleLayer == null) return;
+
+                            mirrorNewLayerStructure.SingleLayers.Add(single.ID, currentNewLayerStructure.SingleLayers[single.ID].Clone());
+                            mirrorNewLayerStructure.SingleLayers[single.ID].ID = mirrorSingleLayer.ID;
+
+                            mirrorOldLayerStructure.SingleLayers.Add(single.ID, mirrorSingleLayer.Clone());
+                            mirrorOldLayerStructure.SingleLayers[single.ID].ID = mirrorSingleLayer.ID;
+                        }
+
+                        mirrorNewLayerStructure.PairLayers = new Dictionary<string, ZLayer>();
+                        mirrorOldLayerStructure.PairLayers = new Dictionary<string, ZLayer>();
+                        foreach (ZPair pair in this.Pairs)
+                        {
+                            if (!currentNewLayerStructure.PairLayers.ContainsKey(pair.ID)) return;
+
+                            ZLayer mirrorPairLayer = pair.Layers[mirrorIndex];
+                            if (mirrorPairLayer == null) return;
+
+                            mirrorNewLayerStructure.PairLayers.Add(pair.ID, currentNewLayerStructure.PairLayers[pair.ID].Clone());
+                            mirrorNewLayerStructure.PairLayers[pair.ID].ID = mirrorPairLayer.ID;
+
+                            mirrorOldLayerStructure.PairLayers.Add(pair.ID, mirrorPairLayer.Clone());
+                            mirrorOldLayerStructure.PairLayers[pair.ID].ID = mirrorPairLayer.ID;
+                        }
+
+                        InternalReplaceLayer(mirrorNewLayerStructure, false);
+                    }
+                }
+
+                // LockingCore
+                if (isCoreLocked)
+                {
+                    ExpandLockedLayers(underList, overList);
+
+                    layerStructureList.AddRange(underList.Values);
+                    layerStructureList.AddRange(overList.Values);
+                    layerStructureList = new List<LayersCommandStructure>(layerStructureList.OrderBy(x => x.Index));
+                }
+
+                for (int n = 0; n < Layers.Count; ++n)
+                {
+                    // It is required to store the correct row Index when isCoreLocked=true
+                    if (currentStackupLayer != null && currentStackupLayer.ID == Layers[n].ID)
+                    {
+                        currentNewLayerStructure.Index = n;
+                        currentOldLayerStructure.Index = n;
+                        layerStructureDictionary.Add(currentOldLayerStructure, currentNewLayerStructure);
+                    }
+
+                    if (mirrorStackupLayer != null && mirrorStackupLayer.ID == Layers[n].ID)
+                    {
+                        mirrorNewLayerStructure.Index = n;
+                        mirrorOldLayerStructure.Index = n;
+                        layerStructureDictionary.Add(mirrorOldLayerStructure, mirrorNewLayerStructure);
+                    }
+                }
+
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                //if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
+                //ZPlannerManager.UpdateActiveStackup();
+                ZPlannerManager.ResumeCollectionChangedEvent();
+                Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
+                if (!ZPlannerManager.Commands.IsIgnoreCommands) new ReplaceLayerCommand(this, layerStructureDictionary, layerStructureList);
+            }
+            finally
+            {
+                ZPlannerManager.IsAutoMirror = isAutoMirror;
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                ZPlannerManager.ResumeCollectionChangedEvent();
+                if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
+            }
+        }*/
+
+        public void ReplaceLayers(string currentID, bool isCoreLocked = false)
+        {
+            if (!ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyStackupLayers)) return;
+            List<ZEntity> stackupLayers = ZPlannerManager.Clipboard[ZStringConstants.ClipbordKeyStackupLayers] as List<ZEntity>;
+            Dictionary<string, List<ZEntity>> singlesDict = new Dictionary<string, List<ZEntity>>();
+            Dictionary<string, List<ZEntity>> pairsDict = new Dictionary<string, List<ZEntity>>();
+
+            foreach (string key in ZPlannerManager.Clipboard.Keys)
+            {
+                if (key.StartsWith(ZStringConstants.ClipbordKeySingleLayers)) singlesDict.Add(key.Substring(ZStringConstants.ClipbordKeySingleLayers.Length), ZPlannerManager.Clipboard[key] as List<ZEntity>);
+                else if (key.StartsWith(ZStringConstants.ClipbordKeyPairLayers)) pairsDict.Add(key.Substring(ZStringConstants.ClipbordKeyPairLayers.Length), ZPlannerManager.Clipboard[key] as List<ZEntity>);
+            }
+
+            if (stackupLayers == null || stackupLayers.Count < 1)
+            {
+                ZPlannerManager.Clipboard.Clear();
+                return;
+            }
+
+            foreach (List<ZEntity> singleLayers in singlesDict.Values)
+            {
+                if (singleLayers == null || stackupLayers.Count != singleLayers.Count)
+                {
+                    ZPlannerManager.Clipboard.Clear();
+                    return;
+                }
+            }
+
+            foreach (List<ZEntity> pairLayers in pairsDict.Values)
+            {
+                if (pairLayers == null || stackupLayers.Count != pairLayers.Count)
+                {
+                    ZPlannerManager.Clipboard.Clear();
+                    return;
+                }
+            }
+
+            bool isComplexCommandStarted = ZPlannerManager.Commands.IsComplexCommandStarted();
+            if (!isComplexCommandStarted) ZPlannerManager.Commands.StartComplexCommand();
+
+            ZPlannerManager.SuspendCollectionChangedEvent();
+            bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+
+            bool isAutoMirror = ZPlannerManager.IsAutoMirror;
+            ZPlannerManager.IsAutoMirror = false;
+
+            try
+            {
+                // Clear Layer Selection
+                if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.ClearRowSelection();
+
+                bool isMirror = (ZPlannerManager.StackupPanel != null && isAutoMirror && IsMirroredByTypesAndValues());                
+                bool isCore = false;
+
+                List<LayersCommandStructure> newLayerStructureList = new List<LayersCommandStructure>();
+                List<LayersCommandStructure> oldLayerStructureList = new List<LayersCommandStructure>();
+
+                ZLayer currentLayer =  Layers.Find(x => x.ID == currentID);
+                if (currentLayer == null) return;
+                int currentIndex = currentLayer.Order;
+                ZLayerType? layerType = currentLayer.GetLayerType();
+
+                if (isCoreLocked)
+                {
+                    if (layerType == ZLayerType.Core) isCore = true;
+                    else if (layerType == ZLayerType.Signal || layerType == ZLayerType.Plane || layerType == ZLayerType.SplitMixed)
+                    {
+                        if (!isCore && currentIndex > 0)
+                        {
+                            ZLayer layer = Layers[currentIndex - 1];
+                            if (layer.GetLayerType() == ZLayerType.Core)
+                            {
+                                currentLayer = layer;
+                                currentIndex -= 1;
+                                isCore = true;
+                            }
+                        }
+
+                        if (!isCore && currentIndex < Layers.Count - 1)
+                        {
+                            ZLayer layer = Layers[currentIndex + 1];
+                            if (layer.GetLayerType() == ZLayerType.Core)
+                            {
+                                currentLayer = layer;
+                                currentIndex += 1;
+                                isCore = true;
+                            }
+                        }
+                    }
+                }
+
+                ZLayer currentPrevLayer = null;
+                ZLayer mirrorPrevLayer = null;
+                ZLayerType? prevLayerType = null;
+                ZLayer currentNextLayer = null;
+                ZLayer mirrorNextLayer = null;
+                ZLayerType? nextLayerType = null;
+
+                if (isCoreLocked && isCore)
+                {
+                    if (currentIndex > 0)
+                    {
+                        ZLayer layer = Layers[currentIndex - 1];
+                        if (layer.isMetal())
+                        {
+                            oldLayerStructureList.Add(GetLayersCommandStructureByID(layer.ID));
+                            currentPrevLayer = layer;
+                            prevLayerType = layer.GetLayerType();
+                        }
+                    }
+
+                    if (currentIndex > 0)
+                    {
+                        ZLayer layer = Layers[currentIndex + 1];
+                        if (layer.isMetal())
+                        {
+                            oldLayerStructureList.Add(GetLayersCommandStructureByID(layer.ID));
+                            currentNextLayer = layer;
+                            nextLayerType = layer.GetLayerType();
+                        }
+                    }
+                }
+
+                oldLayerStructureList.Add(GetLayersCommandStructureByID(currentLayer.ID));
+
+                int mirrorIndex = Layers.Count - 1 - currentIndex;
+                ZLayer mirrorLayer = Layers[mirrorIndex];
+                if (isMirror && mirrorIndex != currentIndex)
+                {
+                    if (isCoreLocked && isCore)
+                    {
+                        if (mirrorIndex > 0)
+                        {
+                            ZLayer layer = Layers[mirrorIndex - 1];
+                            if (layer.isMetal())
+                            {
+                                oldLayerStructureList.Add(GetLayersCommandStructureByID(layer.ID));
+                                mirrorNextLayer = layer;
+                            }
+                        }
+
+                        if (mirrorIndex > 0)
+                        {
+                            ZLayer layer = Layers[mirrorIndex + 1];
+                            if (layer.isMetal())
+                            {
+                                oldLayerStructureList.Add(GetLayersCommandStructureByID(layer.ID));
+                                mirrorPrevLayer = layer;
+                            }
+                        }
+                    }
+
+                    oldLayerStructureList.Add(GetLayersCommandStructureByID(mirrorLayer.ID));
+                }
+
+                oldLayerStructureList = new List<LayersCommandStructure>(oldLayerStructureList.OrderBy(x => x.Index));
+
+                int minIndex = Layers.Count;
+                foreach (LayersCommandStructure layerStructure in oldLayerStructureList)
+                {
+                    minIndex = Math.Min(minIndex, layerStructure.Index);
+                    InternalRemoveLayer(layerStructure, false);
+                }
+
+                // Recalculate Indexes
+                if (currentIndex > mirrorIndex && isMirror)
+                {
+                    mirrorIndex = minIndex;
+                    currentIndex = Layers.Count - mirrorIndex;
+                }
+                else
+                {
+                    currentIndex = minIndex;
+                    mirrorIndex = Layers.Count - currentIndex;
+                }
+
+                // Insert copied rows
+                for (int i = 0; i < stackupLayers.Count; ++i)
+                {
+                    // Stackup Layers.
+                    ZLayer currentStackupLayer = stackupLayers[i] as ZLayer;
+                    if (currentStackupLayer == null) continue;
+
+                    string stringLayerType = currentStackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerType);
+                    ZLayerType? currentLayerType = (ZLayer.LayerTypeDictionary.Keys.Contains(stringLayerType)) ? ZLayer.LayerTypeDictionary[stringLayerType] : (ZLayerType?)null;
+                    bool isLayerTypeChanged = (currentLayerType != layerType);
+
+                    currentStackupLayer = currentStackupLayer.Clone();
+
+                    if (isLayerTypeChanged)
+                    {
+                        currentStackupLayer.SetDefaultLayerParameterValue(ZStringConstants.ParameterIDLayerName, currentLayerType);
+                    }
+                    else
+                    {
+                        currentStackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, currentLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+                        //currentStackupLayer.ID = currentLayer.ID;
+                    }
+
+                    if (currentPrevLayer != null && currentLayerType == prevLayerType)
+                    {
+                        currentStackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, currentPrevLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+                        //currentStackupLayer.ID = currentPrevLayer.ID;
+                        currentPrevLayer = null;
+                    }
+                    else if (currentNextLayer != null && currentLayerType == nextLayerType)
+                    {
+                        currentStackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, currentNextLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+                        //currentStackupLayer.ID = currentNextLayer.ID;
+                        currentNextLayer = null;
+                    }
+
+                    // Insert Stackup Layer at the end of the code block, because Grid redraw after insert of Stackup Layer.
+
+                    // Single Layers.
+                    Dictionary<string, ZLayer> currentSingleLayersDict = new Dictionary<string, ZLayer>();
+                    foreach (ZSingle single in this.Singles)
+                    {
+                        ZLayer currentSingleLayer = null;
+
+                        if (singlesDict.Keys.Contains(single.ID))
+                        {
+                            currentSingleLayer = (singlesDict[single.ID])[i] as ZLayer;
+                        }
+                        else
+                        {
+                            if (singlesDict.Count > 0)
+                                currentSingleLayer = (singlesDict.First().Value)[i] as ZLayer;
+                        }
+
+                        if (currentSingleLayer == null) continue;
+
+                        currentSingleLayer = currentSingleLayer.Clone();
+                        currentSingleLayer.ID = currentStackupLayer.ID;
+                        currentSingleLayersDict.Add(single.ID, currentSingleLayer);
+                    }
+
+                    // Pair Layers.
+                    Dictionary<string, ZLayer> currentPairLayersDict = new Dictionary<string, ZLayer>();
+                    foreach (ZPair pair in this.Pairs)
+                    {
+                        ZLayer currentPairLayer = null;
+                        
+                        if (pairsDict.Keys.Contains(pair.ID))
+                        {
+                            currentPairLayer = (pairsDict[pair.ID])[i] as ZLayer;
+                        }
+                        else
+                        {
+                            if (pairsDict.Count > 0)
+                                currentPairLayer = (pairsDict.First().Value)[i] as ZLayer;
+                        }
+
+                        if (currentPairLayer == null) continue;
+
+                        currentPairLayer = currentPairLayer.Clone();
+                        currentPairLayer.ID = currentStackupLayer.ID;
+                        currentPairLayersDict.Add(pair.ID, currentPairLayer);
+                    }
+
+                    newLayerStructureList.Add(GetLayersCommandStructureByLayerParts(currentIndex, currentStackupLayer, currentSingleLayersDict, currentPairLayersDict));
+
+                    if (mirrorIndex > currentIndex) ++mirrorIndex;
+                    ++currentIndex;
+                }
+
+                if (isMirror && currentIndex != mirrorIndex)
+                {
+                    for (int i = stackupLayers.Count - 1; i >= 0; --i)
+                    {
+                        // Stackup Layers.
+                        ZLayer mirrorStackupLayer = stackupLayers[i] as ZLayer;
+                        if (mirrorStackupLayer == null) continue;
+
+                        string stringLayerType = mirrorStackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerType);
+                        ZLayerType? mirrorLayerType = (ZLayer.LayerTypeDictionary.Keys.Contains(stringLayerType)) ? ZLayer.LayerTypeDictionary[stringLayerType] : (ZLayerType?)null;
+                        bool isLayerTypeChanged = (mirrorLayerType != layerType);
+
+                        mirrorStackupLayer = mirrorStackupLayer.Clone();
+
+                        if (isLayerTypeChanged)
+                        {
+                            mirrorStackupLayer.SetDefaultLayerParameterValue(ZStringConstants.ParameterIDLayerName, mirrorLayerType);
+                        }
+                        else
+                        {
+                            mirrorStackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, mirrorLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+                            //mirrorStackupLayer.ID = mirrorLayer.ID;
+                        }
+
+                        if (mirrorPrevLayer != null && mirrorLayerType == prevLayerType)
+                        {
+                            mirrorStackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, mirrorPrevLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+                            //mirrorStackupLayer.ID = mirrorPrevLayer.ID;
+                            mirrorPrevLayer = null;
+                        }
+                        else if (mirrorNextLayer != null && mirrorLayerType == nextLayerType)
+                        {
+                            mirrorStackupLayer.SetLayerParameterValue(ZStringConstants.ParameterIDLayerName, mirrorNextLayer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerName));
+                            //mirrorStackupLayer.ID = mirrorNextLayer.ID;
+                            mirrorNextLayer = null;
+                        }
+
+                        // Insert Stackup Layer at the end of the code block, because Grid redraw after insert of Stackup Layer.
+
+                        // Single Layers.
+                        Dictionary<string, ZLayer> mirrorSingleLayersDict = new Dictionary<string, ZLayer>();
+                        foreach (ZSingle single in this.Singles)
+                        {
+                            ZLayer mirrorSingleLayer = null;
+
+                            if (singlesDict.Keys.Contains(single.ID))
+                            {
+                                mirrorSingleLayer = (singlesDict[single.ID])[i] as ZLayer;
+                            }
+                            else
+                            {
+                                if (singlesDict.Count > 0)
+                                    mirrorSingleLayer = (singlesDict.First().Value)[i] as ZLayer;
+                            }
+
+                            if (mirrorSingleLayer == null) continue;
+
+                            mirrorSingleLayer = mirrorSingleLayer.Clone();
+                            mirrorSingleLayer.ID = mirrorStackupLayer.ID;
+                            mirrorSingleLayersDict.Add(single.ID, mirrorSingleLayer);
+                        }
+
+                        // Pair Layers.
+                        Dictionary<string, ZLayer> mirrorPairLayersDict = new Dictionary<string, ZLayer>();
+                        foreach (ZPair pair in this.Pairs)
+                        {
+                            ZLayer mirrorPairLayer = null;
+                        
+                            if (pairsDict.Keys.Contains(pair.ID))
+                            {
+                                mirrorPairLayer = (pairsDict[pair.ID])[i] as ZLayer;
+                            }
+                            else
+                            {
+                                if (pairsDict.Count > 0)
+                                    mirrorPairLayer = (pairsDict.First().Value)[i] as ZLayer;
+                            }
+
+                            if (mirrorPairLayer == null) continue;
+
+                            mirrorPairLayer = mirrorPairLayer.Clone();
+                            mirrorPairLayer.ID = mirrorStackupLayer.ID;
+                            mirrorPairLayersDict.Add(pair.ID, mirrorPairLayer);
+                        }
+
+                        newLayerStructureList.Add(GetLayersCommandStructureByLayerParts(mirrorIndex, mirrorStackupLayer, mirrorSingleLayersDict, mirrorPairLayersDict));
+
+                        ++mirrorIndex;
+                    }
+                }
+
+                int n = 0;
+                foreach (LayersCommandStructure layerStructure in newLayerStructureList)
+                {
+                    InternalInsertLayer(layerStructure, n==0);
+                    ++n;
+                }
+
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                //if (ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.UpdateReferences();
+                //ZPlannerManager.UpdateActiveStackup();
+                ZPlannerManager.ResumeCollectionChangedEvent();
+                Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
+                if (!ZPlannerManager.Commands.IsIgnoreCommands) new ReplaceLayerCommand(this, oldLayerStructureList, newLayerStructureList);
+            }
+            finally
+            {
+                ZPlannerManager.IsAutoMirror = isAutoMirror;
+                ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                ZPlannerManager.ResumeCollectionChangedEvent();
+                if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
+            }
         }
 
         public void ChangeSignalLayerReference(ZLayerParameter layerParameter, string layerReference)
@@ -4647,12 +5682,163 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
+        internal bool FinedMaterialForAnyLayer(ZLibraryCategory[] libraryCetegories, string fabricator)
+        {
+            bool isMaterialFound = true;
+            Dictionary<MaterialSearchAttributes, List<ZLayer>> layersByAttributesList = new Dictionary<MaterialSearchAttributes, List<ZLayer>>();
+
+            foreach (ZLayer layer in Layers)
+            {
+                ZLayerType? layerType;
+
+                if (layer.isCoreOrPrepreg(out layerType))
+                {
+                    string thickness = layer.GetLayerParameterValue(ZStringConstants.ParameterIDThickness);
+                    string dk = layer.GetLayerParameterValue(ZStringConstants.ParameterIDDielectricConstant);
+                    string construction = layer.GetLayerParameterValue(ZStringConstants.ParameterIDConstruction);
+                    string resin = layer.GetLayerParameterValue(ZStringConstants.ParameterIDResinContent);
+                    string materialName = layer.GetLayerParameterValue(ZStringConstants.ParameterIDMaterial);
+
+                    MaterialSearchAttributes attributes = new MaterialSearchAttributes();
+                    attributes.LayerType = layerType;
+                    attributes.Dk = dk ?? string.Empty;
+                    attributes.Construction = construction ?? string.Empty;
+                    attributes.Resin = resin ?? string.Empty;
+                    attributes.MaterialName = materialName ?? string.Empty;
+                    attributes.Thickness = thickness ?? string.Empty;
+
+                    if (!layersByAttributesList.ContainsKey(attributes)) layersByAttributesList.Add(attributes, new List<ZLayer>());
+
+                    layersByAttributesList[attributes].Add(layer);
+                }
+            }
+                
+            string fabricatorSuffix = "(" + fabricator + ")";
+
+            foreach (MaterialSearchAttributes attributes in layersByAttributesList.Keys)
+            {
+                ZMaterial material = ZPlannerManager.Dml.FinedMaterial(libraryCetegories, attributes);
+
+                if (material != null)
+                {
+                    AssignMaterialToStackup(material, layersByAttributesList[attributes]);
+                }
+                else
+                {
+                    if (attributes.LayerType == ZLayerType.Prepreg) isMaterialFound = false;
+
+                    ZMaterial newMaterial = null;
+                    string dk = null;
+                    string df = null;
+                    foreach (ZLayer layer in layersByAttributesList[attributes])
+                    {
+                        if (string.IsNullOrWhiteSpace(dk) || string.IsNullOrWhiteSpace(df))
+                        {
+                            DMLMatch.MatchDkDf(layer);
+                            dk = layer.GetLayerParameterValue(ZStringConstants.ParameterIDDielectricConstant);
+                            df = layer.GetLayerParameterValue(ZStringConstants.ParameterIDLossTangent);
+                        }
+                        else
+                        {
+                            layer.SetLayerParameterValue(ZStringConstants.ParameterIDDielectricConstant, dk, true);
+                            layer.SetLayerParameterValue(ZStringConstants.ParameterIDLossTangent, df, true);
+                        }
+
+                        foreach (var single in layer.Stackup.Singles)
+                        {
+                            layer.Stackup.GetLayerOfSingleImpedance(layer.ID, single.ID).SetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant, dk);
+                            layer.Stackup.GetLayerOfSingleImpedance(layer.ID, single.ID).SetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent, df);
+                        }
+
+                        foreach (var pair in layer.Stackup.Pairs)
+                        {
+                            layer.Stackup.GetLayerOfPairImpedance(layer.ID, pair.ID).SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_DielectricConstant, dk);
+                            layer.Stackup.GetLayerOfPairImpedance(layer.ID, pair.ID).SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_LossTangent, df);
+                        }
+
+                        string sValue = layer.GetLayerParameterValue(ZStringConstants.ParameterIDComments) ?? string.Empty;
+                        if (sValue != string.Empty) sValue += " ";
+                        layer.SetLayerParameterValue(ZStringConstants.ParameterIDComments, sValue + "Local library.");
+
+                        string sMaterial = layer.GetLayerParameterValue(ZStringConstants.ParameterIDMaterial) ?? string.Empty;
+                        if (sMaterial.EndsWith(fabricatorSuffix)) sMaterial = sMaterial.Replace(fabricatorSuffix, string.Empty).Trim();
+                        if (sMaterial != string.Empty) sMaterial += " ";
+                        layer.SetLayerParameterValue(ZStringConstants.ParameterIDMaterial, sMaterial + fabricatorSuffix);
+
+                        if (newMaterial == null)
+                        {
+                            newMaterial = layer.GetMaterialFromLayer();
+                            newMaterial.SetMaterialParameterValue(ZStringConstants.DMLParameterIDCategory, ZStringConstants.MaterialCategoryLocal);
+
+                            MaterialSearchAttributes newAttributes = attributes.Clone();
+                            newAttributes.MaterialName = sMaterial;
+
+                            material = ZPlannerManager.Dml.FinedMaterial(new ZLibraryCategory[] { ZLibraryCategory.Local }, newAttributes);
+                            if (material == null) ZPlannerManager.Dml.AddMaterial(newMaterial);
+                        }
+                    }
+
+                    /*if (layersByAttributesList[attributes].Count > 0)
+                    {
+                        ZMaterial newMaterial = layersByAttributesList[attributes][0].GetMaterialFromLayer();
+                        if (newMaterial != null)
+                        {
+                            newMaterial.SetMaterialParameterValue(ZStringConstants.DMLParameterIDCategory, ZStringConstants.MaterialCategoryLocal);
+
+                            string sMaterial = newMaterial.GetMaterialParameterValue(ZStringConstants.DMLParameterIDMaterial) ?? string.Empty;
+                            if (sMaterial.EndsWith(fabricatorSuffix)) sMaterial = sMaterial.Replace(fabricatorSuffix, string.Empty).Trim();
+                            if (sMaterial != string.Empty) sMaterial += " ";
+                            sMaterial = sMaterial + fabricatorSuffix;
+                            newMaterial.SetMaterialParameterValue(ZStringConstants.DMLParameterIDMaterial, sMaterial);
+
+                            MaterialSearchAttributes newAttributes = attributes.Clone();
+                            newAttributes.MaterialName = sMaterial;
+
+                            material = ZPlannerManager.Dml.FinedMaterial(new ZLibraryCategory[] { ZLibraryCategory.Local }, newAttributes);
+
+                            if (material == null) ZPlannerManager.Dml.AddMaterial(newMaterial);
+                        }
+                    }*/
+                }
+            }
+
+            return isMaterialFound;
+        }
+
+        internal void CopyMaterialFromLayer(string layerId)
+        {
+            ZLayer layer = GetLayerOfStackup(layerId);
+            if (layer == null) return;
+
+            ZLayerType? layerType;
+            if (!layer.isDielectric(out layerType)) return;
+
+            bool isIgnoreCommands = ZPlannerManager.Commands.SuspendCommandEvent();
+
+            try
+            {
+                ZMaterial material = layer.GetMaterialFromLayer();
+                if (material == null) return;
+
+                ZPlannerManager.Clipboard.Remove(ZStringConstants.ClipbordKeyMaterials);
+                ZPlannerManager.Clipboard.Remove(ZStringConstants.ClipbordKeyMaterialsForStackup);
+                List<ZEntity> materials = new List<ZEntity>();
+                materials.Add(material.Clone());
+                ZPlannerManager.Clipboard.Add(ZStringConstants.ClipbordKeyMaterialsForStackup, materials);
+            }
+            finally
+            {
+                ZPlannerManager.Commands.ResumeCommandEvent(isIgnoreCommands);
+            }
+        }
+
         internal void AssignMaterialToStackup(ZMaterial material, List<ZLayer> layers)
         {
             bool isComplexCommandStarted = ZPlannerManager.Commands.IsComplexCommandStarted();
             if (!isComplexCommandStarted) ZPlannerManager.Commands.StartComplexCommand();
             bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
 
+            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDComments });
             List<LayerMaterialCommandStructure> layerMaterialStructureList = new List<LayerMaterialCommandStructure>();
 
             try
@@ -4664,9 +5850,8 @@ namespace ZZero.ZPlanner.Data.Entities
                     //newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDMaterial), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDMaterial));
                     newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDConstruction), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDNormalizedConstruction));
                     newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDThickness), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDH));
-                    //newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDWarpYarnCount), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDWarpYarnCount));
-                    //newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDFillYarnCount), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDFillYarnCount));
-                    //newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDManufacturer), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDManufacturer));
+                    newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDOriginThickness), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDH));
+                    
                     newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDResinContent), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDResin));
 
                     newValueByLayerParameter.Add(layer.GetLayerParameter(ZStringConstants.ParameterIDDielectricConstant), material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDDk));
@@ -4686,6 +5871,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
                     foreach (ZMaterialParameter mParameter in material.MaterialParameters)
                     {
+                        if (layerParametersToBeIgnored.Contains(mParameter.ID)) continue;
                         ZLayerParameter lParameter = layer.GetLayerParameter(mParameter.ID);
                         if (lParameter != null && !newValueByLayerParameter.Keys.Contains(lParameter)) newValueByLayerParameter.Add(lParameter, mParameter.Value);
                     }
@@ -4709,6 +5895,7 @@ namespace ZZero.ZPlanner.Data.Entities
             }
             finally
             {
+                //ZPlannerManager.CalculatePressedThickness(ZPlannerManager.IsPressedThickness);  // Excessive call
                 ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
                 ZPlannerManager.UpdateActiveStackup();
                 if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
@@ -4736,7 +5923,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
                     LayerMaterialCommandStructure currentLayerMaterialStructure = new LayerMaterialCommandStructure();
 
-                    currentLayerMaterialStructure.MaterialParameterValue = ZStringConstants.DefaultDielectricMaterial;
+                    currentLayerMaterialStructure.MaterialParameterValue = layerParameter.Value + " (Editable)";
                     currentLayerMaterialStructure.LayerParameter = layerParameter;
                     currentLayerMaterialStructure.LayerParameterValue = layerParameter.Value;
                     currentLayerMaterialStructure.IsMaterialAssigned = false;
@@ -4949,7 +6136,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public bool MirrorStackup(bool allowEnlargeStackup = false)
         {
-            ZPlannerManager.StatusMenu.StartProgress("Mirroring the Stackup ...", true);
+            ZPlannerManager.StatusMenu.StartProgress("Mirroring Stackup ...", true);
             Cursor currentCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
             bool isComplexCommandStarted = ZPlannerManager.Commands.IsComplexCommandStarted();
@@ -5232,7 +6419,7 @@ namespace ZZero.ZPlanner.Data.Entities
                 ZPlannerManager.StackupPanel.SetReadOnlyCells();
                 ZPlannerManager.StackupPanel.FormatGridView();
                 Cursor.Current = currentCursor;
-                ZPlannerManager.StatusMenu.StopProgress("Mirroring the Stackup ...");
+                ZPlannerManager.StatusMenu.StopProgress("Mirroring Stackup ...");
             }
 
             return true;
@@ -5255,7 +6442,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
         public bool IsMirroredByTypesAndValues()
         {
-            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDLayerNumber, ZStringConstants.ParameterIDLayerName, ZStringConstants.ParameterIDCopperPercent, ZStringConstants.ParameterIDNarrowTop, ZStringConstants.ParameterIDCalcRoughTop, ZStringConstants.ParameterIDCalcRoughBottom, ZStringConstants.ParameterIDZo_InsertionLoss, ZStringConstants.ParameterIDZo_TotalLoss, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TotalLoss, ZStringConstants.ParameterIDZo_TopReference, ZStringConstants.ParameterIDZo_BottomReference, ZStringConstants.ParameterIDZdiff_TopReference, ZStringConstants.ParameterIDZdiff_BottomReference });
+            List<string> layerParametersToBeIgnored = new List<string>(new string[] { ZStringConstants.ParameterIDComments, ZStringConstants.ParameterIDLayerNumber, ZStringConstants.ParameterIDLayerName, ZStringConstants.ParameterIDCopperPercent, ZStringConstants.ParameterIDNarrowTop, ZStringConstants.ParameterIDCalcRoughTop, ZStringConstants.ParameterIDCalcRoughBottom, ZStringConstants.ParameterIDZo_InsertionLoss, ZStringConstants.ParameterIDZo_TotalLoss, ZStringConstants.ParameterIDZdiff_InsertionLoss, ZStringConstants.ParameterIDZdiff_TotalLoss, ZStringConstants.ParameterIDZo_TopReference, ZStringConstants.ParameterIDZo_BottomReference, ZStringConstants.ParameterIDZdiff_TopReference, ZStringConstants.ParameterIDZdiff_BottomReference });
             
             for (int i = 0; i < (int)(Layers.Count * 0.5); ++i)
             {
@@ -5306,22 +6493,22 @@ namespace ZZero.ZPlanner.Data.Entities
 
             foreach (ZLayer layer in outerLayers)
             {
-                layer.SetLayerParameterValue(ZStringConstants.ParameterIDCopperThickness, (Options.TheOptions.base_trace_thickness + Options.TheOptions.plating_thickness).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                layer.SetLayerParameterValue(ZStringConstants.ParameterIDCopperThickness, (Options.TheOptions.base_trace_thickness + Options.TheOptions.plating_thickness).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 layer.SetLayerParameterValue(ZStringConstants.ParameterIDThickness, ZPlannerManager.GetThicknesStringByCopperWeight(Options.TheOptions.base_trace_thickness + Options.TheOptions.plating_thickness));
                 layer.SetLayerParameterValue(ZStringConstants.ParameterIDComments, "Includes plating");
 
                 foreach (ZSingle single in Singles)
                 {
                     ZLayer singleLayer = this.GetLayerOfSingleImpedance(layer.ID, single.ID);
-                    singleLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZo_TraceWidth, Options.TheOptions.outer_trace_width.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    singleLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZo_TraceWidth, Options.TheOptions.outer_trace_width.ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 }
 
                 foreach(ZPair pair in Pairs)
                 {
                     ZLayer pairLayer = this.GetLayerOfPairImpedance(layer.ID, pair.ID);
-                    pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceWidth, Options.TheOptions.outer_diff_trace_width.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
-                    pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceSpacing, Options.TheOptions.outer_diff_trace_spacing.ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
-                    pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TracePitch, (Options.TheOptions.outer_diff_trace_spacing + Options.TheOptions.outer_diff_trace_width).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceWidth, Options.TheOptions.outer_diff_trace_width.ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
+                    pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceSpacing, Options.TheOptions.outer_diff_trace_spacing.ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
+                    pairLayer.SetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TracePitch, (Options.TheOptions.outer_diff_trace_spacing + Options.TheOptions.outer_diff_trace_width).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 }
             }
         }
@@ -5536,19 +6723,224 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
-        private bool byCopperCoverage;
-        internal bool ByCopperCoverage
+        private double core_side_roughness_hte;
+        internal double CoreSideRoughnessHTE
         {
             get
             {
-                return byCopperCoverage;
+                return core_side_roughness_hte;
             }
             set
             {
-                if (byCopperCoverage != value)
+                if (core_side_roughness_hte != value)
                 {
-                    byCopperCoverage = value;
-                    NotifyPropertyChanged("ByCopperCoverage");
+                    core_side_roughness_hte = value;
+                    NotifyPropertyChanged("CoreSideRoughnessHTE");
+                }
+            }
+        }
+
+        private double core_side_roughness_rtf;
+        internal double CoreSideRoughnessRTF
+        {
+            get
+            {
+                return core_side_roughness_rtf;
+            }
+            set
+            {
+                if (core_side_roughness_rtf != value)
+                {
+                    core_side_roughness_rtf = value;
+                    NotifyPropertyChanged("CoreSideRoughnessRTF");
+                }
+            }
+        }
+
+        private double core_side_roughness_vlp;
+        internal double CoreSideRoughnessVLP
+        {
+            get
+            {
+                return core_side_roughness_vlp;
+            }
+            set
+            {
+                if (core_side_roughness_vlp != value)
+                {
+                    core_side_roughness_vlp = value;
+                    NotifyPropertyChanged("CoreSideRoughnessVLP");
+                }
+            }
+        }
+
+        private double core_side_roughness_vlp2;
+        internal double CoreSideRoughnessVLP2
+        {
+            get
+            {
+                return core_side_roughness_vlp2;
+            }
+            set
+            {
+                if (core_side_roughness_vlp2 != value)
+                {
+                    core_side_roughness_vlp2 = value;
+                    NotifyPropertyChanged("CoreSideRoughnessVLP2");
+                }
+            }
+        }
+
+        private double core_side_roughness_hvlp;
+        internal double CoreSideRoughnessHVLP
+        {
+            get
+            {
+                return core_side_roughness_hvlp;
+            }
+            set
+            {
+                if (core_side_roughness_hvlp != value)
+                {
+                    core_side_roughness_hvlp = value;
+                    NotifyPropertyChanged("CoreSideRoughnessHVLP");
+                }
+            }
+        }
+
+        //prepreg-side roughness
+        private double prepreg_side_roughness_mb100le;
+        internal double PrepregSideRoughnessMB100LE
+        {
+            get
+            {
+                return prepreg_side_roughness_mb100le;
+            }
+            set
+            {
+                if (prepreg_side_roughness_mb100le != value)
+                {
+                    prepreg_side_roughness_mb100le = value;
+                    NotifyPropertyChanged("PrepregSideRoughnessMB100LE");
+                }
+            }
+        }
+
+        private double prepreg_side_roughness_alphaprep;
+        internal double PrepregSideRoughnessAlphaPrep
+        {
+            get
+            {
+                return prepreg_side_roughness_alphaprep;
+            }
+            set
+            {
+                if (prepreg_side_roughness_alphaprep != value)
+                {
+                    prepreg_side_roughness_alphaprep = value;
+                    NotifyPropertyChanged("PrepregSideRoughnessAlphaPrep");
+                }
+            }
+        }
+
+        private double prepreg_side_roughness_mb100zk;
+        internal double PrepregSideRoughnessMB100ZK
+        {
+            get
+            {
+                return prepreg_side_roughness_mb100zk;
+            }
+            set
+            {
+                if (prepreg_side_roughness_mb100zk != value)
+                {
+                    prepreg_side_roughness_mb100zk = value;
+                    NotifyPropertyChanged("PrepregSideRoughnessMB100ZK");
+                }
+            }
+        }
+
+        private double prepreg_side_roughness_bf;
+        internal double PrepregSideRoughnessBF
+        {
+            get
+            {
+                return prepreg_side_roughness_bf;
+            }
+            set
+            {
+                if (prepreg_side_roughness_bf != value)
+                {
+                    prepreg_side_roughness_bf = value;
+                    NotifyPropertyChanged("PrepregSideRoughnessBF");
+                }
+            }
+        }
+
+        private double prepreg_side_roughness_cz8100;
+        internal double PrepregSideRoughnessCZ8100
+        {
+            get
+            {
+                return prepreg_side_roughness_cz8100;
+            }
+            set
+            {
+                if (prepreg_side_roughness_cz8100 != value)
+                {
+                    prepreg_side_roughness_cz8100 = value;
+                    NotifyPropertyChanged("PrepregSideRoughnessCZ8100");
+                }
+            }
+        }
+
+        private double prepreg_side_roughness_mb100hp;
+        internal double PrepregSideRoughnessMB100HP
+        {
+            get
+            {
+                return prepreg_side_roughness_mb100hp;
+            }
+            set
+            {
+                if (prepreg_side_roughness_mb100hp != value)
+                {
+                    prepreg_side_roughness_mb100hp = value;
+                    NotifyPropertyChanged("PrepregSideRoughnessMB100HP");
+                }
+            }
+        }
+
+        private OxideAlternativeTreatmentsType? oxide_alternative_treatments = null;
+        internal OxideAlternativeTreatmentsType? OxideAlternativeTreatments
+        {
+            get
+            {
+                return oxide_alternative_treatments;
+            }
+            set
+            {
+                if (oxide_alternative_treatments != value)
+                {
+                    oxide_alternative_treatments = value;
+                    NotifyPropertyChanged("OxideAlternativeTreatments");
+                }
+            }
+        }
+
+        private ZCopperCoverageType copperCoverageType;
+        internal ZCopperCoverageType CopperCoverageType
+        {
+            get
+            {
+                return copperCoverageType;
+            }
+            set
+            {
+                if (copperCoverageType != value)
+                {
+                    copperCoverageType = value;
+                    NotifyPropertyChanged("CopperCoverageType");
                 }
             }
         }
@@ -5757,6 +7149,7 @@ namespace ZZero.ZPlanner.Data.Entities
         internal bool IsHeadersVisible;
         internal bool IsColorDisabledCells;
         internal bool IsSequentialLaminationSetByUser;
+        internal bool IsKeepImportedPressedThickness;
 
 
         internal double GetFrequencyByLayer(ZLayer layer)
@@ -5802,6 +7195,27 @@ namespace ZZero.ZPlanner.Data.Entities
             }
 
             ZPlannerManager.StatusMenu.SetStackupParameters(this);
+        }
+
+        public void SetAllLayerParameterValues(string parameterName, string oldValue, string newValue)
+        {
+            foreach(ZLayer layer in Layers)
+            {
+                ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == parameterName);
+                if (layerParameter == null) continue;
+
+                if (layerParameter.Parameter.ValueType == ZValueType.Number || layerParameter.Parameter.ValueType == ZValueType.Percent)
+                {
+                    double dOldValue, dValue;
+                    if (double.TryParse (oldValue, NumberStyles.Any, CultureInfo.InvariantCulture, out dOldValue) && 
+                        double.TryParse (layerParameter.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue) &&
+                        dValue == dOldValue) layerParameter.Value = newValue;
+                }
+                else
+                {
+                    if (layerParameter.Value == oldValue) layerParameter.Value = newValue;
+                }
+            }
         }
 
         //--------------- calculate layer dynamic properties in the stackup ------------------------------------
@@ -5850,9 +7264,71 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
+        private double CheckFoilTreatment(ZLayer zl)
+        {
+            double retval = -1;
+            string sval = "";
+            if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDFoilTreatment, ref sval)){
+                if (sval.Contains("HTE"))
+                {
+                    retval = CoreSideRoughnessHTE; // 7.5;
+                }
+                else if (sval.Contains("RTF"))
+                {
+                    retval = CoreSideRoughnessRTF; // 5;
+                }
+                else if (sval.Contains("VLP"))
+                {
+                    retval = CoreSideRoughnessVLP; // 3;
+                    if (sval.Contains("VLP-2") || sval.Contains("VLP 2") || sval.Contains("VLP2"))
+                    {
+                        retval = CoreSideRoughnessVLP2; // 2;
+                    }
+                    else if (sval.Contains("HVLP"))
+                    {
+                        retval = CoreSideRoughnessHVLP; // 1;
+                    }
+                }
+            }
+
+            return retval;
+        }
+
+        private double CheckPrepregSideRoughness()
+        {
+            double retval = 0;
+            if (OxideAlternativeTreatments == null) return retval;
+            switch (OxideAlternativeTreatments)
+            {
+                case OxideAlternativeTreatmentsType.MacDermidMultiBond100LE:
+                    retval = PrepregSideRoughnessMB100LE;
+                    break;
+                case OxideAlternativeTreatmentsType.MacDermidEnthoneAlphaPrep:
+                    retval = PrepregSideRoughnessAlphaPrep;
+                    break;
+                case OxideAlternativeTreatmentsType.MacDermidMultiBond100ZK:
+                    retval = PrepregSideRoughnessMB100ZK;
+                    break;
+                case OxideAlternativeTreatmentsType.AtotechBondFilm:
+                    retval = PrepregSideRoughnessBF;
+                    break;
+                case OxideAlternativeTreatmentsType.MECetchBONDCZ8100:
+                    retval = PrepregSideRoughnessCZ8100;
+                    break;
+                case OxideAlternativeTreatmentsType.MacDermidMultiBond100HP:
+                    retval = PrepregSideRoughnessMB100HP;
+                    break;
+            }
+            return retval;
+        }
+
         private bool GetLayerRoughness(ZLayer zl, ref double rough_top, ref double rough_bottom)
         {
             rough_top = rough_bottom = 0;
+
+            double prepreg_side_roughness = CheckPrepregSideRoughness();
+            if (prepreg_side_roughness == 0) prepreg_side_roughness = PrepregSideRoughness;
+
 
             int idx = GetLayerOfStackupIndex(zl.ID);
             //double check if layer is metal
@@ -5875,32 +7351,64 @@ namespace ZZero.ZPlanner.Data.Entities
 
             if ((lPrev == null) || lPrev.GetLayerType() == ZLayerType.SolderMask) //outer top layer
             {
-                rough_top = OuterLayerRoughness;
+                double r = CheckFoilTreatment(zl);
+                if (r > 0)
+                {
+                    rough_top = r;
+                }
+                else
+                {
+                    rough_top = OuterLayerRoughness;
+                }
             }
             else
             {
                 if (lPrev.GetLayerType() == ZLayerType.Prepreg)
                 {
-                    rough_top = PrepregSideRoughness;
+                    rough_top = prepreg_side_roughness;// PrepregSideRoughness;
                 }
                 else
                 {
-                    rough_top = LaminateSideRoughness;
+                    double r = CheckFoilTreatment(zl);
+                    if (r > 0)
+                    {
+                        rough_top = r;
+                    }
+                    else
+                    {
+                        rough_top = LaminateSideRoughness;
+                    }
                 }
             }
 
             if ((lNext == null) || lNext.GetLayerType() == ZLayerType.SolderMask) //outer bottom layer
             {
-                rough_bottom = OuterLayerRoughness;
+                double r = CheckFoilTreatment(zl);
+                if (r > 0)
+                {
+                    rough_bottom = r;
+                }
+                else
+                {
+                    rough_bottom = OuterLayerRoughness;
+                }
             }
             else { 
                 if (lNext.GetLayerType() == ZLayerType.Prepreg)
                 {
-                    rough_bottom = PrepregSideRoughness;
+                    rough_bottom = prepreg_side_roughness;// PrepregSideRoughness;
                 }
                 else
                 {
-                    rough_bottom = LaminateSideRoughness;
+                    double r = CheckFoilTreatment(zl);
+                    if (r > 0)
+                    {
+                        rough_bottom = r;
+                    }
+                    else
+                    {
+                        rough_bottom = LaminateSideRoughness;
+                    }
                 }
             }
 
@@ -5933,6 +7441,7 @@ namespace ZZero.ZPlanner.Data.Entities
                 switch (l.GetLayerType())
                 {
                     case ZLayerType.Plane:
+                        fPrev = 0;
                         b = true;
                         break;
                     case ZLayerType.Signal:
@@ -5952,6 +7461,7 @@ namespace ZZero.ZPlanner.Data.Entities
                 switch (l.GetLayerType())
                 {
                     case ZLayerType.Plane:
+                        fNext = 0;
                         b = true;
                         break;
                     case ZLayerType.Signal:
@@ -5964,7 +7474,8 @@ namespace ZZero.ZPlanner.Data.Entities
             }
 
             //
-            return Math.Max(fPrev, fNext);
+            double fmax = Math.Max(fPrev, fNext);
+            return fmax > 0 ? fmax : Frequency;
         }
 
         public void DefineTrapezoids()
@@ -6084,6 +7595,18 @@ namespace ZZero.ZPlanner.Data.Entities
             }
         }
 
+        public void UpdateGlassPitch()
+        {
+            foreach (ZLayer zl in Layers)
+            {
+                if (zl.isDielectric())
+                {
+                    GlassPitch gp = new GlassPitch(zl);
+                    gp.Init();
+                }
+            }
+        }
+
         public void CalculatePrepregAdjustedThickness(bool isAdjusted)
         {
             foreach (ZLayer zl in Layers)
@@ -6092,7 +7615,20 @@ namespace ZZero.ZPlanner.Data.Entities
                 {
                     double t = double.NaN;
                     if (isAdjusted)
-                        t= GetPrepregAdjustedThickness(zl);
+                    {
+                        bool bCalc = true;
+                        if (IsKeepImportedPressedThickness)
+                        {
+                            double x = 0;
+                            if (zl.GetLayerParameterValue(ZStringConstants.ParameterIDFabricatorThickness, out x)){
+                                t = x;
+                                bCalc = false;
+                            }
+                        }
+                        
+                        if (bCalc)
+                            t = GetPrepregAdjustedThickness(zl);
+                    }
 
                     ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, t);
                 }
@@ -6186,6 +7722,184 @@ namespace ZZero.ZPlanner.Data.Entities
             return res;
         }
 
+        public double RestorePrepregUnpressedThickness(ZLayer zl) //from pressed to unpressed
+        {
+            bool canAdjust = false;
+            ZLayerType? type = zl.GetLayerType();
+
+            double base_thicknes = 0;
+            ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, ref base_thicknes);
+
+            double new_thickness = base_thicknes;
+
+            if (type == ZLayerType.Prepreg)
+            {
+                bool bUp = false, bDown = false;
+                ZLayer lPrev = null;
+                ZLayer lNext = null;
+
+
+                bool bSequentialLamination = false;
+                ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDSequentialLamination, ref bSequentialLamination);
+                bool bSeqLam = isMicrostripPrepreg(zl) || bSequentialLamination;
+                int nLayers = Layers.Count;
+                int middle = nLayers / 2; //0-based
+
+                bool bUpperHalf = true;
+                int idx = 0;
+                foreach (ZLayer l in Layers)
+                {
+                    if (l.ID == zl.ID) break;
+                    idx++;
+                    if (idx > middle)
+                    {
+                        bUpperHalf = false;
+                        break;
+                    }
+                }
+
+                lPrev = GetMetalUp(zl, out bUp);
+                lNext = GetMetalDown(zl, out bDown);
+                canAdjust = lPrev != null && lNext != null;
+
+                //now do the adjustment
+                if (canAdjust)
+                {
+                    ZLayerType? tprev = lPrev.GetLayerType();
+                    ZLayerType? tnext = lNext.GetLayerType();
+
+                    double coef = 1;
+                    switch (CopperCoverageType)
+                    {
+                        case ZCopperCoverageType.PrepregPercent:
+                            // coper coverage of neighbors
+                            if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.Signal))
+                            {
+                                coef = ForSignalSignal / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.SplitMixed))
+                            {
+                                coef = ForSignalMixed / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.Plane))
+                            {
+                                coef = ForSignalPlane / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.SplitMixed, ZLayerType.SplitMixed))
+                            {
+                                coef = ForMixedMixed / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.SplitMixed, ZLayerType.Plane))
+                            {
+                                coef = ForMixedPlane / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.Plane, ZLayerType.Plane))
+                            {
+                                coef = ForPlanePlane / 100;
+                            }
+                            new_thickness /= coef;
+                            break;
+                        case ZCopperCoverageType.PrepregProportional:
+                            // pressed between
+                            double wPrev = 0, wNext = 0;
+                            double metal_thickness = 0;
+                            double copperPercent = 0;
+
+                            //upper layer
+                            ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDThickness, ref metal_thickness);
+                            switch (tprev)
+                            {
+                                case ZLayerType.Signal: wPrev = metal_thickness * (1 - ForSignal / 100); break;
+                                case ZLayerType.Plane: wPrev = metal_thickness * (1 - ForPlane / 100); break;
+                                case ZLayerType.SplitMixed: wPrev = metal_thickness * (1 - ForMixed / 100); break;
+                            }
+
+                            //lower layer
+                            ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDThickness, ref metal_thickness);
+                            switch (tnext)
+                            {
+                                case ZLayerType.Signal: wNext = metal_thickness * (1 - ForSignal / 100); break;
+                                case ZLayerType.Plane: wNext = metal_thickness * (1 - ForPlane / 100); break;
+                                case ZLayerType.SplitMixed: wNext = metal_thickness * (1 - ForMixed / 100); break;
+                            }
+
+                            double delta = 0;
+                            if (bUp)
+                            {
+                                bool bIgnoreUpper = bSeqLam && bUpperHalf;
+                                if (!bIgnoreUpper) delta += wPrev;
+                            }
+                            if (bDown)
+                            {
+                                bool bIgnoreLower = bSeqLam && !bUpperHalf;
+                                if (!bIgnoreLower) delta += wNext;
+                            }
+
+                            new_thickness = base_thicknes + delta;
+                            break;
+                        case ZCopperCoverageType.ManuallyEntered:
+                        case ZCopperCoverageType.RestoredOnImport:
+                            // manually entered values
+                            wPrev = 0;
+                            wNext = 0;
+                            metal_thickness = 0;
+                            copperPercent = 0;
+
+                            //upper layer
+                            ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDThickness, ref metal_thickness);
+                            bool bCopper = ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDCopperPercent, ref copperPercent);
+                            if (bCopper && copperPercent > 0)
+                            {
+                                wPrev = metal_thickness * (1 - copperPercent / 100);
+                            }
+                            else
+                            {
+                                switch (tprev)
+                                {
+                                    case ZLayerType.Signal: wPrev = metal_thickness * (1 - ForSignal / 100); break;
+                                    case ZLayerType.Plane: wPrev = metal_thickness * (1 - ForPlane / 100); break;
+                                    case ZLayerType.SplitMixed: wPrev = metal_thickness * (1 - ForMixed / 100); break;
+                                }
+                            }
+
+                            //lower layer
+                            ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDThickness, ref metal_thickness);
+                            bCopper = ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDCopperPercent, ref copperPercent);
+                            if (bCopper && copperPercent > 0)
+                            {
+                                wNext = metal_thickness * (1 - copperPercent / 100);
+                            }
+                            else
+                            {
+                                switch (tnext)
+                                {
+                                    case ZLayerType.Signal: wNext = metal_thickness * (1 - ForSignal / 100); break;
+                                    case ZLayerType.Plane: wNext = metal_thickness * (1 - ForPlane / 100); break;
+                                    case ZLayerType.SplitMixed: wNext = metal_thickness * (1 - ForMixed / 100); break;
+                                }
+                            }
+
+                            delta = 0;
+                            if (bUp)
+                            {
+                                bool bIgnoreUpper = bSeqLam && bUpperHalf;
+                                if (!bIgnoreUpper) delta += wPrev;
+                            }
+                            if (bDown)
+                            {
+                                bool bIgnoreLower = bSeqLam && !bUpperHalf;
+                                if (!bIgnoreLower) delta += wNext;
+                            }
+
+                            new_thickness = base_thicknes + delta;
+                            break;
+                    }
+                }
+            }
+
+            return new_thickness;
+        }
+
         public double GetPrepregAdjustedThickness(ZLayer zl)
         {
             bool canAdjust = false;
@@ -6233,103 +7947,376 @@ namespace ZZero.ZPlanner.Data.Entities
                     ZLayerType? tnext = lNext.GetLayerType();
 
                     double coef = 1;
-                    if (!ByCopperCoverage)
-                    // coper coverage of neighbors
-                    {
-                        if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.Signal))
-                        {
-                            coef = ForSignalSignal / 100;
-                        }
-                        else if (TypePair(tprev, tnext, ZLayerType.Signal,ZLayerType.SplitMixed))
-                        {
-                            coef = ForSignalMixed / 100;
-                        }
-                        else if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.Plane))
-                        {
-                            coef = ForSignalPlane / 100;
-                        }
-                        else if (TypePair(tprev, tnext, ZLayerType.SplitMixed, ZLayerType.SplitMixed))
-                        {
-                            coef = ForMixedMixed / 100;
-                        }
-                        else if (TypePair(tprev, tnext, ZLayerType.SplitMixed, ZLayerType.Plane))
-                        {
-                            coef = ForMixedPlane / 100;
-                        }
-                        else if (TypePair(tprev, tnext, ZLayerType.Plane, ZLayerType.Plane))
-                        {
-                            coef = ForPlanePlane / 100;
-                        }
-                        new_thickness *= coef;
-                    }
-                    else // pressed between
-                    {
-                        double wPrev = 0, wNext = 0;
-                        double metal_thickness = 0;
-                        double copperPercent = 0;
+                    switch(CopperCoverageType)
+                    { 
+                        case ZCopperCoverageType.PrepregPercent:
+                            // coper coverage of neighbors
+                            if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.Signal))
+                            {
+                                coef = ForSignalSignal / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.Signal,ZLayerType.SplitMixed))
+                            {
+                                coef = ForSignalMixed / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.Signal, ZLayerType.Plane))
+                            {
+                                coef = ForSignalPlane / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.SplitMixed, ZLayerType.SplitMixed))
+                            {
+                                coef = ForMixedMixed / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.SplitMixed, ZLayerType.Plane))
+                            {
+                                coef = ForMixedPlane / 100;
+                            }
+                            else if (TypePair(tprev, tnext, ZLayerType.Plane, ZLayerType.Plane))
+                            {
+                                coef = ForPlanePlane / 100;
+                            }
+                            new_thickness *= coef;
+                            break;
+                        case ZCopperCoverageType.PrepregProportional: 
+                            // pressed between
+                            double wPrev = 0, wNext = 0;
+                            double metal_thickness = 0;
+                            double copperPercent = 0;
 
-                        //upper layer
-                        ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDThickness, ref metal_thickness);
-                        bool bCopper = ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDCopperPercent, ref copperPercent);
-                        if (bCopper && copperPercent > 0)
-                        {
-                            wPrev = metal_thickness * (1 - copperPercent / 100);
-                        }
-                        else
-                        {
+                            //upper layer
+                            ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDThickness, ref metal_thickness);                           
                             switch (tprev)
                             {
                                 case ZLayerType.Signal: wPrev = metal_thickness * (1 - ForSignal / 100); break;
                                 case ZLayerType.Plane: wPrev = metal_thickness * (1 - ForPlane / 100); break;
                                 case ZLayerType.SplitMixed: wPrev = metal_thickness * (1 - ForMixed / 100); break;
                             }
-                        }
 
-                        //lower layer
-                        ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDThickness, ref metal_thickness);
-                        bCopper = ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDCopperPercent, ref copperPercent);
-                        if (bCopper && copperPercent > 0)
-                        {
-                            wNext = metal_thickness * (1 - copperPercent / 100);
-                        }
-                        else
-                        {
+                            //lower layer
+                            ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDThickness, ref metal_thickness);
                             switch (tnext)
                             {
                                 case ZLayerType.Signal: wNext = metal_thickness * (1 - ForSignal / 100); break;
                                 case ZLayerType.Plane: wNext = metal_thickness * (1 - ForPlane / 100); break;
                                 case ZLayerType.SplitMixed: wNext = metal_thickness * (1 - ForMixed / 100); break;
                             }
-                        }
 
-                        double delta = 0;
-                        if (bUp)
-                        {
-                            bool bIgnoreUpper = bSeqLam && bUpperHalf;
-                            if (!bIgnoreUpper)
+                            double delta = 0;
+                            if (bUp)
                             {
-                                delta += wPrev;
+                                bool bIgnoreUpper = bSeqLam && bUpperHalf;
+                                if (!bIgnoreUpper) delta += wPrev;
                             }
-                        }
-                        if (bDown)
-                        {
-                            bool bIgnoreLower = bSeqLam && !bUpperHalf;
-                            if (!bIgnoreLower) { 
-                            delta += wNext;
-                                }
-                        }
+                            if (bDown)
+                            {
+                                bool bIgnoreLower = bSeqLam && !bUpperHalf;
+                                if (!bIgnoreLower)  delta += wNext;
+                            }
 
-                        // check for invalid values
-                        double min_thickness = 0.2;
-                        if (base_thicknes > delta + min_thickness)
-                        {
-                            new_thickness = base_thicknes - delta;
-                        }
+                            // check for invalid values
+                            double min_thickness = 0.2;
+                            if (base_thicknes > delta + min_thickness)
+                            {
+                                new_thickness = base_thicknes - delta;
+                            }
+                            break;
+                        case ZCopperCoverageType.ManuallyEntered:
+                        case ZCopperCoverageType.RestoredOnImport:
+                            // manually entered or calculated values
+                            wPrev = 0;
+                            wNext = 0;
+                            metal_thickness = 0;
+                            copperPercent = 0;
+
+                            //upper layer
+                            ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDThickness, ref metal_thickness);
+                            bool bCopper = ZPlannerProject.GetLayerParameterValue(lPrev, ZStringConstants.ParameterIDCopperPercent, ref copperPercent);
+                            if (bCopper && copperPercent > 0)
+                            {
+                                wPrev = metal_thickness * (1 - copperPercent / 100);
+                            }
+                            else
+                            {
+                                switch (tprev)
+                                {
+                                    case ZLayerType.Signal: wPrev = metal_thickness * (1 - ForSignal / 100); break;
+                                    case ZLayerType.Plane: wPrev = metal_thickness * (1 - ForPlane / 100); break;
+                                    case ZLayerType.SplitMixed: wPrev = metal_thickness * (1 - ForMixed / 100); break;
+                                }
+                            }
+
+                            //lower layer
+                            ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDThickness, ref metal_thickness);
+                            bCopper = ZPlannerProject.GetLayerParameterValue(lNext, ZStringConstants.ParameterIDCopperPercent, ref copperPercent);
+                            if (bCopper && copperPercent > 0)
+                            {
+                                wNext = metal_thickness * (1 - copperPercent / 100);
+                            }
+                            else
+                            {
+                                switch (tnext)
+                                {
+                                    case ZLayerType.Signal: wNext = metal_thickness * (1 - ForSignal / 100); break;
+                                    case ZLayerType.Plane: wNext = metal_thickness * (1 - ForPlane / 100); break;
+                                    case ZLayerType.SplitMixed: wNext = metal_thickness * (1 - ForMixed / 100); break;
+                                }
+                            }
+
+                            delta = 0;
+                            if (bUp)
+                            {
+                                bool bIgnoreUpper = bSeqLam && bUpperHalf;
+                                if (!bIgnoreUpper) delta += wPrev;
+                            }
+                            if (bDown)
+                            {
+                                bool bIgnoreLower = bSeqLam && !bUpperHalf;
+                                if (!bIgnoreLower) delta += wNext;
+                            }
+
+                            // check for invalid values
+                            min_thickness = 0.2;
+                            if (base_thicknes > delta + min_thickness)
+                            {
+                                new_thickness = base_thicknes - delta;
+                            }
+                            break;
                     }
                 }
             }
 
             return new_thickness;
+        }
+
+        //restore copper percent from prepreg pressed/unpressed thicknesses
+        class layerData
+        {
+            public ZLayerType? type;
+            public bool bMicrostripPrepreg;
+            public double thickness, pressed_thickness;
+            public bool bMetal;
+            public bool bMaterialAssigned;
+
+            public layerData(ZLayer z)
+            {
+                type = z.GetLayerType();
+                bMetal = z.isMetal();
+                bMicrostripPrepreg = false;
+                bMaterialAssigned = z.IsMaterialAssigned;
+
+                if (type == ZLayerType.Prepreg)
+                {
+                    bMicrostripPrepreg = z.Stackup.isMicrostripPrepreg(z);
+                    ZPlannerProject.GetLayerParameterValue(z, ZStringConstants.ParameterIDOriginThickness, ref thickness);
+                    ZPlannerProject.GetLayerParameterValue(z, ZStringConstants.ParameterIDFabricatorThickness, ref pressed_thickness);
+                }
+                else
+                {
+                    ZPlannerProject.GetLayerParameterValue(z, ZStringConstants.ParameterIDThickness, ref thickness);
+                    pressed_thickness = thickness;
+                }      
+            }
+
+            public void Combine(layerData other)
+            {
+                thickness += other.thickness;
+                pressed_thickness += other.pressed_thickness;
+            }
+
+            public bool IsDifferentMetalType(layerData other)
+            {
+                if (bMetal && other.bMetal)
+                {
+                    if (type == ZLayerType.Plane && other.type != ZLayerType.Plane) return true;
+                    if (type != ZLayerType.Plane && other.type == ZLayerType.Plane) return true;
+                }
+                return false;
+            }
+        }
+
+        public bool RestoreCopperPercent()
+        {
+            double signal = ForSignal;
+            double plane = ForPlane;
+
+            List<layerData> layerList = new List<layerData>();
+            foreach (ZLayer z in Layers){
+                layerData lay = new layerData(z);
+                int iLast = layerList.Count - 1;
+                if (layerList.Count > 0 && lay.type == ZLayerType.Prepreg && layerList[iLast].type == ZLayerType.Prepreg)
+                {
+                    layerList[iLast].Combine(lay);
+                }
+                else
+                {
+                    layerList.Add(lay);
+                }
+            }
+
+            //microstrip prepeg
+            bool msPreg = false;
+            bool bFoundSignal = true;
+            bool bResult_Plane = false, bResult_Signal = false;
+            for (int i = 0; i < layerList.Count / 2 ; i++) 
+            {
+                layerData ld = layerList[i], next = layerList[i + 1];
+                ZLayerType? type = ld.type;
+                if (type == ZLayerType.Prepreg && ld.bMicrostripPrepreg && ld.bMaterialAssigned) 
+                {
+                    if (next.bMetal)
+                    {
+                        msPreg = true;
+                        double d = ld.thickness - ld.pressed_thickness;
+                        double coef = (1 - d / next.thickness) * 100;
+                        switch (next.type)
+                        {
+                            case ZLayerType.Signal:
+                            case ZLayerType.SplitMixed:
+                                signal = coef;
+                                bFoundSignal = true;
+                                bResult_Signal = true;
+                                break;
+                            case ZLayerType.Plane:
+                                plane = coef;
+                                bFoundSignal = false;
+                                bResult_Plane = true;
+                                break;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (msPreg)
+            {
+                //find second coefficient
+                for (int i = 1; i < layerList.Count - 1; i++) //iterate from second layer to the next-to-last
+                {
+                    layerData ld = layerList[i], prev = layerList[i - 1], next = layerList[i + 1];
+                    ZLayerType? type = ld.type;
+                    if (type == ZLayerType.Prepreg && !ld.bMicrostripPrepreg && ld.bMaterialAssigned)
+                    {
+                        //check adjacent metals
+                        if (prev.IsDifferentMetalType(next))
+                        {
+                            double d = ld.thickness - ld.pressed_thickness;
+                            double p = prev.type == ZLayerType.Plane ? prev.thickness : next.thickness;
+                            double s = prev.type == ZLayerType.Plane ? next.thickness : prev.thickness;
+                            if (bFoundSignal)
+                            {
+                                double coef = (d - s * (1 - signal / 100)) / p;
+                                plane = (1 - coef) * 100;
+                                bResult_Plane = true;
+                            }
+                            else
+                            {
+                                double coef = (d - p * (1 - plane / 100)) / s;
+                                signal = (1 - coef) * 100;
+                                bResult_Signal = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (!bResult_Plane && !bResult_Signal)
+                {//try artificial signal_copper/plane_copper ratio: 5/9
+                    //...
+                }
+            }
+            else //look for Sig-Preg-Plane combinations
+            {
+                double[] delta = new double[2];
+                double[] p = new double[2];
+                double[] s = new double[2];
+                int n = 0;
+                //find two Sig-Preg-Plane combinations
+                for (int i = 1; i < layerList.Count - 1; i++) //iterate from second layer to the next-to-last
+                {
+                    layerData ld = layerList[i], prev = layerList[i - 1], next = layerList[i + 1];
+                    if (ld.type == ZLayerType.Prepreg && ld.bMaterialAssigned)
+                    {
+                        //check adjacent metals
+                        if (prev.IsDifferentMetalType(next))
+                        {
+                            delta[n] = ld.thickness - ld.pressed_thickness;
+                            p[n] = prev.type == ZLayerType.Plane ? prev.thickness : next.thickness;
+                            s[n] = prev.type == ZLayerType.Plane ? next.thickness : prev.thickness;
+
+                            n++;
+                            if (n == 2)
+                            {
+                                //solve for signal/plane layers copper precent
+                                if (n == 2)
+                                {
+                                    try
+                                    {
+                                        double a = s[1] / s[0];
+                                        double x = 0, y = 0;
+                                        x = (delta[1] - a * delta[0]) / (p[1] - a * p[0]);
+                                        y = (delta[0] - p[0] * x) / s[0];
+
+                                        plane = (1 - x) * 100;
+                                        signal = (1 - y) * 100;
+
+                                        bool bInvalidPlane = Double.IsNaN(plane) || Double.IsInfinity(plane);
+                                        bool bInvalidSignal = Double.IsNaN(signal) || Double.IsInfinity(signal);
+
+                                        if (bInvalidPlane || bInvalidSignal)
+                                        {
+                                            n = 1;
+                                            continue; //ill-defined system: use artificial ratio
+                                        }
+
+                                        bResult_Plane = bResult_Signal = true;
+                                        break;
+                                    }
+                                    catch
+                                    {
+                                        n = 1;
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (bResult_Plane || bResult_Signal)
+            {
+                //double check the results
+                if (plane > 0 && signal > 0) { 
+                    //assign to layers
+                    foreach (ZLayer zl in Layers)
+                    {
+                        switch (zl.GetLayerType())
+                        {
+                            case ZLayerType.Plane:
+                                {
+                                    ZLayerParameter lp = zl.GetLayerParameter(ZStringConstants.ParameterIDCopperPercent);
+                                    if (!lp.IsEdited && bResult_Plane)
+                                    {
+                                        ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDCopperPercent, plane, true);
+                                    }
+                                }
+                                break;
+                            case ZLayerType.Signal:
+                            case ZLayerType.SplitMixed:
+                                {
+                                    ZLayerParameter lp = zl.GetLayerParameter(ZStringConstants.ParameterIDCopperPercent);
+                                    if (!lp.IsEdited && bResult_Signal)
+                                    {
+                                        ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDCopperPercent, signal, true);
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (bResult_Plane || bResult_Signal) CopperCoverageType = ZCopperCoverageType.RestoredOnImport;
+
+            return bResult_Plane || bResult_Signal;
         }
 
         private bool CheckRange(double dval, double min, double max)
@@ -6376,6 +8363,7 @@ namespace ZZero.ZPlanner.Data.Entities
             int currIdx = 0, prevIdx = 0;
             int numPlanes = 0;
             int nMetals = 0;
+            ZLayer zPrevLayer = null;
             foreach (ZLayer zl in Layers)
             {
                 currMetal = zl.isMetal();
@@ -6420,8 +8408,11 @@ namespace ZZero.ZPlanner.Data.Entities
                                 //only metal before Core
                                 if (!prevMetal)
                                 {
-                                    message = String.Format("Dielectric layer {0} adjacent to Core {1}.", prevIdx + 1, currIdx + 1);
-                                    return false;
+                                    if (!zl.isDummyCore())
+                                    {
+                                        message = String.Format("Dielectric layer {0} adjacent to Core {1}.", prevIdx + 1, currIdx + 1);
+                                        return false;
+                                    }
                                 }
                                 break;
 
@@ -6429,8 +8420,11 @@ namespace ZZero.ZPlanner.Data.Entities
                                 //any layer before prepreg except core
                                 if (prevType == ZLayerType.Core)
                                 {
-                                    message = String.Format("Prepreg layer {0} adjacent to Core {1}.", currIdx + 1, prevIdx + 1);
-                                    return false;
+                                    if (zPrevLayer != null && !zPrevLayer.isDummyCore())
+                                    {
+                                        message = String.Format("Prepreg layer {0} adjacent to Core {1}.", currIdx + 1, prevIdx + 1);
+                                        return false;
+                                    }
                                 }
                                 break;
 
@@ -6443,9 +8437,9 @@ namespace ZZero.ZPlanner.Data.Entities
                 if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, ref dval))
                 {
                     //check range
-                    if (!CheckRange(dval, 0.1, 30))
+                    if (!CheckRange(dval, 0.1, 50))
                     {
-                        message = String.Format("Layer {0} {1} value must be in the range [{2}..{3}].", currIdx + 1, "thickness", 0.1, 30);
+                        message = String.Format("Layer {0} {1} value must be in the range [{2}..{3}].", currIdx + 1, "thickness", 0.1, 50);
                         return false;
                     }
                 }
@@ -6585,6 +8579,7 @@ namespace ZZero.ZPlanner.Data.Entities
                 prevType = currType;
                 prevMetal = currMetal;   
                 prevIdx = currIdx;
+                zPrevLayer = zl;
             }
 
             if (numPlanes == 0) // && nMetals > 2)
@@ -6600,6 +8595,8 @@ namespace ZZero.ZPlanner.Data.Entities
         {
             //look for sequential lamination structure(s)
             int nLayers = Layers.Count;
+            if (nLayers <= 0) return 0;
+
             int middle = nLayers / 2 + 1;//1-based
 
             int count = Layers.Count;
@@ -6658,7 +8655,7 @@ namespace ZZero.ZPlanner.Data.Entities
 
             if (bSymmetry)
             {
-                return iMetal;
+                if (iMetal > 0) return iMetal-1; else return 0;
             }
 
             //check if Core is the center of stackup symmetry
@@ -6697,6 +8694,7 @@ namespace ZZero.ZPlanner.Data.Entities
             }
             ID = id;
         }
+
         public SelectList(string id)
         {
             Values = new List<string>();
@@ -6707,20 +8705,39 @@ namespace ZZero.ZPlanner.Data.Entities
         private List<string> Values { get; set; }
         private Dictionary<string, string> Dict { get; set; }
 
-        public void AddValue(string value)
+        public string AddValue(string value)
         {
+            if (this.ID == ZStringConstants.ListIDCopperThickness)
+            {
+                double dValue, dV;
+
+                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
+                {
+                    foreach (string item in this.Values)
+                    {
+                        if (double.TryParse(item, NumberStyles.Any, CultureInfo.InvariantCulture, out dV) && dV == dValue) return item;
+                    }
+                }
+                else
+                {
+                    if (this.Values.Contains(value)) return value;
+                }
+            }
+
             Values.Add(value);
 
             if (value.StartsWith("/"))
             {
                 Regex slashPattern = new Regex(@"^(?<slashKey>/[0123456789]+)\s+-\s+(?<slashValue>.+)$", RegexOptions.Compiled | RegexOptions.Singleline);
                 Match slashMatch = slashPattern.Match(value);
-                if (!slashMatch.Success) return;
+                if (!slashMatch.Success) return string.Empty;
                 string slashKey = slashMatch.Groups["slashKey"].Value;
                 string slashValue = slashMatch.Groups["slashValue"].Value.Trim();
 
                 Dict.Add(slashKey, slashKey + " - " + slashValue);
             }
+
+            return value;
         }
 
         public List<string> GetValues()

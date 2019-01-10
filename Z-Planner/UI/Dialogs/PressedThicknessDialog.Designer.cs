@@ -35,6 +35,7 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.panelPrepregProportional = new System.Windows.Forms.GroupBox();
             this.groupBox23 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.label63 = new System.Windows.Forms.Label();
             this.label69 = new System.Windows.Forms.Label();
             this.label75 = new System.Windows.Forms.Label();
@@ -48,6 +49,7 @@
             this.rbPrepregProportional = new System.Windows.Forms.RadioButton();
             this.panelPrepregPercent = new System.Windows.Forms.GroupBox();
             this.groupBox22 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.label52 = new System.Windows.Forms.Label();
             this.label61 = new System.Windows.Forms.Label();
             this.tbPlane_Plane = new System.Windows.Forms.TextBox();
@@ -69,10 +71,12 @@
             this.label55 = new System.Windows.Forms.Label();
             this.rbPrepregPercent = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cbSequentialLamination = new System.Windows.Forms.CheckBox();
             this.lSequentialLamination = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label14 = new System.Windows.Forms.Label();
-            this.cbSequentialLamination = new System.Windows.Forms.CheckBox();
+            this.rbPrepregManual = new System.Windows.Forms.RadioButton();
+            this.cbKeepImportedPressedThickness = new System.Windows.Forms.CheckBox();
             this.panelPrepregProportional.SuspendLayout();
             this.groupBox23.SuspendLayout();
             this.panelPrepregPercent.SuspendLayout();
@@ -84,7 +88,7 @@
             // checkBoxUpdateSettings
             // 
             this.checkBoxUpdateSettings.AutoSize = true;
-            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(29, 392);
+            this.checkBoxUpdateSettings.Location = new System.Drawing.Point(311, 11);
             this.checkBoxUpdateSettings.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxUpdateSettings.Name = "checkBoxUpdateSettings";
             this.checkBoxUpdateSettings.Size = new System.Drawing.Size(257, 17);
@@ -107,7 +111,7 @@
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(393, 567);
+            this.btnCancel.Location = new System.Drawing.Point(393, 561);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(82, 23);
@@ -119,7 +123,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(479, 567);
+            this.btnOK.Location = new System.Drawing.Point(479, 561);
             this.btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(82, 23);
@@ -142,9 +146,9 @@
             this.panelPrepregProportional.Controls.Add(this.label71);
             this.panelPrepregProportional.Controls.Add(this.label72);
             this.panelPrepregProportional.Controls.Add(this.tbForMixed);
-            this.panelPrepregProportional.Location = new System.Drawing.Point(18, 266);
+            this.panelPrepregProportional.Location = new System.Drawing.Point(18, 70);
             this.panelPrepregProportional.Name = "panelPrepregProportional";
-            this.panelPrepregProportional.Size = new System.Drawing.Size(543, 118);
+            this.panelPrepregProportional.Size = new System.Drawing.Size(543, 113);
             this.panelPrepregProportional.TabIndex = 42;
             this.panelPrepregProportional.TabStop = false;
             // 
@@ -153,28 +157,43 @@
             this.groupBox23.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox23.Controls.Add(this.label2);
             this.groupBox23.Controls.Add(this.label63);
             this.groupBox23.Location = new System.Drawing.Point(283, 18);
             this.groupBox23.Name = "groupBox23";
-            this.groupBox23.Size = new System.Drawing.Size(242, 84);
+            this.groupBox23.Size = new System.Drawing.Size(242, 78);
             this.groupBox23.TabIndex = 44;
             this.groupBox23.TabStop = false;
             this.groupBox23.Text = "Hint";
             // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.Location = new System.Drawing.Point(3, 33);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(236, 42);
+            this.label2.TabIndex = 42;
+            this.label2.Text = "These copper coverage percentages will be used in the absence of manually-entered" +
+    " values in the stackup.";
+            // 
             // label63
             // 
-            this.label63.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label63.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label63.Location = new System.Drawing.Point(3, 16);
             this.label63.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label63.Name = "label63";
-            this.label63.Size = new System.Drawing.Size(236, 65);
+            this.label63.Size = new System.Drawing.Size(236, 23);
             this.label63.TabIndex = 42;
-            this.label63.Text = "% Copper coverage by metal layer type.";
+            this.label63.Text = "% copper coverage by metal layer type.";
             // 
             // label69
             // 
             this.label69.AutoSize = true;
-            this.label69.Location = new System.Drawing.Point(217, 87);
+            this.label69.Location = new System.Drawing.Point(217, 83);
             this.label69.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label69.Name = "label69";
             this.label69.Size = new System.Drawing.Size(15, 13);
@@ -193,7 +212,7 @@
             // 
             // tbForPlane
             // 
-            this.tbForPlane.Location = new System.Drawing.Point(152, 84);
+            this.tbForPlane.Location = new System.Drawing.Point(152, 80);
             this.tbForPlane.Margin = new System.Windows.Forms.Padding(2);
             this.tbForPlane.Name = "tbForPlane";
             this.tbForPlane.Size = new System.Drawing.Size(61, 20);
@@ -211,7 +230,7 @@
             // 
             // label70
             // 
-            this.label70.Location = new System.Drawing.Point(18, 87);
+            this.label70.Location = new System.Drawing.Point(18, 83);
             this.label70.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label70.Name = "label70";
             this.label70.Size = new System.Drawing.Size(130, 13);
@@ -232,7 +251,7 @@
             // label71
             // 
             this.label71.AutoSize = true;
-            this.label71.Location = new System.Drawing.Point(217, 57);
+            this.label71.Location = new System.Drawing.Point(217, 55);
             this.label71.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label71.Name = "label71";
             this.label71.Size = new System.Drawing.Size(15, 13);
@@ -241,7 +260,7 @@
             // 
             // label72
             // 
-            this.label72.Location = new System.Drawing.Point(18, 57);
+            this.label72.Location = new System.Drawing.Point(18, 55);
             this.label72.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label72.Name = "label72";
             this.label72.Size = new System.Drawing.Size(130, 13);
@@ -251,7 +270,7 @@
             // 
             // tbForMixed
             // 
-            this.tbForMixed.Location = new System.Drawing.Point(152, 54);
+            this.tbForMixed.Location = new System.Drawing.Point(152, 52);
             this.tbForMixed.Margin = new System.Windows.Forms.Padding(2);
             this.tbForMixed.Name = "tbForMixed";
             this.tbForMixed.Size = new System.Drawing.Size(61, 20);
@@ -261,16 +280,14 @@
             // rbPrepregProportional
             // 
             this.rbPrepregProportional.AutoSize = true;
-            this.rbPrepregProportional.Checked = true;
-            this.rbPrepregProportional.Location = new System.Drawing.Point(29, 265);
+            this.rbPrepregProportional.Location = new System.Drawing.Point(29, 69);
             this.rbPrepregProportional.Margin = new System.Windows.Forms.Padding(2);
             this.rbPrepregProportional.Name = "rbPrepregProportional";
-            this.rbPrepregProportional.Size = new System.Drawing.Size(179, 17);
+            this.rbPrepregProportional.Size = new System.Drawing.Size(203, 17);
             this.rbPrepregProportional.TabIndex = 40;
-            this.rbPrepregProportional.TabStop = true;
-            this.rbPrepregProportional.Text = "Proportional to Copper Coverage";
+            this.rbPrepregProportional.Text = "Default values for % copper coverage";
             this.rbPrepregProportional.UseVisualStyleBackColor = true;
-            this.rbPrepregProportional.CheckedChanged += new System.EventHandler(this.rbPrepregPercent_CheckedChanged);
+            this.rbPrepregProportional.CheckedChanged += new System.EventHandler(this.rbPrepregProportional_CheckedChanged);
             // 
             // panelPrepregPercent
             // 
@@ -295,9 +312,9 @@
             this.panelPrepregPercent.Controls.Add(this.label58);
             this.panelPrepregPercent.Controls.Add(this.tbSignal_Plane);
             this.panelPrepregPercent.Controls.Add(this.label55);
-            this.panelPrepregPercent.Location = new System.Drawing.Point(18, 47);
+            this.panelPrepregPercent.Location = new System.Drawing.Point(18, 195);
             this.panelPrepregPercent.Name = "panelPrepregPercent";
-            this.panelPrepregPercent.Size = new System.Drawing.Size(543, 208);
+            this.panelPrepregPercent.Size = new System.Drawing.Size(543, 192);
             this.panelPrepregPercent.TabIndex = 41;
             this.panelPrepregPercent.TabStop = false;
             // 
@@ -306,29 +323,44 @@
             this.groupBox22.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox22.Controls.Add(this.label1);
             this.groupBox22.Controls.Add(this.label52);
             this.groupBox22.Location = new System.Drawing.Point(283, 17);
             this.groupBox22.Name = "groupBox22";
-            this.groupBox22.Size = new System.Drawing.Size(242, 175);
+            this.groupBox22.Size = new System.Drawing.Size(242, 156);
             this.groupBox22.TabIndex = 44;
             this.groupBox22.TabStop = false;
             this.groupBox22.Text = "Hint";
             // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.Location = new System.Drawing.Point(3, 66);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(236, 78);
+            this.label1.TabIndex = 28;
+            this.label1.Text = "These % copper coverage values will be used in the absence of manually-entered va" +
+    "lues in the stackup.";
+            // 
             // label52
             // 
-            this.label52.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label52.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label52.Location = new System.Drawing.Point(3, 16);
             this.label52.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(236, 156);
+            this.label52.Size = new System.Drawing.Size(236, 48);
             this.label52.TabIndex = 28;
             this.label52.Text = "Set final pressed thickness of prepreg materials as a percentage of the base mate" +
-    "rial when prepreg is pressed between.";
+    "rial when prepreg is pressed between them.";
             // 
             // label61
             // 
             this.label61.AutoSize = true;
-            this.label61.Location = new System.Drawing.Point(217, 173);
+            this.label61.Location = new System.Drawing.Point(217, 163);
             this.label61.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label61.Name = "label61";
             this.label61.Size = new System.Drawing.Size(15, 13);
@@ -337,7 +369,7 @@
             // 
             // tbPlane_Plane
             // 
-            this.tbPlane_Plane.Location = new System.Drawing.Point(152, 170);
+            this.tbPlane_Plane.Location = new System.Drawing.Point(152, 160);
             this.tbPlane_Plane.Margin = new System.Windows.Forms.Padding(2);
             this.tbPlane_Plane.Name = "tbPlane_Plane";
             this.tbPlane_Plane.Size = new System.Drawing.Size(61, 20);
@@ -356,7 +388,7 @@
             // 
             // label90
             // 
-            this.label90.Location = new System.Drawing.Point(18, 173);
+            this.label90.Location = new System.Drawing.Point(18, 163);
             this.label90.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label90.Name = "label90";
             this.label90.Size = new System.Drawing.Size(130, 13);
@@ -376,7 +408,7 @@
             // label59
             // 
             this.label59.AutoSize = true;
-            this.label59.Location = new System.Drawing.Point(217, 143);
+            this.label59.Location = new System.Drawing.Point(217, 135);
             this.label59.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label59.Name = "label59";
             this.label59.Size = new System.Drawing.Size(15, 13);
@@ -395,7 +427,7 @@
             // 
             // tbMixed_Plane
             // 
-            this.tbMixed_Plane.Location = new System.Drawing.Point(152, 140);
+            this.tbMixed_Plane.Location = new System.Drawing.Point(152, 132);
             this.tbMixed_Plane.Margin = new System.Windows.Forms.Padding(2);
             this.tbMixed_Plane.Name = "tbMixed_Plane";
             this.tbMixed_Plane.Size = new System.Drawing.Size(61, 20);
@@ -404,7 +436,7 @@
             // 
             // label54
             // 
-            this.label54.Location = new System.Drawing.Point(18, 54);
+            this.label54.Location = new System.Drawing.Point(18, 52);
             this.label54.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label54.Name = "label54";
             this.label54.Size = new System.Drawing.Size(130, 13);
@@ -414,7 +446,7 @@
             // 
             // label60
             // 
-            this.label60.Location = new System.Drawing.Point(18, 143);
+            this.label60.Location = new System.Drawing.Point(18, 135);
             this.label60.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label60.Name = "label60";
             this.label60.Size = new System.Drawing.Size(130, 13);
@@ -424,7 +456,7 @@
             // 
             // tbSignal_Mixed
             // 
-            this.tbSignal_Mixed.Location = new System.Drawing.Point(152, 51);
+            this.tbSignal_Mixed.Location = new System.Drawing.Point(152, 49);
             this.tbSignal_Mixed.Margin = new System.Windows.Forms.Padding(2);
             this.tbSignal_Mixed.Name = "tbSignal_Mixed";
             this.tbSignal_Mixed.Size = new System.Drawing.Size(61, 20);
@@ -434,7 +466,7 @@
             // label57
             // 
             this.label57.AutoSize = true;
-            this.label57.Location = new System.Drawing.Point(217, 113);
+            this.label57.Location = new System.Drawing.Point(217, 107);
             this.label57.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label57.Name = "label57";
             this.label57.Size = new System.Drawing.Size(15, 13);
@@ -444,7 +476,7 @@
             // label53
             // 
             this.label53.AutoSize = true;
-            this.label53.Location = new System.Drawing.Point(217, 54);
+            this.label53.Location = new System.Drawing.Point(217, 52);
             this.label53.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label53.Name = "label53";
             this.label53.Size = new System.Drawing.Size(15, 13);
@@ -453,7 +485,7 @@
             // 
             // tbMixed_Mixed
             // 
-            this.tbMixed_Mixed.Location = new System.Drawing.Point(152, 110);
+            this.tbMixed_Mixed.Location = new System.Drawing.Point(152, 104);
             this.tbMixed_Mixed.Margin = new System.Windows.Forms.Padding(2);
             this.tbMixed_Mixed.Name = "tbMixed_Mixed";
             this.tbMixed_Mixed.Size = new System.Drawing.Size(61, 20);
@@ -462,7 +494,7 @@
             // 
             // label56
             // 
-            this.label56.Location = new System.Drawing.Point(18, 83);
+            this.label56.Location = new System.Drawing.Point(18, 79);
             this.label56.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label56.Name = "label56";
             this.label56.Size = new System.Drawing.Size(130, 13);
@@ -472,7 +504,7 @@
             // 
             // label58
             // 
-            this.label58.Location = new System.Drawing.Point(18, 113);
+            this.label58.Location = new System.Drawing.Point(18, 107);
             this.label58.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label58.Name = "label58";
             this.label58.Size = new System.Drawing.Size(130, 13);
@@ -482,7 +514,7 @@
             // 
             // tbSignal_Plane
             // 
-            this.tbSignal_Plane.Location = new System.Drawing.Point(152, 80);
+            this.tbSignal_Plane.Location = new System.Drawing.Point(152, 76);
             this.tbSignal_Plane.Margin = new System.Windows.Forms.Padding(2);
             this.tbSignal_Plane.Name = "tbSignal_Plane";
             this.tbSignal_Plane.Size = new System.Drawing.Size(61, 20);
@@ -492,7 +524,7 @@
             // label55
             // 
             this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(217, 83);
+            this.label55.Location = new System.Drawing.Point(217, 79);
             this.label55.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label55.Name = "label55";
             this.label55.Size = new System.Drawing.Size(15, 13);
@@ -502,12 +534,12 @@
             // rbPrepregPercent
             // 
             this.rbPrepregPercent.AutoSize = true;
-            this.rbPrepregPercent.Location = new System.Drawing.Point(29, 45);
+            this.rbPrepregPercent.Location = new System.Drawing.Point(29, 193);
             this.rbPrepregPercent.Margin = new System.Windows.Forms.Padding(2);
             this.rbPrepregPercent.Name = "rbPrepregPercent";
-            this.rbPrepregPercent.Size = new System.Drawing.Size(180, 17);
+            this.rbPrepregPercent.Size = new System.Drawing.Size(178, 17);
             this.rbPrepregPercent.TabIndex = 39;
-            this.rbPrepregPercent.Text = "Prepreg Percentage Adjustments";
+            this.rbPrepregPercent.Text = "Prepreg percentage adjustments";
             this.rbPrepregPercent.UseVisualStyleBackColor = true;
             this.rbPrepregPercent.CheckedChanged += new System.EventHandler(this.rbPrepregPercent_CheckedChanged);
             // 
@@ -515,14 +547,26 @@
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.cbSequentialLamination);
             this.groupBox2.Controls.Add(this.lSequentialLamination);
             this.groupBox2.Controls.Add(this.groupBox3);
-            this.groupBox2.Controls.Add(this.cbSequentialLamination);
-            this.groupBox2.Location = new System.Drawing.Point(18, 442);
+            this.groupBox2.Location = new System.Drawing.Point(18, 399);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(543, 108);
             this.groupBox2.TabIndex = 42;
             this.groupBox2.TabStop = false;
+            // 
+            // cbSequentialLamination
+            // 
+            this.cbSequentialLamination.AutoSize = true;
+            this.cbSequentialLamination.Location = new System.Drawing.Point(11, 0);
+            this.cbSequentialLamination.Margin = new System.Windows.Forms.Padding(2);
+            this.cbSequentialLamination.Name = "cbSequentialLamination";
+            this.cbSequentialLamination.Size = new System.Drawing.Size(126, 17);
+            this.cbSequentialLamination.TabIndex = 35;
+            this.cbSequentialLamination.Text = "Sequential lamination";
+            this.cbSequentialLamination.UseVisualStyleBackColor = true;
+            this.cbSequentialLamination.CheckedChanged += new System.EventHandler(this.cbSequentialLamination_CheckedChanged);
             // 
             // lSequentialLamination
             // 
@@ -530,8 +574,8 @@
             this.lSequentialLamination.Name = "lSequentialLamination";
             this.lSequentialLamination.Size = new System.Drawing.Size(238, 55);
             this.lSequentialLamination.TabIndex = 45;
-            this.lSequentialLamination.Text = "This stackup uses sequential lamination with 0 build-up layers added after the fi" +
-    "rst lamination pass involving 0 layers.";
+            this.lSequentialLamination.Text = "This stackup uses sequential lamination, with X build-up layer(s) added after the" +
+    " first lamination pass involving N layers. (A X-N-X stackup.)";
             // 
             // groupBox3
             // 
@@ -556,29 +600,45 @@
             this.label14.TabIndex = 42;
             this.label14.Text = resources.GetString("label14.Text");
             // 
-            // cbSequentialLamination
+            // rbPrepregManual
             // 
-            this.cbSequentialLamination.AutoSize = true;
-            this.cbSequentialLamination.Location = new System.Drawing.Point(11, 0);
-            this.cbSequentialLamination.Margin = new System.Windows.Forms.Padding(2);
-            this.cbSequentialLamination.Name = "cbSequentialLamination";
-            this.cbSequentialLamination.Size = new System.Drawing.Size(160, 17);
-            this.cbSequentialLamination.TabIndex = 35;
-            this.cbSequentialLamination.Text = "Enable sequential lamination";
-            this.cbSequentialLamination.UseVisualStyleBackColor = true;
-            this.cbSequentialLamination.CheckedChanged += new System.EventHandler(this.cbSequentialLamination_CheckedChanged);
+            this.rbPrepregManual.AutoSize = true;
+            this.rbPrepregManual.Checked = true;
+            this.rbPrepregManual.Location = new System.Drawing.Point(29, 41);
+            this.rbPrepregManual.Margin = new System.Windows.Forms.Padding(2);
+            this.rbPrepregManual.Name = "rbPrepregManual";
+            this.rbPrepregManual.Size = new System.Drawing.Size(201, 17);
+            this.rbPrepregManual.TabIndex = 40;
+            this.rbPrepregManual.TabStop = true;
+            this.rbPrepregManual.Text = "Manually entered % copper coverage";
+            this.rbPrepregManual.UseVisualStyleBackColor = true;
+            this.rbPrepregManual.CheckedChanged += new System.EventHandler(this.rbPrepregPercent_CheckedChanged);
+            // 
+            // cbKeepImportedPressedThickness
+            // 
+            this.cbKeepImportedPressedThickness.AutoSize = true;
+            this.cbKeepImportedPressedThickness.Location = new System.Drawing.Point(29, 520);
+            this.cbKeepImportedPressedThickness.Margin = new System.Windows.Forms.Padding(2);
+            this.cbKeepImportedPressedThickness.Name = "cbKeepImportedPressedThickness";
+            this.cbKeepImportedPressedThickness.Size = new System.Drawing.Size(239, 17);
+            this.cbKeepImportedPressedThickness.TabIndex = 35;
+            this.cbKeepImportedPressedThickness.Text = "Keep Imported Pressed Prepreg Thicknesses";
+            this.cbKeepImportedPressedThickness.UseVisualStyleBackColor = true;
+            this.cbKeepImportedPressedThickness.CheckedChanged += new System.EventHandler(this.cbShowPressedThickness_CheckedChanged);
             // 
             // PressedThicknessDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(579, 606);
+            this.ClientSize = new System.Drawing.Size(579, 600);
             this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.rbPrepregManual);
             this.Controls.Add(this.rbPrepregProportional);
             this.Controls.Add(this.rbPrepregPercent);
             this.Controls.Add(this.panelPrepregProportional);
             this.Controls.Add(this.panelPrepregPercent);
             this.Controls.Add(this.checkBoxUpdateSettings);
+            this.Controls.Add(this.cbKeepImportedPressedThickness);
             this.Controls.Add(this.cbShowPressedThickness);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
@@ -646,5 +706,9 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.CheckBox cbSequentialLamination;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.RadioButton rbPrepregManual;
+        private System.Windows.Forms.CheckBox cbKeepImportedPressedThickness;
     }
 }

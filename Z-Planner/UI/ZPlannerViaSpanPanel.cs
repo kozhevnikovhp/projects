@@ -187,7 +187,7 @@ namespace ZZero.ZPlanner.UI
                         List<string> availableValues = new List<string>();
                         if (parameterName == "Filled")
                         {
-                            SelectList selectList = ZPlannerManager.Project.Lists.Find(x => x.ID == "ViaSpanFilledList");
+                            SelectList selectList = ZPlannerManager.Project.Lists.Find(x => x.ID == ZStringConstants.ListIDViaSpanFilled);
                             if (selectList != null) availableValues = selectList.GetValues();
                         }
                         else
@@ -282,7 +282,7 @@ namespace ZZero.ZPlanner.UI
                         List<string> availableValues = new List<string>();
                         if (column.Name == "Filled")
                         {
-                            SelectList selectList = ZPlannerManager.Project.Lists.Find(x => x.ID == "ViaSpanFilledList");
+                            SelectList selectList = ZPlannerManager.Project.Lists.Find(x => x.ID == ZStringConstants.ListIDViaSpanFilled);
                             if (selectList != null) availableValues = selectList.GetValues();
                         }
                         else
@@ -528,6 +528,7 @@ namespace ZZero.ZPlanner.UI
 
         void Spans_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             viaSpanGridView.ClearSelection();
             int index;
             switch (e.Action)

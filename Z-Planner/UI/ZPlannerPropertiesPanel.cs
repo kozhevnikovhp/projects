@@ -146,6 +146,20 @@ namespace ZZero.ZPlanner.UI
                     parameter.DefaultValue = e.ChangedItem.Value.ToString();
             }
 
+            ZSingle single = (e.ChangedItem.PropertyDescriptor as ZDynamicComponent.DynamicProperty).PropertyObject as ZSingle;
+            if (single != null)
+            {
+                if (e.ChangedItem.Label == ZStringConstants.TitleDictionary["ImpedanceTarget"] && single.ImpedanceTarget != (double)e.ChangedItem.Value)
+                    single.ImpedanceTarget = (double)e.ChangedItem.Value;
+            }
+            
+            ZPair pair = (e.ChangedItem.PropertyDescriptor as ZDynamicComponent.DynamicProperty).PropertyObject as ZPair;
+            if (pair != null)
+            {
+                if (e.ChangedItem.Label == ZStringConstants.TitleDictionary["ImpedanceTarget"] && pair.ImpedanceTarget != (double)e.ChangedItem.Value)
+                    pair.ImpedanceTarget = (double)e.ChangedItem.Value;
+            }
+
             ZEntity entity = (e.ChangedItem.PropertyDescriptor as ZDynamicComponent.DynamicProperty).PropertyObject as ZEntity;
             if (entity != null)
             {

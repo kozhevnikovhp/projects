@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Data.Entities;
+using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.UI.Grid
 {
@@ -92,6 +93,27 @@ namespace ZZero.ZPlanner.UI.Grid
         {
             double dValue;
             ZParameter parameter = this.OwningColumn.Tag as ZParameter;
+            ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
+            ZLayerType? layerType = (layerParameter != null) ? layerParameter.Layer.GetLayerType() : null;
+
+            string isUsed = string.Empty;
+            if (parameter != null && parameter.Table == ZTableType.Single)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
+            }
+            else if (parameter != null && parameter.Table == ZTableType.Pair)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
+            }          
+
+            if (this.OwningColumn.Name == ZStringConstants.ParameterIDCopperPercent)
+            {
+                ZLayer layer = this.OwningRow.Tag as ZLayer;
+                value = layer.GetLayerCopperCoverage();
+            }
+
+            string[] IsUsedIgnoreList = new string[] { };
+            if ((layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) && !string.IsNullOrWhiteSpace(isUsed) && isUsed.ToLower() != "true" && !IsUsedIgnoreList.Contains(this.OwningColumn.Name)) return string.Empty;
 
             if (parameter != null) 
             {

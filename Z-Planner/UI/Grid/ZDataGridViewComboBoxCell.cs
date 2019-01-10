@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -102,30 +103,37 @@ namespace ZZero.ZPlanner.UI.Grid
         protected override object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
         {
             ZParameter parameter = this.OwningColumn.Tag as ZParameter;
+            ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
+            ZLayerType? layerType = (layerParameter != null) ? layerParameter.Layer.GetLayerType() : null;
+
+            string isUsed = string.Empty;
+            if (parameter != null && parameter.Table == ZTableType.Single)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
+            }
+            else if (parameter != null && parameter.Table == ZTableType.Pair)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
+            }
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference ||
                 this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BottomReference)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
-                string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                if (isUsed != null && isUsed.ToLower() != "true") return string.Empty;
-
                 ZLayer layer = value as ZLayer;
                 if (layer == null) return string.Empty;
-                return layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
+                value = layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
             }
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
                 this.OwningColumn.Name == ZStringConstants.ParameterIDZo_BottomReference)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
-                string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
-                if (isUsed != null && isUsed.ToLower() != "true") return string.Empty;
-
                 ZLayer layer = value as ZLayer;
                 if (layer == null) return string.Empty;
-                return layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
+                value = layer.GetLayerParameterValue(ZStringConstants.ParameterIDLayerNumber);
             }
+
+            string[] IsUsedIgnoreList = new string[] { };
+            if ((layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) && !string.IsNullOrWhiteSpace(isUsed) && isUsed.ToLower() != "true" && !IsUsedIgnoreList.Contains(this.OwningColumn.Name)) return string.Empty;
 
             /*if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_TopReference ||
                 this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_TopReference)
@@ -169,7 +177,7 @@ namespace ZZero.ZPlanner.UI.Grid
                 return referenceLayerNumber;
             }*/
 
-            if (parameter != null && parameter.List != null && parameter.List.GetValues().Count > 0)
+            /*if (parameter != null && parameter.List != null && parameter.List.GetValues().Count > 0)
             {
                 if (!string.IsNullOrWhiteSpace(value as string) && !parameter.List.GetValues().Contains(value))
                 {
@@ -190,7 +198,7 @@ namespace ZZero.ZPlanner.UI.Grid
 
                     parameter.List.AddValue(value as string);
                 }
-            }
+            }*/
 
             if (value == null) return string.Empty; 
 
@@ -386,6 +394,21 @@ namespace ZZero.ZPlanner.UI.Grid
 
         protected override bool SetValue(int rowIndex, object value)
         {
+            if (value == null) value = string.Empty;
+
+            if (this.Editable)
+            {
+                double dValue, dV;
+
+                if (!Items.Contains(value) && double.TryParse(value as string, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
+                {
+                    foreach (string item in this.Items)
+                    {
+                        if (double.TryParse(item, NumberStyles.Any, CultureInfo.InvariantCulture, out dV) && dV == dValue) { value = item; break; }
+                    }
+                }
+            }
+
             if (OwnerCell != null)
                 return valueOwnerCell.SetValue(OwnerCell.RowIndex, value);
             return base.SetValue(rowIndex, value);
@@ -485,8 +508,12 @@ namespace ZZero.ZPlanner.UI.Grid
                             {
                                 this.Value = string.Empty;
                             }
-                            break;
                         }
+                        else 
+                        {
+                            this.Value = string.Empty;
+                        }
+                        break;
                     }
 
                     this.Value = layerParameter.Value;
@@ -511,13 +538,25 @@ namespace ZZero.ZPlanner.UI.Grid
                     break;
             }
         }
-
        
         public void Validating(object sender, CancelEventArgs e)
         {
             DataGridViewComboBoxEditingControl control = sender as DataGridViewComboBoxEditingControl;
             DataGridView grid = control.EditingControlDataGridView;
             string value = control.Text;
+
+            if (this.OwningColumn.Name == ZStringConstants.ParameterIDCopperThickness)
+            {
+                double dValue, dV;
+
+                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
+                {
+                    foreach (string item in this.Items)
+                    {
+                        if (double.TryParse(item, NumberStyles.Any, CultureInfo.InvariantCulture, out dV) && dV == dValue) { value = item; break; }
+                    }
+                }
+            }
 
             // Add value to list if not there
             if (control.Items.IndexOf(value) == -1)
@@ -539,7 +578,7 @@ namespace ZZero.ZPlanner.UI.Grid
                 }
 
                 ZParameter parameter = this.OwningColumn.Tag as ZParameter;
-                if (parameter != null && parameter.List != null) parameter.List.AddValue(value); 
+                if (parameter != null && parameter.List != null) value = parameter.List.AddValue(value); 
 
                 this.Value = value;
             }

@@ -11,19 +11,38 @@ using ZZero.ZPlanner.ZConfiguration;
 using ZZero.ZPlanner.UI;
 using ZZero.ZPlanner.Utils;
 using ZZero.ZPlanner.UI.Dialogs;
+using System.Collections.Specialized;
+using System.Globalization;
 
 namespace ZZero.ZPlanner.Translators
 {
-    class HL_Parser
+    class HL_Parser : IImport
     {
-        public HL_Parser(string file)
+        private bool bPressedThickness;
+        private ZLibraryCategory[] libraryPriorityArray;
+
+        public HL_Parser(string file, bool bPressed = false, ZLibraryCategory[] libraryPriority = null)
         {
             InputFile = file;
+            bPressedThickness = bPressed;
+            libraryPriorityArray = libraryPriority;
             text = "";
+        }
+
+        public bool Convert()
+        {
+            ZPlannerManager.StatusMenu.UpdateProgress();
+            return true;
+        }
+
+        public bool IsValidFile()
+        {
+            return ((Path.GetExtension(InputFile).ToUpper() == ".FFS" || Path.GetExtension(InputFile).ToUpper() == ".STK") && File.Exists(InputFile));
         }
 
         public bool Import()
         {
+            ZPlannerManager.StatusMenu.UpdateProgress();
             ZPlannerManager.SuspendFSHandlers();
             
             ZPlannerProject project = new ZPlannerProject();
@@ -45,21 +64,25 @@ namespace ZZero.ZPlanner.Translators
                 if (parameter.SubParameters != null && parameter.SubParameters.Count > 0) project.SubParameters.AddRange(parameter.SubParameters);
             }
 
-            // parse file
-            Translate(stackup);
-
             project.Stackup = stackup;
             ZPlannerManager.Project = project;
 
-            CopperThicknessDialog dlg = new CopperThicknessDialog(stackup);
-            dlg.ShowDialog();
-            //if (dlg.DialogResult == DialogResult.OK) ;
+            // parse file
+            Translate(stackup);
+
+            //CopperThicknessDialog dlg = new CopperThicknessDialog(stackup);
+            //dlg.ShowDialog();
+            ////if (dlg.DialogResult == DialogResult.OK) ;
+            ZPlannerManager.Project.Stackup.CopperCoverageType = ZCopperCoverageType.ManuallyEntered;
 
             //ui
             ZPlannerManager.StackupPanel = new ZPlannerStackupPanel(ZPlannerManager.Project.Stackup);
             ZPlannerManager.IsSequentialLamination = ZPlannerManager.IsSequentialLaminationCanBeEnabled();
 
             ZPlannerManager.ResumeFSHandlers();
+            stackup.Singles.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            stackup.Pairs.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            stackup.Layers.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             return true;
         }
 
@@ -166,7 +189,7 @@ namespace ZZero.ZPlanner.Translators
                             case "THICKNESS":
                                 {
                                     //convert from meters to mils
-                                    double val = Convert.ToDouble(value);
+                                    double val = System.Convert.ToDouble(value);
                                     thick = val;
                                     val *= Units.MetersToMils;
                                     parMap.Add(ZStringConstants.ParameterIDThickness, val.ToString());
@@ -196,7 +219,7 @@ namespace ZZero.ZPlanner.Translators
                             case "TTW":
                                 {
                                     //convert from meters to mils
-                                    double val = Convert.ToDouble(value);
+                                    double val = System.Convert.ToDouble(value);
                                     w0 = val;
                                     val *= Units.MetersToMils;
                                     parMap.Add(ZStringConstants.ParameterIDZo_TraceWidth, val.ToString());
@@ -215,7 +238,7 @@ namespace ZZero.ZPlanner.Translators
                                     double val = 0;
                                     try
                                     {
-                                        val = Convert.ToDouble(value); //[m]
+                                        val = System.Convert.ToDouble(value); //[m]
                                         val *= 1.0e6; //[um]
                                     }
                                     catch
@@ -233,7 +256,7 @@ namespace ZZero.ZPlanner.Translators
                                     double val = 0;
                                     try
                                     {
-                                        val = Convert.ToDouble(value);//[m]
+                                        val = System.Convert.ToDouble(value);//[m]
                                         val *= 1.0e6; //[um]
                                         val *= RoughCoeff;//Units.RMSToRz;
                                     }
@@ -251,15 +274,18 @@ namespace ZZero.ZPlanner.Translators
                                     double e = 0;
                                     try
                                     {
-                                        e = Convert.ToDouble(value);
+                                        e = System.Convert.ToDouble(value);
                                     }
                                     catch
                                     {
                                         e = 0.9;
                                     }
-                                    double x = e * thick / 2;
-                                    double eZo = (w0 - x) / (w0 + x);
-                                    value = eZo.ToString("N2");
+
+                                    //--double x = e * thick / 2;
+                                    //--double eZo = (w0 - x) / (w0 + x);
+                                    double x = e * thick;
+                                    double eZo = (w0 - x) / w0;
+                                    value = eZo.ToString(/*"N2"*/ CultureInfo.InvariantCulture);
                                 }
                                 parMap.Add(ZStringConstants.ParameterIDEtchFactor, value);
                                 break;
@@ -393,8 +419,13 @@ namespace ZZero.ZPlanner.Translators
 
         private bool Translate(ZStackup stackup)
         {
+            ZPlannerManager.StatusMenu.UpdateProgress();
             ReadAll();
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
             Parse();
+
+            ZPlannerManager.StatusMenu.UpdateProgress();
             return true;
         }
     }
@@ -601,6 +632,7 @@ namespace ZZero.ZPlanner.Translators
                 if (zL.GetLayerType() == ZLayerType.Plane)
                 {
                     dval = GetPlaneTraceWidth(zL);
+                    traceWidth = dval;
                 }
 
                 dval *= Units.MilsToMeters;
@@ -643,7 +675,8 @@ namespace ZZero.ZPlanner.Translators
                     double etch = dval;
                     //covert etch to HL
                     if (thickness > 0 && traceWidth > 0) {
-                        double wWide = 2 * traceWidth / (1 + etch);
+                        //--double wWide = 2 * traceWidth / (1 + etch);
+                        double wWide = traceWidth;
                         double wNarrow = wWide * etch;
                         double delta = wWide - wNarrow;
                         etch = delta / thickness;//Math.Min(0.9, delta / thickness);
@@ -661,15 +694,26 @@ namespace ZZero.ZPlanner.Translators
             {
                 dval = 0;
                 //--ZPlannerProject.GetLayerParameterValue(zL, ZStringConstants.ParameterIDZo_DielectricConstant, ref dval);
-                string str = zSingleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
-                ZPlannerManager.GetFirstValueFromTable(str, out dval);
+                if (!zSingleLayer.GetDk(out dval))
+                {
+                    string str = zSingleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant);
+                    ZPlannerManager.GetFirstValueFromTable(str, out dval);
+                }
                 s += " ER=" + dval.ToString();
 
                 dval = 0;
                 //--ZPlannerProject.GetLayerParameterValue(zL, ZStringConstants.ParameterIDZo_LossTangent, ref dval);
-                str = zSingleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
-                ZPlannerManager.GetFirstValueFromTable(str, out dval);
+                if (!zSingleLayer.GetDf(out dval))
+                {
+                    string str = zSingleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent);
+                    ZPlannerManager.GetFirstValueFromTable(str, out dval);
+                }
                 s += " TG=" + dval.ToString();
+
+                dval = 1.0E9;//1GHz
+                //--ZPlannerProject.GetLayerParameterValue(zL, ZStringConstants.ParameterIDZo_DielectricConstant, ref dval);
+                dval = zSingleLayer.GetFrequency() * 1.0E9;
+                s += " ER_FREQ=" + dval.ToString("E");
 
                 dval = 0;
                 ZPlannerProject.GetLayerParameterValue(zL, ZStringConstants.ParameterIDThermalConductivity, ref dval);
@@ -703,6 +747,7 @@ namespace ZZero.ZPlanner.Translators
         private string CreateStackupSection(ZStackup stackup)
         {
             string s = "{STACKUP" + Environment.NewLine;
+            s += "\t" + "(OPTIONS USE_DIE_FOR_METAL=1 LOCK_ATTACHED_LAYER=0)" + Environment.NewLine; 
             foreach (ZLayer zL in stackup.Layers)
             {
                 s += "\t" + GetLayerClause(zL) + Environment.NewLine;
@@ -712,7 +757,11 @@ namespace ZZero.ZPlanner.Translators
         }
         public string CreateText_STK(ZStackup stackup)
         {
-            string s = "{APPLICATION_SETTINGS" + Environment.NewLine;
+            string s = "";
+            s += "{STK_FILE}" + Environment.NewLine;
+            s += "{VERSION=1.0}" + Environment.NewLine;
+
+            s += "{APPLICATION_SETTINGS" + Environment.NewLine;
 
             if (ZPlannerManager.IsRoughness)
             {

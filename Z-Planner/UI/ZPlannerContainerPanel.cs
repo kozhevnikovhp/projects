@@ -87,12 +87,15 @@ namespace ZZero.ZPlanner.UI
 
         private void ZPlannerContainerPanel_Load(object sender, EventArgs e)
         {
+            ZPlannerManager.InitDialog = new InitDialog("Z-planner");
+            ZPlannerManager.InitDialog.Show();
+            ZPlannerManager.AddInitDialogMessage("Starting Z-planner application ...");
+
             //Environment.SetEnvironmentVariable("ZZERO_LICENSE_FILE", @"c:\!ZZero\Repository\Trunk\Z-Zero\License\");
             //ZPlannerManager.Commands.IsIgnoreCommands = true;
             
             //read settings.xml on load
             ZPlannerManager.ReadSettings();
-            LoadFormLocation();
 
             ZPlannerManager.InitDockPanels();
             ZPlannerManager.ActiveMenuTab = ZPlannerManager.MainMenu.RibbonMenu.ActiveTab;
@@ -107,12 +110,19 @@ namespace ZZero.ZPlanner.UI
 
             if (!Options.TheOptions.IsAlreadyStarted)
             {
+                ZPlannerManager.AddInitDialogMessage("Entering user information ...");
                 StartDialog startDlg = new StartDialog();
                 startDlg.ShowDialog();
             }
 
             ZPlannerManager.StatusMenu.SetStatusReady();
             Application.Idle += Application_Idle;
+
+            ZPlannerManager.AddInitDialogMessage("Application was successfully loaded.");
+            ZPlannerManager.InitDialog.Close();
+            ZPlannerManager.InitDialog = null;
+
+            LoadFormLocation();
         }
 
         void Application_Idle(object sender, EventArgs e)

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZZero.ZPlanner.Settings;
+using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.UI.Dialogs
 {
@@ -18,10 +19,10 @@ namespace ZZero.ZPlanner.UI.Dialogs
             InitializeComponent();
             LoadData();
 #if ZSANDBOX
-            this.Text = "About Field Solver Sandbox / Licensing";
-            textBox1.Text = "About Field Solver Sandbox";
-            //tbVersion.Text = "Field Solver Sandbox";
-            tbTM.Text = "Z-zero® and Field Solver Sandbox® are registered trademarks of Z-zero, LP.";
+            this.Text = "About Z-solver / Licensing";
+            textBox1.Text = "About Z-solver";
+            //tbVersion.Text = "Z-solver";
+            tbTM.Text = "Z-zero® and Z-solver® are registered trademarks of Z-zero, LP.";
 #endif
         }
 
@@ -50,29 +51,17 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             //license
             string feature = License.TheLicense.layers;//feature;
-            panelFeature.Enabled = true;
-            switch (feature)
-            {
-                case "UL": 
-                    rbUL.Checked = true; 
-                    rbUL.Enabled = true;
-                    rb12L.Enabled = false;
-                    rb6L.Enabled = false; 
-                    break;
-                case "12L": 
-                    rb12L.Checked = true;
-                    rbUL.Enabled = false;
-                    rb12L.Enabled = true;
-                    rb6L.Enabled = false; 
-                    break;
-                case "6L": 
-                    rb6L.Checked = true; 
-                    rbUL.Enabled = false;
-                    rb12L.Enabled = false;
-                    rb6L.Enabled = true; 
-                    break;
-                default: panelFeature.Enabled = false; break;
-            }
+
+#if ZSANDBOX
+            tbFeature.Text = "Z-solver";
+            textBox10.Visible = false;
+            tbLybraryDate.Visible = false;
+#else
+            tbFeature.Text = "Z-planner";
+
+            DateTime dmlSyncDate = ZPlannerManager.GetDMLSyncDate();
+            tbLybraryDate.Text = (dmlSyncDate != DateTime.MinValue) ? dmlSyncDate.ToString("MMMM d, yyyy") : string.Empty;
+#endif
 
             string type = License.TheLicense.type;
             string count = "uncounted";

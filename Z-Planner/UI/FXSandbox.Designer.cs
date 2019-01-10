@@ -29,10 +29,11 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FXSandboxPanel));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.tabCSType = new System.Windows.Forms.TabControl();
             this.tabSurface = new System.Windows.Forms.TabPage();
             this.groupBox20 = new System.Windows.Forms.GroupBox();
+            this.label138 = new System.Windows.Forms.Label();
             this.label131 = new System.Windows.Forms.Label();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
             this.label128 = new System.Windows.Forms.Label();
@@ -303,7 +304,6 @@
             this.btnClose = new System.Windows.Forms.Button();
             this.container = new System.Windows.Forms.Panel();
             this.btnResults = new System.Windows.Forms.Button();
-            this.label138 = new System.Windows.Forms.Label();
             this.tabCSType.SuspendLayout();
             this.tabSurface.SuspendLayout();
             this.groupBox20.SuspendLayout();
@@ -401,6 +401,16 @@
             this.groupBox20.TabIndex = 42;
             this.groupBox20.TabStop = false;
             this.groupBox20.Text = "Hint:";
+            // 
+            // label138
+            // 
+            this.label138.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label138.Location = new System.Drawing.Point(3, 51);
+            this.label138.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
+            this.label138.Name = "label138";
+            this.label138.Size = new System.Drawing.Size(265, 53);
+            this.label138.TabIndex = 60;
+            this.label138.Text = "If you only specify c1, c2 will be equal to c1. ";
             // 
             // label131
             // 
@@ -1426,7 +1436,7 @@
             this.tbFmax.Name = "tbFmax";
             this.tbFmax.Size = new System.Drawing.Size(59, 19);
             this.tbFmax.TabIndex = 4;
-            this.tbFmax.Text = "10";
+            this.tbFmax.Text = "11";
             this.tbFmax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbFmax.Leave += new System.EventHandler(this.tbFmax_Leave);
             // 
@@ -1456,7 +1466,7 @@
             this.tbFmin.Name = "tbFmin";
             this.tbFmin.Size = new System.Drawing.Size(59, 19);
             this.tbFmin.TabIndex = 1;
-            this.tbFmin.Text = "1";
+            this.tbFmin.Text = "0";
             this.tbFmin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbFmin.Leave += new System.EventHandler(this.tbFmin_Leave);
             // 
@@ -1564,8 +1574,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.chartLoss.BorderlineColor = System.Drawing.Color.Black;
             this.chartLoss.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
-            chartArea8.Name = "chartAreaLoss";
-            this.chartLoss.ChartAreas.Add(chartArea8);
+            chartArea1.Name = "chartAreaLoss";
+            this.chartLoss.ChartAreas.Add(chartArea1);
             this.chartLoss.Location = new System.Drawing.Point(9, 6);
             this.chartLoss.Margin = new System.Windows.Forms.Padding(4);
             this.chartLoss.Name = "chartLoss";
@@ -1745,15 +1755,15 @@
             // 
             // label105
             // 
-            this.label105.Location = new System.Drawing.Point(6, 88);
+            this.label105.Location = new System.Drawing.Point(6, 84);
             this.label105.Name = "label105";
-            this.label105.Size = new System.Drawing.Size(256, 67);
+            this.label105.Size = new System.Drawing.Size(256, 79);
             this.label105.TabIndex = 29;
             this.label105.Text = resources.GetString("label105.Text");
             // 
             // label97
             // 
-            this.label97.Location = new System.Drawing.Point(6, 163);
+            this.label97.Location = new System.Drawing.Point(6, 167);
             this.label97.Name = "label97";
             this.label97.Size = new System.Drawing.Size(256, 32);
             this.label97.TabIndex = 28;
@@ -2630,15 +2640,15 @@
             // 
             // label71
             // 
-            this.label71.Location = new System.Drawing.Point(6, 88);
+            this.label71.Location = new System.Drawing.Point(6, 83);
             this.label71.Name = "label71";
-            this.label71.Size = new System.Drawing.Size(256, 67);
+            this.label71.Size = new System.Drawing.Size(256, 80);
             this.label71.TabIndex = 29;
             this.label71.Text = resources.GetString("label71.Text");
             // 
             // label102
             // 
-            this.label102.Location = new System.Drawing.Point(6, 163);
+            this.label102.Location = new System.Drawing.Point(6, 168);
             this.label102.Name = "label102";
             this.label102.Size = new System.Drawing.Size(256, 30);
             this.label102.TabIndex = 28;
@@ -3625,16 +3635,6 @@
             this.btnResults.UseVisualStyleBackColor = true;
             this.btnResults.Click += new System.EventHandler(this.btnResults_Click);
             // 
-            // label138
-            // 
-            this.label138.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label138.Location = new System.Drawing.Point(3, 51);
-            this.label138.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.label138.Name = "label138";
-            this.label138.Size = new System.Drawing.Size(265, 53);
-            this.label138.TabIndex = 60;
-            this.label138.Text = "If you only specify c1, c2 will be equal to c1. ";
-            // 
             // FXSandboxPanel
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -3654,7 +3654,7 @@
             this.Name = "FXSandboxPanel";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "  Field Solver Sandbox";
+            this.Text = "  Z-solver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FXSandboxPanel_FormClosing);
             this.Load += new System.EventHandler(this.FXSandboxPanel_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FXSandboxPanel_KeyDown);

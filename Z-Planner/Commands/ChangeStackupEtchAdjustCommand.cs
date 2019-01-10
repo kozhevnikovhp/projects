@@ -37,7 +37,7 @@ namespace ZZero.ZPlanner.Commands
             {
                 foreach (ZLayer layer in currentObject.Layers)
                 {
-                    layer.SetLayerParameterValue(ZStringConstants.ParameterIDEtchFactor, currentObject.Etch.ToString("N" + Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    layer.SetLayerParameterValue(ZStringConstants.ParameterIDEtchFactor, currentObject.Etch.ToString(/*"N" + Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 }
             }
             finally
@@ -61,7 +61,7 @@ namespace ZZero.ZPlanner.Commands
             {
                 foreach (ZLayer layer in currentObject.Layers)
                 {
-                    layer.SetLayerParameterValue(ZStringConstants.ParameterIDEtchFactor, currentObject.Etch.ToString("N" + Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    layer.SetLayerParameterValue(ZStringConstants.ParameterIDEtchFactor, currentObject.Etch.ToString(/*"N" + Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
                 }
             }
             finally

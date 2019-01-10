@@ -368,9 +368,9 @@ namespace ZZero.ZPlanner.DRC
                 if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, ref dval))
                 {
                     //check range
-                    if (!CheckRange(dval, 0.1, 30))
+                    if (!CheckRange(dval, 0.1, 50))
                     {
-                        message = String.Format("Layer {0} {1} value should be in the range [{2}..{3}].", currIdx + 1, "thickness", 0.1, 30);
+                        message = String.Format("Layer {0} {1} value should be in the range [{2}..{3}].", currIdx + 1, "thickness", 0.1, 50);
                         Problem p = new Problem(stackup, zl, Problem.Severity.Error, "Layer parameters", message);
                         report.Add(p);
                     }
@@ -534,6 +534,8 @@ namespace ZZero.ZPlanner.DRC
             bool currMetal = false, prevMetal = false;
             int currIdx = 0, prevIdx = 0;
             int numPlanes = 0;
+            ZLayer zPrevLayer = null;
+
             foreach (ZLayer zl in stackup.Layers)
             {
                 currMetal = zl.isMetal();
@@ -561,10 +563,10 @@ namespace ZZero.ZPlanner.DRC
                         switch (currType)
                         {
                             case ZLayerType.Core:
-                                //only metal before Core
-                                if (!prevMetal)
+                                //--only metal before Core
+                                if (prevType == ZLayerType.Prepreg && !zl.isDummyCore())
                                 {
-                                    message = String.Format("Dielectric layer {0} adjacent to Core {1}. Consider adding a copper foil to the core.", prevIdx + 1, currIdx + 1);
+                                    message = String.Format("Prepreg layer {0} adjacent to Core {1}. Consider adding a copper foil to the core.", prevIdx + 1, currIdx + 1);
                                     Problem p = new Problem(stackup, zl, Problem.Severity.Warning, "Layer order", message);
                                     report.Add(p);
                                 }
@@ -572,7 +574,7 @@ namespace ZZero.ZPlanner.DRC
 
                             case ZLayerType.Prepreg:
                                 //any layer before prepreg except core
-                                if (prevType == ZLayerType.Core)
+                                if (prevType == ZLayerType.Core && !zPrevLayer.isDummyCore())
                                 {
                                     message = String.Format("Prepreg layer {0} adjacent to Core {1}. Consider adding a copper foil to the core.", currIdx + 1, prevIdx + 1);
                                     Problem p = new Problem(stackup, zl, Problem.Severity.Warning, "Layer order", message);
@@ -587,6 +589,7 @@ namespace ZZero.ZPlanner.DRC
                 prevType = currType;
                 prevMetal = currMetal;   
                 prevIdx = currIdx;
+                zPrevLayer = zl;
             }
 
         }
