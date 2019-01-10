@@ -15,41 +15,56 @@
 #include <stdio.h>
 
 
-SnifferSocket::SnifferSocket()
+Sniffer::Sniffer(const std::string &ifaceName)
 {
-#ifdef SOCKETS_WSA
-    m_Socket = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
+    ifaceName_ = ifaceName;
+    pHandle_ = pcap_open_live(ifaceName.c_str(), BUFSIZ, 1, 1000, error_buffer_);
+    if (pHandle_ == NULL)
+    {
+        fprintf(stderr, "pcap_open_live %s\n", error_buffer_);
+        return;
+    }
+
+    bHasEthernetHeader_ = false;
+    if (pcap_datalink(pHandle_) == DLT_EN10MB)
+    {
+        bHasEthernetHeader_ = true;
+    }
+
+/*#ifdef SOCKETS_WSA
+    socket_ = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
 #endif
 #ifdef SOCKETS_BSD
-    m_Socket = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    socket_ = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 #endif
-    //printf("Socket = %d\n", m_Socket);
-    if (m_Socket == INVALID_SOCKET)
-        perror("Sniffer socket creation");
+    //printf("Socket = %d\n", socket_);
+    if (!isCreated())
+        perror("Sniffer socket creation");*/
 }
 
 //virtual
-SnifferSocket::~SnifferSocket()
+Sniffer::~Sniffer()
 {
 }
 
-void SnifferSocket::destroy()
+void Sniffer::destroy()
 {
     if (isDestroyed())
         return; // do nothing
 
-#ifdef SOCKETS_WSA
-    ::shutdown(m_Socket, SD_BOTH);
-    ::closesocket(m_Socket);
+/*#ifdef SOCKETS_WSA
+    ::shutdown(socket_, SD_BOTH);
+    ::closesocket(socket_);
 #endif
 
 #ifdef SOCKETS_BSD
-    ::shutdown(m_Socket, SHUT_RDWR);
-    if (::close(m_Socket) != 0) // success = 0, fail = -1
+    ::shutdown(socket_, SHUT_RDWR);
+    if (::close(socket_) != 0) // success = 0, fail = -1
     {
         perror("close");
     }
 #endif
+*/
 }
 
 #if (SOCKETS_WSA)
@@ -59,60 +74,120 @@ bool SnifferSocket::promiscModeOn(IPADDRESS_TYPE ifaceIP)
     local.sin_family = AF_INET;
     local.sin_addr.s_addr = ifaceIP;
     local.sin_port = 0;
-    if (::bind(m_Socket, (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
+    if (::bind(socket_, (sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
     {
         perror("bind");
         return false;
     }
 
     unsigned long flag = 1;  // flag PROMISC ON/OFF
-    ioctlsocket(m_Socket, SIO_RCVALL, &flag);
+    ioctlsocket(socket_, SIO_RCVALL, &flag);
     return true;
 }
 #elif (SOCKETS_BSD)
-bool SnifferSocket::promiscModeOn(const char *pszIfaceName)
+bool Sniffer::promiscModeOn(const char *pszIfaceName)
 {
-    memset(&ifaceDesc_, 0, sizeof(ifaceDesc_));
+/*    memset(&ifaceDesc_, 0, sizeof(ifaceDesc_));
     strcpy(ifaceDesc_.ifr_name, pszIfaceName);
-    ioctl(m_Socket, SIOCGIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCGIFFLAGS, &ifaceDesc_);
     ifaceDesc_.ifr_flags |= IFF_PROMISC;
-    ioctl(m_Socket, SIOCSIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCSIFFLAGS, &ifaceDesc_);*/
     return true;
 }
 #endif
 
-bool SnifferSocket::promiscModeOff()
+bool Sniffer::promiscModeOff()
 {
-#if (SOCKETS_WSA)
+/*#if (SOCKETS_WSA)
     unsigned long flag = 0;  // flag PROMISC ON/OFF
-    ioctlsocket(m_Socket, SIO_RCVALL, &flag);
+    ioctlsocket(socket_, SIO_RCVALL, &flag);
     return true;
 #elif (SOCKETS_BSD)
-    ioctl(m_Socket, SIOCGIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCGIFFLAGS, &ifaceDesc_);
     ifaceDesc_.ifr_flags &= ~IFF_PROMISC;
-    ioctl(m_Socket, SIOCSIFFLAGS, &ifaceDesc_);
+    ioctl(socket_, SIOCSIFFLAGS, &ifaceDesc_);
     return true;
 #endif
+*/
+    return true;
 }
 
-bool SnifferSocket::waitForPacket()
+bool Sniffer::waitForPacket()
 {
-    struct sockaddr src;
+/*    struct sockaddr src;
     socklen_t fromlen = sizeof(src);
-    int nPacketSize = recvfrom(m_Socket, bufferForPackets_, sizeof(bufferForPackets_), 0, &src, &fromlen);
+    int nPacketSize = recvfrom(socket_, bufferForPackets_, sizeof(bufferForPackets_), 0, &src, &fromlen);
+
     if (nPacketSize == SOCKET_ERROR)
     {
         perror("recvfrom");
         return false;
     }
+    //printf("Packet %d bytes\n", nPacketSize);*/
 
+    SIpHeader *pIpHeader = NULL;
+    struct pcap_pkthdr *pHeader;	/* The header that pcap gives us */
+    const u_char *pPacket;		/* The actual packet */
+
+    int nPacketSize = 0;
+    int ec = pcap_next_ex(getHandle(), &pHeader, &pPacket);
+    if (ec == 1)
+    {
+        nPacketSize = pHeader->len;
+        //printf("%s: packet with length of %d\n", ifaceName_.c_str(), nPacketSize);
+        if (bHasEthernetHeader_)
+        {
+            struct ethhdr *pEthernetHeader = (struct ethhdr *)pPacket;
+            //printf("Ethernet proto = 0x%04X\n", pEthernetHeader->h_proto);
+            switch (ntohs(pEthernetHeader->h_proto))
+            {
+                case ETH_P_IP:
+                    pIpHeader = (SIpHeader *)(pEthernetHeader+1);
+                    nPacketSize -= sizeof(struct ethhdr);
+                    //printf("\t%s: IP-Packet %d bytes\n", ifaceName_.c_str(), nPacketSize);
+                    break;
+                case ETH_P_IPV6:
+                    //printf("\t%s: IPv6\n", ifaceName_.c_str());
+                    break;
+                case ETH_P_ARP:
+                    //printf("\t%s: ARP\n", ifaceName_.c_str());
+                    break;
+                case ETH_P_RARP:
+                    //printf("\t%s: RARP\n", ifaceName_.c_str());
+                    break;
+                default:
+                    //printf("\t%s: unknown ethernet proto = 0x%04X, refer to file linux/if_ether.h and add implementation if needed\n", ifaceName_.c_str(), ntohs(pEthernetHeader->h_proto));
+                    break;
+            } // switch
+         } //bHasEthernetHeader_
+         else
+            pIpHeader = (SIpHeader *)pPacket;
+    }
 #if (SOCKETS_WSA)
-    SIpHeader *pIpHeader = (SIpHeader *)bufferForPackets_;
+    IpHeader = (SIpHeader *)bufferForPackets_;
 #elif (SOCKETS_BSD)
     struct ethhdr *pEthernetHeader = (struct ethhdr *)bufferForPackets_;
-    SIpHeader *pIpHeader = (SIpHeader *)(pEthernetHeader+1);
-    nPacketSize -= sizeof(struct ethhdr);
+    //printf("Ethernet proto = 0x%04X\n", pEthernetHeader->h_proto);
+    if (ntohs(pEthernetHeader->h_proto) == ETH_P_IP)
+    {
+        pIpHeader = (SIpHeader *)(pEthernetHeader+1);
+        nPacketSize -= sizeof(struct ethhdr);
+        //printf("\tIP-Packet %d bytes\n", nPacketSize);
+    }
+    else if (ntohs(pEthernetHeader->h_proto) == ETH_P_ARP)
+    {
+        //printf("ARP\n");
+    }
+    else if (ntohs(pEthernetHeader->h_proto) == ETH_P_RARP)
+    {
+        //printf("RARP\n");
+    }
 #endif
+    if (!pIpHeader)
+        return true; // APR, RARP etc, but not IP
+
+    //printIpHeader(pIpHeader);
+
     unsigned short nIpHdrLen = pIpHeader->getHeaderLen();
     int nPayloadLen = nPacketSize - nIpHdrLen;
     unsigned char *pPayload = (unsigned char *)pIpHeader + nIpHdrLen;

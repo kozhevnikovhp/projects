@@ -4,14 +4,17 @@
 #include "misc.h"
 #include "ip.h"
 
-class SnifferSocket
+#include <pcap.h>
+
+class Sniffer
 {
 public:
-    SnifferSocket();
-    virtual ~SnifferSocket();
+    Sniffer(const std::string &ifaceName);
+    virtual ~Sniffer();
 
-    bool isCreated() const { return (m_Socket != INVALID_SOCKET); }
-    bool isDestroyed() const { return (m_Socket == INVALID_SOCKET); }
+    pcap_t *getHandle() const { return pHandle_; }
+    bool isCreated() const { return (pHandle_ != NULL); }
+    bool isDestroyed() const { return (pHandle_ == NULL); }
     void destroy();
 
 // Public members
@@ -37,11 +40,11 @@ protected:
 
 // Protected members
 protected:
-    SOCKET m_Socket;
+    std::string ifaceName_;
+    pcap_t *pHandle_;
+    bool bHasEthernetHeader_;
     char bufferForPackets_[0xFFFF];
-#if (SOCKETS_BSD)
-    struct ifreq ifaceDesc_;
-#endif
+    char error_buffer_[PCAP_ERRBUF_SIZE];
 };
 
 #endif // __SNIFFER_H_INCLUDED__

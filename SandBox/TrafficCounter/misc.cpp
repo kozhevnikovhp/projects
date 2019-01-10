@@ -173,29 +173,32 @@ bool isTheSameSubnet(IPADDRESS_TYPE a1, IPADDRESS_TYPE a2, IPADDRESS_TYPE subnet
     return ((a1 & subnetMask) == (a2 & subnetMask));
 }
 
-#ifdef SOCKETS_BSD
 bool isItInterfaceName(const std::string &ifaceName)
 {
-    // http://forum.sources.ru/index.php?showtopic=78789
-    char buf[2048];
-    struct ifconf ifc;
-    int s = socket(AF_INET, SOCK_DGRAM, 0);
-    if (s < 0)
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
     {
         perror("socket");
         return false;
     }
+    bool b = isItInterfaceName(ifaceName, sock);
+    close(sock);
+    return b;
+}
 
+bool isItInterfaceName(const std::string &ifaceName, int sock)
+{
+    // http://forum.sources.ru/index.php?showtopic=78789
+    char buf[2048];
+    struct ifconf ifc;
     // Query available interfaces.
     ifc.ifc_len = sizeof(buf);
     ifc.ifc_buf = buf;
-    if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
+    if (ioctl(sock, SIOCGIFCONF, &ifc) < 0)
     {
         perror("ioctl(SIOCGIFCONF)");
-        close(s);
         return false;
     }
-    close(s); // o need it anymore
 
     // Iterate through the list of interfaces.
     int nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
@@ -209,7 +212,6 @@ bool isItInterfaceName(const std::string &ifaceName)
     }
     return false;
 }
-#endif
 
 bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName)
 {
@@ -234,23 +236,29 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
     }
     return false;
 #elif (SOCKETS_BSD)
-    // http://forum.sources.ru/index.php?showtopic=78789
-    char buf[2048];
-    struct ifconf ifc;
-    int s = socket(AF_INET, SOCK_DGRAM, 0);
-    if (s < 0)
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
     {
         perror("socket");
         return false;
     }
+    bool b = findBestInterface(IP, ifaceIP, ifaceMask, ifaceName, sock);
+    close(sock);
+    return b;
+#endif
+}
 
+#ifdef SOCKETS_BSD
+bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask, std::string &ifaceName, int sock)
+{
+    char buf[2048];
+    struct ifconf ifc;
     // Query available interfaces.
     ifc.ifc_len = sizeof(buf);
     ifc.ifc_buf = buf;
-    if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
+    if (ioctl(sock, SIOCGIFCONF, &ifc) < 0)
     {
         perror("ioctl(SIOCGIFCONF)");
-        close(s);
         return false;
     }
 
@@ -259,7 +267,6 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
     for (int i = 0; i < nInterfaces; i++)
     {
         struct ifreq *pInterface = &ifc.ifc_req[i];
-
         // device name
         ifaceName = pInterface->ifr_name;
         // IP address
@@ -267,7 +274,7 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
         //printf("%s: IP %s", pInterface->ifr_name, addressToDotNotation(ifaceIP).c_str());
 
         // SubnetMask
-        if(ioctl(s, SIOCGIFNETMASK, pInterface) < 0)
+        if(ioctl(sock, SIOCGIFNETMASK, pInterface) < 0)
         {
             perror("ioctl SIOCGIFNETMASK");
             return false;
@@ -275,29 +282,26 @@ bool findBestInterface(IPADDRESS_TYPE IP, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYP
         ifaceMask = getIP(&pInterface->ifr_netmask);
         //printf(", MASK %s", addressToDotNotation(ifaceMask).c_str());
         if (isTheSameSubnet(IP, ifaceIP, ifaceMask))
-        {
-            close(s);
             return true;
-        }
 
         // Get the broadcast address
-        //if (ioctl(s, SIOCGIFBRDADDR, pInterface) >= 0)
+        //if (ioctl(sock, SIOCGIFBRDADDR, pInterface) >= 0)
         //{
         //    IPADDRESS_TYPE broadcastIP = getIP(&pInterface->ifr_broadaddr);
         //    printf(", BROADCAST %s", addressToDotNotation(broadcastIP).c_str());
         //}
 
         // Get the MAC address
-        //if(ioctl(s, SIOCGIFHWADDR, pInterface) >= 0)
+        //if(ioctl(sock, SIOCGIFHWADDR, pInterface) >= 0)
         //{
         //}
 
         //printf("\n");
     }
-    close(s);
-    return false; // not found
-#endif
+     return false; // not found
 }
+#endif
+
 
 bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &ifaceIP, IPADDRESS_TYPE &ifaceMask)
 {
