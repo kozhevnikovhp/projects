@@ -1,0 +1,35 @@
+﻿using ZZero.ZPlanner.Data.Entities;
+
+namespace ZZero.ZPlanner.Commands
+{
+    class ChangeMaterialIsHiddenCommand : AbstractCommand
+    {
+        ZMaterial currentObject;
+        bool oldValue;
+        bool newValue;
+
+        internal ChangeMaterialIsHiddenCommand(ZMaterial currentObject, bool oldValue, bool newValue)
+        {
+            this.currentObject = currentObject;
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+            base.RegisterCommand();
+        }
+
+        /// <summary>
+        /// Undo command.
+        /// </summary>
+        internal override void Undo()
+        {
+            currentObject.IsHidden = oldValue;
+        }
+
+        /// <summary>
+        /// Redo command.
+        /// </summary>
+        internal override void Redo()
+        {
+            currentObject.IsHidden = newValue;
+        }
+    }
+}

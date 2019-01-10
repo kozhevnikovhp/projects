@@ -1,0 +1,766 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Lock_Cores_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Lock Cores 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="surface_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\surface_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Lock Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Lock Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export Material Mapper 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Export Material Mapper 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Zo Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Zo Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Non_Editable_Cells_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Non Editable Cells 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Unlock_Cores_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Unlock Cores 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Sequential lamination 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sequential lamination 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Zo Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Zo Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Qualified Materials 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Qualified Materials 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Prepregs 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Prepregs 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Start Menu 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Start Menu 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Z-Zero 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Z-Zero 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Corporate Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Corporate Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="2017-03-12-Microstrip bitmap" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\2017-03-12-Microstrip bitmap.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open View 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open View 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Insert Blank Row 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Insert Blank Row 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Disk 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Disk 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Filter Toolbar 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Filter Toolbar 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SortDESC_Z_A" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SortDESC_Z_A.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Auto-Mirror 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Auto-Mirror 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Material Mapper 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Material Mapper 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export_to_Excel_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Export to Excel 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ColumnFilter4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\ColumnFilter4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Halogen Free 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Halogen Free 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Column_Row_Headings_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Column-Row Headings 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TreeNodeExpanded" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TreeNodeExpanded.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TreeLeaf" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TreeLeaf.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Run Stackup Wizard 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Run Stackup Wizard 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Lock Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Lock Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tile Vertical 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Tile Vertical 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Non_Editable_Cells_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Non Editable Cells 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="buried_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\buried_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Cut16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Cut16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Local user Lib 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Local user Lib 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Copy16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Copy16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup_Center_Line_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup Center Line 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup_Vias_View_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup-Vias View 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Single-Ended 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Single-Ended 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Icons Phase 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Icons Phase 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Hide Zo Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Hide Zo Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FilterDESC" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\FilterDESC.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open Local User Lib 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open Local User Lib 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Zo - Innovative PCB Stackup Design" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Zo - Innovative PCB Stackup Design.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Row Properties View - Left 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Row Properties View - Left 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Paste32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Paste32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TreeNodeCollapsed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TreeNodeCollapsed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Disk 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Disk 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Import CSV 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Import CSV 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tile Horizontal 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Tile Horizontal 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ascbool" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\ascbool.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Lock Cores 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Lock Cores 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="New Stackup 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\New Stackup 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Single-Ended 321" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Single-Ended 321.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SaveStackup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\IconsDialog\Save.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Copper Roughness 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Copper Roughness 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Export 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="HyperLynx 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\HyperLynx 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Design_Rule_Checker_no_Check_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Design-Rule Checker no Check 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup Center Line 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup Center Line 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Qualified Materials 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Qualified Materials 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Delete Row 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Delete Row 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Glass Pitch 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Glass Pitch 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Redo 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Redo 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup Diff Tool 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup Diff Tool 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Import 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Import 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ResizeGrip" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\ResizeGrip.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dielectric Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Dielectric Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Checked 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Checked 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Z-Zero 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Z-Zero 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Etch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Etch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="2017-03-13-Buried Microstrip bitmap" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\2017-03-13-Buried Microstrip bitmap.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dielectric_Library_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Dielectric Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ProgressBar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\ProgressBar.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Export 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Mirror Stackup 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Mirror Stackup 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Local user Lib 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Local user Lib 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ASC" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\ASC.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Loss Viewer 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Loss Viewer 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Filter 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Filter 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save View 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save View 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Cores 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Cores 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Clear Filters 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Clear Filters 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Bulk Edit Column Values 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Bulk Edit Column Values 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Design_Rule_Checker_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Design-Rule Checker 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Zo Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Zo Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Single-ended 161" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Single-ended 161.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Clear Filters 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Clear Filters 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Undo 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Undo 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="17-04-22-Excel Export Preview" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\17-04-22-Excel Export Preview.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Upload Zo Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Upload Zo Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Column-Row Headings 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Column-Row Headings 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Find16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Find 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export to Excel 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Export to Excel 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Upload Zo Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Upload Zo Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="New Single Ended 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\New Single Ended 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Run_Stackup_Wizard_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Run Stackup Wizard 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Delete Row 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Delete Row 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Undo_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Undo 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FilterASC" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\FilterASC.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Custom Sort 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Custom Sort 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Trapezoidal_Traces_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Trapezoidal Traces 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Help 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Help 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open View 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open View 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Pressed_Prepreg_Thickness_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Pressed Prepreg Thickness 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Main Project View 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Main Project View 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Settings_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Settings 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup-Vias View 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup-Vias View 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup_Diff_Tool_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup Diff Tool 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tutorial 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Tutorial 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Local Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Local Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Differential Pair 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Differential Pair 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="New_Differential_Pair_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\New Differential Pair 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Glass Styles 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Glass Styles 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open_Disk_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open Disk 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SurfaceMicrostrip_Diff" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SurfaceMicrostrip_Diff.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Hide Zo Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Hide Zo Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup-Dielectric Library View 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup-Dielectric Library View 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export Material Mapper 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Export Material Mapper 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Insert in Stackup 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Insert in Stackup 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Material Mapper 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Material Mapper 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Generic Stackups 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Generic Stackups 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Print_Preview_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Print Preview 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="2 Ply Materials 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\2 Ply Materials 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="UI 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup-Row Properties View 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup-Row Properties View 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Insert Blank Row 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Insert Blank Row 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Slash Sheets 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Slash Sheets 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Bulk_Edit_Column_Values_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Bulk Edit Column Values 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Corporate Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Corporate Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stripline_Diff" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stripline_Diff.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Copper Roughness 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Copper Roughness 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open Local User Lib 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open Local User Lib 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Filter Toolbar 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Filter Toolbar 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Import_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Import 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tile Vertical 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Tile Vertical 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Print Preview 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Print Preview 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Field Solver Sandbox 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Field Solver Sandbox 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Trapezoidal Traces 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Trapezoidal Traces 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Encrypt and Save Zo Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Encrypt and Save Zo Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DESC" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\DESC.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Differential Pair 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Differential Pair 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Pressed Prepreg Thickness 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Pressed Prepreg Thickness 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SaveLibrary" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\IconsDialog\Save Local User Library.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Glass Styles 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Glass Styles 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save_and_Email_Stackup_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save and Email Stackup 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SortDESC_9_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SortDESC_9_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Sync Zo Lib 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Sync Zo Lib 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Open_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Open 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Insert in Stackup 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Insert in Stackup 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SurfaceMicrostrip" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SurfaceMicrostrip.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EtchEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EtchEffect.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Help 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Help 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Single-ended 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Single-ended 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="2 Ply Materials 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\2 Ply Materials 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Buried_Microstrip" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Buried_Microstrip.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Upload Corporate Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Upload Corporate Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Sync Zo Lib 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Sync Zo Lib 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Loss Viewer 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Loss Viewer 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup_Row_Properties_View_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup-Row Properties View 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save View 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save View 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="UI 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Page Setup 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Page Setup 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Export 2 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Export 2 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Paste16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Paste16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Mirror_Stackup_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Mirror Stackup 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Halogen Free 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Halogen Free 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Design-Rule Checker no Check 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Design-Rule Checker no Check 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Import CSV 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Import CSV 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Copy32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Copy32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="2017-03-13-Stripline bitmap" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\2017-03-13-Stripline bitmap.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SavedFilter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SavedFilter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Corporate Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Corporate Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Encrypt and Save Zo Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Encrypt and Save Zo Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Prepregs 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Prepregs 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Main_Project_View_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Main Project View 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Auto_Mirror_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Auto-Mirror 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stackup_Dielectric_Library_View_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stackup-Dielectric Library View 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="HyperLynx 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\HyperLynx 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="New Differential Pair 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\New Differential Pair 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FilterButton4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\FilterButton4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Design-Rule Checker 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Design-Rule Checker 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save and Email Stackup 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save and Email Stackup 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Redo_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Redo 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="New_Stackup_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\New Stackup 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Save Zo Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Save Zo Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Generic_Stackups_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Generic Stackups 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Start Menu 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Start Menu 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Buried_Microstrip_Diff" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Buried_Microstrip_Diff.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Glass Pitch 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Glass Pitch 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Slash Sheets 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Slash Sheets 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Upload Corporate Library 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Upload Corporate Library 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Sequential lamination 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sequential lamination 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Find32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Find 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Field_Solver_Sandbox_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Field Solver Sandbox 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SortASC_1_9" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SortASC_1_9.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Row Properties View - Left 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Row Properties View - Left 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Cores 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Cores 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tile Horizontal 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Tile Horizontal 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="descbool" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\descbool.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Cut32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Cut32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SortASC_A_Z" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\SortASC_A_Z.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Stripline" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Stripline.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tutorial 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Tutorial 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Settings 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Settings 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Local Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Local Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="stripline_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\stripline_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Custom Sort 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Custom Sort 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Unlock Cores 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Unlock Cores 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Icons Phase 32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Icons Phase 32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Corporate Library 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Icons\Corporate Library 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="New Single Ended 16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\New Single Ended 16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+</root>
