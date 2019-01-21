@@ -35,6 +35,7 @@ namespace ZZero.ZPlanner.UI
         {
             InitializeComponent();
 
+            ZPlannerManager.PropertyChanged += ZPlannerManager_PropertyChanged;
             this.dmlGridView.DefaultCellBehavior = ZDataGridViewColumnHeaderCellBehavior.SortingFiltering;
 
             this.dmlGridView.EditingControlShowing += dmlGridView_EditingControlShowing;
@@ -59,26 +60,63 @@ namespace ZZero.ZPlanner.UI
             this.VisibleChanged += ZPlannerManager.Panel_VisibleChanged;
         }
 
+        void ZPlannerManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Settings")
+            {
+                dmlGridView.Invalidate();
+            }
+        }
+
         void dmlGridView_FilterStringChanged(object sender, EventArgs e)
         {
             if (isIgnoreFilterChanged) return;
 
             Cursor currentCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
-            ZPlannerManager.StatusMenu.StartProgress("Applying the filter ...");
+            ZPlannerManager.StatusMenu.StartProgress("Applying filter ...", true);
 
             //dmlGridView.ScrollBars = ScrollBars.Horizontal;
             dmlGridView.SuspendState();
             dmlGridView.SuspendLayout();
+            ShowEmptyMaterial(false);
             FilterDMLGrid(sender as ZDataGridView);
+            ShowEmptyMaterial(true);
             dmlGridView.ResumeLayout();
             dmlGridView.ResumeState();
             //dmlGridView.ScrollBars = ScrollBars.Both;
             ZPlannerManager.MainMenu.ClearCustomFilterList();
 
-            ZPlannerManager.StatusMenu.StopProgress("Applying the filter ...");
+            ZPlannerManager.StatusMenu.StopProgress("Applying filter ...");
             Cursor.Current = currentCursor;
             SelectFirstMaterial();
+        }
+
+        internal Label EmptyMaterialLabel { get { return lEmptyMaterial; } }
+
+        void ShowEmptyMaterial(bool isShown)
+        {
+            if (!ZPlannerManager.DmlIsEmpty)
+            {
+                ZMaterial material;
+
+                if (isShown)
+                {
+                    material = ZPlannerManager.Dml.Materials.Find(x => (!x.IsFiltered && !x.IsHidden));
+                    if (material != null) return;
+                }
+
+                material = ZPlannerManager.Dml.Materials.Find(x => x.ID == ZStringConstants.EmptyMaterialID);
+                if (material != null)
+                {
+                    material.IsFiltered = !isShown;
+                    material.IsHidden = !isShown;
+                }
+
+                EmptyMaterialLabel.Visible = isShown;
+
+                dmlGridView.Invalidate();
+            }
         }
 
         void FilterDMLGrid(ZDataGridView grid)
@@ -494,6 +532,14 @@ namespace ZZero.ZPlanner.UI
             SetCurrentFilterAndSort(string.Format("([Category] IN ({0})) AND ([Type] IN ('Core', 'Prepreg')) AND ([Hide] IN (False)) ", ZPlannerManager.CategoryFilter), "[H] ASC, [Type] ASC, [Material] ASC, [Manufacturer] ASC");
         }
 
+        public void SetDefaultSolderMaskFilter()
+        {
+            //SetLibraryCategoryFilter(true, false, false);
+            //SetMaterialTypeFilter(true, true, false);
+            //SetHiddenMaterialsFilter(true);
+            SetCurrentFilterAndSort(string.Format("([Category] IN ({0})) AND ([Type] IN ('Solder Mask')) AND ([Hide] IN (False)) ", ZPlannerManager.CategoryFilter), "[H] ASC, [Type] ASC, [Material] ASC, [Manufacturer] ASC");
+        }
+
         private void InitContextMenuSubitems()
         {
             foreach (string type in ZStringConstants.DielectricType)
@@ -512,6 +558,7 @@ namespace ZZero.ZPlanner.UI
         /// </summary>
         internal void LoadData(ZMaterialLibrary library)
         {
+            ZPlannerManager.AddInitDialogMessage("Preparing dielectric material library for filtering ...");
             this.library = library;
             LoadDMLSettings();
             FillGridView();
@@ -541,7 +588,7 @@ namespace ZZero.ZPlanner.UI
             headersRectangle.Height = grid.ColumnHeadersHeight;
             grid.Invalidate(headersRectangle);
 
-            ZPlannerManager.IsMaterialSelected = dmlGridView.CurrentRow != null;
+            //ZPlannerManager.IsMaterialSelected = dmlGridView.CurrentRow != null;
         }
 
         public void UnitsChanged()
@@ -923,7 +970,7 @@ namespace ZZero.ZPlanner.UI
                 double dvalue;
 
                 if (double.TryParse(materialParameter.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out dvalue) && dvalue != 0)
-                    materialParameter.Material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDWeavePitch, (1000 / dvalue).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    materialParameter.Material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDWeavePitch, (1000 / dvalue).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
             }
 
             if (materialParameter.ID == ZStringConstants.DMLParameterIDFillYarnCount)
@@ -931,7 +978,7 @@ namespace ZZero.ZPlanner.UI
                 double dvalue;
 
                 if (double.TryParse(materialParameter.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out dvalue) && dvalue != 0)
-                    materialParameter.Material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDFillPitch, (1000 / dvalue).ToString("N" + Settings.Options.TheOptions.lengthDigits, CultureInfo.InvariantCulture));
+                    materialParameter.Material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDFillPitch, (1000 / dvalue).ToString(/*"N" + Settings.Options.TheOptions.lengthDigits,*/ CultureInfo.InvariantCulture));
             }
 
             if (materialParameter.ID == ZStringConstants.DMLParameterIDType)
@@ -1477,10 +1524,10 @@ namespace ZZero.ZPlanner.UI
                 if (material != null)
                 {
                     this.addMaterialToolStripMenuItem.Enabled = true;
-                    this.removeMaterialToolStripMenuItem.Enabled = ZPlannerManager.IsUserHaveAccessToMaterial(material);
+                    this.removeMaterialToolStripMenuItem.Enabled = (material.ID != ZStringConstants.EmptyMaterialID && ZPlannerManager.IsUserHaveAccessToMaterial(material));
                     bool clipboardNotEmpty = ZPlannerManager.Clipboard.ContainsKey(ZStringConstants.ClipbordKeyMaterials);
                     this.pasteMaterialToolStripMenuItem.Enabled = clipboardNotEmpty;
-                    this.copyMaterialToolStripMenuItem.Enabled = true;
+                    this.copyMaterialToolStripMenuItem.Enabled = (material.ID != ZStringConstants.EmptyMaterialID);
                 }
             }
             else
@@ -1490,8 +1537,8 @@ namespace ZZero.ZPlanner.UI
                 this.pasteMaterialToolStripMenuItem.Enabled = false;
                 this.copyMaterialToolStripMenuItem.Enabled = false;
             }
-                    
-            this.sendToStackupMaterialToolStripMenuItem.Enabled = (material != null && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty && ZPlannerManager.StackupPanel != null);
+
+            this.sendToStackupMaterialToolStripMenuItem.Enabled = (material != null && material.ID != ZStringConstants.EmptyMaterialID && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty && ZPlannerManager.StackupPanel != null);
 
             if (this.sendToStackupMaterialToolStripMenuItem.Enabled)
             {
@@ -1575,26 +1622,36 @@ namespace ZZero.ZPlanner.UI
                     if (e.NewItems == null || e.NewItems.Count == 0) break;
                     if (index == -1)
                     {
+                        bool isFiltered = true;
                         foreach (ZMaterial material in e.NewItems)
                         {
                             AddRow(material);
                             FormatGridRow(dmlGridView.Rows.Count - 1);
+                            isFiltered = material.IsFiltered;
                         }
 
-                        dmlGridView.CurrentCell = dmlGridView.Rows[dmlGridView.Rows.Count - 1].Cells[0];
-                        dmlGridView.FirstDisplayedScrollingRowIndex = dmlGridView.Rows.Count - 1;
+                        if (!isFiltered)
+                        {
+                            dmlGridView.CurrentCell = dmlGridView.Rows[dmlGridView.Rows.Count - 1].Cells[0];
+                            dmlGridView.FirstDisplayedScrollingRowIndex = dmlGridView.Rows.Count - 1;
+                        }
                     }
                     else
                     {
+                        bool isFiltered = true;
                         foreach (ZMaterial material in e.NewItems)
                         {
                             InsertRow(index, material);
                             FormatGridRow(index);
+                            isFiltered = material.IsFiltered;
                             ++index;
                         }
 
-                        dmlGridView.CurrentCell = dmlGridView.Rows[index - 1].Cells[0];
-                        dmlGridView.FirstDisplayedScrollingRowIndex = index - 1;
+                        if (!isFiltered)
+                        {
+                            dmlGridView.CurrentCell = dmlGridView.Rows[index - 1].Cells[0];
+                            dmlGridView.FirstDisplayedScrollingRowIndex = index - 1;
+                        }
                     }
                     RecalculateRowHeaderName();
                     return;
@@ -2149,6 +2206,8 @@ namespace ZZero.ZPlanner.UI
             if (headerCell == null) return;
             ZDataGridViewFilterMenu filterMenu = headerCell.FilterMenu;
             if (filterMenu == null) return;
+
+            if (isSolderMaskShow) SetDefaultFilter();
 
             filterMenu.InitializeComponent();
             dmlGridView.PrepareFilterWithoutShowing(filterMenu, column.Name);

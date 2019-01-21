@@ -929,7 +929,38 @@ namespace ZZero.ZPlanner.Wizard
 
             NameLayers(stackup);
 
+            CheckNoPlanes(stackup);
+
             return stackup;
+        }
+
+        void CheckNoPlanes(ZStackup stackup)
+        {
+            int nMetal = 0;
+            int nPlanes = 0;
+            foreach (ZLayer zl in stackup.Layers)
+            {
+                if (zl.isMetal())
+                {
+                    nMetal++;
+                    if (zl.GetLayerType() == ZLayerType.Plane) nPlanes++;
+                }
+            }
+
+            //handle 2 layers - no planes case
+            //make both layers - split
+            if (nMetal == 2 && nPlanes == 0)
+            {
+                foreach (ZLayer zl in stackup.Layers)
+                {
+                    if (zl.isMetal())
+                    {
+                        zl.SetLayerParameterValue(ZStringConstants.ParameterIDLayerType, ZStringConstants.LayerTypeSplitMixed);
+                        //zl.SetLayerParameterValue(ZStringConstants.ParameterIDComments, "Wizard: Layer type is made Split/Mixed to provide proper reference.");
+                    }
+                }
+                ZPlannerManager.MessagePanel.AddMessage("Wizard: Some metal layers type is set to Split/Mixed to provide proper reference." + Environment.NewLine);
+            }
         }
 
         void NameLayers(ZStackup stk)

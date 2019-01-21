@@ -97,13 +97,6 @@ namespace ZZero.ZPlanner.UI.Grid
                     }
                 }
             }
-
-            DataGridViewCell currentCell = this.CurrentCell;
-            if (currentCell != null && currentCell.ColumnIndex >= 0 && currentCell.RowIndex >= 0 && currentCell.ReadOnly && !currentCell.OwningColumn.ReadOnly)
-            {
-                ZLayer layer = currentCell.OwningRow.Tag as ZLayer;
-                if (layer != null && layer.IsMaterialAssigned && ZPlannerManager.StackupPanel != null) ZPlannerManager.StackupPanel.TryToEditMaterialAssignedRow();
-            }
         }
 
         void ZDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
@@ -1140,6 +1133,8 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (showMeasure && parameter.Measure != ZMeasures.None) cell.ToolTipText = formattedValue + " " + GetMeasureString(parameter.DisplayMeasure);
             else cell.ToolTipText = formattedValue.ToString();
+
+            if (cell.Style != null && cell.Style.Font != null && cell.Style.Font.Bold) cell.ToolTipText += "\nBold numbers are calculated.";
         }
 
         private string GetMeasureString(ZMeasures measure)

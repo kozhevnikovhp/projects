@@ -127,13 +127,13 @@ namespace ZZero.ZPlanner.UI.Dialogs
                             }).ToList();
 
                     mDataSorted = (from x in mData
-                           orderby x.Tg, x.Df
+                           orderby x.Df, x.Tg
                            select x).ToList();
 
                     return mDataSorted;
             }
 
-            public void Export(List<cMaterialWrapper> materials)
+            public void Export(List<cMaterialWrapper> materials, bool bBestOnPerimeter = true)
             {
                 //sort materials by Tg and Df  
                 List<MaterialData> mData = Sort(materials);
@@ -231,7 +231,16 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     worksheet.Cell(iRow, iCol).Value = zCTEpost;
                     SetDataCellStyle(worksheet.Cell(iRow, iCol), worksheet.Cell(iRow, 1));
                     iRow++;
-                    worksheet.Cell(iRow, iCol).Value = xyCTE;
+                    if (xyCTE.IndexOf('-') >= 0)
+                    {
+                        //xyCTE = xyCTE.Replace("-", " - ");
+                        //worksheet.Cell(iRow, iCol).DataType = XLCellValues.Text;
+                        worksheet.Cell(iRow, iCol).SetValue(xyCTE);
+                    }
+                    else
+                    {
+                        worksheet.Cell(iRow, iCol).Value = xyCTE;
+                    }
                     SetDataCellStyle(worksheet.Cell(iRow, iCol), worksheet.Cell(iRow, 1));
                     iRow++;
                     worksheet.Cell(iRow, iCol).Value = PeelStrength;
@@ -275,6 +284,13 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
                 var rngTableOut = worksheet.Range(Row1, Col1 - 1, 17, Col1 + materials.Count - 1);
                 rngTableOut.Style.Border.OutsideBorder = XLBorderStyleValues.Thick;
+
+
+                //add note to radial page
+                worksheet = workbook.Worksheet("Radial");
+                //fill in the first page
+                int iRow1 = 2, iCol1 = 2;
+                worksheet.Cell(iRow1, iCol1).Value = bBestOnPerimeter ? "Axis orientation: \"Best\" on perimeter" : "Axis orientation: Original data";
 
 
                 //save
@@ -445,7 +461,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             Clipboard.SetImage(memoryImage);
         }
 
-        private void AddTextToImage(Image img, RectangleF rectf, Font font, string text)
+        private void AddTextToImage(Image img, RectangleF rectf, Font font, string text, StringAlignment alignment)
         {
             using (Graphics g = Graphics.FromImage(img))
             {
@@ -454,7 +470,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 StringFormat sf = new StringFormat();
-                sf.Alignment = StringAlignment.Far;
+                sf.Alignment = alignment;
                 sf.LineAlignment = StringAlignment.Center;
                 g.DrawString(text, font, Brushes.Black, rectf, sf);
             }
@@ -488,7 +504,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 MM_ExcelExporter exporter = new MM_ExcelExporter(opt, saveFileDialog.FileName);
 
                 Image img;
-                string text = "Exported from Z-zero Z-planner. (Z-zero library values provided by laminate vendors.)";
+                string textExported = "Exported from Z-zero Z-planner. (Z-zero library values provided by laminate vendors.)";
+                string textFrequency = string.Format("Frequency: {0}GHz", dFrequency);
+                string textResin = string.Format("Resin: {0}%", dResin);
                 Font font = new System.Drawing.Font("Tahoma", 8, FontStyle.Regular);
 
                 CaptureControl(panelMaterialTable);
@@ -499,7 +517,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 chartMapper.Size = new Size(501, 535);
                 CaptureControl(chartMapper);
                 img = Clipboard.GetImage();
-                AddTextToImage(img, new RectangleF(16, 6, img.Width - 32, 12), font, text);
+                AddTextToImage(img, new RectangleF(16, 6, img.Width - 32, 12), font, textExported, StringAlignment.Far);
+                AddTextToImage(img, new RectangleF(16, img.Height - 16, 100, 12), font, textFrequency, StringAlignment.Near);
+                AddTextToImage(img, new RectangleF(16, img.Height - 32, 100, 12), font, textResin, StringAlignment.Near);
                 img.Save(path + "xy.bmp", ImageFormat.Bmp);
                 chartMapper.Size = size;
 
@@ -507,7 +527,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 chartRadar.Size = new Size(501, 535);
                 CaptureControl(chartRadar);
                 img = Clipboard.GetImage();
-                AddTextToImage(img, new RectangleF(16, 6, img.Width - 32, 12), font, text);
+                AddTextToImage(img, new RectangleF(16, 6, img.Width - 32, 12), font, textExported, StringAlignment.Far);
+                AddTextToImage(img, new RectangleF(16, img.Height - 16, 100, 12), font, textFrequency, StringAlignment.Near);
+                AddTextToImage(img, new RectangleF(16, img.Height - 32, 100, 12), font, textResin, StringAlignment.Near);
                 img.Save(path + "radial.bmp", ImageFormat.Bmp);
                 chartRadar.Size = size;
 
@@ -517,19 +539,21 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 rbDk.Checked = true;
                 CaptureControl(chartFrequency);
                 img = Clipboard.GetImage();
-                AddTextToImage(img, new RectangleF(16, 6, img.Width - 50, 12), font, text);
+                AddTextToImage(img, new RectangleF(16, 6, img.Width - 50, 12), font, textExported, StringAlignment.Far);
+                AddTextToImage(img, new RectangleF(16, img.Height - 16, 100, 12), font, textResin, StringAlignment.Near);
                 img.Save(path + "Dk.bmp", ImageFormat.Bmp);
 
                 rbDk.Checked = false;
                 CaptureControl(chartFrequency);
                 img = Clipboard.GetImage();
-                AddTextToImage(img, new RectangleF(16, 6, img.Width - 50, 12), font, text);
+                AddTextToImage(img, new RectangleF(16, 6, img.Width - 50, 12), font, textExported, StringAlignment.Far);
+                AddTextToImage(img, new RectangleF(16, img.Height - 16, 100, 12), font, textResin, StringAlignment.Near);
                 img.Save(path + "Df.bmp", ImageFormat.Bmp);
                 chartFrequency.Size = size;
 
                 rbDk.Checked = state;
 
-                exporter.Export(wrapperList);
+                exporter.Export(wrapperList, rbBest.Checked);
 
 
                 //try to open excel app
@@ -912,6 +936,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private string TrimPercent(string inp)
         {
+            if (inp == null) return "";
             char[] charsToTrim = { '%', ' ' };
             return inp.Trim(charsToTrim);
         }
@@ -1758,6 +1783,17 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
         private void initMaps()
         {
+            Dictionary<string, Color> defaultColors = new Dictionary<string,Color>();
+            defaultColors.Add("TUC", Color.Red);
+            defaultColors.Add("ITEQ", Color.Green);
+            defaultColors.Add("PANASONIC", Color.Blue);
+            defaultColors.Add("PARK ELECTROCHEMICAL (NELCO)", Color.Orange);
+            defaultColors.Add("SHENGYI", Color.LimeGreen);
+            defaultColors.Add("ISOLA", Color.Magenta);
+            defaultColors.Add("NANYA", Color.RoyalBlue);
+            defaultColors.Add("EMC", Color.Brown);
+            defaultColors.Add("DOOSAN", Color.BlueViolet);
+
             List<Color> palette = new List<Color> { Color.Red, Color.Green, Color.Blue, Color.Orange, Color.LimeGreen, Color.Magenta, Color.RoyalBlue, Color.Brown, Color.BlueViolet };
             int idx = -1;
             HashSet<string> materialSet = new HashSet<string>();
@@ -1775,8 +1811,15 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 }
                 Color c = palette[0];
                 if (!colorMap.ContainsKey(name))
-                {
-                    c = palette[idx % palette.Count];
+                {                    
+                    if (defaultColors.ContainsKey(name.ToUpper()))
+                    {
+                        c = defaultColors[name.ToUpper()];
+                    }
+                    else
+                    {
+                        c = palette[idx % palette.Count];
+                    }
                     colorMap.Add(name, c);
                 }
             }
@@ -1786,7 +1829,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
         {
             //set checked state and color by manufacturer
             ManufacturerColor mC = new ManufacturerColor(initialMaterialList, colorMap, checkMap);
-            mC.ShowDialog();
+            mC.StartPosition = FormStartPosition.Manual;
+
+            mC.Location = new Point(btnColorByManufacturer.Location.X - 300, btnColorByManufacturer.Location.Y );
+            
+            if (mC.ShowDialog() != DialogResult.OK) return;
 
             if (cbColorByMnaufacturer.Checked)
             {
@@ -1896,9 +1943,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             System.Windows.Forms.Cursor currentCursor = System.Windows.Forms.Cursor.Current;
             System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
-            ZPlannerManager.StatusMenu.StartProgress("Preparing the Material Mapper ...");
+            ZPlannerManager.StatusMenu.StartProgress("Preparing Material Mapper ...", true);
             MaterialMapper mapper = new MaterialMapper(flt.MaterialList(), filter, fltName, fltExpression);
-            ZPlannerManager.StatusMenu.StopProgress("Preparing the Material Mapper ...");
+            ZPlannerManager.StatusMenu.StopProgress("Preparing Material Mapper ...");
             System.Windows.Forms.Cursor.Current = currentCursor;
 
             mapper.ShowDialog();

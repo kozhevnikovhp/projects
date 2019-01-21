@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using ZZero.ZPlanner.Settings;
 using ZZero.ZPlanner.UI.Dialogs;
 #if ZSANDBOX
-using ZZero.ZSandbox;
+using ZZero.ZSolver;
 #endif
 
 namespace ZZero.ZPlanner
@@ -57,6 +57,7 @@ namespace ZZero.ZPlanner
 
         public void ParseParams(string param)//<name>:value;<name>:value
         {
+            //
             string[] pars = param.Split(';');
             foreach (string s in pars)
             {
@@ -160,8 +161,8 @@ namespace ZZero.ZPlanner
         public bool GetLicense()
         {
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.ReadSettings();
-            string dataDictionary = ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory;
+            ZZero.ZSolver.ZSolverManager.ReadSettings();
+            string dataDictionary = ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory;
 #else
             ZPlannerManager.ReadSettings();
             string dataDictionary = ZPlannerManager.ZPlannerDataDirectory;
@@ -180,12 +181,12 @@ namespace ZZero.ZPlanner
                 }
             }
 
-            string[] lines = LicPaths.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] lines = LicPaths.Split(new string[] { Environment.NewLine, "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string path in lines)
             {
                 //check if folder exists and license files are there
-                if (!Directory.Exists(path)) continue;
-                if (Directory.GetFiles(path, "*.lic").Length == 0) continue;
+                //if (!Directory.Exists(path)) continue;
+                //if (Directory.GetFiles(path, "*.lic").Length == 0) continue;
 
                 if (TryPath(path)) return true;
             }
@@ -197,6 +198,7 @@ namespace ZZero.ZPlanner
             string licInfo;
             if ((checkOutFeature(path, Program.ProductFeature, out licInfo) != 0))
             {
+                MessageBox.Show(licInfo);
                 return false;
             }
 
@@ -214,7 +216,14 @@ namespace ZZero.ZPlanner
 
             const int buffer_size = 10000;
             StringBuilder sb = new StringBuilder(buffer_size);
-            res = get_lic(path, feature, sb);
+            try
+            {
+                res = get_lic(path, feature, sb);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
             licInfo = sb.ToString();
 
             return res;
@@ -262,11 +271,7 @@ namespace ZZero.ZPlanner
 
             while (true)
             {
-                if (lic.GetLicense())
-                {
-                    break;
-                }
-                else
+                if (!lic.GetLicense())
                 {
                     MessageBox.Show("To run the program, please click the OK button below to specify a path to a valid license file in the Settings > File Locations dialog; or use the Upload button to upload the your license file to the default location.",
                                     "Licensing", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -276,93 +281,100 @@ namespace ZZero.ZPlanner
                     {
                         Environment.Exit(0);
                     }
+
+                    continue;
                 }
-            }
-
-            // MaxLayersNumber
-            switch (License.TheLicense.layers)
-            {
-                case "UL": MaxLayersNumber = int.MaxValue; break;
-                case "12L": MaxLayersNumber = 12; break;
-                case "6L": MaxLayersNumber = 6; break;
-                //default: MaxLayersNumber = 0; break;
-            }
-
-            // Version
-            string[] versions = License.TheLicense.version.Trim().Split('.');
-            if (License.TheLicense.version.Trim().ToUpper() == "ANY")
-            {
-                MajorVersion = int.MaxValue;
-                MinorVersion = int.MaxValue;
-            }
-            else if (versions.Length == 2)
-            {
-                int major, minor;
-
-                if (versions[0] == "*") MajorVersion = int.MaxValue;
-                else if (int.TryParse(versions[0], out major)) MajorVersion = major;
-
-                if (versions[1] == "*") MinorVersion = int.MaxValue;
-                else if (int.TryParse(versions[1], out minor)) MinorVersion = minor;
-            }
-
-            AllowedTimeZones = License.TheLicense.timeZones;
-
-            // DML Filter
-            DmlManufacturer = License.TheLicense.dml;
-
-            // Dml Synchronization
-            AllowDmlUpdate = License.TheLicense.bAllowDmlUpdate;
-
-            // DML Administrator
-            AllowDmlSave = License.TheLicense.bAllowDmlSave;
 
 
-
-            // Check Version
-            {
-                int majorVersion, minorVersion;
-
-                string productFileLocation = Assembly.GetExecutingAssembly().Location;
-                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(productFileLocation);
-                majorVersion = fileVersionInfo.ProductMajorPart;
-                minorVersion = fileVersionInfo.ProductMinorPart;
-
-                if (MajorVersion <= majorVersion)
+                // MaxLayersNumber
+                switch (License.TheLicense.layers)
                 {
-                    if (MajorVersion < majorVersion || MinorVersion < minorVersion)
+                    case "UL": MaxLayersNumber = int.MaxValue; break;
+                    case "12L": MaxLayersNumber = 12; break;
+                    case "6L": MaxLayersNumber = 6; break;
+                    //default: MaxLayersNumber = 0; break;
+                }
+
+                // Version
+                string[] versions = License.TheLicense.version.Trim().Split('.');
+                if (License.TheLicense.version.Trim().ToUpper() == "ANY")
+                {
+                    MajorVersion = int.MaxValue;
+                    MinorVersion = int.MaxValue;
+                }
+                else if (versions.Length == 2)
+                {
+                    int major, minor;
+
+                    if (versions[0] == "*") MajorVersion = int.MaxValue;
+                    else if (int.TryParse(versions[0], out major)) MajorVersion = major;
+
+                    if (versions[1] == "*") MinorVersion = int.MaxValue;
+                    else if (int.TryParse(versions[1], out minor)) MinorVersion = minor;
+                }
+
+                AllowedTimeZones = License.TheLicense.timeZones;
+
+                // DML Filter
+                DmlManufacturer = License.TheLicense.dml;
+
+                // Dml Synchronization
+                AllowDmlUpdate = License.TheLicense.bAllowDmlUpdate;
+
+                // DML Administrator
+                AllowDmlSave = License.TheLicense.bAllowDmlSave;
+
+                // Check Version
+                {
+                    int majorVersion, minorVersion;
+
+                    string productFileLocation = Assembly.GetExecutingAssembly().Location;
+                    FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(productFileLocation);
+                    majorVersion = fileVersionInfo.ProductMajorPart;
+                    minorVersion = fileVersionInfo.ProductMinorPart;
+
+                    if (MajorVersion <= majorVersion)
                     {
-
-                        MessageBox.Show("The found license is not valid because the restrictions set in this license are not met. " + Environment.NewLine + "To run the program, please click the OK button below to specify a path to a valid license file in the Settings > File Locations dialog; or use the Upload button to upload the your license file to the default location.",
-                                                "Licensing", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                        SettingsDialog options = new SettingsDialog(SettingsOpenMode.license);
-                        if (options.ShowDialog() != DialogResult.OK)
+                        if (MajorVersion < majorVersion || MinorVersion < minorVersion)
                         {
-                            Environment.Exit(0);
+
+                            MessageBox.Show("The found license is not valid because the restrictions set in this license are not met. " + Environment.NewLine + "To run the program, please click the OK button below to specify a path to a valid license file in the Settings > File Locations dialog; or use the Upload button to upload the your license file to the default location.",
+                                                    "Licensing", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                            SettingsDialog options = new SettingsDialog(SettingsOpenMode.license);
+                            if (options.ShowDialog() != DialogResult.OK)
+                            {
+                                Environment.Exit(0);
+                            }
+
+                            continue;
                         }
                     }
                 }
-            }
 
-            // Check TimeZone
-            {
-                if (AllowedTimeZones.Count > 0)
+                // Check TimeZone
                 {
-                    int span = TimeZoneInfo.Local.BaseUtcOffset.Hours;
-                    int span1 = (TimeZoneInfo.Local.BaseUtcOffset.Minutes > 0) ? span + 1 : span;
-                    if (!AllowedTimeZones.Contains(span) && !AllowedTimeZones.Contains(span1))
+                    if (AllowedTimeZones.Count > 0)
                     {
-                        MessageBox.Show("The found license is not valid because the restrictions set in this license are not met. " + Environment.NewLine + "To run the program, please click the OK button below to specify a path to a valid license file in the Settings > File Locations dialog; or use the Upload button to upload the your license file to the default location.",
-                                                "Licensing", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                        SettingsDialog options = new SettingsDialog(SettingsOpenMode.license);
-                        if (options.ShowDialog() != DialogResult.OK)
+                        int span = TimeZoneInfo.Local.BaseUtcOffset.Hours;
+                        int span1 = (TimeZoneInfo.Local.BaseUtcOffset.Minutes > 0) ? span + 1 : span;
+                        if (!AllowedTimeZones.Contains(span) && !AllowedTimeZones.Contains(span1))
                         {
-                            Environment.Exit(0);
+                            MessageBox.Show("The found license is not valid because the restrictions set in this license are not met. " + Environment.NewLine + "To run the program, please click the OK button below to specify a path to a valid license file in the Settings > File Locations dialog; or use the Upload button to upload the your license file to the default location.",
+                                                    "Licensing", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                            SettingsDialog options = new SettingsDialog(SettingsOpenMode.license);
+                            if (options.ShowDialog() != DialogResult.OK)
+                            {
+                                Environment.Exit(0);
+                            }
+
+                            continue;
                         }
                     }
                 }
+
+                break;
             }
         }
     }

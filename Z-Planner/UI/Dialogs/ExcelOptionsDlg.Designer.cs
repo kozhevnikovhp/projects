@@ -62,10 +62,10 @@
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.cbFrequency = new System.Windows.Forms.CheckBox();
-            this.cbDf = new System.Windows.Forms.CheckBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
+            this.cbFrequency = new System.Windows.Forms.CheckBox();
+            this.cbDf = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.cbRz = new System.Windows.Forms.CheckBox();
             this.cbMetalThickness = new System.Windows.Forms.CheckBox();
@@ -73,6 +73,10 @@
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.cbLoss = new System.Windows.Forms.CheckBox();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.cbDiff = new System.Windows.Forms.CheckBox();
+            this.cbSE = new System.Windows.Forms.CheckBox();
+            this.cbDiffZ0 = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -82,6 +86,7 @@
             this.groupBox7.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox8.SuspendLayout();
+            this.groupBox9.SuspendLayout();
             this.SuspendLayout();
             // 
             // cbLayerNumber
@@ -90,14 +95,14 @@
             this.cbLayerNumber.Location = new System.Drawing.Point(139, 17);
             this.cbLayerNumber.Margin = new System.Windows.Forms.Padding(2);
             this.cbLayerNumber.Name = "cbLayerNumber";
-            this.cbLayerNumber.Size = new System.Drawing.Size(78, 21);
+            this.cbLayerNumber.Size = new System.Drawing.Size(62, 17);
             this.cbLayerNumber.TabIndex = 0;
             this.cbLayerNumber.Text = "Layer #";
             this.cbLayerNumber.UseVisualStyleBackColor = true;
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(724, 764);
+            this.btnCancel.Location = new System.Drawing.Point(724, 772);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(82, 23);
@@ -108,7 +113,7 @@
             // 
             // btnExport
             // 
-            this.btnExport.Location = new System.Drawing.Point(822, 764);
+            this.btnExport.Location = new System.Drawing.Point(822, 772);
             this.btnExport.Margin = new System.Windows.Forms.Padding(2);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(82, 23);
@@ -132,7 +137,7 @@
             this.tbProject.Location = new System.Drawing.Point(159, 25);
             this.tbProject.Margin = new System.Windows.Forms.Padding(2);
             this.tbProject.Name = "tbProject";
-            this.tbProject.Size = new System.Drawing.Size(240, 22);
+            this.tbProject.Size = new System.Drawing.Size(240, 20);
             this.tbProject.TabIndex = 4;
             // 
             // label2
@@ -170,7 +175,7 @@
             this.tbRevision.Location = new System.Drawing.Point(159, 59);
             this.tbRevision.Margin = new System.Windows.Forms.Padding(2);
             this.tbRevision.Name = "tbRevision";
-            this.tbRevision.Size = new System.Drawing.Size(240, 22);
+            this.tbRevision.Size = new System.Drawing.Size(240, 20);
             this.tbRevision.TabIndex = 8;
             // 
             // tbFab
@@ -178,7 +183,7 @@
             this.tbFab.Location = new System.Drawing.Point(159, 93);
             this.tbFab.Margin = new System.Windows.Forms.Padding(2);
             this.tbFab.Name = "tbFab";
-            this.tbFab.Size = new System.Drawing.Size(240, 22);
+            this.tbFab.Size = new System.Drawing.Size(240, 20);
             this.tbFab.TabIndex = 9;
             // 
             // tbFabContact
@@ -186,7 +191,7 @@
             this.tbFabContact.Location = new System.Drawing.Point(159, 127);
             this.tbFabContact.Margin = new System.Windows.Forms.Padding(2);
             this.tbFabContact.Name = "tbFabContact";
-            this.tbFabContact.Size = new System.Drawing.Size(240, 22);
+            this.tbFabContact.Size = new System.Drawing.Size(240, 20);
             this.tbFabContact.TabIndex = 10;
             // 
             // cbViaSpans
@@ -195,7 +200,7 @@
             this.cbViaSpans.Location = new System.Drawing.Point(139, 80);
             this.cbViaSpans.Margin = new System.Windows.Forms.Padding(2);
             this.cbViaSpans.Name = "cbViaSpans";
-            this.cbViaSpans.Size = new System.Drawing.Size(92, 21);
+            this.cbViaSpans.Size = new System.Drawing.Size(72, 17);
             this.cbViaSpans.TabIndex = 11;
             this.cbViaSpans.Text = "Via spans";
             this.cbViaSpans.UseVisualStyleBackColor = true;
@@ -206,7 +211,7 @@
             this.cbLayerName.Location = new System.Drawing.Point(139, 59);
             this.cbLayerName.Margin = new System.Windows.Forms.Padding(2);
             this.cbLayerName.Name = "cbLayerName";
-            this.cbLayerName.Size = new System.Drawing.Size(105, 21);
+            this.cbLayerName.Size = new System.Drawing.Size(81, 17);
             this.cbLayerName.TabIndex = 13;
             this.cbLayerName.Text = "Layer name";
             this.cbLayerName.UseVisualStyleBackColor = true;
@@ -217,7 +222,7 @@
             this.cbLayerType.Location = new System.Drawing.Point(139, 38);
             this.cbLayerType.Margin = new System.Windows.Forms.Padding(2);
             this.cbLayerType.Name = "cbLayerType";
-            this.cbLayerType.Size = new System.Drawing.Size(97, 21);
+            this.cbLayerType.Size = new System.Drawing.Size(75, 17);
             this.cbLayerType.TabIndex = 12;
             this.cbLayerType.Text = "Layer type";
             this.cbLayerType.UseVisualStyleBackColor = true;
@@ -225,10 +230,10 @@
             // cbThickness
             // 
             this.cbThickness.AutoSize = true;
-            this.cbThickness.Location = new System.Drawing.Point(139, 136);
+            this.cbThickness.Location = new System.Drawing.Point(139, 88);
             this.cbThickness.Margin = new System.Windows.Forms.Padding(2);
             this.cbThickness.Name = "cbThickness";
-            this.cbThickness.Size = new System.Drawing.Size(94, 21);
+            this.cbThickness.Size = new System.Drawing.Size(75, 17);
             this.cbThickness.TabIndex = 17;
             this.cbThickness.Text = "Thickness";
             this.cbThickness.UseVisualStyleBackColor = true;
@@ -240,7 +245,7 @@
             this.cbResin.Location = new System.Drawing.Point(139, 67);
             this.cbResin.Margin = new System.Windows.Forms.Padding(2);
             this.cbResin.Name = "cbResin";
-            this.cbResin.Size = new System.Drawing.Size(82, 21);
+            this.cbResin.Size = new System.Drawing.Size(64, 17);
             this.cbResin.TabIndex = 16;
             this.cbResin.Text = "Resin %";
             this.cbResin.UseVisualStyleBackColor = true;
@@ -251,7 +256,7 @@
             this.cbConstruction.Location = new System.Drawing.Point(139, 44);
             this.cbConstruction.Margin = new System.Windows.Forms.Padding(2);
             this.cbConstruction.Name = "cbConstruction";
-            this.cbConstruction.Size = new System.Drawing.Size(109, 21);
+            this.cbConstruction.Size = new System.Drawing.Size(85, 17);
             this.cbConstruction.TabIndex = 15;
             this.cbConstruction.Text = "Construction";
             this.cbConstruction.UseVisualStyleBackColor = true;
@@ -262,7 +267,7 @@
             this.cbMaterial.Location = new System.Drawing.Point(139, 21);
             this.cbMaterial.Margin = new System.Windows.Forms.Padding(2);
             this.cbMaterial.Name = "cbMaterial";
-            this.cbMaterial.Size = new System.Drawing.Size(80, 21);
+            this.cbMaterial.Size = new System.Drawing.Size(63, 17);
             this.cbMaterial.TabIndex = 14;
             this.cbMaterial.Text = "Material";
             this.cbMaterial.UseVisualStyleBackColor = true;
@@ -270,21 +275,21 @@
             // cbNotes
             // 
             this.cbNotes.AutoSize = true;
-            this.cbNotes.Location = new System.Drawing.Point(139, 197);
+            this.cbNotes.Location = new System.Drawing.Point(139, 105);
             this.cbNotes.Margin = new System.Windows.Forms.Padding(2);
             this.cbNotes.Name = "cbNotes";
-            this.cbNotes.Size = new System.Drawing.Size(67, 21);
+            this.cbNotes.Size = new System.Drawing.Size(75, 17);
             this.cbNotes.TabIndex = 24;
-            this.cbNotes.Text = "Notes";
+            this.cbNotes.Text = "Comments";
             this.cbNotes.UseVisualStyleBackColor = true;
             // 
             // cbRefLayer
             // 
             this.cbRefLayer.AutoSize = true;
-            this.cbRefLayer.Location = new System.Drawing.Point(139, 175);
+            this.cbRefLayer.Location = new System.Drawing.Point(343, 158);
             this.cbRefLayer.Margin = new System.Windows.Forms.Padding(2);
             this.cbRefLayer.Name = "cbRefLayer";
-            this.cbRefLayer.Size = new System.Drawing.Size(131, 21);
+            this.cbRefLayer.Size = new System.Drawing.Size(101, 17);
             this.cbRefLayer.TabIndex = 23;
             this.cbRefLayer.Text = "Reference layer";
             this.cbRefLayer.UseVisualStyleBackColor = true;
@@ -292,10 +297,10 @@
             // cbDiffImpedance
             // 
             this.cbDiffImpedance.AutoSize = true;
-            this.cbDiffImpedance.Location = new System.Drawing.Point(139, 153);
+            this.cbDiffImpedance.Location = new System.Drawing.Point(343, 118);
             this.cbDiffImpedance.Margin = new System.Windows.Forms.Padding(2);
             this.cbDiffImpedance.Name = "cbDiffImpedance";
-            this.cbDiffImpedance.Size = new System.Drawing.Size(141, 21);
+            this.cbDiffImpedance.Size = new System.Drawing.Size(109, 17);
             this.cbDiffImpedance.TabIndex = 22;
             this.cbDiffImpedance.Text = "Impedance (Zdiff)";
             this.cbDiffImpedance.UseVisualStyleBackColor = true;
@@ -303,10 +308,10 @@
             // cbImpedance
             // 
             this.cbImpedance.AutoSize = true;
-            this.cbImpedance.Location = new System.Drawing.Point(139, 131);
+            this.cbImpedance.Location = new System.Drawing.Point(343, 98);
             this.cbImpedance.Margin = new System.Windows.Forms.Padding(2);
             this.cbImpedance.Name = "cbImpedance";
-            this.cbImpedance.Size = new System.Drawing.Size(130, 21);
+            this.cbImpedance.Size = new System.Drawing.Size(101, 17);
             this.cbImpedance.TabIndex = 21;
             this.cbImpedance.Text = "Impedance (Zo)";
             this.cbImpedance.UseVisualStyleBackColor = true;
@@ -314,10 +319,10 @@
             // cbTraceWidth
             // 
             this.cbTraceWidth.AutoSize = true;
-            this.cbTraceWidth.Location = new System.Drawing.Point(139, 109);
+            this.cbTraceWidth.Location = new System.Drawing.Point(343, 78);
             this.cbTraceWidth.Margin = new System.Windows.Forms.Padding(2);
             this.cbTraceWidth.Name = "cbTraceWidth";
-            this.cbTraceWidth.Size = new System.Drawing.Size(103, 21);
+            this.cbTraceWidth.Size = new System.Drawing.Size(82, 17);
             this.cbTraceWidth.TabIndex = 20;
             this.cbTraceWidth.Text = "Trace width";
             this.cbTraceWidth.UseVisualStyleBackColor = true;
@@ -325,10 +330,10 @@
             // cbCopper
             // 
             this.cbCopper.AutoSize = true;
-            this.cbCopper.Location = new System.Drawing.Point(139, 65);
+            this.cbCopper.Location = new System.Drawing.Point(139, 63);
             this.cbCopper.Margin = new System.Windows.Forms.Padding(2);
             this.cbCopper.Name = "cbCopper";
-            this.cbCopper.Size = new System.Drawing.Size(92, 21);
+            this.cbCopper.Size = new System.Drawing.Size(71, 17);
             this.cbCopper.TabIndex = 19;
             this.cbCopper.Text = "% Copper";
             this.cbCopper.UseVisualStyleBackColor = true;
@@ -336,10 +341,10 @@
             // cbDk
             // 
             this.cbDk.AutoSize = true;
-            this.cbDk.Location = new System.Drawing.Point(139, 90);
+            this.cbDk.Location = new System.Drawing.Point(343, 18);
             this.cbDk.Margin = new System.Windows.Forms.Padding(2);
             this.cbDk.Name = "cbDk";
-            this.cbDk.Size = new System.Drawing.Size(177, 21);
+            this.cbDk.Size = new System.Drawing.Size(137, 17);
             this.cbDk.TabIndex = 18;
             this.cbDk.Text = "Dielectric constant (Dk)";
             this.cbDk.UseVisualStyleBackColor = true;
@@ -390,7 +395,7 @@
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(179, 81);
+            this.textBox1.Size = new System.Drawing.Size(179, 48);
             this.textBox1.TabIndex = 0;
             this.textBox1.TabStop = false;
             this.textBox1.Text = "Enter project-specific data here. User and company data come from the User tab in" +
@@ -403,7 +408,7 @@
             this.groupBox3.Controls.Add(this.cbViaSpans);
             this.groupBox3.Controls.Add(this.cbLayerType);
             this.groupBox3.Controls.Add(this.cbLayerName);
-            this.groupBox3.Location = new System.Drawing.Point(12, 188);
+            this.groupBox3.Location = new System.Drawing.Point(12, 183);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(892, 109);
             this.groupBox3.TabIndex = 29;
@@ -435,49 +440,24 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.cbFrequency);
-            this.groupBox4.Controls.Add(this.cbDf);
             this.groupBox4.Controls.Add(this.groupBox7);
             this.groupBox4.Controls.Add(this.cbConstruction);
             this.groupBox4.Controls.Add(this.cbMaterial);
             this.groupBox4.Controls.Add(this.cbResin);
             this.groupBox4.Controls.Add(this.cbThickness);
-            this.groupBox4.Controls.Add(this.cbDk);
-            this.groupBox4.Location = new System.Drawing.Point(12, 307);
+            this.groupBox4.Location = new System.Drawing.Point(12, 302);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(892, 189);
+            this.groupBox4.Size = new System.Drawing.Size(892, 116);
             this.groupBox4.TabIndex = 30;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Dielectric material data";
-            // 
-            // cbFrequency
-            // 
-            this.cbFrequency.AutoSize = true;
-            this.cbFrequency.Location = new System.Drawing.Point(139, 159);
-            this.cbFrequency.Margin = new System.Windows.Forms.Padding(2);
-            this.cbFrequency.Name = "cbFrequency";
-            this.cbFrequency.Size = new System.Drawing.Size(97, 21);
-            this.cbFrequency.TabIndex = 21;
-            this.cbFrequency.Text = "Frequency";
-            this.cbFrequency.UseVisualStyleBackColor = true;
-            // 
-            // cbDf
-            // 
-            this.cbDf.AutoSize = true;
-            this.cbDf.Location = new System.Drawing.Point(139, 113);
-            this.cbDf.Margin = new System.Windows.Forms.Padding(2);
-            this.cbDf.Name = "cbDf";
-            this.cbDf.Size = new System.Drawing.Size(167, 21);
-            this.cbDf.TabIndex = 20;
-            this.cbDf.Text = "Dissipation factor (Df)";
-            this.cbDf.UseVisualStyleBackColor = true;
             // 
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.textBox3);
             this.groupBox7.Location = new System.Drawing.Point(343, 21);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(531, 159);
+            this.groupBox7.Size = new System.Drawing.Size(531, 84);
             this.groupBox7.TabIndex = 19;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Hint:";
@@ -496,33 +476,50 @@
     "ncy. Alternatively, a single frequency for the entire stackup can be included in" +
     " the Notes field.";
             // 
+            // cbFrequency
+            // 
+            this.cbFrequency.AutoSize = true;
+            this.cbFrequency.Location = new System.Drawing.Point(343, 58);
+            this.cbFrequency.Margin = new System.Windows.Forms.Padding(2);
+            this.cbFrequency.Name = "cbFrequency";
+            this.cbFrequency.Size = new System.Drawing.Size(76, 17);
+            this.cbFrequency.TabIndex = 21;
+            this.cbFrequency.Text = "Frequency";
+            this.cbFrequency.UseVisualStyleBackColor = true;
+            // 
+            // cbDf
+            // 
+            this.cbDf.AutoSize = true;
+            this.cbDf.Location = new System.Drawing.Point(343, 38);
+            this.cbDf.Margin = new System.Windows.Forms.Padding(2);
+            this.cbDf.Name = "cbDf";
+            this.cbDf.Size = new System.Drawing.Size(127, 17);
+            this.cbDf.TabIndex = 20;
+            this.cbDf.Text = "Dissipation factor (Df)";
+            this.cbDf.UseVisualStyleBackColor = true;
+            // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.cbLoss);
             this.groupBox5.Controls.Add(this.cbRz);
             this.groupBox5.Controls.Add(this.cbMetalThickness);
             this.groupBox5.Controls.Add(this.cbCopperWeight);
             this.groupBox5.Controls.Add(this.groupBox8);
             this.groupBox5.Controls.Add(this.cbNotes);
-            this.groupBox5.Controls.Add(this.cbTraceWidth);
-            this.groupBox5.Controls.Add(this.cbRefLayer);
             this.groupBox5.Controls.Add(this.cbCopper);
-            this.groupBox5.Controls.Add(this.cbDiffImpedance);
-            this.groupBox5.Controls.Add(this.cbImpedance);
-            this.groupBox5.Location = new System.Drawing.Point(12, 506);
+            this.groupBox5.Location = new System.Drawing.Point(12, 429);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(892, 250);
+            this.groupBox5.Size = new System.Drawing.Size(892, 133);
             this.groupBox5.TabIndex = 31;
             this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Copper, Impedance and notes";
+            this.groupBox5.Text = "Copper and notes";
             // 
             // cbRz
             // 
             this.cbRz.AutoSize = true;
-            this.cbRz.Location = new System.Drawing.Point(139, 87);
+            this.cbRz.Location = new System.Drawing.Point(139, 84);
             this.cbRz.Margin = new System.Windows.Forms.Padding(2);
             this.cbRz.Name = "cbRz";
-            this.cbRz.Size = new System.Drawing.Size(178, 21);
+            this.cbRz.Size = new System.Drawing.Size(134, 17);
             this.cbRz.TabIndex = 28;
             this.cbRz.Text = "Copper roughness (Rz)";
             this.cbRz.UseVisualStyleBackColor = true;
@@ -530,10 +527,10 @@
             // cbMetalThickness
             // 
             this.cbMetalThickness.AutoSize = true;
-            this.cbMetalThickness.Location = new System.Drawing.Point(139, 43);
+            this.cbMetalThickness.Location = new System.Drawing.Point(139, 42);
             this.cbMetalThickness.Margin = new System.Windows.Forms.Padding(2);
             this.cbMetalThickness.Name = "cbMetalThickness";
-            this.cbMetalThickness.Size = new System.Drawing.Size(94, 21);
+            this.cbMetalThickness.Size = new System.Drawing.Size(75, 17);
             this.cbMetalThickness.TabIndex = 27;
             this.cbMetalThickness.Text = "Thickness";
             this.cbMetalThickness.UseVisualStyleBackColor = true;
@@ -545,7 +542,7 @@
             this.cbCopperWeight.Location = new System.Drawing.Point(139, 21);
             this.cbCopperWeight.Margin = new System.Windows.Forms.Padding(2);
             this.cbCopperWeight.Name = "cbCopperWeight";
-            this.cbCopperWeight.Size = new System.Drawing.Size(153, 21);
+            this.cbCopperWeight.Size = new System.Drawing.Size(117, 17);
             this.cbCopperWeight.TabIndex = 26;
             this.cbCopperWeight.Text = "Copper Weight (oz)";
             this.cbCopperWeight.UseVisualStyleBackColor = true;
@@ -555,7 +552,7 @@
             this.groupBox8.Controls.Add(this.textBox4);
             this.groupBox8.Location = new System.Drawing.Point(343, 21);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(531, 219);
+            this.groupBox8.Size = new System.Drawing.Size(531, 83);
             this.groupBox8.TabIndex = 25;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Hint:";
@@ -577,18 +574,76 @@
             // cbLoss
             // 
             this.cbLoss.AutoSize = true;
-            this.cbLoss.Location = new System.Drawing.Point(139, 219);
+            this.cbLoss.Location = new System.Drawing.Point(343, 178);
             this.cbLoss.Margin = new System.Windows.Forms.Padding(2);
             this.cbLoss.Name = "cbLoss";
-            this.cbLoss.Size = new System.Drawing.Size(113, 21);
+            this.cbLoss.Size = new System.Drawing.Size(87, 17);
             this.cbLoss.TabIndex = 29;
             this.cbLoss.Text = "Insertion loss";
             this.cbLoss.UseVisualStyleBackColor = true;
             // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.cbDiffZ0);
+            this.groupBox9.Controls.Add(this.cbDiff);
+            this.groupBox9.Controls.Add(this.cbSE);
+            this.groupBox9.Controls.Add(this.cbDk);
+            this.groupBox9.Controls.Add(this.cbLoss);
+            this.groupBox9.Controls.Add(this.cbFrequency);
+            this.groupBox9.Controls.Add(this.cbTraceWidth);
+            this.groupBox9.Controls.Add(this.cbDf);
+            this.groupBox9.Controls.Add(this.cbImpedance);
+            this.groupBox9.Controls.Add(this.cbDiffImpedance);
+            this.groupBox9.Controls.Add(this.cbRefLayer);
+            this.groupBox9.Location = new System.Drawing.Point(12, 568);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(892, 199);
+            this.groupBox9.TabIndex = 30;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "Impedance";
+            // 
+            // cbDiff
+            // 
+            this.cbDiff.AutoSize = true;
+            this.cbDiff.Checked = true;
+            this.cbDiff.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbDiff.Location = new System.Drawing.Point(139, 42);
+            this.cbDiff.Margin = new System.Windows.Forms.Padding(2);
+            this.cbDiff.Name = "cbDiff";
+            this.cbDiff.Size = new System.Drawing.Size(111, 17);
+            this.cbDiff.TabIndex = 31;
+            this.cbDiff.Text = "Differential signals";
+            this.cbDiff.UseVisualStyleBackColor = true;
+            // 
+            // cbSE
+            // 
+            this.cbSE.AutoSize = true;
+            this.cbSE.Checked = true;
+            this.cbSE.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbSE.Location = new System.Drawing.Point(139, 18);
+            this.cbSE.Margin = new System.Windows.Forms.Padding(2);
+            this.cbSE.Name = "cbSE";
+            this.cbSE.Size = new System.Drawing.Size(123, 17);
+            this.cbSE.TabIndex = 30;
+            this.cbSE.Text = "Single-ended signals";
+            this.cbSE.UseVisualStyleBackColor = true;
+            // 
+            // cbDiffZ0
+            // 
+            this.cbDiffZ0.AutoSize = true;
+            this.cbDiffZ0.Location = new System.Drawing.Point(343, 138);
+            this.cbDiffZ0.Margin = new System.Windows.Forms.Padding(2);
+            this.cbDiffZ0.Name = "cbDiffZ0";
+            this.cbDiffZ0.Size = new System.Drawing.Size(123, 17);
+            this.cbDiffZ0.TabIndex = 32;
+            this.cbDiffZ0.Text = "Impedance (Diff. Zo)";
+            this.cbDiffZ0.UseVisualStyleBackColor = true;
+            // 
             // ExcelOptionsDlg
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(927, 794);
+            this.ClientSize = new System.Drawing.Size(927, 807);
+            this.Controls.Add(this.groupBox9);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
@@ -603,6 +658,7 @@
             this.Name = "ExcelOptionsDlg";
             this.ShowInTaskbar = false;
             this.Text = "  Export to Excel";
+            this.Load += new System.EventHandler(this.ExcelOptionsDlg_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -620,6 +676,8 @@
             this.groupBox5.PerformLayout();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -670,5 +728,9 @@
         private System.Windows.Forms.CheckBox cbMetalThickness;
         private System.Windows.Forms.CheckBox cbCopperWeight;
         private System.Windows.Forms.CheckBox cbLoss;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private System.Windows.Forms.CheckBox cbDiff;
+        private System.Windows.Forms.CheckBox cbSE;
+        private System.Windows.Forms.CheckBox cbDiffZ0;
     }
 }

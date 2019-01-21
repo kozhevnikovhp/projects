@@ -49,8 +49,8 @@
             this.label118 = new System.Windows.Forms.Label();
             this.label120 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.rbApplyValues = new System.Windows.Forms.RadioButton();
-            this.rbSetAsDefault = new System.Windows.Forms.RadioButton();
+            this.rbApplyValues = new System.Windows.Forms.CheckBox();
+            this.rbSetAsDefault = new System.Windows.Forms.CheckBox();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.groupBox15.SuspendLayout();
@@ -112,11 +112,11 @@
             this.label117.Location = new System.Drawing.Point(3, 16);
             this.label117.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label117.Name = "label117";
-            this.label117.Size = new System.Drawing.Size(198, 92);
+            this.label117.Size = new System.Drawing.Size(198, 80);
             this.label117.TabIndex = 27;
             this.label117.Text = "Half oz. copper is typically 0.6 mils after processing. (Less than the 0.68 mil n" +
-    "ominal thickness.)  1 oz. copper is typically 1.2 mils. (Less than the 0.68 mil " +
-    "nominal thickness.) ";
+    "ominal thickness.)  1 oz. copper is typically 1.2 mils. (Less than the 1.4 mil n" +
+    "ominal thickness.) ";
             // 
             // label112
             // 
@@ -369,8 +369,8 @@
         private System.Windows.Forms.Label label118;
         private System.Windows.Forms.Label label120;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.RadioButton rbApplyValues;
-        private System.Windows.Forms.RadioButton rbSetAsDefault;
+        private System.Windows.Forms.CheckBox rbApplyValues;
+        private System.Windows.Forms.CheckBox rbSetAsDefault;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnOK;

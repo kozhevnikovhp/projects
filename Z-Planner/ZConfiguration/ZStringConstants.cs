@@ -15,6 +15,7 @@ namespace ZZero.ZPlanner.ZConfiguration
         public static string[] CopperType = new string[] { LayerTypePlane, LayerTypeSignal, LayerTypeSplitMixed };
         public static string DefaultDielectricMaterial = "Dielectric";
         public static string DefaultCopperMaterial = "Conductive";
+        public static string EmptyMaterialID = "EmptyMaterialID";
 
         public const string ZplannerStackupDocument = "Z-planner Stackup Document";
 
@@ -23,9 +24,12 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string LayerTypeCore = "Core";
         public const string LayerTypePrepreg = "Prepreg";
         public const string LayerTypeSolderMask = "Solder Mask";
-        public const string LayerTypePlane = "Plane";
         public const string LayerTypeSignal = "Signal";
         public const string LayerTypeSplitMixed = "Split/Mixed";
+        public const string LayerTypePlane = "Plane";
+        public const string LayerTypePlaneGround = "Ground";
+        public const string LayerTypePlanePower = "Power";
+        public const string LayerTypeDummyCore = "DummyCore";
         public const string MaterialCategoryZZero = "Z-zero";
         public const string MaterialCategoryCorporate = "Corporate";
         public const string MaterialCategoryLocal = "Local";
@@ -38,14 +42,20 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ClearFilter = "(Clear filter)";
         public const string eMailAccount = "zplannermail@gmail.com";
 
-        public static string[] EditColumnIDs = new string[] { ParameterIDMaterial, ParameterIDCopperThickness, ParameterIDThickness, ParameterIDZo_DielectricConstant, ParameterIDZdiff_DielectricConstant, ParameterIDZo_LossTangent, ParameterIDZdiff_LossTangent, ParameterIDZo_Frequency, ParameterIDZdiff_Frequency, ParameterIDZo_TraceWidth, ParameterIDZdiff_TraceWidth, ParameterIDZdiff_TraceSpacing };
+        public static string[] EditColumnIDs = new string[] { ParameterIDMaterial, ParameterIDCopperPercent, ParameterIDCopperThickness, ParameterIDThickness, ParameterIDZo_DielectricConstant, ParameterIDZdiff_DielectricConstant, ParameterIDZo_LossTangent, ParameterIDZdiff_LossTangent, ParameterIDZo_Frequency, ParameterIDZdiff_Frequency, ParameterIDZo_TraceWidth, ParameterIDZdiff_TraceWidth, ParameterIDZdiff_TraceSpacing };
         public static string[] BulkEditIDs = new string[] { DMLParameterIDMaterial, DMLParameterIDH, DMLParameterIDToleranceH, DMLParameterIDDk_1GHz, DMLParameterIDDk_3GHz, DMLParameterIDDk_5GHz, DMLParameterIDDk_7GHz, DMLParameterIDDk_10GHz, DMLParameterIDDk_20GHz };
         public static string[] MovedFroStackupColumnIDs = new string[] { ParameterIDZdiff_BitRate, ParameterIDZdiff_UnitInterval, ParameterIDZdiff_SkewTolerance, ParameterIDZdiff_WeavePitch, ParameterIDZdiff_FillPitch, ParameterIDZdiff_RoughTop, ParameterIDZdiff_RoughBottom };
         public static string DkIDsPrefix = "Dk_";
 
+        public const string ListIDCopperThickness = "CopperThicknessList";
+        public const string ListIDCopperFoil = "CopperFoilList";
+        public const string ListIDViaSpanFilled = "ViaSpanFilledList";
+
         public const string ParameterIDViaSpan = "ViaSpan";
         public const string ParameterIDLayerNumber = "LayerNumber";
         public const string ParameterIDLayerType = "LayerType";
+        public const string ParameterIDPlaneType = "PlaneType";
+        public const string ParameterIDLayerTypeDummyCore = "LayerTypeDummyCore";
         public const string ParameterIDLayerName = "LayerName";
         public const string ParameterIDMaterial = "Material";
         public const string ParameterIDManufacturer = "Manufacturer";
@@ -55,18 +65,19 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ParameterIDCopperThickness = "CopperThickness";
         public const string ParameterIDThickness = "Thickness";
         public const string ParameterIDOriginThickness = "OriginThickness";
+        public const string ParameterIDFabricatorThickness = "FabricatorThickness";
         public const string ParameterIDPrepregThickness = "PrepregThickness";
         public const string ParameterIDDielectricConstant = "DielectricConstant";
         public const string ParameterIDLossTangent = "LossTangent";
-        public const string ParameterIDZo_DielectricConstant = "DielectricConstant";
-        public const string ParameterIDZo_LossTangent = "LossTangent";
-        public const string ParameterIDZo_Frequency = "Frequency";
-        public const string ParameterIDZo_InsertionLoss  = "InsertionLoss";
-        public const string ParameterIDZo_TraceLength = "TraceLength";
-        public const string ParameterIDZo_TotalLoss = "TotalLoss";
-        public const string ParameterIDZo_LossViewer = "LossViewer";
-        public const string ParameterIDZo_PropagationVelocity = "PropagationVelocity";
-        public const string ParameterIDZo_PropagationDelay = "PropagationDelay";
+        public const string ParameterIDZo_DielectricConstant = "Zo_DielectricConstant";
+        public const string ParameterIDZo_LossTangent = "Zo_LossTangent";
+        public const string ParameterIDZo_Frequency = "Zo_Frequency";
+        public const string ParameterIDZo_InsertionLoss = "Zo_InsertionLoss";
+        public const string ParameterIDZo_TraceLength = "Zo_TraceLength";
+        public const string ParameterIDZo_TotalLoss = "Zo_TotalLoss";
+        public const string ParameterIDZo_LossViewer = "Zo_LossViewer";
+        public const string ParameterIDZo_PropagationVelocity = "Zo_PropagationVelocity";
+        public const string ParameterIDZo_PropagationDelay = "Zo_PropagationDelay";
         public const string ParameterIDZdiff_DielectricConstant = "Zdiff_DielectricConstant";
         public const string ParameterIDZdiff_LossTangent = "Zdiff_LossTangent";
         public const string ParameterIDZdiff_Frequency = "Zdiff_Frequency";
@@ -86,6 +97,11 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ParameterIDZo_TraceWidth = "Zo_TraceWidth";
         public const string ParameterIDZo_TraceSpacing = "Zo_TraceSpacing";
         public const string ParameterIDZo_Zo = "Zo_Zo";
+        public const string ParameterIDZo_TopReference = "Zo_TopReference";
+        public const string ParameterIDZo_BottomReference = "Zo_BottomReference";
+        public const string ParameterIDZdiff_Target = "Zdiff_TargetImpedance";
+        public const string ParameterIDZdiff_TopReference = "Zdiff_TopReference";
+        public const string ParameterIDZdiff_BottomReference = "Zdiff_BottomReference";
         public const string ParameterIDDifferentialImpedanceZdiff = "DifferentialImpedanceZdiff";
         public const string ParameterIDZdiff_TraceWidth = "Zdiff_TraceWidth";
         public const string ParameterIDZdiff_TraceSpacing = "Zdiff_TraceSpacing";
@@ -104,6 +120,7 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ParameterIDPlating = "Plating";
         public const string ParameterIDBulkRes = "BulkRes";
         public const string ParameterIDThermalCoef = "ThermalCoef";
+        public const string ParameterIDFoilTreatment = "FoilTreatment";
         public const string ParameterIDRoughTop = "RoughTop";
         public const string ParameterIDRoughBottom = "RoughBottom";
         public const string ParameterIDZdiff_RoughTop = "Zdiff_RoughTop";
@@ -119,7 +136,10 @@ namespace ZZero.ZPlanner.ZConfiguration
         public const string ParameterIDComments = "Comments";
         public const string ParameterIDSequentialLamination = "SequentialLamination";
 
-        public const string DMLParameterIDCategory  = "Category";
+        //tapestry specific
+        public const string ParameterIDPlaneVoltage = "PlaneVoltage";
+
+        public const string DMLParameterIDCategory = "Category";
         public const string DMLParameterIDQualified  = "Qualified";
         public const string DMLParameterIDManufacturer  = "Manufacturer";
         public const string DMLParameterIDMaterial  = "Material";
@@ -258,7 +278,8 @@ namespace ZZero.ZPlanner.ZConfiguration
             {"AspectRatio", "Aspect Ratio"},
             {"Enable", "Enable"},
             {"Filled", "Fill"},
-            {"BackDrilled", "Back Drilled"}
+            {"BackDrilled", "Back Drilled"},
+            {"ImpedanceTarget", "Impedance Target (ohms)"}
         };
 
         public static Dictionary<string, string> DescriptionDictionary = new Dictionary<string, string>{
@@ -279,7 +300,8 @@ namespace ZZero.ZPlanner.ZConfiguration
             {"AspectRatio", "Defines the aspect ratio of Via Span"},
             {"Enable", "Defines whether the Via Span is enabled"},
             {"Filled", "Defines whether the Via Span is filled"},
-            {"BackDrilled", "Defines whether the Via Span is back drilled"}
+            {"BackDrilled", "Defines whether the Via Span is back drilled"},
+            {"ImpedanceTarget", "Defines the impedance target."}
         };
 
     }

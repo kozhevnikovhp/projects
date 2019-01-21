@@ -152,7 +152,7 @@ namespace ZZero.ZPlanner.UI
             d.w = Convert.ToDouble(tb_Buried_w.Text);
             d.w2 = Convert.ToDouble(tb_Buried_w2.Text);
             d.h1 = Convert.ToDouble(tb_Buried_h1.Text);
-            d.h2 = Convert.ToDouble(tb_Buried_h2.Text) - d.t;
+            d.h2 = Convert.ToDouble(tb_Buried_h2.Text);
             d.Dk1 = Convert.ToDouble(tb_Buried_Dk1.Text);
             d.Dk2 = Convert.ToDouble(tb_Buried_Dk2.Text);
             d.Dkr = Convert.ToDouble(tb_Buried_Dkr.Text);
@@ -184,7 +184,7 @@ namespace ZZero.ZPlanner.UI
             d.w = Convert.ToDouble(tb_Stripline_w.Text);
             d.w2 = Convert.ToDouble(tb_Stripline_w2.Text);
             d.h1 = Convert.ToDouble(tb_Stripline_h1.Text);
-            d.h2 = Convert.ToDouble(tb_Stripline_h2.Text) - d.t;
+            d.h2 = Convert.ToDouble(tb_Stripline_h2.Text);
             d.Dk1 = Convert.ToDouble(tb_Stripline_Dk1.Text);
             d.Dk2 = Convert.ToDouble(tb_Stripline_Dk2.Text);
             d.Dkr = Convert.ToDouble(tb_Stripline_Dkr.Text);
@@ -258,7 +258,7 @@ namespace ZZero.ZPlanner.UI
             tb_Buried_w.Text = d.w.ToString(Format("width"));
             tb_Buried_w2.Text = d.w2.ToString(Format("width"));
             tb_Buried_h1.Text = d.h1.ToString(Format("height"));
-            tb_Buried_h2.Text = (d.h2 + d.t).ToString(Format("height"));
+            tb_Buried_h2.Text = d.h2.ToString(Format("height"));
             tb_Buried_Dk1.Text = d.Dk1.ToString(Format("dk"));
             tb_Buried_Dk2.Text = d.Dk2.ToString(Format("dk"));
             tb_Buried_Dkr.Text = d.Dkr.ToString(Format("dk"));
@@ -284,7 +284,7 @@ namespace ZZero.ZPlanner.UI
             tb_Stripline_w.Text = d.w.ToString(Format("width"));
             tb_Stripline_w2.Text = d.w2.ToString(Format("width"));
             tb_Stripline_h1.Text = d.h1.ToString(Format("height"));
-            tb_Stripline_h2.Text = (d.h2 + d.t).ToString(Format("height"));
+            tb_Stripline_h2.Text = d.h2.ToString(Format("height"));
             tb_Stripline_Dk1.Text = d.Dk1.ToString(Format("dk"));
             tb_Stripline_Dk2.Text = d.Dk2.ToString(Format("dk"));
             tb_Stripline_Dkr.Text = d.Dkr.ToString(Format("dk"));
@@ -305,7 +305,7 @@ namespace ZZero.ZPlanner.UI
             cb_Stripline_Symmetrical.Checked = d.isSymmetrical;
             cbDiffStripline.Checked = d.isDiffImpedance;
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.IsTrapezoidalTraces = d.isEtch;
+            ZZero.ZSolver.ZSolverManager.IsTrapezoidalTraces = d.isEtch;
 #endif
 
             isIgnoreSolve = isIgnoreSolveValue;
@@ -548,7 +548,16 @@ namespace ZZero.ZPlanner.UI
 
             bool bTotal = cbRoughness.Checked || cbResistive.Checked || cbDielectric.Checked;
             bool bRD = (cbRoughness.Checked || cbResistive.Checked) && cbDielectric.Checked;
-            for (int i = 0; i < NumPts - 1; i++)
+
+            //account for Fcrossover > Fmax
+            int NumPtsInf = NumPts;
+            const double Finf = 200; //GHz
+            if (bRD && Fmax < Finf)
+            {
+                NumPtsInf = Convert.ToInt32((Finf - Fmin) / df);
+            }
+
+            for (int i = 0; i < NumPtsInf - 1; i++)
             {
                 double aTotal = 0;
                 double aD = 0, aR = 0;
@@ -556,18 +565,18 @@ namespace ZZero.ZPlanner.UI
                 if (cbRoughness.Checked)
                 {
                     double aRo = loss.Attenuation_Ro(f) * coef;
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Roughness"].Points.AddXY(f, aRo);
                     }
-                    aR += aRo;
+                    //--aR += aRo;
                     aTotal += aRo;
                 }
 
                 if (cbResistive.Checked)
                 {
                     double aRe = loss.Attenuation_R(f) * coef;
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Resistive"].Points.AddXY(f, aRe);
                     }
@@ -578,7 +587,7 @@ namespace ZZero.ZPlanner.UI
                 if (cbDielectric.Checked)
                 {
                     aD = loss.Attenuation_D(f) * coef;
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Dielectric"].Points.AddXY(f, aD);
                     }
@@ -587,7 +596,7 @@ namespace ZZero.ZPlanner.UI
 
                 if (bTotal && cbTotal.Checked)
                 {
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Total"].Points.AddXY(f, aTotal);
                     }
@@ -604,6 +613,8 @@ namespace ZZero.ZPlanner.UI
 
                         xPoint = (f - df) + (aD_prev - aR_prev) / (kR - kD);
                         bxPoint = true;
+
+                        if (f >= Fmax) break;
                     }
                 }
 
@@ -1017,7 +1028,7 @@ namespace ZZero.ZPlanner.UI
 
             if (cb_Stripline_Symmetrical.Checked)
             {
-                buried_h1_text = (sbData.Stripline.h2 - sbData.Stripline.t).ToString(Format("height"));
+                buried_h1_text = tb_Stripline_h2.Text;//sbData.Stripline.h2.ToString(Format("height"));
                 buried_dk1_text = tb_Stripline_Dk1.Text;
                 buried_df1_text = tb_Stripline_Df1.Text;
 
@@ -1047,7 +1058,7 @@ namespace ZZero.ZPlanner.UI
                 buried_dk1_text = tb_Buried_Dk1.Text;
                 buried_df1_text = tb_Buried_Df1.Text;
 
-                tb_Buried_h1.Text = (sbData.BuriedMicrostrip.h2 - sbData.BuriedMicrostrip.t).ToString(Format("height"));//tb_Buried_h2.Text;
+                tb_Buried_h1.Text = tb_Buried_h2.Text;
                 tb_Buried_Dk1.Text = tb_Buried_Dk2.Text;
                 tb_Buried_Df1.Text = tb_Buried_Df2.Text;
             }
@@ -1084,7 +1095,7 @@ namespace ZZero.ZPlanner.UI
             if (!ignoreEtchUpdate)
             {
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.IsTrapezoidalTraces = enabled;
+            ZZero.ZSolver.ZSolverManager.IsTrapezoidalTraces = enabled;
 #endif
                 SolveInternal();
                 DefinePlotSource();
@@ -1248,7 +1259,7 @@ namespace ZZero.ZPlanner.UI
         string ReportHeader(sbData data)
         {
             string s = AsteriskLine();
-            s += "Z-ZERO FIELD SOLVER SANDBOX" + Environment.NewLine;
+            s += "Z-ZERO Z-SOLVER" + Environment.NewLine;
             s += AsteriskLine();
             s += "HyperLynx Field Solver Results" + Environment.NewLine;
             s += Environment.NewLine;
@@ -1298,11 +1309,13 @@ namespace ZZero.ZPlanner.UI
                     s += "                 AIR" + Environment.NewLine;
 				    s +=  Environment.NewLine;
                     s += "-----------------------------------------------------" + Environment.NewLine;				 
-                    s += " ^     DIELECTRIC2  (Dk2, Df2)" + Environment.NewLine;
+                    s += " ^" + Environment.NewLine;
                     s += " |" + Environment.NewLine;
-                    s += " h2     w2" + Environment.NewLine;
-                    s += " |   +------+         +------+" + Environment.NewLine;     
-                    s += " v  /        \\|<-s->|/        \\  t  (Dkr, Dfr)" + Environment.NewLine;
+                    s += " h2    DIELECTRIC2  (Dk2, Df2)" + Environment.NewLine;
+                    s += " |" + Environment.NewLine;
+                    s += " v      w2" + Environment.NewLine;
+                    s += " --  +------+         +------+" + Environment.NewLine;     
+                    s += "    /        \\|<-s->|/        \\  t  (Dkr, Dfr)" + Environment.NewLine;
                     s += "---+----------+     +----------+" + Environment.NewLine;
                     s += " ^      w1" + Environment.NewLine;
                     s += " |" + Environment.NewLine;
@@ -1317,12 +1330,14 @@ namespace ZZero.ZPlanner.UI
                 case csType.Stripline:                    
                     s += "-----------------------------------------------------" + Environment.NewLine;
                     s += "                   PLANE" + Environment.NewLine;
-                    s += "-----------------------------------------------------" + Environment.NewLine;		 
-                    s += "  ^         DIELECTRIC2  (Dk2, Df2)" + Environment.NewLine;
+                    s += "-----------------------------------------------------" + Environment.NewLine;
+                    s += "  ^" + Environment.NewLine;
                     s += "  |" + Environment.NewLine;
-                    s += "  h2        w2" + Environment.NewLine;
-                    s += "  |      +------+         +------+  -------" + Environment.NewLine;
-                    s += "  v     /        \\|<-s->|/        \\  t  (Dkr, Dfr)" + Environment.NewLine;
+                    s += "  h2        DIELECTRIC2  (Dk2, Df2)" + Environment.NewLine;
+                    s += "  |" + Environment.NewLine;
+                    s += "  v         w2" + Environment.NewLine;
+                    s += "------   +------+         +------+  -------" + Environment.NewLine;
+                    s += "        /        \\|<-s->|/        \\  t  (Dkr, Dfr)" + Environment.NewLine;
                     s += "-------+----------+     +----------+ ------" + Environment.NewLine;
                     s += "  ^         w1" + Environment.NewLine;
                     s += "  |" + Environment.NewLine;
@@ -1517,7 +1532,7 @@ namespace ZZero.ZPlanner.UI
             
             //YY-MM-DD-Field Solver-Microstrip-w.txt
             sbData output = null;
-            string fName = DateTime.Now.ToString("yy-MM-dd") + "-Field Solver-";
+            string fName = DateTime.Now.ToString("yy-MM-dd") + "-Z-solver-";
             switch (tabCSType.SelectedIndex)
             {
                 case 0:

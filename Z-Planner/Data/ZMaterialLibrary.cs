@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZZero.ZPlanner.Commands;
+using ZZero.ZPlanner.Data.Attributes;
 using ZZero.ZPlanner.Data.Entities;
+using ZZero.ZPlanner.Settings;
 using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.Data
@@ -59,6 +61,7 @@ namespace ZZero.ZPlanner.Data
                 if (!ZPlannerManager.IsUserHaveAccessToMaterial(material)) return;
                 this.Materials.Add(material);
                 IsEdited = true;
+                ZPlannerManager.MainMenu.EnableLocalLibrary();
                 if (!isComplexCommandStarted) ZPlannerManager.Commands.FinishComplexCommand();
                 if (!ZPlannerManager.Commands.IsIgnoreCommands) new AddMaterialCommand(material);
             }
@@ -129,6 +132,13 @@ namespace ZZero.ZPlanner.Data
             material.IsReadOnly = false;
             material.IsCustom = true;
             //material.SetMaterialCategory(ZPlannerManager.GetMeterialCategoryStringByUser());
+            string materialName =  material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDMaterial) ?? string.Empty;
+            string materialSuffix = Options.TheOptions.Company;
+            if (string.IsNullOrWhiteSpace(materialSuffix)) materialSuffix = "Local";
+
+            material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDMaterial, string.Format("{0} ({1})", materialName, materialSuffix));
+            material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDDk, string.Empty);
+            material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDDf, string.Empty);
             material.SetMaterialParameterValue(ZStringConstants.DMLParameterIDCategory, ZPlannerManager.GetMeterialCategoryStringByUser());
 
             AddMaterial(material);
@@ -308,6 +318,29 @@ namespace ZZero.ZPlanner.Data
                 parameter.DefaultValue = templateParameter.DefaultValue;
                 parameters.Add(parameter);
             }
+        }
+
+        internal ZMaterial FinedMaterial(ZLibraryCategory[] libraryCetegories, MaterialSearchAttributes attributes)
+        {
+            
+            List<ZMaterial> materials = Materials.FindAll(x =>
+                attributes.LayerType == x.GetMaterialType() &&
+                attributes.MaterialName == x.GetMaterialParameterValue(ZStringConstants.DMLParameterIDMaterial) &&
+                attributes.Construction == x.GetMaterialParameterValue(ZStringConstants.DMLParameterIDNormalizedConstruction) &&
+                ZPlannerManager.CompareAsDouble(attributes.Resin, x.GetMaterialParameterValue(ZStringConstants.DMLParameterIDResin), 0.01) &&
+                ZPlannerManager.CompareAsTable(attributes.Dk, x.GetMaterialParameterValue(ZStringConstants.DMLParameterIDDk), 0.001) &&
+                ZPlannerManager.CompareAsThickness(attributes.Thickness, x.GetMaterialParameterValue(ZStringConstants.DMLParameterIDH).TrimEnd(), 0.001, attributes.LayerType == ZLayerType.Core)/*&&
+                ZPlannerManager.CompareAsDouble(attributes.Thickness, x.GetMaterialParameterValue(ZStringConstants.DMLParameterIDH), 0.1)*/);
+
+            foreach (ZLibraryCategory category in libraryCetegories)
+            {
+                foreach (ZMaterial material in materials)
+                {
+                    if (material.GetMaterialCategoryString(category) == material.GetMaterialParameterValue(ZStringConstants.DMLParameterIDCategory)) return material;
+                }
+            }
+
+            return null;
         }
     }
 }

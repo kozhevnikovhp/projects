@@ -10,6 +10,7 @@ namespace ZZero.ZPlanner.Commands
         internal ZLayer StackupLayer;
         internal Dictionary<string, ZLayer> SingleLayers;
         internal Dictionary<string, ZLayer> PairLayers;
+        internal ZLayer RemovedStackup;
         internal Dictionary<ZSingle, int> RemovedSingles;
         internal Dictionary<ZPair, int> RemovedPairs;
         internal Dictionary<ZSpan, int> RemovedSpans;

@@ -133,6 +133,7 @@ namespace ZZero.ZPlanner.UI.Tree
 
         public void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             this.ClearAllNodes();
             this.Nodes.Clear();
             this.FillLayers(sender as ZList<ZLayer>);
@@ -140,6 +141,7 @@ namespace ZZero.ZPlanner.UI.Tree
 
         public void Singles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             this.ClearAllNodes();
             this.Nodes.Clear();
             this.FillSingles(sender as ZList<ZSingle>);
@@ -147,6 +149,7 @@ namespace ZZero.ZPlanner.UI.Tree
 
         public void Pairs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             this.ClearAllNodes();
             this.Nodes.Clear();
             this.FillPairs(sender as ZList<ZPair>);
@@ -154,6 +157,7 @@ namespace ZZero.ZPlanner.UI.Tree
 
         public void Spans_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (ZPlannerManager.IsIgnoreCollectionChanged) return;
             this.ClearAllNodes();
             this.Nodes.Clear();
             this.FillSpans(sender as ZList<ZSpan>);

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZZero.ZPlanner.Data.Entities;
 
 namespace ZZero.ZPlanner.Commands
 {
     internal struct PressedThicknessStructure
     {
-        internal bool ByCopperCoverage;
+        internal ZCopperCoverageType CopperCoverageType;
         internal double ForSignalSignal;
         internal double ForSignalMixed;
         internal double ForSignalPlane;
@@ -21,7 +22,7 @@ namespace ZZero.ZPlanner.Commands
         internal double ForPlane;
 
         internal bool IsSequentialLamination;
-
+        internal bool IsKeepImportedPressedThickness;
         internal bool IsPressedThickness;
     }
 }

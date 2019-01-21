@@ -22,7 +22,7 @@ namespace ZZero.ZPlanner.Utils
             get 
             {
 #if ZSANDBOX
-                return (ZZero.ZSandbox.ZSandboxManager.IsTrapezoidalTraces) ? 1.2F : 1.3F;
+                return (ZZero.ZSolver.ZSolverManager.IsTrapezoidalTraces) ? 1.2F : 1.3F;
 #else
                 return (ZPlannerManager.IsTrapezoidalTraces) ? 1.2F : 1.3F;
 #endif

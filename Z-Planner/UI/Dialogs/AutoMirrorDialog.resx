@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label42.Text" xml:space="preserve">
-    <value>For processing and to reduce warpage, stackups should be as symmetrical as possible in the Z direction. To avoid the tedious process of manually synchronizing edits between the Top and Bottom half of the board, Auto-mirroring allows you to automate this process.  Changes made to the Top half of the stackup are “mirrored” to the Bottom half. Layer names are modified, as appropriate, to give each copper layer in the stackup a unique name.</value>
+    <value>For processing and to reduce warpage, stackups should be as symmetrical as possible in the Z direction. To avoid the tedious process of manually synchronizing edits between the Top and Bottom half of the board, Forcing symmetry allows you to automate this process.  Changes made to the Top half of the stackup are “mirrored” to the Bottom half. Layer names are modified, as appropriate, to give each copper layer in the stackup a unique name.</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

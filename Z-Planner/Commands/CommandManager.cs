@@ -133,11 +133,11 @@ namespace ZZero.ZPlanner.Commands
         /// <summary>
         /// Clears the Undo/Redo command list.
         /// </summary>
-        internal void Clear()
+        internal void Clear(bool isIgnoreCommand = false)
         {
             this.commandList.Clear();
             this.lastUndoIndex = -1;
-            this.IsIgnoreCommands = false;
+            this.IsIgnoreCommands = isIgnoreCommand;
             this.OnCommandsChanged();
         }
 

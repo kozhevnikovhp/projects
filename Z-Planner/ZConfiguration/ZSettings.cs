@@ -44,7 +44,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, GetValue("DML File"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, GetValue("DML File"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerDataDirectory, GetValue("DML File"));
 #endif
@@ -97,7 +97,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, GetValue("MRU File"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, GetValue("MRU File"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerDataDirectory, GetValue("MRU File"));
 #endif
@@ -130,7 +130,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, GetValue("Settings Folder"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, GetValue("Settings Folder"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerDataDirectory, GetValue("Settings Folder"));
 #endif
@@ -170,7 +170,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, GetValue("Help Folder"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, GetValue("Help Folder"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerDataDirectory, GetValue("Help Folder"));
 #endif
@@ -205,7 +205,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerHomeDirectory, GetValue("Generic Stackups Folder"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerHomeDirectory, GetValue("Generic Stackups Folder"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerHomeDirectory, GetValue("Generic Stackups Folder"));
 #endif
@@ -226,7 +226,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, GetValue("Custom Filters Folder"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, GetValue("Custom Filters Folder"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerDataDirectory, GetValue("Custom Filters Folder"));
 #endif
@@ -247,7 +247,7 @@ namespace ZZero.ZPlanner.ZConfiguration
             get
             {
 #if ZSANDBOX
-                return Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, GetValue("Layout Folder"));
+                return Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, GetValue("Layout Folder"));
 #else
                 return Path.Combine(ZPlannerManager.ZPlannerDataDirectory, GetValue("Layout Folder"));
 #endif

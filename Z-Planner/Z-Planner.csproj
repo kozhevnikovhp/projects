@@ -142,6 +142,7 @@
     <Compile Include="Commands\ChangeMaterialOrderCommand.cs" />
     <Compile Include="Commands\ChangeMaterialParameterIsEditedCommand.cs" />
     <Compile Include="Commands\ChangeMaterialParameterValueCommand.cs" />
+    <Compile Include="Commands\ChangePairImpedanceTargetCommand.cs" />
     <Compile Include="Commands\ChangeParameterDefaultValueCommand.cs" />
     <Compile Include="Commands\ChangeParameterDescriptionCommand.cs" />
     <Compile Include="Commands\ChangeParameterDisplayFactorCommand.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="Commands\ChangeParameterValueTypeCommand.cs" />
     <Compile Include="Commands\ChangeParameterWidthCommand.cs" />
     <Compile Include="Commands\ChangeParameterWidthToExpandCommand.cs" />
+    <Compile Include="Commands\ChangeSingleImpedanceTargetCommand.cs" />
     <Compile Include="Commands\ChangeSpanAspectRatioCommand.cs" />
     <Compile Include="Commands\ChangeSpanBackDrilledCommand.cs" />
     <Compile Include="Commands\ChangeSpanEnableCommand.cs" />
@@ -202,6 +204,7 @@
     <Compile Include="Commands\RemoveRangeListItemCommand.cs" />
     <Compile Include="Commands\RemoveSingleCommand.cs" />
     <Compile Include="Commands\RemoveSpanCommand.cs" />
+    <Compile Include="Commands\ReplaceLayerCommand.cs" />
     <Compile Include="Commands\ReplaceListItemCommand.cs" />
     <Compile Include="Commands\AddRangeListItemCommand.cs" />
     <Compile Include="Commands\RoughnessStructure.cs" />
@@ -215,10 +218,18 @@
     <Compile Include="Data\Encryption.cs" />
     <Compile Include="Data\Entities\ZList.cs" />
     <Compile Include="Data\ExcelExport.cs" />
+    <Compile Include="Data\ExcelImport.cs" />
+    <Compile Include="Data\ExcelISU_IO.cs" />
     <Compile Include="Data\ExcelTapestry_IO.cs" />
+    <Compile Include="Data\ExcelTTM_IO.cs" />
+    <Compile Include="Data\ExcelWUS_IO.cs" />
+    <Compile Include="Data\GlassPitch.cs" />
+    <Compile Include="Data\IImport.cs" />
+    <Compile Include="Data\ImportWizardData.cs" />
     <Compile Include="Data\IPC2581_IO.cs" />
     <Compile Include="Data\Entities\ZEntity.cs" />
     <Compile Include="Data\ODBPP_IO.cs" />
+    <Compile Include="Data\Attributes\MaterialSearchAttributes.cs" />
     <Compile Include="Data\Properties\AspectRatioTypeConverter.cs" />
     <Compile Include="Data\Properties\DoubleTypeUnitsConverter.cs" />
     <Compile Include="Data\Properties\DoubleTypeConverter.cs" />
@@ -317,11 +328,20 @@
     <Compile Include="UI\Dialogs\ExcelOptionsDlg.Designer.cs">
       <DependentUpon>ExcelOptionsDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\Dialogs\FileFolderDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\Dialogs\GlassPitchDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\Dialogs\GlassPitchDialog.Designer.cs">
       <DependentUpon>GlassPitchDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Dialogs\InitDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Dialogs\InitDialog.Designer.cs">
+      <DependentUpon>InitDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Dialogs\ManufacturerColor.cs">
       <SubType>Form</SubType>
@@ -464,6 +484,12 @@
     <Compile Include="UI\Help\HelpTopicsPanel.Designer.cs">
       <DependentUpon>HelpTopicsPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\ImportWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ImportWizard.Designer.cs">
+      <DependentUpon>ImportWizard.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Menu\ProgramMenu.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -499,6 +525,12 @@
     <Compile Include="UI\Grid\ZDataGridViewTextBoxColumn.cs" />
     <Compile Include="UI\Grid\ZDataGridViewViaSpanCell.cs" />
     <Compile Include="UI\Grid\ZDataGridViewViaSpanColumn.cs" />
+    <Compile Include="UI\Menu\ProgressPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Menu\ProgressPanel.Designer.cs">
+      <DependentUpon>ProgressPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Menu\StatusMenu.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -624,6 +656,9 @@
     <EmbeddedResource Include="UI\Dialogs\GlassPitchDialog.resx">
       <DependentUpon>GlassPitchDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\Dialogs\InitDialog.resx">
+      <DependentUpon>InitDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\Dialogs\ManufacturerColor.resx">
       <DependentUpon>ManufacturerColor.cs</DependentUpon>
     </EmbeddedResource>
@@ -672,6 +707,9 @@
     <EmbeddedResource Include="UI\Help\HelpTopicsPanel.resx">
       <DependentUpon>HelpTopicsPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\ImportWizard.resx">
+      <DependentUpon>ImportWizard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\Menu\ProgramMenu.resx">
       <DependentUpon>ProgramMenu.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -681,6 +719,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\FXSandbox.resx">
       <DependentUpon>FXSandbox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Menu\ProgressPanel.resx">
+      <DependentUpon>ProgressPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Menu\StatusMenu.resx">
       <DependentUpon>StatusMenu.cs</DependentUpon>
@@ -741,6 +782,8 @@
     <Content Include="Resources\2017-03-12-Microstrip bitmap.jpg" />
     <Content Include="Resources\2017-03-13-Buried Microstrip bitmap.jpg" />
     <Content Include="Resources\2017-03-13-Stripline bitmap.jpg" />
+    <None Include="Resources\Apply32.png" />
+    <None Include="Resources\Apply16.png" />
     <Content Include="Resources\Buried_Microstrip.PNG" />
     <Content Include="Resources\Buried_Microstrip_Diff.PNG" />
     <None Include="Resources\Zo - Innovative PCB Stackup Design.jpg" />
@@ -765,6 +808,10 @@
     <None Include="Resources\Sequential lamination 16.png" />
     <None Include="Resources\New Single Ended 32.png" />
     <None Include="Resources\New Single Ended 16.png" />
+    <None Include="Resources\InitBg.png" />
+    <None Include="Resources\InitBg2.png" />
+    <None Include="Resources\Select Stackup 32.png" />
+    <None Include="Resources\Select Stackup 16.png" />
     <Content Include="Z-Zero App Icon.ico" />
     <None Include="Resources\Etch.png" />
     <Content Include="Resources\Stripline.PNG" />

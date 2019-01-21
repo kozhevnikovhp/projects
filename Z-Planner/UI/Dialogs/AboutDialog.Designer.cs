@@ -57,17 +57,15 @@
             this.tbStatus = new System.Windows.Forms.TextBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
-            this.panelFeature = new System.Windows.Forms.Panel();
-            this.rb6L = new System.Windows.Forms.RadioButton();
-            this.rb12L = new System.Windows.Forms.RadioButton();
-            this.rbUL = new System.Windows.Forms.RadioButton();
+            this.tbFeature = new System.Windows.Forms.TextBox();
+            this.textBox10 = new System.Windows.Forms.TextBox();
+            this.tbLybraryDate = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictLogo)).BeginInit();
             this.panelLogo.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
-            this.panelFeature.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictLogo
@@ -276,14 +274,16 @@
             this.panel4.Controls.Add(this.btBrowse);
             this.panel4.Controls.Add(this.tbEditedLicensePath);
             this.panel4.Controls.Add(this.textBox7);
+            this.panel4.Controls.Add(this.tbLybraryDate);
             this.panel4.Controls.Add(this.tbLicensePath);
+            this.panel4.Controls.Add(this.textBox10);
             this.panel4.Controls.Add(this.textBox5);
             this.panel4.Controls.Add(this.tbExpiration);
             this.panel4.Controls.Add(this.textBox6);
+            this.panel4.Controls.Add(this.tbFeature);
             this.panel4.Controls.Add(this.tbStatus);
             this.panel4.Controls.Add(this.textBox4);
             this.panel4.Controls.Add(this.textBox3);
-            this.panel4.Controls.Add(this.panelFeature);
             this.panel4.Location = new System.Drawing.Point(362, 213);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(492, 290);
@@ -410,49 +410,41 @@
             this.textBox3.TabStop = false;
             this.textBox3.Text = "Feature:";
             // 
-            // panelFeature
+            // tbFeature
             // 
-            this.panelFeature.Controls.Add(this.rb6L);
-            this.panelFeature.Controls.Add(this.rb12L);
-            this.panelFeature.Controls.Add(this.rbUL);
-            this.panelFeature.Location = new System.Drawing.Point(9, 31);
-            this.panelFeature.Name = "panelFeature";
-            this.panelFeature.Size = new System.Drawing.Size(157, 110);
-            this.panelFeature.TabIndex = 0;
+            this.tbFeature.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbFeature.Location = new System.Drawing.Point(17, 39);
+            this.tbFeature.Multiline = true;
+            this.tbFeature.Name = "tbFeature";
+            this.tbFeature.ReadOnly = true;
+            this.tbFeature.Size = new System.Drawing.Size(168, 19);
+            this.tbFeature.TabIndex = 24;
+            this.tbFeature.TabStop = false;
+            this.tbFeature.Text = "Z-planner";
             // 
-            // rb6L
+            // textBox10
             // 
-            this.rb6L.AutoSize = true;
-            this.rb6L.Enabled = false;
-            this.rb6L.Location = new System.Drawing.Point(6, 66);
-            this.rb6L.Name = "rb6L";
-            this.rb6L.Size = new System.Drawing.Size(85, 17);
-            this.rb6L.TabIndex = 2;
-            this.rb6L.Text = "Z-planner 6L";
-            this.rb6L.UseVisualStyleBackColor = true;
+            this.textBox10.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox10.Location = new System.Drawing.Point(17, 85);
+            this.textBox10.Multiline = true;
+            this.textBox10.Name = "textBox10";
+            this.textBox10.ReadOnly = true;
+            this.textBox10.Size = new System.Drawing.Size(157, 19);
+            this.textBox10.TabIndex = 27;
+            this.textBox10.TabStop = false;
+            this.textBox10.Text = "Library synchronization date:";
             // 
-            // rb12L
+            // tbLybraryDate
             // 
-            this.rb12L.AutoSize = true;
-            this.rb12L.Enabled = false;
-            this.rb12L.Location = new System.Drawing.Point(6, 36);
-            this.rb12L.Name = "rb12L";
-            this.rb12L.Size = new System.Drawing.Size(91, 17);
-            this.rb12L.TabIndex = 1;
-            this.rb12L.Text = "Z-planner 12L";
-            this.rb12L.UseVisualStyleBackColor = true;
-            // 
-            // rbUL
-            // 
-            this.rbUL.AutoSize = true;
-            this.rbUL.Checked = true;
-            this.rbUL.Location = new System.Drawing.Point(6, 6);
-            this.rbUL.Name = "rbUL";
-            this.rbUL.Size = new System.Drawing.Size(87, 17);
-            this.rbUL.TabIndex = 0;
-            this.rbUL.TabStop = true;
-            this.rbUL.Text = "Z-planner UL";
-            this.rbUL.UseVisualStyleBackColor = true;
+            this.tbLybraryDate.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbLybraryDate.Location = new System.Drawing.Point(17, 110);
+            this.tbLybraryDate.Multiline = true;
+            this.tbLybraryDate.Name = "tbLybraryDate";
+            this.tbLybraryDate.ReadOnly = true;
+            this.tbLybraryDate.Size = new System.Drawing.Size(445, 22);
+            this.tbLybraryDate.TabIndex = 28;
+            this.tbLybraryDate.TabStop = false;
+            this.tbLybraryDate.Text = "library date";
             // 
             // AboutDialog
             // 
@@ -485,8 +477,6 @@
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
-            this.panelFeature.ResumeLayout(false);
-            this.panelFeature.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -509,10 +499,6 @@
         private System.Windows.Forms.TextBox tbFSBuild;
         private System.Windows.Forms.TextBox tbFSVersion;
         private System.Windows.Forms.TextBox tbProgram;
-        private System.Windows.Forms.Panel panelFeature;
-        private System.Windows.Forms.RadioButton rb6L;
-        private System.Windows.Forms.RadioButton rb12L;
-        private System.Windows.Forms.RadioButton rbUL;
         private System.Windows.Forms.TextBox tbExpiration;
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.TextBox tbStatus;
@@ -526,5 +512,8 @@
         private System.Windows.Forms.TextBox textBox8;
         private System.Windows.Forms.TextBox tbTM;
         private System.Windows.Forms.TextBox tbTMHL;
+        private System.Windows.Forms.TextBox tbLybraryDate;
+        private System.Windows.Forms.TextBox textBox10;
+        private System.Windows.Forms.TextBox tbFeature;
     }
 }

@@ -95,17 +95,24 @@ namespace ZZero.ZPlanner.UI.Grid
         {
             double dValue;
             ZParameter parameter = this.OwningColumn.Tag as ZParameter;
+            ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
+            ZLayerType? layerType = (layerParameter != null) ? layerParameter.Layer.GetLayerType() : null;
+
+            string isUsed = string.Empty;
+            if (parameter != null && parameter.Table == ZTableType.Single)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
+            }
+            else if (parameter != null && parameter.Table == ZTableType.Pair)
+            {
+                if (layerParameter != null) isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
+            }
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZo_Frequency && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty && (value == null || value.ToString() == string.Empty))
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 if (layerParameter == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
-                    ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                     if (layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) value = ZPlannerManager.Project.Stackup.GetFrequencyByLayer(layerParameter.Layer);
                     else value = null;
                 }
@@ -113,14 +120,9 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_Frequency && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty && (value == null || value.ToString() == string.Empty))
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 if (layerParameter == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
-                    ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                     if (layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) value = ZPlannerManager.Project.Stackup.GetFrequencyByLayer(layerParameter.Layer);
                     else value = null;
                 }
@@ -128,18 +130,13 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_BitRate && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 if (layerParameter == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     double frequency;
                     
                     if (!layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Frequency, out frequency))
                     {
-                        ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                         if (layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) frequency = ZPlannerManager.Project.Stackup.GetFrequencyByLayer(layerParameter.Layer);
                         else frequency = double.NaN;
                     }
@@ -151,18 +148,13 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_UnitInterval && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 if (layerParameter == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     double frequency;
 
                     if (!layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Frequency, out frequency))
                     {
-                        ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                         if (layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) frequency = ZPlannerManager.Project.Stackup.GetFrequencyByLayer(layerParameter.Layer);
                         else frequency = double.NaN;
                     }
@@ -174,18 +166,13 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_SkewTolerance && !ZPlannerManager.ProjectIsEmpty && !ZPlannerManager.Project.StackupIsEmpty)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 if (layerParameter == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     double frequency;
 
                     if (!layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Frequency, out frequency))
                     {
-                        ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                         if (layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) frequency = ZPlannerManager.Project.Stackup.GetFrequencyByLayer(layerParameter.Layer);
                         else frequency = double.NaN;
                     }
@@ -201,7 +188,6 @@ namespace ZZero.ZPlanner.UI.Grid
                 if (layer == null) value = null;
                 else
                 {
-                    ZLayerType? layerType = layer.GetLayerType();
                     if (layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) value = layer.GetLayerParameterValue(ZStringConstants.ParameterIDCalcRoughTop);
                     else value = null;
                 }
@@ -213,7 +199,6 @@ namespace ZZero.ZPlanner.UI.Grid
                 if (layer == null) value = null;
                 else
                 {
-                    ZLayerType? layerType = layer.GetLayerType();
                     if (layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) value = layer.GetLayerParameterValue(ZStringConstants.ParameterIDCalcRoughBottom);
                     else value = null;
                 }
@@ -221,21 +206,16 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_RoughTop)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 ZLayer layer = this.OwningRow.Tag as ZLayer;
                 if (layerParameter == null || layer == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     ZLayer stackupLayer = layer.Stackup.GetLayerOfStackup(layer.ID);
                     if (stackupLayer != null)
                     {
                         value = stackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDRoughTop);
                         if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
                         {
-                            ZLayerType? layerType = layer.GetLayerType();
                             if (layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) value = stackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDCalcRoughTop);
                         }
                     }
@@ -245,21 +225,16 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_RoughBottom)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 ZLayer layer = this.OwningRow.Tag as ZLayer;
                 if (layerParameter == null || layer == null) value = null;
                 else
                 {
-                    string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     ZLayer stackupLayer = layer.Stackup.GetLayerOfStackup(layer.ID);
                     if (stackupLayer != null)
                     {
                         value = stackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDRoughBottom);
                         if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
                         {
-                            ZLayerType? layerType = layer.GetLayerType();
                             if (layerType == ZLayerType.Plane || layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) value = stackupLayer.GetLayerParameterValue(ZStringConstants.ParameterIDCalcRoughBottom);
                         }
                     }
@@ -269,14 +244,10 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_WeavePitch)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 ZLayer layer = this.OwningRow.Tag as ZLayer;
                 if (layerParameter == null || layer == null) value = null;
                 else
                 {
-                    //string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    //if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     ZLayer stackupLayer = layer.Stackup.GetLayerOfStackup(layer.ID);
                     if (stackupLayer != null)
                     {
@@ -288,14 +259,10 @@ namespace ZZero.ZPlanner.UI.Grid
 
             if (this.OwningColumn.Name == ZStringConstants.ParameterIDZdiff_FillPitch)
             {
-                ZLayerParameter layerParameter = this.Tag as ZLayerParameter;
                 ZLayer layer = this.OwningRow.Tag as ZLayer;
                 if (layerParameter == null || layer == null) value = null;
                 else
                 {
-                    //string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed);
-                    //if (isUsed == null || isUsed.ToLower() != "true") return string.Empty;
-
                     ZLayer stackupLayer = layer.Stackup.GetLayerOfStackup(layer.ID);
                     if (stackupLayer != null)
                     {
@@ -304,6 +271,9 @@ namespace ZZero.ZPlanner.UI.Grid
                     else value = null;
                 }
             }
+
+            string[] IsUsedIgnoreList = new string[] { ZStringConstants.ParameterIDZo_Frequency, ZStringConstants.ParameterIDZdiff_Frequency, ZStringConstants.ParameterIDZdiff_RoughTop, ZStringConstants.ParameterIDZdiff_RoughBottom, ZStringConstants.ParameterIDRoughTop, ZStringConstants.ParameterIDRoughBottom };
+            if ((layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed) && !string.IsNullOrWhiteSpace(isUsed) && isUsed.ToLower() != "true" && !IsUsedIgnoreList.Contains(this.OwningColumn.Name)) return string.Empty;
 
             if (parameter != null) 
             {

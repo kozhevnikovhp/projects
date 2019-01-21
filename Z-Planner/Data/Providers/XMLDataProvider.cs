@@ -18,6 +18,8 @@ namespace ZZero.ZPlanner.Data.Provider
     /// </summary>
     class XMLDataProvider:DataProvider
     {
+        private bool isLegacyDkDf = false;
+
         /// <summary>
         /// Create XMLDataProvider object.
         /// </summary>
@@ -31,6 +33,7 @@ namespace ZZero.ZPlanner.Data.Provider
         /// <param name="projectPath">Path to the project file.</param>
         internal override ZPlannerProject OpenZPlannerProject(string projectPath)
         {
+            isLegacyDkDf = false;
             ZPlannerProject project = new ZPlannerProject();
             XElement root = XElement.Load(projectPath);
 
@@ -112,6 +115,9 @@ namespace ZZero.ZPlanner.Data.Provider
             // Fill Parameters collection
             SetParameters(root, library.Parameters, library.Lists);
 
+            // Add Empty Material
+            if (ZPlannerManager.DmlIsEmpty) AddEmptyMaterial(library.Materials, library.Parameters);
+
             // Fill Materials collection
             SetMaterials(root, library.Materials, library.Parameters);
 
@@ -134,6 +140,7 @@ namespace ZZero.ZPlanner.Data.Provider
                 project.Created = GetDateTimeValue(infoElement.Attribute("created"));
                 project.Edited = GetDateTimeValue(infoElement.Attribute("edited"));
                 project.Version = GetDoubleValue(infoElement.Attribute("version"));
+                project.IsProtected = GetBoolValue(infoElement.Attribute("isProtected"));
             }
         }
 
@@ -148,6 +155,7 @@ namespace ZZero.ZPlanner.Data.Provider
             AddDateTimeAttribute(fileInfoElement, "created", project.Created);
             AddDateTimeAttribute(fileInfoElement, "edited", DateTime.Now);
             AddDoubleAttribute(fileInfoElement, "version", ZPlannerManager.GetProductVersion()); //project.Version);
+            if (project.IsProtected) AddBoolAttribute(fileInfoElement, "isProtected", project.IsProtected);
             return fileInfoElement;
         }
 
@@ -267,7 +275,13 @@ namespace ZZero.ZPlanner.Data.Provider
 
                 foreach (XElement subParameterElement in parameterGroup.SubParameters)
                 {
-                    ZParameter subParameter = new ZParameter(GetTextValue(subParameterElement.Attribute("id")));
+                    string id = GetTextValue(subParameterElement.Attribute("id"));
+                    // Backward Compatebility
+                    if (id == ZStringConstants.ParameterIDDielectricConstant) { id = ZStringConstants.ParameterIDZo_DielectricConstant; isLegacyDkDf = true; }
+                    if (id == ZStringConstants.ParameterIDLossTangent) { id = ZStringConstants.ParameterIDZo_LossTangent; isLegacyDkDf = true; }
+                    if (parameter.SubParameters.Find(x => x.ID == id) != null) continue;
+
+                    ZParameter subParameter = new ZParameter(id);
                     subParameter.Title = GetTextValue(subParameterElement.Attribute("title"));
                     subParameter.Description = GetTextValue(subParameterElement.Attribute("description"));
                     subParameter.ValueType = GetEnumValue<ZValueType>(subParameterElement.Attribute("type"));
@@ -383,12 +397,9 @@ namespace ZZero.ZPlanner.Data.Provider
                 if (!double.IsNaN(laminateSideRoughness)) stackup.LaminateSideRoughness = laminateSideRoughness;
 
                 // Pressed Thickness
-                XAttribute pressedByCopperCoverageAttribute = stackupElement.Attribute("pressedByCopperCoverage");
-                if (pressedByCopperCoverageAttribute != null)
-                {
-                    bool byCopperCoverage = GetBoolValue(pressedByCopperCoverageAttribute);
-                    stackup.ByCopperCoverage = byCopperCoverage;
-                }
+                XAttribute pressedByCopperCoverageAttribute = stackupElement.Attribute("copperCoverageType");
+                if (pressedByCopperCoverageAttribute != null) stackup.CopperCoverageType = GetEnumValue<ZCopperCoverageType>(pressedByCopperCoverageAttribute);
+                //else stackup.CopperCoverageType = ZCopperCoverageType.ManuallyEntered;
 
                 double forSignal = GetDoubleValue(stackupElement.Attribute("pressedForSignal"));
                 if (!double.IsNaN(forSignal)) stackup.ForSignal = forSignal;
@@ -423,6 +434,7 @@ namespace ZZero.ZPlanner.Data.Provider
                 stackup.IsRoughness = GetBoolValue(stackupElement.Attribute("isRoughnessEnabled"));
                 stackup.IsPressedThickness = GetBoolValue(stackupElement.Attribute("isPressedThicknessEnabled"));
                 stackup.IsSequentialLamination = GetBoolValue(stackupElement.Attribute("isSequentialLaminationEnabled"));
+                stackup.IsKeepImportedPressedThickness = GetBoolValue(stackupElement.Attribute("isKeepImportedPressedThicknessEnabled"));
                 stackup.IsTrapezoidalTraces = GetBoolValue(stackupElement.Attribute("isTrapezoidalTracesEnabled"));
                 stackup.IsLossPlanning = GetBoolValue(stackupElement.Attribute("isLossPlanningEnabled"));
                 stackup.IsGlassPitch = GetBoolValue(stackupElement.Attribute("isGlassPitchEnabled"));
@@ -450,12 +462,13 @@ namespace ZZero.ZPlanner.Data.Provider
         private XElement GetStackupElement(ZStackup stackup)
         {
             XElement stackupElement = new XElement("Stackup", new XAttribute("id", stackup.ID), new XAttribute("title", stackup.Title), new XAttribute("frequency", stackup.Frequency),
-                new XAttribute("isRoughnessEnabled", ZPlannerManager.IsRoughness), new XAttribute("isPressedThicknessEnabled", ZPlannerManager.IsPressedThickness), new XAttribute("isSequentialLaminationEnabled", ZPlannerManager.IsSequentialLamination), new XAttribute("isTrapezoidalTracesEnabled", ZPlannerManager.IsTrapezoidalTraces),
+                new XAttribute("isRoughnessEnabled", ZPlannerManager.IsRoughness), new XAttribute("isPressedThicknessEnabled", ZPlannerManager.IsPressedThickness), new XAttribute("isSequentialLaminationEnabled", ZPlannerManager.IsSequentialLamination),
+                new XAttribute("isKeepImportedPressedThicknessEnabled", stackup.IsKeepImportedPressedThickness), new XAttribute("isTrapezoidalTracesEnabled", ZPlannerManager.IsTrapezoidalTraces),
                 new XAttribute("isLossPlanningEnabled", ZPlannerManager.IsLossPlanning), new XAttribute("isGlassPitchEnabled", ZPlannerManager.IsGlassPitch), new XAttribute("isGwsEnabled", ZPlannerManager.IsGws),
                 new XAttribute("isCenterLineEnabled", ZPlannerManager.IsCenterLineVisible), new XAttribute("isCoreLockedEnabled", ZPlannerManager.IsCoreLocked), new XAttribute("isAutoMirrorEnabled", ZPlannerManager.IsAutoMirror),
                 new XAttribute("isHeadersEnabled", ZPlannerManager.IsHeadersVisible), new XAttribute("isDisabledCellsEnabled", ZPlannerManager.IsColorDisabledCells),
                 new XAttribute("outerRoughness", stackup.OuterLayerRoughness), new XAttribute("prepregRoughness", stackup.PrepregSideRoughness), new XAttribute("laminateRoughness", stackup.LaminateSideRoughness),
-                new XAttribute("pressedByCopperCoverage", stackup.ByCopperCoverage), new XAttribute("pressedForSignal", stackup.ForSignal), new XAttribute("pressedForMixed", stackup.ForMixed), new XAttribute("pressedForPlane", stackup.ForPlane),
+                new XAttribute("copperCoverageType", stackup.CopperCoverageType.ToString()), new XAttribute("pressedForSignal", stackup.ForSignal), new XAttribute("pressedForMixed", stackup.ForMixed), new XAttribute("pressedForPlane", stackup.ForPlane),
                 new XAttribute("pressedForSignalSignal", stackup.ForSignalSignal), new XAttribute("pressedForSignalMixed", stackup.ForSignalMixed), new XAttribute("pressedForSignalPlane", stackup.ForSignalPlane),
                 new XAttribute("pressedForMixedMixed", stackup.ForMixedMixed), new XAttribute("pressedForMixedPlane", stackup.ForMixedPlane), new XAttribute("pressedForPlanePlane", stackup.ForPlanePlane),
                 new XAttribute("etchFactor", stackup.Etch));
@@ -705,8 +718,19 @@ namespace ZZero.ZPlanner.Data.Provider
 
                         foreach (XElement layerParameterElement in layerGroup.LayerParameters)
                         {
-                            ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == GetTextValue(layerParameterElement.Attribute("parameterId")));
-                            if (layerParameter == null) continue;
+                            string parameterId = GetTextValue(layerParameterElement.Attribute("parameterId"));
+                            // Backward Compatebility
+                            if (isLegacyDkDf && (parameterId == ZStringConstants.ParameterIDZo_DielectricConstant || parameterId == ZStringConstants.ParameterIDZo_LossTangent)) continue;
+                            ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == parameterId);
+                            if (layerParameter == null)
+                            {
+                                // Backward Compatebility
+                                if (parameterId == ZStringConstants.ParameterIDDielectricConstant) parameterId = ZStringConstants.ParameterIDZo_DielectricConstant;
+                                if (parameterId == ZStringConstants.ParameterIDLossTangent) parameterId = ZStringConstants.ParameterIDZo_LossTangent;
+                                layerParameter = layer.LayerParameters.Find(x => x.ID == parameterId);
+                                if (layerParameter == null) continue;
+                            }
+
                             layerParameter.Value = GetCellValue(layerParameterElement.Attribute("value"));
                             layerParameter.IsEdited = GetBoolValue(layerParameterElement.Attribute("isEdited"));
                             alreadySetLayerParameters.Add(layerParameter.ID);
@@ -807,8 +831,10 @@ namespace ZZero.ZPlanner.Data.Provider
 
                         foreach (XElement layerParameterElement in layerGroup.LayerParameters)
                         {
-                            ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == GetTextValue(layerParameterElement.Attribute("parameterId")));
+                            string parameterId = GetTextValue(layerParameterElement.Attribute("parameterId"));
+                            ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == parameterId);
                             if (layerParameter == null) continue;
+
                             layerParameter.Value = GetCellValue(layerParameterElement.Attribute("value"));
                             layerParameter.IsEdited = GetBoolValue(layerParameterElement.Attribute("isEdited"));
                             alreadySetLayerParameters.Add(layerParameter.ID);
@@ -890,8 +916,10 @@ namespace ZZero.ZPlanner.Data.Provider
 
                     foreach (XElement layerParameterElement in layerGroup.LayerParameters)
                     {
-                        ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == GetTextValue(layerParameterElement.Attribute("parameterId")));
+                        string parameterId = GetTextValue(layerParameterElement.Attribute("parameterId"));
+                        ZLayerParameter layerParameter = layer.LayerParameters.Find(x => x.ID == parameterId);
                         if (layerParameter == null) continue;
+
                         layerParameter.Value = GetCellValue(layerParameterElement.Attribute("value"));
                         layerParameter.IsEdited = GetBoolValue(layerParameterElement.Attribute("isEdited"));
                         alreadySetLayerParameters.Add(layerParameter.ID);
@@ -915,6 +943,31 @@ namespace ZZero.ZPlanner.Data.Provider
                     ++index;
                 }
             }
+        }
+
+        private void AddEmptyMaterial(ZList<ZMaterial> materials, ZList<ZParameter> parameters)
+        {
+            ZMaterial material = new ZMaterial(ZStringConstants.EmptyMaterialID);
+            material.IsFrozen = false;
+            material.IsCustom = false;
+            material.IsEdited = false;
+            material.IsHidden = true;
+            material.IsFiltered = true;
+            material.IsReadOnly = true;
+            material.Order = 0;
+
+            foreach (ZParameter parameter in parameters)
+            {
+                ZMaterialParameter materialParameter = new ZMaterialParameter(parameter.ID);
+                materialParameter.Parameter = parameter;
+                materialParameter.Material = material;
+                materialParameter.Value = string.Empty;
+                materialParameter.IsEdited = false;
+                parameter.MaterialParameters.Add(materialParameter);
+                material.MaterialParameters.Add(materialParameter);
+            }
+
+            materials.Add(material);
         }
 
         private void SetMaterials(XElement root, ZList<ZMaterial> materials, ZList<ZParameter> parameters)
@@ -1116,7 +1169,7 @@ namespace ZZero.ZPlanner.Data.Provider
             where T : struct
         {
             T result;
-            if (attr != null && !string.IsNullOrEmpty(attr.Value) && System.Enum.TryParse<T>(attr.Value.First().ToString().ToUpper() + attr.Value.Substring(1).ToLower(), out result)) return result;
+            if (attr != null && !string.IsNullOrEmpty(attr.Value) && (System.Enum.TryParse<T>(attr.Value.First().ToString().ToUpper() + attr.Value.Substring(1).ToLower(), out result) || System.Enum.TryParse<T>(attr.Value.ToString(), out result))) return result;
             return default(T);
         }
 

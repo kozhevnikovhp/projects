@@ -16,9 +16,11 @@ namespace ZZero.ZPlanner.UI.Menu
 {
     public partial class StatusMenu : UserControl
     {
+        ProgressPanel progressPanel;
+        bool progressStarted = false;
         string progressMessage = string.Empty;
         int progressCount = 0;
-        long updateTicks;
+        //long updateTicks;
 
         public StatusMenu()
         {
@@ -29,11 +31,21 @@ namespace ZZero.ZPlanner.UI.Menu
 
         public void StartProgress(string message, bool showProgressBar = false)
         {
-            progressMessage = message;
-            progressCount = 0;
+            if (!progressStarted)
+            {
+                progressStarted = true;
+                progressMessage = message;
+                progressCount = 0;
 
-            tbStatus.Text = message;
-            tbStatus.Update();
+                if (showProgressBar)
+                {
+                    progressPanel = new ProgressPanel();
+                    progressPanel.StartPosition = FormStartPosition.CenterScreen;
+                    progressPanel.Show();
+                }
+            }
+
+            SetStatus(message);
 
             /*if (showProgressBar)
             {
@@ -41,10 +53,10 @@ namespace ZZero.ZPlanner.UI.Menu
                 progressPictureBox.Visible = true;
             }*/
 
-            updateTicks = DateTime.Now.Ticks;
+            //updateTicks = DateTime.Now.Ticks;
         }
 
-        public bool UpdateProgress()
+        /*public bool UpdateProgress()
         {
 
             if (DateTime.Now.Ticks - updateTicks > 100000)
@@ -65,15 +77,34 @@ namespace ZZero.ZPlanner.UI.Menu
             }
 
             return true;
+        }*/
+
+        public void UpdateProgress()
+        {
+            if (progressPanel != null) progressPanel.UpdateProgress();
         }
 
         public void StopProgress(string message)
         {
-            progressMessage = string.Empty;
-            progressCount = 0;
+            if (progressMessage == message)
+            {
+                progressMessage = string.Empty;
+                progressCount = 0;
 
-            tbStatus.Text = "Ready";
-            tbStatus.Update();
+                SetStatus("Ready");
+
+                if (progressPanel != null)
+                {
+                    progressPanel.Close();
+                    progressPanel = null;
+                }
+
+                progressStarted = false;
+            }
+            else
+            {
+                SetStatus(progressMessage);
+            }
 
             /*if (progressPictureBox.Visible) progressPictureBox.Visible = false;
             if (progressPictureBox.Enabled) progressPictureBox.Enabled = false;*/
@@ -81,6 +112,7 @@ namespace ZZero.ZPlanner.UI.Menu
 
         public void SetStatus(string message)
         {
+            if (progressPanel != null) progressPanel.SetMessage(message);
             tbStatus.Text = message;
             tbStatus.Update();
         }

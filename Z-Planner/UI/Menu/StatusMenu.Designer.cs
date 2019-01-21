@@ -46,7 +46,7 @@
             this.progressPictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.progressPictureBox.Enabled = false;
             this.progressPictureBox.Image = global::ZZero.ZPlanner.Properties.Resources.ProgressBar;
-            this.progressPictureBox.Location = new System.Drawing.Point(548, 5);
+            this.progressPictureBox.Location = new System.Drawing.Point(482, 5);
             this.progressPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.progressPictureBox.Name = "progressPictureBox";
             this.progressPictureBox.Size = new System.Drawing.Size(100, 20);
@@ -62,18 +62,18 @@
             this.panel1.Controls.Add(this.tbNumberOfLayers);
             this.panel1.Controls.Add(this.labelBoardThickness);
             this.panel1.Controls.Add(this.labelNumberOfLayers);
-            this.panel1.Location = new System.Drawing.Point(654, 0);
+            this.panel1.Location = new System.Drawing.Point(588, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(346, 29);
+            this.panel1.Size = new System.Drawing.Size(412, 29);
             this.panel1.TabIndex = 2;
             // 
             // tbBoardThickness
             // 
             this.tbBoardThickness.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbBoardThickness.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbBoardThickness.Location = new System.Drawing.Point(272, 5);
+            this.tbBoardThickness.Location = new System.Drawing.Point(307, 5);
             this.tbBoardThickness.Name = "tbBoardThickness";
-            this.tbBoardThickness.Size = new System.Drawing.Size(70, 20);
+            this.tbBoardThickness.Size = new System.Drawing.Size(100, 20);
             this.tbBoardThickness.TabIndex = 3;
             this.tbBoardThickness.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -83,13 +83,13 @@
             this.tbNumberOfLayers.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tbNumberOfLayers.Location = new System.Drawing.Point(104, 5);
             this.tbNumberOfLayers.Name = "tbNumberOfLayers";
-            this.tbNumberOfLayers.Size = new System.Drawing.Size(70, 20);
+            this.tbNumberOfLayers.Size = new System.Drawing.Size(100, 20);
             this.tbNumberOfLayers.TabIndex = 2;
             this.tbNumberOfLayers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // labelBoardThickness
             // 
-            this.labelBoardThickness.Location = new System.Drawing.Point(178, 5);
+            this.labelBoardThickness.Location = new System.Drawing.Point(213, 5);
             this.labelBoardThickness.Name = "labelBoardThickness";
             this.labelBoardThickness.Size = new System.Drawing.Size(93, 20);
             this.labelBoardThickness.TabIndex = 0;
@@ -114,7 +114,7 @@
             this.panel2.Controls.Add(this.tbStatus);
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(651, 29);
+            this.panel2.Size = new System.Drawing.Size(585, 29);
             this.panel2.TabIndex = 2;
             // 
             // tbStatus
@@ -124,7 +124,7 @@
             this.tbStatus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbStatus.Location = new System.Drawing.Point(3, 5);
             this.tbStatus.Name = "tbStatus";
-            this.tbStatus.Size = new System.Drawing.Size(645, 20);
+            this.tbStatus.Size = new System.Drawing.Size(579, 20);
             this.tbStatus.TabIndex = 2;
             this.tbStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 

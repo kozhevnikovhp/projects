@@ -15,7 +15,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
     public partial class ManufacturerColor : Form
     {
         List<ZMaterial> materialList;
-        Dictionary<string, Color> colorMap;
+        Dictionary<string, Color> colorMap, defaultColorMap;
         Dictionary<string, bool>  checkMap;
 
         class cMaterialCheckBox : CheckBox
@@ -159,6 +159,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 mpb.BackColor = MyDialog.Color;
                 colorMap[mpb.manufacturer] = MyDialog.Color;
             }
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+
         }
 
 

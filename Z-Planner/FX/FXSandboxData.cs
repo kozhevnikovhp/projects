@@ -29,7 +29,7 @@ Df (sm)*/
             if (type == csType.SurfaceMicrostrip)
             {
 #if ZSANDBOX
-                t = ZZero.ZSandbox.ZSandboxManager.GetThicknesByCopperWeight(Options.TheOptions.base_trace_thickness + Options.TheOptions.plating_thickness); //[oz] - conductor thickness [mils]
+                t = ZZero.ZSolver.ZSolverManager.GetThicknesByCopperWeight(Options.TheOptions.base_trace_thickness + Options.TheOptions.plating_thickness); //[oz] - conductor thickness [mils]
 #else
                 t = ZPlannerManager.GetThicknesByCopperWeight(Options.TheOptions.base_trace_thickness + Options.TheOptions.plating_thickness); //[oz] - conductor thickness [mils]
 #endif
@@ -41,7 +41,7 @@ Df (sm)*/
             else
             {
 #if ZSANDBOX
-                t = ZZero.ZSandbox.ZSandboxManager.GetThicknesByCopperWeight(Options.TheOptions.copper_foil_thickness); //[oz] - conductor thickness [mils]
+                t = ZZero.ZSolver.ZSolverManager.GetThicknesByCopperWeight(Options.TheOptions.copper_foil_thickness); //[oz] - conductor thickness [mils]
 #else
                 t = ZPlannerManager.GetThicknesByCopperWeight(Options.TheOptions.copper_foil_thickness); //[oz] - conductor thickness [mils]
 #endif
@@ -60,7 +60,7 @@ Df (sm)*/
         public bool hasSolderMask = false; //for SurfaceMicrostrip only
 // fields: general defaults
 #if ZSANDBOX
-        public double t = ZZero.ZSandbox.ZSandboxManager.GetThicknesByCopperWeight(0.5); //[oz] - conductor thickness [mils]
+        public double t = ZZero.ZSolver.ZSolverManager.GetThicknesByCopperWeight(0.5); //[oz] - conductor thickness [mils]
 #else
         public double t = ZPlannerManager.GetThicknesByCopperWeight(0.5); //[oz] - conductor thickness [mils]
 #endif

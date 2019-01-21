@@ -197,7 +197,7 @@ namespace ZZero.ZPlanner.Data.Properties
                         layerCollection.Add(layer);
             }
 
-            SelectList selectList = span.Stackup.Project.Lists.Find(x => x.ID == "ViaSpanFilledList");
+            SelectList selectList = span.Stackup.Project.Lists.Find(x => x.ID == ZStringConstants.ListIDViaSpanFilled);
             List<string> filledCollection = (selectList != null) ? selectList.GetValues() : new List<string>();
 
             Type converterType = typeof(ZLayerTypeConverter);
@@ -219,6 +219,7 @@ namespace ZZero.ZPlanner.Data.Properties
         {
             ZDynamicComponent component = new ZDynamicComponent(single);
             component.AddProperty(single, ZStringConstants.TitleDictionary["SingleTitle"], single.Title, ZStringConstants.DescriptionDictionary["Title"], ZStringConstants.CategoryImpedanceParameters, typeof(string), "", null, false, false, null, null);
+            component.AddProperty(single, ZStringConstants.TitleDictionary["ImpedanceTarget"], single.ImpedanceTarget, ZStringConstants.DescriptionDictionary["ImpedanceTarget"], ZStringConstants.CategoryImpedanceParameters, typeof(double), "", null, false, false, null, null);
 
             foreach (ZLayer layer in single.Layers)
             {
@@ -252,7 +253,8 @@ namespace ZZero.ZPlanner.Data.Properties
         {
             ZDynamicComponent component = new ZDynamicComponent(pair);
             component.AddProperty(pair, ZStringConstants.TitleDictionary["PairTitle"], pair.Title, ZStringConstants.DescriptionDictionary["Title"], ZStringConstants.CategoryImpedanceParameters, typeof(string), "", null, false, false, null, null);
-
+            component.AddProperty(pair, ZStringConstants.TitleDictionary["ImpedanceTarget"], pair.ImpedanceTarget, ZStringConstants.DescriptionDictionary["ImpedanceTarget"], ZStringConstants.CategoryImpedanceParameters, typeof(double), "", null, false, false, null, null);
+                
             foreach (ZLayer layer in pair.Layers)
             {
                 ZLayerType? layerType = layer.GetLayerType();

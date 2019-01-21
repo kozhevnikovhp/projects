@@ -49,12 +49,15 @@ namespace ZZero.ZPlanner.UI.Dialogs
                     case ExportFlags.Frequency: cbFrequency.Checked = true; break;
 
                     // copper, impedance, notes
+                    case ExportFlags.SingleEnded: cbSE.Checked = true; break;
+                    case ExportFlags.Differential: cbDiff.Checked = true; break;
                     case ExportFlags.CopperWeight: cbCopperWeight.Checked = true; break;
                     case ExportFlags.Copper: cbCopper.Checked = true; break;
                     case ExportFlags.RzTop: cbRz.Checked = true; break;
                     case ExportFlags.TraceWidth: cbTraceWidth.Checked = true; break;
                     case ExportFlags.Impedance: cbImpedance.Checked = true; break;
                     case ExportFlags.DiffImpedance: cbDiffImpedance.Checked = true; break;
+                    case ExportFlags.DiffZ0: cbDiffZ0.Checked = true; break;
                     case ExportFlags.RefLayer: cbRefLayer.Checked = true; break;
                     case ExportFlags.Notes: cbNotes.Checked = true; break;
                     case ExportFlags.Loss: cbLoss.Checked = true; break;
@@ -89,6 +92,8 @@ namespace ZZero.ZPlanner.UI.Dialogs
             if (cbFrequency.Checked) options.Add(ExportFlags.Frequency);
 
             //copper, impedance, notes
+            if (cbSE.Checked) options.Add(ExportFlags.SingleEnded);
+            if (cbDiff.Checked) options.Add(ExportFlags.Differential);
             if (cbCopperWeight.Checked) options.Add(ExportFlags.CopperWeight);
             if (cbCopper.Checked) options.Add(ExportFlags.Copper);
             if (cbRz.Checked)
@@ -100,6 +105,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             if (cbImpedance.Checked) options.Add(ExportFlags.Impedance);
             if (cbLoss.Checked) options.Add(ExportFlags.Loss);
             if (cbDiffImpedance.Checked) options.Add(ExportFlags.DiffImpedance);
+            if (cbDiffZ0.Checked) options.Add(ExportFlags.DiffZ0);
             if (cbRefLayer.Checked) options.Add(ExportFlags.RefLayer);
             if (cbNotes.Checked) options.Add(ExportFlags.Notes);
 
@@ -127,6 +133,11 @@ namespace ZZero.ZPlanner.UI.Dialogs
         private void cbMetalThickness_CheckedChanged(object sender, EventArgs e)
         {
             cbThickness.Checked = cbMetalThickness.Checked;
+        }
+
+        private void ExcelOptionsDlg_Load(object sender, EventArgs e)
+        {
+
         }
 
     }

@@ -41,6 +41,10 @@
             this.importIRibbonButtonPC2581 = new System.Windows.Forms.RibbonButton();
             this.importODBRibbonButton = new System.Windows.Forms.RibbonButton();
             this.importTapestryRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.importISURibbonButton = new System.Windows.Forms.RibbonButton();
+            this.importWUSRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.importTTMRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.importWizardButton = new System.Windows.Forms.RibbonButton();
             this.customRibbonPane = new System.Windows.Forms.RibbonPanel();
             this.startpageViewRibbonButton = new System.Windows.Forms.RibbonButton();
             this.fieldSolverRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -59,6 +63,11 @@
             this.importIPC2581RibbonButton = new System.Windows.Forms.RibbonButton();
             this.importODBppRibbonButton = new System.Windows.Forms.RibbonButton();
             this.importTapestryRibbonButton2 = new System.Windows.Forms.RibbonButton();
+            this.importISURibbonButton2 = new System.Windows.Forms.RibbonButton();
+            this.importWUSRibbonButton2 = new System.Windows.Forms.RibbonButton();
+            this.importTTMRibbonButton2 = new System.Windows.Forms.RibbonButton();
+            this.importWizardButton2 = new System.Windows.Forms.RibbonButton();
+            this.ribbonSeparator1 = new System.Windows.Forms.RibbonSeparator();
             this.exportHyperLynxFFSSTKRibbonButton = new System.Windows.Forms.RibbonButton();
             this.exportIPC2581RibbonButton = new System.Windows.Forms.RibbonButton();
             this.exportODBppRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -79,10 +88,10 @@
             this.projectViewRibbonButton = new System.Windows.Forms.RibbonButton();
             this.propertiesViewRibbonButton = new System.Windows.Forms.RibbonButton();
             this.dmlStackupViewRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.drcCheckRibbonButton = new System.Windows.Forms.RibbonButton();
             this.showViasRibbonButton = new System.Windows.Forms.RibbonButton();
             this.showViaSpansRibbonButton = new System.Windows.Forms.RibbonButton();
             this.editViaSpansRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.drcCheckRibbonButton = new System.Windows.Forms.RibbonButton();
             this.showGridRibbonButton = new System.Windows.Forms.RibbonButton();
             this.gridHeadersRibbonButton = new System.Windows.Forms.RibbonButton();
             this.disabledCellRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -110,12 +119,13 @@
             this.etchEffectsSettingsRibbonButton = new System.Windows.Forms.RibbonButton();
             this.pressedThicknessRibbonButton = new System.Windows.Forms.RibbonButton();
             this.pressedThicknessIncludeRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.sequentialLaminationIncludeRibbonButton = new System.Windows.Forms.RibbonButton();
             this.pressedThicknessSettingsRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.keepImportedPressedThicknessRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.sequentialLaminationIncludeRibbonButton = new System.Windows.Forms.RibbonButton();
             this.stackup_frequency_RibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.frequencyRibbonItemGroup = new System.Windows.Forms.RibbonItemGroup();
             this.frequencyTitleRibbonLabel = new System.Windows.Forms.RibbonLabel();
-            this.frequencyRibbonTextBox = new System.Windows.Forms.RibbonTextBox();
+            this.frequencyRibbonTextBox = new System.Windows.Forms.RibbonUpDown();
             this.frequencyUnitsRibbonLabel = new System.Windows.Forms.RibbonLabel();
             this.stackup_singleended_RibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.newZoRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -131,10 +141,6 @@
             this.roughnessRibbonButton = new System.Windows.Forms.RibbonButton();
             this.copperRoughnessShowRibbonButton = new System.Windows.Forms.RibbonButton();
             this.copperRoughnessSettingsRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.gwsRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.dataRateShowRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.unitIntervalShowRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.skewToleranceShowRibbonButton = new System.Windows.Forms.RibbonButton();
             this.LibraryRibbonTab = new System.Windows.Forms.RibbonTab();
             this.otherViewsRibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.showLViewRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -172,7 +178,6 @@
             this.localLibraryRibbonButton = new System.Windows.Forms.RibbonButton();
             this.searchRibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.findRibbonButton = new System.Windows.Forms.RibbonButton();
-            this.lockLibraryRibbonButton = new System.Windows.Forms.RibbonButton();
             this.sortRibbonPanel = new System.Windows.Forms.RibbonPanel();
             this.customSortRibbonButton = new System.Windows.Forms.RibbonButton();
             this.programRibbonMenu = new System.Windows.Forms.Ribbon();
@@ -193,6 +198,7 @@
             this.qaOpenStackupRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaSaveStackupRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaSaveAndEmailRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.qaSaveLibraryRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaUndoRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaRedoRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaCutRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -201,6 +207,11 @@
             this.qaPrintPreviewRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaSettingsRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaTutorialRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.gwsRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.dataRateShowRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.unitIntervalShowRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.skewToleranceShowRibbonButton = new System.Windows.Forms.RibbonButton();
+            this.lockLibraryRibbonButton = new System.Windows.Forms.RibbonButton();
             this.qaHelpRibbonButton = new System.Windows.Forms.RibbonButton();
             this.syncZ0LibRibbonButton = new System.Windows.Forms.RibbonButton();
             this.saveCorpLibRibbonButton = new System.Windows.Forms.RibbonButton();
@@ -245,11 +256,11 @@
             // genericStackupsRibbonButton
             // 
             this.genericStackupsRibbonButton.DrawIconsBar = false;
-            this.genericStackupsRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Generic_Stackups_32;
+            this.genericStackupsRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Select_Stackup_32;
             this.genericStackupsRibbonButton.MaximumSize = new System.Drawing.Size(62, 70);
             this.genericStackupsRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
             this.genericStackupsRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Large;
-            this.genericStackupsRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Generic_Stackups_16;
+            this.genericStackupsRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Select_Stackup_16;
             this.genericStackupsRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.DropDown;
             this.genericStackupsRibbonButton.Text = "Generic Stackups";
             this.genericStackupsRibbonButton.ToolTip = "Generic Stackups";
@@ -301,15 +312,19 @@
             this.importStackupRibbonButton.DropDownItems.Add(this.importIRibbonButtonPC2581);
             this.importStackupRibbonButton.DropDownItems.Add(this.importODBRibbonButton);
             this.importStackupRibbonButton.DropDownItems.Add(this.importTapestryRibbonButton);
+            this.importStackupRibbonButton.DropDownItems.Add(this.importISURibbonButton);
+            this.importStackupRibbonButton.DropDownItems.Add(this.importWUSRibbonButton);
+            this.importStackupRibbonButton.DropDownItems.Add(this.importTTMRibbonButton);
+            this.importStackupRibbonButton.DropDownItems.Add(this.importWizardButton);
             this.importStackupRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Import_32;
-            this.importStackupRibbonButton.MaximumSize = new System.Drawing.Size(62, 70);
-            this.importStackupRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
+            this.importStackupRibbonButton.MaximumSize = new System.Drawing.Size(64, 70);
+            this.importStackupRibbonButton.MinimumSize = new System.Drawing.Size(64, 0);
             this.importStackupRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
             this.importStackupRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Import_16;
-            this.importStackupRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.DropDown;
-            this.importStackupRibbonButton.Text = "Import Stackup";
+            this.importStackupRibbonButton.Text = "Import Stackup ...";
             this.importStackupRibbonButton.ToolTip = "Import Stackup";
             this.importStackupRibbonButton.Value = "ImportStackup";
+            this.importStackupRibbonButton.Click += new System.EventHandler(this.importWizardButton_Click);
             this.importStackupRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // importHyperLynxSTKRibbonButton
@@ -353,8 +368,53 @@
             this.importTapestryRibbonButton.Text = "Excel Tapestry ...";
             this.importTapestryRibbonButton.ToolTip = "Excel Tapestry";
             this.importTapestryRibbonButton.Value = "ImportTapestry";
+            this.importTapestryRibbonButton.Visible = false;
             this.importTapestryRibbonButton.Click += new System.EventHandler(this.importTapestryRibbonButton_Click);
             this.importTapestryRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importISURibbonButton
+            // 
+            this.importISURibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importISURibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("importISURibbonButton.Image")));
+            this.importISURibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("importISURibbonButton.SmallImage")));
+            this.importISURibbonButton.Text = "Excel ISU ...";
+            this.importISURibbonButton.ToolTip = "Excel ISU";
+            this.importISURibbonButton.Value = "ImportISU";
+            this.importISURibbonButton.Visible = false;
+            this.importISURibbonButton.Click += new System.EventHandler(this.importISURibbonButton_Click);
+            this.importISURibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importWUSRibbonButton
+            // 
+            this.importWUSRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importWUSRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("importWUSRibbonButton.Image")));
+            this.importWUSRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("importWUSRibbonButton.SmallImage")));
+            this.importWUSRibbonButton.Text = "Excel WUS ...";
+            this.importWUSRibbonButton.ToolTip = "Excel WUS";
+            this.importWUSRibbonButton.Value = "ImportWUS";
+            this.importWUSRibbonButton.Visible = false;
+            this.importWUSRibbonButton.Click += new System.EventHandler(this.importWUSRibbonButton_Click);
+            this.importWUSRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importTTMRibbonButton
+            // 
+            this.importTTMRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importTTMRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("importTTMRibbonButton.Image")));
+            this.importTTMRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("importTTMRibbonButton.SmallImage")));
+            this.importTTMRibbonButton.Text = "Excel TTM ...";
+            this.importTTMRibbonButton.ToolTip = "Excel TTM";
+            this.importTTMRibbonButton.Value = "ImportTTM";
+            this.importTTMRibbonButton.Visible = false;
+            this.importTTMRibbonButton.Click += new System.EventHandler(this.importTTMRibbonButton_Click);
+            this.importTTMRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importWizardButton
+            // 
+            this.importWizardButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importWizardButton.Image = ((System.Drawing.Image)(resources.GetObject("importWizardButton.Image")));
+            this.importWizardButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("importWizardButton.SmallImage")));
+            this.importWizardButton.Text = "Import ...";
+            this.importWizardButton.Click += new System.EventHandler(this.importWizardButton_Click);
             // 
             // customRibbonPane
             // 
@@ -520,6 +580,11 @@
             this.exportStackupRibbonButton.DropDownItems.Add(this.importIPC2581RibbonButton);
             this.exportStackupRibbonButton.DropDownItems.Add(this.importODBppRibbonButton);
             this.exportStackupRibbonButton.DropDownItems.Add(this.importTapestryRibbonButton2);
+            this.exportStackupRibbonButton.DropDownItems.Add(this.importISURibbonButton2);
+            this.exportStackupRibbonButton.DropDownItems.Add(this.importWUSRibbonButton2);
+            this.exportStackupRibbonButton.DropDownItems.Add(this.importTTMRibbonButton2);
+            this.exportStackupRibbonButton.DropDownItems.Add(this.importWizardButton2);
+            this.exportStackupRibbonButton.DropDownItems.Add(this.ribbonSeparator1);
             this.exportStackupRibbonButton.DropDownItems.Add(this.exportHyperLynxFFSSTKRibbonButton);
             this.exportStackupRibbonButton.DropDownItems.Add(this.exportIPC2581RibbonButton);
             this.exportStackupRibbonButton.DropDownItems.Add(this.exportODBppRibbonButton);
@@ -543,6 +608,7 @@
             this.importHyperLynxFFSSTKRibbonButton.Text = "Import HyperLynx ...";
             this.importHyperLynxFFSSTKRibbonButton.ToolTip = "Import HyperLynx";
             this.importHyperLynxFFSSTKRibbonButton.Value = "ImportHyperLynx";
+            this.importHyperLynxFFSSTKRibbonButton.Visible = false;
             this.importHyperLynxFFSSTKRibbonButton.Click += new System.EventHandler(this.importHyperLynxSTKRibbonButton_Click);
             this.importHyperLynxFFSSTKRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
@@ -554,6 +620,7 @@
             this.importIPC2581RibbonButton.Text = "Import IPC-2581 ...";
             this.importIPC2581RibbonButton.ToolTip = "Import IPC-2581";
             this.importIPC2581RibbonButton.Value = "ImportIPC";
+            this.importIPC2581RibbonButton.Visible = false;
             this.importIPC2581RibbonButton.Click += new System.EventHandler(this.importIRibbonButtonPC2581_Click);
             this.importIPC2581RibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
@@ -565,6 +632,7 @@
             this.importODBppRibbonButton.Text = "Import ODB++ ...";
             this.importODBppRibbonButton.ToolTip = "Import ODB++";
             this.importODBppRibbonButton.Value = "ImportODB";
+            this.importODBppRibbonButton.Visible = false;
             this.importODBppRibbonButton.Click += new System.EventHandler(this.importODBRibbonButton_Click);
             this.importODBppRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
@@ -576,8 +644,53 @@
             this.importTapestryRibbonButton2.Text = "Import Excel Tapestry ...";
             this.importTapestryRibbonButton2.ToolTip = "Import Excel Tapestry";
             this.importTapestryRibbonButton2.Value = "ImportTapestry";
+            this.importTapestryRibbonButton2.Visible = false;
             this.importTapestryRibbonButton2.Click += new System.EventHandler(this.importTapestryRibbonButton_Click);
             this.importTapestryRibbonButton2.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importISURibbonButton2
+            // 
+            this.importISURibbonButton2.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importISURibbonButton2.Image = ((System.Drawing.Image)(resources.GetObject("importISURibbonButton2.Image")));
+            this.importISURibbonButton2.SmallImage = ((System.Drawing.Image)(resources.GetObject("importISURibbonButton2.SmallImage")));
+            this.importISURibbonButton2.Text = "Import Excel ISU ...";
+            this.importISURibbonButton2.ToolTip = "Import Excel ISU";
+            this.importISURibbonButton2.Value = "ImportISU";
+            this.importISURibbonButton2.Visible = false;
+            this.importISURibbonButton2.Click += new System.EventHandler(this.importISURibbonButton_Click);
+            this.importISURibbonButton2.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importWUSRibbonButton2
+            // 
+            this.importWUSRibbonButton2.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importWUSRibbonButton2.Image = ((System.Drawing.Image)(resources.GetObject("importWUSRibbonButton2.Image")));
+            this.importWUSRibbonButton2.SmallImage = ((System.Drawing.Image)(resources.GetObject("importWUSRibbonButton2.SmallImage")));
+            this.importWUSRibbonButton2.Text = "Import Excel WUS ...";
+            this.importWUSRibbonButton2.ToolTip = "Import Excel WUS";
+            this.importWUSRibbonButton2.Value = "ImportWUS";
+            this.importWUSRibbonButton2.Visible = false;
+            this.importWUSRibbonButton2.Click += new System.EventHandler(this.importWUSRibbonButton_Click);
+            this.importWUSRibbonButton2.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importTTMRibbonButton2
+            // 
+            this.importTTMRibbonButton2.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importTTMRibbonButton2.Image = ((System.Drawing.Image)(resources.GetObject("importTTMRibbonButton2.Image")));
+            this.importTTMRibbonButton2.SmallImage = ((System.Drawing.Image)(resources.GetObject("importTTMRibbonButton2.SmallImage")));
+            this.importTTMRibbonButton2.Text = "Import Excel TTM ...";
+            this.importTTMRibbonButton2.ToolTip = "Import Excel TTM";
+            this.importTTMRibbonButton2.Value = "ImportTTM";
+            this.importTTMRibbonButton2.Visible = false;
+            this.importTTMRibbonButton2.Click += new System.EventHandler(this.importTTMRibbonButton_Click);
+            this.importTTMRibbonButton2.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // importWizardButton2
+            // 
+            this.importWizardButton2.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.importWizardButton2.Image = ((System.Drawing.Image)(resources.GetObject("importWizardButton2.Image")));
+            this.importWizardButton2.SmallImage = ((System.Drawing.Image)(resources.GetObject("importWizardButton2.SmallImage")));
+            this.importWizardButton2.Text = "Import ...";
+            this.importWizardButton2.Click += new System.EventHandler(this.importWizardButton_Click);
             // 
             // exportHyperLynxFFSSTKRibbonButton
             // 
@@ -673,8 +786,8 @@
             // 
             this.fieldSolverUtilRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Field_Solver_Sandbox_32;
             this.fieldSolverUtilRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("fieldSolverUtilRibbonButton.SmallImage")));
-            this.fieldSolverUtilRibbonButton.Text = "Field Solver";
-            this.fieldSolverUtilRibbonButton.Value = "FieldSolver";
+            this.fieldSolverUtilRibbonButton.Text = "Z-solver";
+            this.fieldSolverUtilRibbonButton.Value = "Zsolver";
             this.fieldSolverUtilRibbonButton.Click += new System.EventHandler(this.fieldSolverUtilRibbonButton_Click);
             // 
             // showLibRibbonButton
@@ -734,7 +847,7 @@
             this.stackup_views_RibbonPanel.ButtonMoreEnabled = false;
             this.stackup_views_RibbonPanel.ButtonMoreVisible = false;
             this.stackup_views_RibbonPanel.Items.Add(this.showViewsRibbonButton);
-            this.stackup_views_RibbonPanel.Items.Add(this.showViasRibbonButton);
+            this.stackup_views_RibbonPanel.Items.Add(this.drcCheckRibbonButton);
             this.stackup_views_RibbonPanel.Items.Add(this.showGridRibbonButton);
             this.stackup_views_RibbonPanel.Text = "Views";
             // 
@@ -744,7 +857,7 @@
             this.showViewsRibbonButton.DropDownItems.Add(this.projectViewRibbonButton);
             this.showViewsRibbonButton.DropDownItems.Add(this.propertiesViewRibbonButton);
             this.showViewsRibbonButton.DropDownItems.Add(this.dmlStackupViewRibbonButton);
-            this.showViewsRibbonButton.DropDownItems.Add(this.drcCheckRibbonButton);
+            this.showViewsRibbonButton.DropDownItems.Add(this.showViasRibbonButton);
             this.showViewsRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Main_Project_View_32;
             this.showViewsRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
             this.showViewsRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Large;
@@ -788,8 +901,8 @@
             this.propertiesViewRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
             this.propertiesViewRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Row_Properties_View___Left_16;
             this.propertiesViewRibbonButton.SmallMinimumSize = new System.Drawing.Size(80, 0);
-            this.propertiesViewRibbonButton.Text = "Stackup Properties";
-            this.propertiesViewRibbonButton.ToolTip = "Stackup Properties View";
+            this.propertiesViewRibbonButton.Text = "Stackup";
+            this.propertiesViewRibbonButton.ToolTip = "Stackup View";
             this.propertiesViewRibbonButton.Value = "PropertiesView";
             this.propertiesViewRibbonButton.Click += new System.EventHandler(this.propertiesViewRibbonButton_Click);
             this.propertiesViewRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
@@ -812,35 +925,17 @@
             this.dmlStackupViewRibbonButton.Click += new System.EventHandler(this.dmlStackupViewRibbonButton_Click);
             this.dmlStackupViewRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
-            // drcCheckRibbonButton
-            // 
-            this.drcCheckRibbonButton.CheckedGroup = "DRC";
-            this.drcCheckRibbonButton.CheckOnClick = true;
-            this.drcCheckRibbonButton.DrawIconsBar = false;
-            this.drcCheckRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
-            this.drcCheckRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Design_Rule_Checker_32;
-            this.drcCheckRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
-            this.drcCheckRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
-            this.drcCheckRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
-            this.drcCheckRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
-            this.drcCheckRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Design_Rule_Checker_16;
-            this.drcCheckRibbonButton.SmallMaximumSize = new System.Drawing.Size(70, 0);
-            this.drcCheckRibbonButton.SmallMinimumSize = new System.Drawing.Size(70, 0);
-            this.drcCheckRibbonButton.Text = "DRCs";
-            this.drcCheckRibbonButton.ToolTip = "DRCs";
-            this.drcCheckRibbonButton.Value = "DRCCheck";
-            this.drcCheckRibbonButton.Click += new System.EventHandler(this.drcCheckRibbonButton_Click);
-            this.drcCheckRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
             // showViasRibbonButton
             // 
+            this.showViasRibbonButton.CheckedGroup = "Vias";
             this.showViasRibbonButton.CheckOnClick = true;
             this.showViasRibbonButton.DrawIconsBar = false;
+            this.showViasRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
             this.showViasRibbonButton.DropDownItems.Add(this.showViaSpansRibbonButton);
             this.showViasRibbonButton.DropDownItems.Add(this.editViaSpansRibbonButton);
             this.showViasRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Stackup_Vias_View_32;
             this.showViasRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
-            this.showViasRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Large;
+            this.showViasRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
             this.showViasRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
             this.showViasRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
             this.showViasRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Stackup_Vias_View_16;
@@ -876,6 +971,26 @@
             this.editViaSpansRibbonButton.Value = "EditVias";
             this.editViaSpansRibbonButton.Click += new System.EventHandler(this.editViaSpansRibbonButton_Click);
             this.editViaSpansRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // drcCheckRibbonButton
+            // 
+            this.drcCheckRibbonButton.CheckedGroup = "DRC";
+            this.drcCheckRibbonButton.CheckOnClick = true;
+            this.drcCheckRibbonButton.DrawIconsBar = false;
+            this.drcCheckRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.drcCheckRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Design_Rule_Checker_32;
+            this.drcCheckRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
+            this.drcCheckRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Large;
+            this.drcCheckRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
+            this.drcCheckRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
+            this.drcCheckRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Design_Rule_Checker_16;
+            this.drcCheckRibbonButton.SmallMaximumSize = new System.Drawing.Size(70, 0);
+            this.drcCheckRibbonButton.SmallMinimumSize = new System.Drawing.Size(70, 0);
+            this.drcCheckRibbonButton.Text = "DRCs";
+            this.drcCheckRibbonButton.ToolTip = "DRCs";
+            this.drcCheckRibbonButton.Value = "DRCCheck";
+            this.drcCheckRibbonButton.Click += new System.EventHandler(this.drcCheckRibbonButton_Click);
+            this.drcCheckRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // showGridRibbonButton
             // 
@@ -1136,23 +1251,22 @@
             this.autoMirrorRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Auto_Mirror_16;
             this.autoMirrorRibbonButton.SmallMaximumSize = new System.Drawing.Size(110, 0);
             this.autoMirrorRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.DropDown;
-            this.autoMirrorRibbonButton.Text = " Auto-Mirror";
-            this.autoMirrorRibbonButton.ToolTip = " Auto-Mirror";
+            this.autoMirrorRibbonButton.Text = "Force Symmetry";
+            this.autoMirrorRibbonButton.ToolTip = "Force Symmetry";
             this.autoMirrorRibbonButton.Value = "AutoMirror";
             this.autoMirrorRibbonButton.Click += new System.EventHandler(this.autoMirrorRibbonButton_Click);
             this.autoMirrorRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // autoMirrorStackupRibbonButton
             // 
-            this.autoMirrorStackupRibbonButton.Checked = true;
             this.autoMirrorStackupRibbonButton.CheckedGroup = "1";
             this.autoMirrorStackupRibbonButton.CheckOnClick = true;
             this.autoMirrorStackupRibbonButton.DrawIconsBar = false;
             this.autoMirrorStackupRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
             this.autoMirrorStackupRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("autoMirrorStackupRibbonButton.Image")));
             this.autoMirrorStackupRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("autoMirrorStackupRibbonButton.SmallImage")));
-            this.autoMirrorStackupRibbonButton.Text = "Auto-Mirror Stackup";
-            this.autoMirrorStackupRibbonButton.ToolTip = "Auto-Mirror Stackup";
+            this.autoMirrorStackupRibbonButton.Text = "Force Stackup Symmetry";
+            this.autoMirrorStackupRibbonButton.ToolTip = "Force Stackup Symmetry";
             this.autoMirrorStackupRibbonButton.Value = "AutoMirror";
             this.autoMirrorStackupRibbonButton.Click += new System.EventHandler(this.autoMirrorStackupRibbonButton_Click);
             this.autoMirrorStackupRibbonButton.Check += new System.EventHandler(this.autoMirrorStackupRibbonButton_Check);
@@ -1164,8 +1278,8 @@
             this.autoMirrorSettingsRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
             this.autoMirrorSettingsRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("autoMirrorSettingsRibbonButton.Image")));
             this.autoMirrorSettingsRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("autoMirrorSettingsRibbonButton.SmallImage")));
-            this.autoMirrorSettingsRibbonButton.Text = "Auto-Mirror Settings ...";
-            this.autoMirrorSettingsRibbonButton.ToolTip = "Auto-Mirror Settings";
+            this.autoMirrorSettingsRibbonButton.Text = "Stackup Symmetry Settings ...";
+            this.autoMirrorSettingsRibbonButton.ToolTip = "Stackup Symmetry Settings";
             this.autoMirrorSettingsRibbonButton.Value = "AutoMirrorSettings";
             this.autoMirrorSettingsRibbonButton.Click += new System.EventHandler(this.autoMirrorSettingsRibbonButton_Click);
             this.autoMirrorSettingsRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
@@ -1245,8 +1359,9 @@
             this.pressedThicknessRibbonButton.CheckOnClick = true;
             this.pressedThicknessRibbonButton.DrawIconsBar = false;
             this.pressedThicknessRibbonButton.DropDownItems.Add(this.pressedThicknessIncludeRibbonButton);
-            this.pressedThicknessRibbonButton.DropDownItems.Add(this.sequentialLaminationIncludeRibbonButton);
             this.pressedThicknessRibbonButton.DropDownItems.Add(this.pressedThicknessSettingsRibbonButton);
+            this.pressedThicknessRibbonButton.DropDownItems.Add(this.keepImportedPressedThicknessRibbonButton);
+            this.pressedThicknessRibbonButton.DropDownItems.Add(this.sequentialLaminationIncludeRibbonButton);
             this.pressedThicknessRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Pressed_Prepreg_Thickness_32;
             this.pressedThicknessRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
             this.pressedThicknessRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
@@ -1254,8 +1369,8 @@
             this.pressedThicknessRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Pressed_Prepreg_Thickness_16;
             this.pressedThicknessRibbonButton.SmallMaximumSize = new System.Drawing.Size(136, 0);
             this.pressedThicknessRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.DropDown;
-            this.pressedThicknessRibbonButton.Text = "Pressed Thickness";
-            this.pressedThicknessRibbonButton.ToolTip = "Pressed Thickness";
+            this.pressedThicknessRibbonButton.Text = "Prepreg Thickness";
+            this.pressedThicknessRibbonButton.ToolTip = "Pressed Prepreg Thickness";
             this.pressedThicknessRibbonButton.Value = "PressedThickness";
             this.pressedThicknessRibbonButton.Click += new System.EventHandler(this.pressedThicknessRibbonButton_Click);
             this.pressedThicknessRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
@@ -1275,6 +1390,32 @@
             this.pressedThicknessIncludeRibbonButton.Check += new System.EventHandler(this.pressedThicknessIncludeRibbonButton_Check);
             this.pressedThicknessIncludeRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
+            // pressedThicknessSettingsRibbonButton
+            // 
+            this.pressedThicknessSettingsRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.pressedThicknessSettingsRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("pressedThicknessSettingsRibbonButton.Image")));
+            this.pressedThicknessSettingsRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("pressedThicknessSettingsRibbonButton.SmallImage")));
+            this.pressedThicknessSettingsRibbonButton.Text = "Pressed Prepreg Thickness Settings ...";
+            this.pressedThicknessSettingsRibbonButton.ToolTip = "Pressed Prepreg Thickness Settings";
+            this.pressedThicknessSettingsRibbonButton.Value = "PressedThicknessSettings";
+            this.pressedThicknessSettingsRibbonButton.Click += new System.EventHandler(this.pressedThicknessSettingsRibbonButton_Click);
+            this.pressedThicknessSettingsRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // keepImportedPressedThicknessRibbonButton
+            // 
+            this.keepImportedPressedThicknessRibbonButton.CheckedGroup = "keepImportedPressedThickness";
+            this.keepImportedPressedThicknessRibbonButton.CheckOnClick = true;
+            this.keepImportedPressedThicknessRibbonButton.DrawIconsBar = false;
+            this.keepImportedPressedThicknessRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.keepImportedPressedThicknessRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("keepImportedPressedThicknessRibbonButton.Image")));
+            this.keepImportedPressedThicknessRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("keepImportedPressedThicknessRibbonButton.SmallImage")));
+            this.keepImportedPressedThicknessRibbonButton.Text = "Keep Imported Pressed Prepreg Thicknesses  ";
+            this.keepImportedPressedThicknessRibbonButton.ToolTip = "Keep Imported Pressed Prepreg Thicknesses";
+            this.keepImportedPressedThicknessRibbonButton.Value = "KeepImportedPressedThickness";
+            this.keepImportedPressedThicknessRibbonButton.Click += new System.EventHandler(this.keepImportedPressedThicknessRibbonButton_Click);
+            this.keepImportedPressedThicknessRibbonButton.Check += new System.EventHandler(this.keepImportedPressedThicknessRibbonButton_Check);
+            this.keepImportedPressedThicknessRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
             // sequentialLaminationIncludeRibbonButton
             // 
             this.sequentialLaminationIncludeRibbonButton.CheckedGroup = "sequentialLaminationInclude";
@@ -1289,17 +1430,6 @@
             this.sequentialLaminationIncludeRibbonButton.Click += new System.EventHandler(this.sequentialLaminationIncludeRibbonButton_Click);
             this.sequentialLaminationIncludeRibbonButton.Check += new System.EventHandler(this.sequentialLaminationIncludeRibbonButton_Check);
             this.sequentialLaminationIncludeRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
-            // pressedThicknessSettingsRibbonButton
-            // 
-            this.pressedThicknessSettingsRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
-            this.pressedThicknessSettingsRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("pressedThicknessSettingsRibbonButton.Image")));
-            this.pressedThicknessSettingsRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("pressedThicknessSettingsRibbonButton.SmallImage")));
-            this.pressedThicknessSettingsRibbonButton.Text = "Pressed Prepreg Thickness Settings ...";
-            this.pressedThicknessSettingsRibbonButton.ToolTip = "Pressed Prepreg Thickness Settings";
-            this.pressedThicknessSettingsRibbonButton.Value = "PressedThicknessSettings";
-            this.pressedThicknessSettingsRibbonButton.Click += new System.EventHandler(this.pressedThicknessSettingsRibbonButton_Click);
-            this.pressedThicknessSettingsRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // stackup_frequency_RibbonPanel
             // 
@@ -1329,11 +1459,15 @@
             // 
             this.frequencyRibbonTextBox.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Compact;
             this.frequencyRibbonTextBox.Text = "GHz";
-            this.frequencyRibbonTextBox.TextAlignment = System.Windows.Forms.RibbonItem.RibbonItemTextAlignment.Center;
-            this.frequencyRibbonTextBox.TextBoxText = "";
+            this.frequencyRibbonTextBox.TextAlignment = System.Windows.Forms.RibbonItem.RibbonItemTextAlignment.Right;
+            this.frequencyRibbonTextBox.TextBoxText = "1.00";
             this.frequencyRibbonTextBox.TextBoxWidth = 32;
             this.frequencyRibbonTextBox.ToolTip = "Enter Frequency (GHz)";
+            this.frequencyRibbonTextBox.UpButtonClicked += new System.Windows.Forms.MouseEventHandler(this.frequencyRibbonTextBox_UpButtonClicked);
+            this.frequencyRibbonTextBox.DownButtonClicked += new System.Windows.Forms.MouseEventHandler(this.frequencyRibbonTextBox_DownButtonClicked);
             this.frequencyRibbonTextBox.TextBoxTextChanged += new System.EventHandler(this.frequencyRibbonTextBox_TextBoxTextChanged);
+            this.frequencyRibbonTextBox.TextBoxEditStarted += new System.EventHandler(this.frequencyRibbonTextBox_TextBoxEditStarted);
+            this.frequencyRibbonTextBox.TextBoxEditFinished += new System.EventHandler(this.frequencyRibbonTextBox_TextBoxEditFinished);
             // 
             // frequencyUnitsRibbonLabel
             // 
@@ -1516,72 +1650,6 @@
             this.copperRoughnessSettingsRibbonButton.Value = "CopperRoughnessSettings";
             this.copperRoughnessSettingsRibbonButton.Click += new System.EventHandler(this.roughnessRibbonButton_Click);
             this.copperRoughnessSettingsRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
-            // gwsRibbonButton
-            // 
-            this.gwsRibbonButton.CheckOnClick = true;
-            this.gwsRibbonButton.DrawIconsBar = false;
-            this.gwsRibbonButton.DropDownItems.Add(this.dataRateShowRibbonButton);
-            this.gwsRibbonButton.DropDownItems.Add(this.unitIntervalShowRibbonButton);
-            this.gwsRibbonButton.DropDownItems.Add(this.skewToleranceShowRibbonButton);
-            this.gwsRibbonButton.Enabled = false;
-            this.gwsRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.UI_32;
-            this.gwsRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
-            this.gwsRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
-            this.gwsRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
-            this.gwsRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.UI_16;
-            this.gwsRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.SplitDropDown;
-            this.gwsRibbonButton.Text = "                 GWS";
-            this.gwsRibbonButton.ToolTip = "GWS";
-            this.gwsRibbonButton.Value = "GWS";
-            this.gwsRibbonButton.Visible = false;
-            this.gwsRibbonButton.Click += new System.EventHandler(this.gwsRibbonButton_Click);
-            this.gwsRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
-            // dataRateShowRibbonButton
-            // 
-            this.dataRateShowRibbonButton.CheckedGroup = "GWS1";
-            this.dataRateShowRibbonButton.CheckOnClick = true;
-            this.dataRateShowRibbonButton.DrawIconsBar = false;
-            this.dataRateShowRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
-            this.dataRateShowRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("dataRateShowRibbonButton.Image")));
-            this.dataRateShowRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("dataRateShowRibbonButton.SmallImage")));
-            this.dataRateShowRibbonButton.Text = "Show Bit Rate";
-            this.dataRateShowRibbonButton.ToolTip = "Show Bit Rate";
-            this.dataRateShowRibbonButton.Value = "BitRate";
-            this.dataRateShowRibbonButton.Click += new System.EventHandler(this.dataRateShowRibbonButton_Click);
-            this.dataRateShowRibbonButton.Check += new System.EventHandler(this.dataRateShowRibbonButton_Check);
-            this.dataRateShowRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
-            // unitIntervalShowRibbonButton
-            // 
-            this.unitIntervalShowRibbonButton.CheckedGroup = "GWS2";
-            this.unitIntervalShowRibbonButton.CheckOnClick = true;
-            this.unitIntervalShowRibbonButton.DrawIconsBar = false;
-            this.unitIntervalShowRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
-            this.unitIntervalShowRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("unitIntervalShowRibbonButton.Image")));
-            this.unitIntervalShowRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("unitIntervalShowRibbonButton.SmallImage")));
-            this.unitIntervalShowRibbonButton.Text = "Show Unit Interval";
-            this.unitIntervalShowRibbonButton.ToolTip = "Show Unit Interval";
-            this.unitIntervalShowRibbonButton.Value = "UnitInterval";
-            this.unitIntervalShowRibbonButton.Click += new System.EventHandler(this.unitIntervalShowRibbonButton_Click);
-            this.unitIntervalShowRibbonButton.Check += new System.EventHandler(this.unitIntervalShowRibbonButton_Check);
-            this.unitIntervalShowRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
-            // skewToleranceShowRibbonButton
-            // 
-            this.skewToleranceShowRibbonButton.CheckedGroup = "GWS3";
-            this.skewToleranceShowRibbonButton.CheckOnClick = true;
-            this.skewToleranceShowRibbonButton.DrawIconsBar = false;
-            this.skewToleranceShowRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
-            this.skewToleranceShowRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("skewToleranceShowRibbonButton.Image")));
-            this.skewToleranceShowRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("skewToleranceShowRibbonButton.SmallImage")));
-            this.skewToleranceShowRibbonButton.Text = "Show Skew Tolerance";
-            this.skewToleranceShowRibbonButton.ToolTip = "Show Skew Tolerance";
-            this.skewToleranceShowRibbonButton.Value = "SkewTolerance";
-            this.skewToleranceShowRibbonButton.Click += new System.EventHandler(this.skewToleranceShowRibbonButton_Click);
-            this.skewToleranceShowRibbonButton.Check += new System.EventHandler(this.skewToleranceShowRibbonButton_Check);
-            this.skewToleranceShowRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // LibraryRibbonTab
             // 
@@ -2055,23 +2123,6 @@
             this.findRibbonButton.Click += new System.EventHandler(this.findRibbonButton_Click);
             this.findRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
-            // lockLibraryRibbonButton
-            // 
-            this.lockLibraryRibbonButton.CheckOnClick = true;
-            this.lockLibraryRibbonButton.DrawIconsBar = false;
-            this.lockLibraryRibbonButton.Enabled = false;
-            this.lockLibraryRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Lock_Library_32;
-            this.lockLibraryRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
-            this.lockLibraryRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
-            this.lockLibraryRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
-            this.lockLibraryRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Local_Library_16;
-            this.lockLibraryRibbonButton.Text = "Lock Library";
-            this.lockLibraryRibbonButton.ToolTip = "Lock Library";
-            this.lockLibraryRibbonButton.Value = "LockLibrary";
-            this.lockLibraryRibbonButton.Visible = false;
-            this.lockLibraryRibbonButton.Click += new System.EventHandler(this.lockLibraryRibbonButton_Click);
-            this.lockLibraryRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
-            // 
             // sortRibbonPanel
             // 
             this.sortRibbonPanel.Items.Add(this.customSortRibbonButton);
@@ -2116,7 +2167,7 @@
             this.programRibbonMenu.OrbDropDown.MenuItems.Add(this.emailStackupRibbonOrbMenuItem);
             this.programRibbonMenu.OrbDropDown.MenuItems.Add(this.closeProjectRibbonOrbMenuItem);
             this.programRibbonMenu.OrbDropDown.Name = "";
-            this.programRibbonMenu.OrbDropDown.Size = new System.Drawing.Size(527, 644);
+            this.programRibbonMenu.OrbDropDown.Size = new System.Drawing.Size(527, 688);
             this.programRibbonMenu.OrbDropDown.TabIndex = 0;
             this.programRibbonMenu.OrbDropDown.Opening += new System.ComponentModel.CancelEventHandler(this.programRibbonMenu_OrbDropDown_Opening);
             this.programRibbonMenu.OrbImage = null;
@@ -2131,6 +2182,7 @@
             this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaOpenStackupRibbonButton);
             this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaSaveStackupRibbonButton);
             this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaSaveAndEmailRibbonButton);
+            this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaSaveLibraryRibbonButton);
             this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaUndoRibbonButton);
             this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaRedoRibbonButton);
             this.programRibbonMenu.QuickAcessToolbar.Items.Add(this.qaCutRibbonButton);
@@ -2332,6 +2384,17 @@
             this.qaSaveAndEmailRibbonButton.Click += new System.EventHandler(this.qaSaveAndEmailRibbonButton_Click);
             this.qaSaveAndEmailRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
+            // qaSaveLibraryRibbonButton
+            // 
+            this.qaSaveLibraryRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Save_Local_user_Lib_32;
+            this.qaSaveLibraryRibbonButton.MaxSizeMode = System.Windows.Forms.RibbonElementSizeMode.Compact;
+            this.qaSaveLibraryRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Save_Local_user_Lib_16;
+            this.qaSaveLibraryRibbonButton.Text = "Save Local Library";
+            this.qaSaveLibraryRibbonButton.ToolTip = "Save Local Library";
+            this.qaSaveLibraryRibbonButton.Value = "SaveLocalLibrary";
+            this.qaSaveLibraryRibbonButton.Click += new System.EventHandler(this.qaSaveLibraryRibbonButton_Click);
+            this.qaSaveLibraryRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
             // qaUndoRibbonButton
             // 
             this.qaUndoRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Undo_32;
@@ -2418,6 +2481,89 @@
             this.qaTutorialRibbonButton.Value = "Tutorial";
             this.qaTutorialRibbonButton.Click += new System.EventHandler(this.qaTutorialRibbonButton_Click);
             this.qaTutorialRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // gwsRibbonButton
+            // 
+            this.gwsRibbonButton.CheckOnClick = true;
+            this.gwsRibbonButton.DrawIconsBar = false;
+            this.gwsRibbonButton.DropDownItems.Add(this.dataRateShowRibbonButton);
+            this.gwsRibbonButton.DropDownItems.Add(this.unitIntervalShowRibbonButton);
+            this.gwsRibbonButton.DropDownItems.Add(this.skewToleranceShowRibbonButton);
+            this.gwsRibbonButton.Enabled = false;
+            this.gwsRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.UI_32;
+            this.gwsRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
+            this.gwsRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
+            this.gwsRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
+            this.gwsRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.UI_16;
+            this.gwsRibbonButton.Style = System.Windows.Forms.RibbonButtonStyle.SplitDropDown;
+            this.gwsRibbonButton.Text = "                 GWS";
+            this.gwsRibbonButton.ToolTip = "GWS";
+            this.gwsRibbonButton.Value = "GWS";
+            this.gwsRibbonButton.Visible = false;
+            this.gwsRibbonButton.Click += new System.EventHandler(this.gwsRibbonButton_Click);
+            this.gwsRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // dataRateShowRibbonButton
+            // 
+            this.dataRateShowRibbonButton.CheckedGroup = "GWS1";
+            this.dataRateShowRibbonButton.CheckOnClick = true;
+            this.dataRateShowRibbonButton.DrawIconsBar = false;
+            this.dataRateShowRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.dataRateShowRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("dataRateShowRibbonButton.Image")));
+            this.dataRateShowRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("dataRateShowRibbonButton.SmallImage")));
+            this.dataRateShowRibbonButton.Text = "Show Bit Rate";
+            this.dataRateShowRibbonButton.ToolTip = "Show Bit Rate";
+            this.dataRateShowRibbonButton.Value = "BitRate";
+            this.dataRateShowRibbonButton.Click += new System.EventHandler(this.dataRateShowRibbonButton_Click);
+            this.dataRateShowRibbonButton.Check += new System.EventHandler(this.dataRateShowRibbonButton_Check);
+            this.dataRateShowRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // unitIntervalShowRibbonButton
+            // 
+            this.unitIntervalShowRibbonButton.CheckedGroup = "GWS2";
+            this.unitIntervalShowRibbonButton.CheckOnClick = true;
+            this.unitIntervalShowRibbonButton.DrawIconsBar = false;
+            this.unitIntervalShowRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.unitIntervalShowRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("unitIntervalShowRibbonButton.Image")));
+            this.unitIntervalShowRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("unitIntervalShowRibbonButton.SmallImage")));
+            this.unitIntervalShowRibbonButton.Text = "Show Unit Interval";
+            this.unitIntervalShowRibbonButton.ToolTip = "Show Unit Interval";
+            this.unitIntervalShowRibbonButton.Value = "UnitInterval";
+            this.unitIntervalShowRibbonButton.Click += new System.EventHandler(this.unitIntervalShowRibbonButton_Click);
+            this.unitIntervalShowRibbonButton.Check += new System.EventHandler(this.unitIntervalShowRibbonButton_Check);
+            this.unitIntervalShowRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // skewToleranceShowRibbonButton
+            // 
+            this.skewToleranceShowRibbonButton.CheckedGroup = "GWS3";
+            this.skewToleranceShowRibbonButton.CheckOnClick = true;
+            this.skewToleranceShowRibbonButton.DrawIconsBar = false;
+            this.skewToleranceShowRibbonButton.DropDownArrowDirection = System.Windows.Forms.RibbonArrowDirection.Left;
+            this.skewToleranceShowRibbonButton.Image = ((System.Drawing.Image)(resources.GetObject("skewToleranceShowRibbonButton.Image")));
+            this.skewToleranceShowRibbonButton.SmallImage = ((System.Drawing.Image)(resources.GetObject("skewToleranceShowRibbonButton.SmallImage")));
+            this.skewToleranceShowRibbonButton.Text = "Show Skew Tolerance";
+            this.skewToleranceShowRibbonButton.ToolTip = "Show Skew Tolerance";
+            this.skewToleranceShowRibbonButton.Value = "SkewTolerance";
+            this.skewToleranceShowRibbonButton.Click += new System.EventHandler(this.skewToleranceShowRibbonButton_Click);
+            this.skewToleranceShowRibbonButton.Check += new System.EventHandler(this.skewToleranceShowRibbonButton_Check);
+            this.skewToleranceShowRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
+            // 
+            // lockLibraryRibbonButton
+            // 
+            this.lockLibraryRibbonButton.CheckOnClick = true;
+            this.lockLibraryRibbonButton.DrawIconsBar = false;
+            this.lockLibraryRibbonButton.Enabled = false;
+            this.lockLibraryRibbonButton.Image = global::ZZero.ZPlanner.Properties.Resources.Lock_Library_32;
+            this.lockLibraryRibbonButton.MaximumSize = new System.Drawing.Size(0, 70);
+            this.lockLibraryRibbonButton.MinimumSize = new System.Drawing.Size(58, 0);
+            this.lockLibraryRibbonButton.MinSizeMode = System.Windows.Forms.RibbonElementSizeMode.Medium;
+            this.lockLibraryRibbonButton.SmallImage = global::ZZero.ZPlanner.Properties.Resources.Local_Library_16;
+            this.lockLibraryRibbonButton.Text = "Lock Library";
+            this.lockLibraryRibbonButton.ToolTip = "Lock Library";
+            this.lockLibraryRibbonButton.Value = "LockLibrary";
+            this.lockLibraryRibbonButton.Visible = false;
+            this.lockLibraryRibbonButton.Click += new System.EventHandler(this.lockLibraryRibbonButton_Click);
+            this.lockLibraryRibbonButton.ToolTipPopUp += new System.Windows.Forms.RibbonElementPopupEventHandler(this.programRibbonMenu_ToolTipPopUp);
             // 
             // qaHelpRibbonButton
             // 
@@ -2579,6 +2725,12 @@
         private System.Windows.Forms.RibbonButton importIPC2581RibbonButton;
         private System.Windows.Forms.RibbonButton importTapestryRibbonButton;
         private System.Windows.Forms.RibbonButton importTapestryRibbonButton2;
+        private System.Windows.Forms.RibbonButton importISURibbonButton;
+        private System.Windows.Forms.RibbonButton importISURibbonButton2;
+        private System.Windows.Forms.RibbonButton importWUSRibbonButton;
+        private System.Windows.Forms.RibbonButton importWUSRibbonButton2;
+        private System.Windows.Forms.RibbonButton importTTMRibbonButton;
+        private System.Windows.Forms.RibbonButton importTTMRibbonButton2;
         private System.Windows.Forms.RibbonButton exportHyperLynxFFSSTKRibbonButton;
         private System.Windows.Forms.RibbonButton exportIPC2581RibbonButton;
         private System.Windows.Forms.RibbonButton showSinglesRibbonButton;
@@ -2649,7 +2801,7 @@
         private System.Windows.Forms.RibbonOrbMenuItem pageSetupRibbonOrbMenuItem;
         private System.Windows.Forms.RibbonButton lossPlanningRibbonButton;
         private System.Windows.Forms.RibbonPanel stackup_frequency_RibbonPanel;
-        private System.Windows.Forms.RibbonTextBox frequencyRibbonTextBox;
+        private System.Windows.Forms.RibbonUpDown frequencyRibbonTextBox;
         private System.Windows.Forms.RibbonLabel frequencyUnitsRibbonLabel;
         private System.Windows.Forms.RibbonLabel frequencyTitleRibbonLabel;
         private System.Windows.Forms.RibbonButton sendToStackupItemRibbonButton;
@@ -2695,5 +2847,10 @@
         private System.Windows.Forms.RibbonButton showGridRibbonButton;
         private System.Windows.Forms.RibbonButton showViewsRibbonButton;
         private System.Windows.Forms.RibbonButton showLViewRibbonButton;
+        private System.Windows.Forms.RibbonButton importWizardButton;
+        private System.Windows.Forms.RibbonButton importWizardButton2;
+        private System.Windows.Forms.RibbonSeparator ribbonSeparator1;
+        private System.Windows.Forms.RibbonButton keepImportedPressedThicknessRibbonButton;
+        private System.Windows.Forms.RibbonButton qaSaveLibraryRibbonButton;
     }
 }

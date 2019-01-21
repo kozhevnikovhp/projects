@@ -147,5 +147,12 @@ namespace ZZero.ZPlanner.UI
         {
             ZPlannerManager.MainMenu.programRibbonMenu_ToolTipPopUp(sender, e);
         }
+
+        private void importWizardRibbonButton_Click(object sender, EventArgs e)
+        {
+            Form wizard = new ImportWizard();
+            wizard.StartPosition = FormStartPosition.CenterScreen;
+            wizard.ShowDialog();
+        }
     }
 }

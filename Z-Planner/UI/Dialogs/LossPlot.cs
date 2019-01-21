@@ -138,7 +138,16 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
             bool bTotal = cbRoughness.Checked || cbResistive.Checked || cbDielectric.Checked;
             bool bRD = (cbRoughness.Checked || cbResistive.Checked) && cbDielectric.Checked;
-            for (int i = 0; i < NumPts - 1; i++)
+
+            //account for Fcrossover > Fmax
+            int NumPtsInf = NumPts;
+            const double Finf = 200; //GHz
+            if (bRD && Fmax < Finf)
+            {
+                NumPtsInf = Convert.ToInt32((Finf - Fmin) / df);
+            }
+
+            for (int i = 0; i < NumPtsInf - 1; i++)
             {
                 double aTotal = 0;
                 double aD = 0, aR = 0;
@@ -146,18 +155,18 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 if (cbRoughness.Checked)
                 {
                     double aRo = loss.Attenuation_Ro(f) * coef;
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Roughness"].Points.AddXY(f, aRo);
                     }
-                    aR += aRo;
+                    //--aR += aRo;
                     aTotal += aRo;
                 }
 
                 if (cbResistive.Checked)
                 {
                     double aRe = loss.Attenuation_R(f) * coef;
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Resistive"].Points.AddXY(f, aRe);
                     }
@@ -168,7 +177,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
                 if (cbDielectric.Checked)
                 {
                     aD = loss.Attenuation_D(f) * coef;
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Dielectric"].Points.AddXY(f, aD);
                     }
@@ -177,7 +186,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
                 if (bTotal && cbTotal.Checked)
                 {
-                    if (f >= Fmin)
+                    if (f >= Fmin && f <= Fmax)
                     {
                         chartLoss.Series["Total"].Points.AddXY(f, aTotal);
                     }
@@ -194,6 +203,8 @@ namespace ZZero.ZPlanner.UI.Dialogs
 
                         xPoint = (f - df) + (aD_prev - aR_prev) / (kR - kD);
                         bxPoint = true;
+
+                        if (f >= Fmax) break;
                     }
                 }
 

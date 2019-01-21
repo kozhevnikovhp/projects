@@ -43,11 +43,11 @@ namespace ZZero.ZPlanner.Data.Properties
                         ZLayerType? layerType = layerParameter.Layer.GetLayerType();
                         if (layerType == ZLayerType.Signal || layerType == ZLayerType.SplitMixed)
                         {
-                            string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed) ?? layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
-                            if (isUsed == null || isUsed.ToLower() == "true")
-                            {
+                            //string isUsed = layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_IsUsed) ?? layerParameter.Layer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_IsUsed);
+                            //if (isUsed == null || isUsed.ToLower() == "true")
+                            //{
                                 frequency = layerParameter.Layer.GetFrequency();
-                            }
+                            //}
                         }
                     }
 

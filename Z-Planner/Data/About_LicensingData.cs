@@ -9,8 +9,8 @@ namespace ZZero.ZPlanner.Settings
         private AboutData() 
         {
 #if ZSANDBOX
-            ZZero.ZSandbox.ZSandboxManager.GetProductVersionInfo(ref nVersion, ref nSubversion, ref nBuild, ref buildDate);
-            ZZero.ZSandbox.ZSandboxManager.GetFSVersionInfo(ref nFSVersion, ref nFSSubversion, ref nFSBuild, ref FSBuildDate);
+            ZZero.ZSolver.ZSolverManager.GetProductVersionInfo(ref nVersion, ref nSubversion, ref nBuild, ref buildDate);
+            ZZero.ZSolver.ZSolverManager.GetFSVersionInfo(ref nFSVersion, ref nFSSubversion, ref nFSBuild, ref FSBuildDate);
 #else
             ZPlannerManager.GetProductVersionInfo(ref nVersion, ref nSubversion, ref nBuild, ref buildDate);
             ZPlannerManager.GetFSVersionInfo(ref nFSVersion, ref nFSSubversion, ref nFSBuild, ref FSBuildDate);
@@ -62,9 +62,9 @@ namespace ZZero.ZPlanner.Settings
             get
             {
 #if ZSANDBOX
-                return String.Format("Field Solver Sandbox v{0}.{1}", nVersion, nSubversion);
+                return String.Format("Z-solver v{0}.{1}", nVersion, nSubversion);
 #else
-                return String.Format("Z-planner v{0}.{1} Beta", nVersion, nSubversion);
+                return String.Format("Z-planner v{0}.{1}", nVersion, nSubversion);
 #endif
             }
         }

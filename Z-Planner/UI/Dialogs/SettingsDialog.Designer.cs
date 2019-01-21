@@ -50,6 +50,14 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.label122 = new System.Windows.Forms.Label();
             this.label124 = new System.Windows.Forms.Label();
             this.label123 = new System.Windows.Forms.Label();
+            this.groupBox32 = new System.Windows.Forms.GroupBox();
+            this.cbDRCWarnings = new System.Windows.Forms.CheckBox();
+            this.cbDRCErrors = new System.Windows.Forms.CheckBox();
+            this.groupBox33 = new System.Windows.Forms.GroupBox();
+            this.label128 = new System.Windows.Forms.Label();
+            this.label127 = new System.Windows.Forms.Label();
+            this.label125 = new System.Windows.Forms.Label();
+            this.label126 = new System.Windows.Forms.Label();
             this.groupBox28 = new System.Windows.Forms.GroupBox();
             this.cbStackupSwitches = new System.Windows.Forms.CheckBox();
             this.groupBox29 = new System.Windows.Forms.GroupBox();
@@ -294,12 +302,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.tbCompany = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.groupBox32 = new System.Windows.Forms.GroupBox();
-            this.cbDRCErrors = new System.Windows.Forms.CheckBox();
-            this.groupBox33 = new System.Windows.Forms.GroupBox();
-            this.label125 = new System.Windows.Forms.Label();
-            this.label126 = new System.Windows.Forms.Label();
-            this.cbDRCWarnings = new System.Windows.Forms.CheckBox();
             this.tabOptions.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox30.SuspendLayout();
@@ -453,6 +455,95 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.label123.TabIndex = 0;
             this.label123.Text = "Auto-save interval:";
             // 
+            // groupBox32
+            // 
+            this.groupBox32.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox32.Controls.Add(this.cbDRCWarnings);
+            this.groupBox32.Controls.Add(this.cbDRCErrors);
+            this.groupBox32.Controls.Add(this.groupBox33);
+            this.groupBox32.Controls.Add(this.label126);
+            this.groupBox32.Location = new System.Drawing.Point(16, 357);
+            this.groupBox32.Name = "groupBox32";
+            this.groupBox32.Size = new System.Drawing.Size(611, 172);
+            this.groupBox32.TabIndex = 0;
+            this.groupBox32.TabStop = false;
+            this.groupBox32.Text = "Stackup Design-Rule Checks";
+            // 
+            // cbDRCWarnings
+            // 
+            this.cbDRCWarnings.Location = new System.Drawing.Point(20, 68);
+            this.cbDRCWarnings.Name = "cbDRCWarnings";
+            this.cbDRCWarnings.Size = new System.Drawing.Size(222, 24);
+            this.cbDRCWarnings.TabIndex = 1;
+            this.cbDRCWarnings.Text = "There are DRC warnings";
+            this.cbDRCWarnings.UseVisualStyleBackColor = true;
+            // 
+            // cbDRCErrors
+            // 
+            this.cbDRCErrors.Location = new System.Drawing.Point(20, 45);
+            this.cbDRCErrors.Name = "cbDRCErrors";
+            this.cbDRCErrors.Size = new System.Drawing.Size(222, 23);
+            this.cbDRCErrors.TabIndex = 1;
+            this.cbDRCErrors.Text = "There are DRC errors";
+            this.cbDRCErrors.UseVisualStyleBackColor = true;
+            // 
+            // groupBox33
+            // 
+            this.groupBox33.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox33.Controls.Add(this.label125);
+            this.groupBox33.Location = new System.Drawing.Point(313, 19);
+            this.groupBox33.Name = "groupBox33";
+            this.groupBox33.Size = new System.Drawing.Size(278, 135);
+            this.groupBox33.TabIndex = 55;
+            this.groupBox33.TabStop = false;
+            this.groupBox33.Text = "Hint";
+            // 
+            // label128
+            // 
+            this.label128.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label128.Location = new System.Drawing.Point(3, 82);
+            this.label128.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label128.Name = "label128";
+            this.label128.Size = new System.Drawing.Size(272, 43);
+            this.label128.TabIndex = 27;
+            this.label128.Text = "Warnings include asymmetrical stackups should generally be symmetrical and altern" +
+    "ating power and ground planes for decoupling.";
+            // 
+            // label127
+            // 
+            this.label127.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label127.Location = new System.Drawing.Point(3, 49);
+            this.label127.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label127.Name = "label127";
+            this.label127.Size = new System.Drawing.Size(272, 33);
+            this.label127.TabIndex = 27;
+            this.label127.Text = "Possible errors include having an uneven number of copper layers.";
+            // 
+            // label125
+            // 
+            this.label125.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label125.Location = new System.Drawing.Point(3, 16);
+            this.label125.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label125.Name = "label125";
+            this.label125.Size = new System.Drawing.Size(272, 33);
+            this.label125.TabIndex = 27;
+            this.label125.Text = "Stackup DRCs can also be run manually from the Views group of the Stackup toolbar" +
+    ". ";
+            // 
+            // label126
+            // 
+            this.label126.AutoSize = true;
+            this.label126.Location = new System.Drawing.Point(17, 25);
+            this.label126.Name = "label126";
+            this.label126.Size = new System.Drawing.Size(209, 13);
+            this.label126.TabIndex = 0;
+            this.label126.Text = "Automatically display the DRC panel when:";
+            // 
             // groupBox28
             // 
             this.groupBox28.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -548,9 +639,9 @@ namespace ZZero.ZPlanner.UI.Dialogs
             // 
             this.cbZZeroSynchronize.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbZZeroSynchronize.Location = new System.Drawing.Point(326, 54);
+            this.cbZZeroSynchronize.Location = new System.Drawing.Point(326, 47);
             this.cbZZeroSynchronize.Name = "cbZZeroSynchronize";
-            this.cbZZeroSynchronize.Size = new System.Drawing.Size(268, 54);
+            this.cbZZeroSynchronize.Size = new System.Drawing.Size(268, 35);
             this.cbZZeroSynchronize.TabIndex = 1;
             this.cbZZeroSynchronize.Text = "Сheck the latest version of the Z-zero dielectric material library every time the" +
     " Z-planner is run";
@@ -1182,7 +1273,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.label62.Name = "label62";
             this.label62.Size = new System.Drawing.Size(96, 13);
             this.label62.TabIndex = 10;
-            this.label62.Text = "Range: 0.1 - 20.00";
+            this.label62.Text = "Range: 0.1 - 100.0";
             // 
             // tbFrequency
             // 
@@ -1248,7 +1339,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(96, 13);
             this.label8.TabIndex = 7;
-            this.label8.Text = "Range: 1.00 - 7.00";
+            this.label8.Text = "Range: 1.00 - 5.00";
             // 
             // tbResin_Dk
             // 
@@ -1318,7 +1409,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(96, 13);
             this.label18.TabIndex = 11;
-            this.label18.Text = "Range: 1.00 - 7.00";
+            this.label18.Text = "Range: 1.00 - 5.00";
             // 
             // tbDk
             // 
@@ -1431,7 +1522,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(96, 13);
             this.label27.TabIndex = 23;
-            this.label27.Text = "Range: 1.00 - 7.00";
+            this.label27.Text = "Range: 1.00 - 5.00";
             // 
             // tbSoldermask_Dk
             // 
@@ -3206,71 +3297,6 @@ namespace ZZero.ZPlanner.UI.Dialogs
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // groupBox32
-            // 
-            this.groupBox32.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox32.Controls.Add(this.cbDRCWarnings);
-            this.groupBox32.Controls.Add(this.cbDRCErrors);
-            this.groupBox32.Controls.Add(this.groupBox33);
-            this.groupBox32.Controls.Add(this.label126);
-            this.groupBox32.Location = new System.Drawing.Point(16, 376);
-            this.groupBox32.Name = "groupBox32";
-            this.groupBox32.Size = new System.Drawing.Size(611, 115);
-            this.groupBox32.TabIndex = 0;
-            this.groupBox32.TabStop = false;
-            this.groupBox32.Text = "DRC";
-            // 
-            // cbDRCErrors
-            // 
-            this.cbDRCErrors.Location = new System.Drawing.Point(20, 41);
-            this.cbDRCErrors.Name = "cbDRCErrors";
-            this.cbDRCErrors.Size = new System.Drawing.Size(222, 38);
-            this.cbDRCErrors.TabIndex = 1;
-            this.cbDRCErrors.Text = "There are DRC Errors";
-            this.cbDRCErrors.UseVisualStyleBackColor = true;
-            // 
-            // groupBox33
-            // 
-            this.groupBox33.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox33.Controls.Add(this.label125);
-            this.groupBox33.Location = new System.Drawing.Point(313, 37);
-            this.groupBox33.Name = "groupBox33";
-            this.groupBox33.Size = new System.Drawing.Size(278, 62);
-            this.groupBox33.TabIndex = 55;
-            this.groupBox33.TabStop = false;
-            this.groupBox33.Text = "Hint";
-            // 
-            // label125
-            // 
-            this.label125.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label125.Location = new System.Drawing.Point(3, 16);
-            this.label125.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label125.Name = "label125";
-            this.label125.Size = new System.Drawing.Size(272, 43);
-            this.label125.TabIndex = 27;
-            this.label125.Text = "Select the corresponding checkboxes if you want the DRC panel to be automatically" +
-    " shown in case DRC errors or warnings are detected.";
-            // 
-            // label126
-            // 
-            this.label126.AutoSize = true;
-            this.label126.Location = new System.Drawing.Point(17, 25);
-            this.label126.Name = "label126";
-            this.label126.Size = new System.Drawing.Size(209, 13);
-            this.label126.TabIndex = 0;
-            this.label126.Text = "Automatically display the DRC panel when:";
-            // 
-            // cbDRCWarnings
-            // 
-            this.cbDRCWarnings.Location = new System.Drawing.Point(20, 71);
-            this.cbDRCWarnings.Name = "cbDRCWarnings";
-            this.cbDRCWarnings.Size = new System.Drawing.Size(222, 38);
-            this.cbDRCWarnings.TabIndex = 1;
-            this.cbDRCWarnings.Text = "There are DRC Warnings";
-            this.cbDRCWarnings.UseVisualStyleBackColor = true;
-            // 
             // SettingsDialog
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -3623,5 +3649,7 @@ namespace ZZero.ZPlanner.UI.Dialogs
         private System.Windows.Forms.GroupBox groupBox33;
         private System.Windows.Forms.Label label125;
         private System.Windows.Forms.Label label126;
+        private System.Windows.Forms.Label label128;
+        private System.Windows.Forms.Label label127;
     }
 }

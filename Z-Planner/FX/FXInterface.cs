@@ -74,6 +74,8 @@ namespace ZZero.ZPlanner.FXInterface
         {
             LAYER_TYPE aType = FX_Input.ConvertLayerType(zType);
             iLayerType = aType;
+            bIsMixed = zType == ZLayerType.SplitMixed;
+
 
             //init from defaults
             switch (zType)
@@ -111,8 +113,10 @@ namespace ZZero.ZPlanner.FXInterface
             ZLayerType? zType = zl.GetLayerType();
             LAYER_TYPE aType = FX_Input.ConvertLayerType(zType);
             iLayerType = aType;
+            bIsMixed = zType == ZLayerType.SplitMixed;
 
             //account for plane reference setting
+/*
             string planeRef = "";
             if ((zType == ZLayerType.SplitMixed) && ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPlaneReference, ref planeRef))
             {
@@ -121,7 +125,7 @@ namespace ZZero.ZPlanner.FXInterface
                     iLayerType = LAYER_TYPE.FS_PLANE;
                 }
             }
-
+*/
             
             float fval = 0f;
             ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDThickness, ref fval);
@@ -130,10 +134,25 @@ namespace ZZero.ZPlanner.FXInterface
             if (ZPlannerManager.StackupPanel != null && ZPlannerManager.IsPressedThickness && zType == ZLayerType.Prepreg)
             {
                 fval = 0f;
-                bool b = ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, ref fval);
-                if (b && fval.ToString() != String.Empty)
+                bool bUseFabricatorThickness = zl.Stackup.IsKeepImportedPressedThickness;
+                bool bUseCalculatedThickness = !bUseFabricatorThickness;
+                if (bUseFabricatorThickness)
                 {
-                    fThickness = Units.fMilsToMeters * fval;
+                    bool b = ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDFabricatorThickness, ref fval);
+                    if (b && fval.ToString() != String.Empty)
+                    {
+                        fThickness = Units.fMilsToMeters * fval;
+                    }
+                    else bUseCalculatedThickness = true;
+                }
+
+                if (bUseCalculatedThickness)
+                {
+                    bool b = ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPrepregThickness, ref fval);
+                    if (b && fval.ToString() != String.Empty)
+                    {
+                        fThickness = Units.fMilsToMeters * fval;
+                    }
                 }
             }
 
@@ -179,6 +198,16 @@ namespace ZZero.ZPlanner.FXInterface
                     {
                         fDielConstant = (float)Options.TheOptions.resin_Dk;
                         fLossTangent = (float)Options.TheOptions.resin_Df;
+
+                        double val;
+                        if (zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_DielectricConstant, out val))
+                        {
+                            fDielConstant = (float)val;
+                        }
+                        if (zl.GetLayerParameterValue(ZStringConstants.ParameterIDZo_LossTangent, out val))
+                        {
+                            fLossTangent = (float)val;
+                        }
                     }
 
                     ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDBulkRes, ref fval);
@@ -208,6 +237,7 @@ namespace ZZero.ZPlanner.FXInterface
         public float fThickness = Units.fMilsToMeters * 5;		// Thickness of layer
         public float fDielConstant = 4;	// Dielectric's permittivity
         public LAYER_TYPE iLayerType = LAYER_TYPE.FS_DIEL;     // Layer's type: routing, plane, or dielectric
+        public bool bIsMixed = false;
         public bool bIsConformal = false;		// Is this layer a conformal coating? Valid only
         //		if layer is dielectric and the first or last
         //		in the array
@@ -233,29 +263,26 @@ namespace ZZero.ZPlanner.FXInterface
         public FX_Trace(ZStackup stackup, ZLayer zDpLayer, bool bPair)
         {
             ZLayer zl = stackup.GetLayerOfStackup(zDpLayer.ID);
-            ZLayer zSingleImpeadanceLayer = stackup.ActiveSingle.GetLayerOfSingleImpedance(zl.ID);
 
-            iLayerIndex = stackup.GetLayerOfStackupIndex(zl.ID) + 1;//1-based
+            iLayerIndex = stackup.GetLayerOfStackupIndex(zl.ID) + 1;//1-based            
 
-            double traceWidth = 0;
-            ZPlannerProject.GetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_TraceWidth, ref traceWidth);
-            double traceSpacing = 0;
-            ZPlannerProject.GetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_TraceSpacing, ref traceSpacing);
-
-            setupGeometry(zl, zDpLayer, traceWidth, traceSpacing, bPair);
-        }
-
-        public void setupGeometry(ZLayer zl, ZLayer zDpLayer, double traceWidth, double traceSpacing, bool bPair)
-        {
-            float mid_width = (float)traceWidth * Units.fMilsToMeters;
-            float spacing = (float)traceSpacing*Units.fMilsToMeters;
-
-            double dval = 0;
+            float mid_width = 0;
+            float etch = 0;
+            float spacing = 0;
 
             //get etch factor from single impedance data
-            float etch = 0;
+            double dval = 0;
             ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDEtchFactor, ref dval);
             etch = (float)dval;
+
+            dval = 0;
+            ZPlannerProject.GetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_TraceWidth, ref dval);
+            dval *= Units.MilsToMeters;
+            mid_width = (float)dval;
+
+            ZPlannerProject.GetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_TraceSpacing, ref dval);
+            dval *= Units.MilsToMeters;
+            spacing = (float)dval;
 
             bool bNarrowTop = true;
             ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDNarrowTop, ref bNarrowTop);
@@ -301,37 +328,19 @@ namespace ZZero.ZPlanner.FXInterface
             }
 #endif
             //
-            bool isPlane = false;
-            ZLayerType? zType = zl.GetLayerType();
-            switch (zType)
-            {
-                case ZLayerType.Plane: isPlane = true; break;
-                case ZLayerType.SplitMixed:
-                    string planeRef = "";
-                    if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPlaneReference, ref planeRef))
-                    {
-                        isPlane = planeRef == ZStringConstants.PlaneReference;
-                    }
-                    break;
-            }
-
-            if (isPlane)
-            {
-                bSplitReference = true;
-                //--fLeftXtoPlane = Trace2Plane;
-                //--fRightXtoPlane = Trace2Plane;
-            }
 
             iPotential = bPair ? 2 : 1; 
         }
 
-        public FX_Trace(ZLayer zl) //for single-ended impedance
+        public FX_Trace(ZStackup stackup, ZLayer zSingleImpedanceLayer) //for single-ended impedance
         {
-            iLayerIndex = zl.Stackup.GetLayerOfStackupIndex(zl.ID) + 1;//1-based
+            ZLayer zl = stackup.GetLayerOfStackup(zSingleImpedanceLayer.ID);
+
+            iLayerIndex = stackup.GetLayerOfStackupIndex(zSingleImpedanceLayer.ID) + 1;//1-based
             fCenter = 0;
             
             //width
-            ZLayer zSingleImpedanceLayer = zl.Stackup.ActiveSingle.GetLayerOfSingleImpedance(zl.ID);
+            //--ZLayer zSingleImpedanceLayer = zl.Stackup.ActiveSingle.GetLayerOfSingleImpedance(zl.ID);
 
             double dval = 0;
             ZPlannerProject.GetLayerParameterValue(zSingleImpedanceLayer, ZStringConstants.ParameterIDZo_TraceWidth, ref dval);
@@ -382,26 +391,6 @@ namespace ZZero.ZPlanner.FXInterface
                 fTopWidth = mid_width;
             }
             //
-            bool isPlane = false;
-            ZLayerType? zType = zl.GetLayerType();
-            switch (zType)
-            {
-                case ZLayerType.Plane: isPlane = true; break;
-                case ZLayerType.SplitMixed:
-                    string planeRef = "";
-                    if (ZPlannerProject.GetLayerParameterValue(zl, ZStringConstants.ParameterIDPlaneReference, ref planeRef))
-                    {
-                        isPlane = planeRef == ZStringConstants.PlaneReference;
-                    }
-                    break;
-            }
-
-            if (isPlane)
-            {
-                bSplitReference = true;
-                //--fLeftXtoPlane = Trace2Plane;
-                //--fRightXtoPlane = Trace2Plane;
-            }
 
             iPotential = 0; //will be changed later
         }
@@ -421,7 +410,6 @@ namespace ZZero.ZPlanner.FXInterface
             iPotential = 0;
         }
 
-        public bool bSplitReference = false;
         public int iLayerIndex;		// Trace's layer, defined by index into fslLayers;
         // must index to a metal layer. iLayerIndex starts
         // with 1, so it corresponds to fslLayers[iLayerIndex-1]
@@ -489,7 +477,8 @@ namespace ZZero.ZPlanner.FXInterface
                 if (isMetal)
                 {
                     //!- FX_Trace tr = new FX_Trace(layerIdx); //default parameters
-                    FX_Trace tr = new FX_Trace(zl);  //actual trace data
+                    ZLayer singleLayer = stk.ActiveSingle.GetLayerOfSingleImpedance(zl.ID);
+                    FX_Trace tr = new FX_Trace(stk, singleLayer);  //actual trace data
                     tr.iPotential = 1;
                     traces.Add(tr);
                 }
@@ -533,12 +522,13 @@ namespace ZZero.ZPlanner.FXInterface
             }        
         }
 
-        public void CreateSingleEndTraces(ZStackup stk)
+        public bool CreateSingleEndTraces(ZStackup stk, ZSingle single)
         {
+            bool retval = false;
             traces.Clear();
             foreach (ZLayer zl in stk.Layers)
             {
-                ZLayer seLayer = stk.ActiveSingle.GetLayerOfSingleImpedance(zl.ID);
+                ZLayer seLayer = single.GetLayerOfSingleImpedance(zl.ID);
 
                 ZLayerType? ztype = zl.GetLayerType();
                 LAYER_TYPE ltype = ConvertLayerType(ztype);
@@ -553,12 +543,14 @@ namespace ZZero.ZPlanner.FXInterface
                     }
                     if (bLayerOn && seLayer.HasValues())
                     {
-                        FX_Trace tr = new FX_Trace(zl);  //actual trace data
+                        retval = true;
+                        FX_Trace tr = new FX_Trace(stk, seLayer);  //actual trace data
                         tr.iPotential = 1;
                         traces.Add(tr);
                     }
                 }
             }
+            return retval;
         }
 
         public bool CreateDiffPairTraces(ZStackup stk, ZPair pair)
@@ -594,68 +586,6 @@ namespace ZZero.ZPlanner.FXInterface
             return retval;
         }
 
-        public bool CreateDiffPairTraces_AutoFitWS(ZStackup stk, ZPair pair, ZLayer layer)
-        {
-            bool retval = false;
-            traces.Clear();
-            ZLayer diffLayer = stk.GetLayerOfPairImpedance(layer.ID, pair.ID);
-            ZLayerType? ztype = layer.GetLayerType();
-            LAYER_TYPE ltype = ConvertLayerType(ztype);
-            bool isMetal = ltype != LAYER_TYPE.FS_DIEL;
-
-            if (isMetal)
-            {
-                bool bLayerOn = false;
-                if (ZPlannerProject.GetLayerParameterValue(diffLayer, ZStringConstants.ParameterIDZdiff_IsUsed, ref bLayerOn))
-                {
-                    if (bLayerOn && diffLayer.HasValues())
-                    {
-                        retval = true;
-                        FX_Trace tr1 = new FX_Trace(stk, diffLayer, false);  //actual trace data
-                        traces.Add(tr1);
-                        FX_Trace tr2 = new FX_Trace(stk, diffLayer, true);  //actual trace data
-                        traces.Add(tr2);
-                    }
-                }
-            }
-            return retval;
-        }
-
-        /*
-                        public FX_Input(ZStackup stk, ZPair pair)
-                        {
-                            layers = new List<FX_Layer>();
-                            traces = new List<FX_Trace>();
-
-                            foreach (ZLayer zl in stk.Layers)
-                            {
-                                ZLayerType? ztype = zl.GetLayerType();
-                                LAYER_TYPE ltype = ConvertLayerType(ztype);
-                                bool isMetal = ltype != LAYER_TYPE.FS_DIEL;
-
-                                //!- FX_Layer fL = new FX_Layer(ztype); //default parameters
-                                FX_Layer fL = new FX_Layer(zl);         // actual layer data
-                                layers.Add(fL);
-                            }
-            
-                            // get traces from the diff. pair
-                            foreach (ZLayer diffLayer in pair.Layers)
-                            {
-                                //get main layer
-                                ZLayer zLayer = stk.GetLayerOfStackup(diffLayer.ID);
-                                ZLayerType? ztype = zLayer.GetLayerType();
-                                LAYER_TYPE ltype = ConvertLayerType(ztype);
-                                bool isMetal = ltype != LAYER_TYPE.FS_DIEL;
-
-                                if (isMetal){
-                                    FX_Trace tr1 = new FX_Trace(stk, diffLayer, false);  //actual trace data
-                                    traces.Add(tr1);
-                                    FX_Trace tr2 = new FX_Trace(stk, diffLayer, true);  //actual trace data
-                                    traces.Add(tr2);
-                                }
-                            }
-                        }
-                */
         public static LAYER_TYPE ConvertLayerType(ZLayerType? ztype)
         {
             LAYER_TYPE ltype = LAYER_TYPE.FS_DIEL;
@@ -843,10 +773,35 @@ namespace ZZero.ZPlanner.FXInterface
                 }
             }
         }
+
+        public double calcZ0()
+        {
+            if (iNumberOfModes == 2)
+                return 0.5 * (fZzero[0] - fZzero[1] - fZzero[2] + fZzero[3]);  // diff pair
+            return fZzero[0]; // single ended
+        }
+        public double calcSkinResistance()
+        {
+            if (iNumberOfModes == 2)
+                return 0.5 * (fSkinResistance[0] - fSkinResistance[1] - fSkinResistance[2] + fSkinResistance[3]);  // diff pair
+            return fSkinResistance[0]; // single ended
+        }
+        public double calcG0()
+        {
+            if (iNumberOfModes == 2)
+                return 0.5 * (fGzero[0] - fGzero[1] - fGzero[2] + fGzero[3]); // diff pair
+            return fGzero[0];  // single ended
+        }
+        public double calcGMatrix()
+        {
+            if (iNumberOfModes == 2)
+                return 0.5 * (fGMatrix[0] - fGMatrix[1] - fGMatrix[2] + fGMatrix[3]); // diff pair
+            return fGMatrix[0]; // single ended
+        }
     }
 
     // Options and results for diff-pair W and S auto-fit
-    class FX_AutoFit_DiffPairWS
+    /*class FX_AutoFit_DiffPairWS
     {
         public ZLayer layer_, diffLayer_;
 
@@ -860,8 +815,9 @@ namespace ZZero.ZPlanner.FXInterface
 
         public double fTargetImpedance_;
         public double fImpedance_; // result
-    }
+    }*/
 
+    
     class FX
     {
         // interaction with C++
@@ -918,17 +874,17 @@ namespace ZZero.ZPlanner.FXInterface
 
             if (retval == 0)
             {
-                FX.PassData(String.Format("iTraceCount:{0}", 2));
+                FX.PassData(String.Format("iTraceCount:{0}", 2)); 
                 retval = RunDiffPairs(stackup, ref fxinp);
             }
 
             fxinp.PassFinish();
-
+            
             Cursor.Current = currentCursor;
             return retval;
         }
 
-        public static int Run_AutoWS(ZStackup stackup, ZPair pair, ZLayer layer, ref FX_AutoFit_DiffPairWS autoFitData)
+        /*public static int Run_AutoWS(ZStackup stackup, ZPair pair, ZLayer layer, ref FX_AutoFit_DiffPairWS autoFitData)
         {
             Cursor currentCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
@@ -944,19 +900,20 @@ namespace ZZero.ZPlanner.FXInterface
 
             Cursor.Current = currentCursor;
             return retval;
-        }
+        }*/
 
         private static Dictionary<string, FX_Output> fxResults_SE = new Dictionary<string, FX_Output>();
         private static Dictionary<string, FX_Output> fxResults_Diff = new Dictionary<string, FX_Output>();
 
-        public static void LossViewer(ZLayer zl)
+        public static void LossViewer(ZLayer zl, ZSingle single)
         {
             string id = zl.ID;
             FX_Output fxOut = null;
             bool bValid = false;
             if (fxResults_SE.Count > 0)
             {
-                bValid = fxResults_SE.TryGetValue(id, out fxOut);
+                string singleId = single.ID + "_" + id;
+                bValid = fxResults_SE.TryGetValue(singleId, out fxOut);
             }
 
             if (bValid)
@@ -988,7 +945,10 @@ namespace ZZero.ZPlanner.FXInterface
             if (bValid){                
                 string t = zl.Stackup.GetLayerOfStackup(id).GetLayerParameterValue(ZStringConstants.ParameterIDThickness);
                 string n = zl.Stackup.GetLayerOfStackup(id).GetLayerParameterValue(ZStringConstants.ParameterIDLayerName);
-                string s = String.Format("Stackup: {0}, Layer: {1}, Type: {2}, Thickness: {3} (mils)", zl.Stackup.Title, n, zl.GetLayerType(), t);
+                string w = zDifferential.GetLayerOfPairImpedance(id).GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TraceWidth);
+                double z;
+                zDifferential.GetLayerOfPairImpedance(id).GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_Zdiff, out z);
+                string s = String.Format("{0}, Layer: {1}, Type: {2}, Thickness: {3} (mils), Wdiff: {4} (mils), Zdiff: {5} (ohms)", zl.Stackup.Title, n, zl.GetLayerType(), t, w, z.ToString("N1"));
                 LossPlot dlg = new LossPlot(fxOut, ZPlannerManager.IsRoughness, s);
                 dlg.ShowDialog();                
             }
@@ -999,71 +959,191 @@ namespace ZZero.ZPlanner.FXInterface
             }
         }
 
+        public static ZLayer GetMetalLayerByNumber(ZStackup stackup, int index)
+        {
+            int idx = 1;
+            foreach (ZLayer zl in stackup.Layers)
+            {
+                if (zl.isMetal())
+                {
+                    if (idx == index) return zl;
+                    idx++;
+                }
+            }
+            return null;
+        }
+
+        public static void FXReferences(ZSingle single, int layerIndex /*0-based*/, out int iTopRef, out int iBotRef)
+        {
+            ZStackup stackup = single.Stackup;
+            ZLayer baseLayer = stackup.GetLayerOfStackup(layerIndex);
+
+            //get defaults
+            ZLayer.PlaneReferences pR = new ZLayer.PlaneReferences();
+            baseLayer.GetPlaneReferences(ref pR);
+
+            ZLayer topRef = pR.defUp, botRef = pR.defDown;
+
+            //override with actuals            
+            ZLayer singleLayer = single.GetLayerOfSingleImpedance(layerIndex);
+
+            string topId = singleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_TopReference);
+            if (!string.IsNullOrWhiteSpace(topId)) topRef = stackup.GetLayerOfStackup(topId);
+            string botId = singleLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZo_BottomReference);
+            if (!string.IsNullOrWhiteSpace(botId)) botRef = stackup.GetLayerOfStackup(botId);
+
+            iTopRef = iBotRef = -1;
+            if (topRef != null) iTopRef = stackup.GetLayerOfStackupIndex(topRef.ID);
+            if (botRef != null) iBotRef = stackup.GetLayerOfStackupIndex(botRef.ID);
+        }
+
+        public static void FXReferences(ZPair pair, int layerIndex /*0-based*/, out int iTopRef, out int iBotRef)
+        {
+            ZStackup stackup = pair.Stackup;
+            ZLayer baseLayer = stackup.GetLayerOfStackup(layerIndex);
+
+            //get defaults
+            ZLayer.PlaneReferences pR = new ZLayer.PlaneReferences();
+            baseLayer.GetPlaneReferences(ref pR);
+
+            ZLayer topRef = pR.defUp, botRef = pR.defDown;
+
+            //override with actuals            
+            ZLayer pairLayer = pair.GetLayerOfPairImpedance(layerIndex);
+
+            string topId = pairLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_TopReference);
+            if (!string.IsNullOrWhiteSpace(topId)) topRef = stackup.GetLayerOfStackup(topId);
+            string botId = pairLayer.GetLayerParameterValue(ZStringConstants.ParameterIDZdiff_BottomReference);
+            if (!string.IsNullOrWhiteSpace(botId)) botRef = stackup.GetLayerOfStackup(botId);
+
+            iTopRef = iBotRef = -1;
+            if (topRef != null) iTopRef = stackup.GetLayerOfStackupIndex(topRef.ID);
+            if (botRef != null) iBotRef = stackup.GetLayerOfStackupIndex(botRef.ID);
+        }
+
+        private static void UpdateStackup_SingleDkDf(ZSingle single)
+        {
+            int idx = 0;
+            foreach (ZLayer L in single.Layers)
+            {
+                double dk, df;
+                bool bDk = L.GetDk(out dk);
+                bool bDf = L.GetDf(out df);
+
+                if (bDk || bDf)
+                {
+                    PassData(String.Format("lindex:{0}", idx)); 
+                    if (bDk) PassData(String.Format("fDielConstant:{0}", dk.ToString()));
+                    if (bDf) PassData(String.Format("fLossTangent:{0}", df.ToString()));
+                }
+                idx++;
+            }
+        }
+
+        private static void UpdateStackup_PairDkDf(ZPair pair)
+        {
+            int idx = 0;
+            foreach (ZLayer L in pair.Layers)
+            {
+                double dk, df;
+                bool bDk = L.GetDk(out dk);
+                bool bDf = L.GetDf(out df);
+
+                if (bDk || bDf)
+                {
+                    PassData(String.Format("lindex:{0}", idx)); 
+                    if (bDk) PassData(String.Format("fDielConstant:{0}", dk.ToString()));
+                    if (bDf) PassData(String.Format("fLossTangent:{0}", df.ToString()));
+                }
+                idx++;
+            }
+        }
+
         private static int RunSingleEnded(ZStackup stackup, ref FX_Input fxinp)
         {
             fxResults_SE.Clear();
             //FX_Input fxinp = new FX_Input(stackup);
-            fxinp.CreateSingleEndTraces(stackup);
 
             //fxinp.PassCommonData(true);
-
             int retval = 0;
-            for (int i = 0; i < fxinp.traces.Count; i++)
+            foreach (ZSingle single in stackup.Singles)
             {
-                String sOutput = "";
+                string singleId = single.ID;
+                if (!fxinp.CreateSingleEndTraces(stackup, single)) continue;
 
-                fxinp.PassTrace(i, 0);
+                UpdateStackup_SingleDkDf(single);
 
-                bool bChange = false;
-                if (fxinp.traces[i].bSplitReference)
+                for (int i = 0; i < fxinp.traces.Count; i++)
                 {
-                    fxinp.PassLayerTypeChange(fxinp.traces[i].iLayerIndex - 1, 0);
-                    bChange = true;
-                }
-                retval = Run(ref sOutput);
-                if (bChange)
-                {
-                    fxinp.PassLayerTypeChange(fxinp.traces[i].iLayerIndex - 1, 1);
-                }
+                    int idx = fxinp.traces[i].iLayerIndex - 1;
+                    ZLayer baseLayer = stackup.GetLayerOfStackup(idx);
 
-                if (retval != 0) break; //error
+                    int iRefUp = -1, iRefDown = -1;
+                    FXReferences(single, idx, out iRefUp, out iRefDown);
 
-                FX_Output fxout = new FX_Output();
-                fxout = FX_Output.Create(sOutput);
+                    if (iRefUp < 0 && iRefDown < 0) continue; //no valid reference
 
-                //write result to the DB
-                if (fxout != null)
-                {
-                    int layerIndex = fxinp.traces[i].iLayerIndex - 1;
-                    string layerID = stackup.GetLayerOfStackup(layerIndex).ID;
+                    bool bChangeUp = false, bChangeDown = false;
+                    if (iRefUp >= 0 && fxinp.layers[iRefUp].bIsMixed)
+                    {
+                        bChangeUp = true;
+                    }
+                    if (iRefDown >= 0 && fxinp.layers[iRefDown].bIsMixed)
+                    {
+                        bChangeDown = true;
+                    }
+                    
+                    String sOutput = "";
 
-                    fxResults_SE.Add(layerID, fxout);
+                    fxinp.PassTrace(i, 0);
 
-                    // get impedance layer object
-                    ZLayer zl = stackup.ActiveSingle.GetLayerOfSingleImpedance(layerID);
-                    // set impedance
-                    ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDZo_Zo, fxout.fZzero[0]);
+                    if (bChangeUp)   fxinp.PassLayerTypeChange(iRefUp, 1); //to Plane
+                    if (bChangeDown) fxinp.PassLayerTypeChange(iRefDown, 1); //to Plane
+                    
+                    retval = Run(ref sOutput);
 
-                    //calculate insertion loss [db/inch]
-                    FXLosses loss = new FXLosses(fxout);
-                    double f = zl.GetFrequency();//--stackup.Frequency;//must be in GHz
-                    double R = loss.Attenuation_R(f);
-                    double Ro = loss.Attenuation_Ro(f);
-                    double D = loss.Attenuation_D(f);
-                    double totalLoss = (R + D) * 0.0254;//[db/inch]
-                    if (ZPlannerManager.IsRoughness) totalLoss += Ro * 0.0254;
+                    if (bChangeUp) fxinp.PassLayerTypeChange(iRefUp, 0); //back to Signal
+                    if (bChangeDown) fxinp.PassLayerTypeChange(iRefDown, 0); //back to Signal
 
-                    zl = stackup.GetLayerOfStackup(layerID);
-                    ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDZo_InsertionLoss, totalLoss);
+                    if (retval != 0) break; //error
 
-                    //propagation velocity
-                    ZLayer lay = stackup.GetLayerOfStackup(layerIndex);
-                    double PropSpeed = fxout.fPropSpeeds[0]; // [m/s]
-                    double c1 = Units.MetersToMils * 0.001; //meters to inch
-                    double c2 = 1.0e-9; //S to ns
+                    FX_Output fxout = new FX_Output();
+                    fxout = FX_Output.Create(sOutput);
 
-                    PropSpeed = PropSpeed * c1 * c2; //[inch/ns]
-                    ZPlannerProject.SetLayerParameterValue(lay, ZStringConstants.ParameterIDZo_PropagationVelocity, PropSpeed);
+                    //write result to the DB
+                    if (fxout != null)
+                    {
+                        int layerIndex = fxinp.traces[i].iLayerIndex - 1;
+                        string layerID = stackup.GetLayerOfStackup(layerIndex).ID;
+
+                        fxResults_SE.Add(singleId + "_" + layerID, fxout);
+
+                        // get impedance layer object
+                        ZLayer zl = single.GetLayerOfSingleImpedance(layerID);
+                        // set impedance
+                        ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDZo_Zo, fxout.calcZ0());
+
+                        //calculate insertion loss [db/inch]
+                        FXLosses loss = new FXLosses(fxout);
+                        double f = zl.GetFrequency();//--stackup.Frequency;//must be in GHz
+                        double R = loss.Attenuation_R(f);
+                        double Ro = loss.Attenuation_Ro(f);
+                        double D = loss.Attenuation_D(f);
+                        double totalLoss = (R + D) * 0.0254;//[db/inch]
+                        if (ZPlannerManager.IsRoughness) totalLoss += Ro * 0.0254;
+
+                        //--zl = stackup.GetLayerOfStackup(layerID);
+                        ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDZo_InsertionLoss, totalLoss);
+
+                        //propagation velocity
+                        ZLayer lay = stackup.GetLayerOfStackup(layerIndex);
+                        double PropSpeed = fxout.fPropSpeeds[0]; // [m/s]
+                        double c1 = Units.MetersToMils * 0.001; //meters to inch
+                        double c2 = 1.0e-9; //S to ns
+
+                        PropSpeed = PropSpeed * c1 * c2; //[inch/ns]
+                        ZPlannerProject.SetLayerParameterValue(zl, ZStringConstants.ParameterIDZo_PropagationVelocity, PropSpeed);
+                    }
                 }
             }
 
@@ -1088,25 +1168,39 @@ namespace ZZero.ZPlanner.FXInterface
                 //FX_Input fxinp = new FX_Input(stackup, pair);
                 if (fxinp.CreateDiffPairTraces(stackup, pair)){
 
+                    UpdateStackup_PairDkDf(pair);
+
                     for (int i = 0; i < fxinp.traces.Count; i += 2)
                     {
+                        int idx = fxinp.traces[i].iLayerIndex - 1;
+                        ZLayer baseLayer = stackup.GetLayerOfStackup(idx);
+
+                        int iRefUp = -1, iRefDown = -1;
+                        FXReferences(pair, idx, out iRefUp, out iRefDown);
+
+                        bool bChangeUp = false, bChangeDown = false;
+                        if (iRefUp >= 0 && fxinp.layers[iRefUp].bIsMixed)
+                        {
+                            bChangeUp = true;
+                        }
+                        if (iRefDown >= 0 && fxinp.layers[iRefDown].bIsMixed)
+                        {
+                            bChangeDown = true;
+                        }
+
                         String sOutput = "";
 
                         //--fxinp.PassDataTwoTraces(i, i + 1);
                         fxinp.PassTrace(i, 0);
                         fxinp.PassTrace(i + 1, 1);
 
-                        bool bChange = false;
-                        if (fxinp.traces[i].bSplitReference)
-                        {
-                            fxinp.PassLayerTypeChange(fxinp.traces[i].iLayerIndex - 1, 0);
-                            bChange = true;
-                        }
+                        if (bChangeUp) fxinp.PassLayerTypeChange(iRefUp, 1); //to Plane
+                        if (bChangeDown) fxinp.PassLayerTypeChange(iRefDown, 1); //to Plane
+
                         retval = Run(ref sOutput);
-                        if (bChange)
-                        {
-                            fxinp.PassLayerTypeChange(fxinp.traces[i].iLayerIndex - 1, 1);
-                        }
+
+                        if (bChangeUp) fxinp.PassLayerTypeChange(iRefUp, 0); //back to Signal
+                        if (bChangeDown) fxinp.PassLayerTypeChange(iRefDown, 0); //back to Signal
 
                         if (retval != 0) return retval;
 
@@ -1128,7 +1222,7 @@ namespace ZZero.ZPlanner.FXInterface
                             ZLayer zDpLayer = pair.GetLayerOfPairImpedance(layerID);
                             // set diff impedance
                             // set impedance
-                            ZPlannerProject.SetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_Zo, fxout.fZzero[0]);
+                            ZPlannerProject.SetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_Zo, fxout.calcZ0());
                             ZPlannerProject.SetLayerParameterValue(zDpLayer, ZStringConstants.ParameterIDZdiff_Zdiff, ZDiff);
 
                             //calculate insertion loss [db/inch]
@@ -1158,9 +1252,11 @@ namespace ZZero.ZPlanner.FXInterface
             //fxinp.PassFinish();
 
             return retval;
-        }
 
-        private static int AutoFit_DiffPairWS_Impedance(FX_Input fxinp, double W, double S, ref FX_AutoFit_DiffPairWS autoFitData, out double fDelta)
+        }
+#endif
+
+        /*private static int AutoFit_DiffPairWS_Impedance(FX_Input fxinp, double W, double S, ref FX_AutoFit_DiffPairWS autoFitData, out double fDelta)
         {
             String sOutput = "";
             fDelta = 0; // to make compiler happy
@@ -1276,8 +1372,7 @@ namespace ZZero.ZPlanner.FXInterface
 
             return retval;
 
-        }
-#endif
+        }*/
 
         private static int Run(ref String sOutput)
         {
@@ -1293,7 +1388,7 @@ namespace ZZero.ZPlanner.FXInterface
             else
             {
                 string messageBoxText = String.Format("Wrong stackup data ({0})", ret);
-                string caption = "Field Solver";
+                string caption = "Z-solver";
                 MessageBox.Show(messageBoxText, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return ret;
@@ -1332,12 +1427,12 @@ namespace ZZero.ZPlanner.FXInterface
                 data.outDiff = fxout;
 
                 //write result to sandbox data
-                data.Z0diff = fxout.fZzero[0];
+                data.Z0diff = fxout.calcZ0();
                 data.Zdiff = 2 * (fxout.fZzero[0] - fxout.fZzero[1]); //2*(Z11-Z12)
 
-                data.R1diff = fxout.fSkinResistance[0];
-                data.G1diff = fxout.fGMatrix[0];
-                data.G0diff = fxout.fGzero[0];
+                data.R1diff = fxout.calcSkinResistance();
+                data.G1diff = fxout.calcGMatrix();
+                data.G0diff = fxout.calcG0();
                 data.RRough1diff = fxout.fRoughnessResistance[0];            
             }
             //finish
@@ -1366,10 +1461,10 @@ namespace ZZero.ZPlanner.FXInterface
                 data.outSE = fxout;
 
                 //write result to sandbox data
-                data.Z0 = fxout.fZzero[0];
-                data.R1 = fxout.fSkinResistance[0];
-                data.G1 = fxout.fGMatrix[0];
-                data.G0 = fxout.fGzero[0];
+                data.Z0 = fxout.calcZ0();
+                data.R1 = fxout.calcSkinResistance();
+                data.G1 = fxout.calcGMatrix();
+                data.G0 = fxout.calcG0();
                 data.RRough1 = fxout.fRoughnessResistance[0];
             }
             //finish
@@ -1541,7 +1636,7 @@ namespace ZZero.ZPlanner.FXInterface
 
             public HammerstadModel(FX_Output fxOut)
             {
-                double R1 = fxOut.fSkinResistance[0];
+                double R1 = fxOut.calcSkinResistance();
                 double Ro1 = fxOut.fRoughnessResistance[0];
                 double x = Math.Min(Ro1 / R1, 0.999);
                 arg = Math.Tan(0.5*Math.PI*x);
@@ -1572,18 +1667,17 @@ namespace ZZero.ZPlanner.FXInterface
         public double Attenuation_R(double f) //db/m
         {
             double coef = 20 / Math.Log(10);
-            double R = fxOut.fSkinResistance[0] * Math.Sqrt(f);//?mode
-
-            double Z0 = fxOut.fZzero[0];
+            double R = fxOut.calcSkinResistance() * Math.Sqrt(f);
+            double Z0 = fxOut.calcZ0();
             return (0.5 * R / Z0) * coef;
         }
 
         public double Attenuation_Ro(double f) //db/m
         {
             double coef = 20 / Math.Log(10);
-            double Z0 = fxOut.fZzero[0];
+            double Z0 = fxOut.calcZ0();
             //--double R = fxOut.fRoughnessResistance[0] * Math.Sqrt(f);//?mode
-            double R = fxOut.fSkinResistance[0] * Math.Sqrt(f);
+            double R = fxOut.calcSkinResistance() * Math.Sqrt(f);
             double Ro = roughModel.K(f) * R;
             return (0.5 * Ro / Z0) * coef;
         }
@@ -1591,9 +1685,9 @@ namespace ZZero.ZPlanner.FXInterface
         public double Attenuation_D(double f) //db/m
         {
             double coef = 20 / Math.Log(10);
-            double G = fxOut.fGzero[0] + f * fxOut.fGMatrix[0];//?mode
-            double Z0 = fxOut.fZzero[0];
-            return (0.5 * G * Z0) * coef;
+            double G = fxOut.calcG0() + f * fxOut.calcGMatrix();//?mode
+            double Z0 = fxOut.calcZ0();
+            return (0.5 *  G * Z0) * coef;
         }
 
     }

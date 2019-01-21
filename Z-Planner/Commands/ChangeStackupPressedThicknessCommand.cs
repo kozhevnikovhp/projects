@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZZero.ZPlanner.Data.Entities;
+using ZZero.ZPlanner.ZConfiguration;
 
 namespace ZZero.ZPlanner.Commands
 {
@@ -26,7 +28,12 @@ namespace ZZero.ZPlanner.Commands
         /// </summary>
         internal override void Undo()
         {
-            currentObject.ByCopperCoverage = oldValue.ByCopperCoverage;
+            //string format = ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent);
+            //if (currentObject.ForSignal != oldValue.ForSignal) currentObject.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, currentObject.ForSignal.ToString(format, CultureInfo.InvariantCulture), oldValue.ForSignal.ToString(format, CultureInfo.InvariantCulture));
+            //if (currentObject.ForMixed != oldValue.ForMixed) currentObject.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, currentObject.ForMixed.ToString(format, CultureInfo.InvariantCulture), oldValue.ForMixed.ToString(format, CultureInfo.InvariantCulture));
+            //if (currentObject.ForPlane != oldValue.ForPlane) currentObject.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, currentObject.ForPlane.ToString(format, CultureInfo.InvariantCulture), oldValue.ForPlane.ToString(format, CultureInfo.InvariantCulture));
+            
+            currentObject.CopperCoverageType = oldValue.CopperCoverageType;
             currentObject.ForSignal = oldValue.ForSignal;
             currentObject.ForMixed = oldValue.ForMixed;
             currentObject.ForPlane = oldValue.ForPlane;
@@ -52,7 +59,12 @@ namespace ZZero.ZPlanner.Commands
         /// </summary>
         internal override void Redo()
         {
-            currentObject.ByCopperCoverage = newValue.ByCopperCoverage;
+            //string format = ZPlannerManager.GetFormatByParameterID(ZStringConstants.ParameterIDCopperPercent);
+            //if (currentObject.ForSignal != newValue.ForSignal) currentObject.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, currentObject.ForSignal.ToString(format, CultureInfo.InvariantCulture), newValue.ForSignal.ToString(format, CultureInfo.InvariantCulture));
+            //if (currentObject.ForMixed != newValue.ForMixed) currentObject.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, currentObject.ForMixed.ToString(format, CultureInfo.InvariantCulture), newValue.ForMixed.ToString(format, CultureInfo.InvariantCulture));
+            //if (currentObject.ForPlane != newValue.ForPlane) currentObject.SetAllLayerParameterValues(ZStringConstants.ParameterIDCopperPercent, currentObject.ForPlane.ToString(format, CultureInfo.InvariantCulture), newValue.ForPlane.ToString(format, CultureInfo.InvariantCulture));
+
+            currentObject.CopperCoverageType = newValue.CopperCoverageType;
             currentObject.ForSignal = newValue.ForSignal;
             currentObject.ForMixed = newValue.ForMixed;
             currentObject.ForPlane = newValue.ForPlane;

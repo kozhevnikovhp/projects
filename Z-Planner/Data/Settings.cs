@@ -323,6 +323,31 @@ namespace ZZero.ZPlanner.Settings
         [DataMember(Name = "MetalDefaultCopperInnerLayerPrepregSideRoughness")]
         public double prepreg_side_roughness; //um [0.5-15]
 
+        //core-side
+        [DataMember(Name = "MetalDefaultCopperCoreSideRoughnessHTE")]
+        public double core_side_roughness_hte; //um [0.5-15]
+        [DataMember(Name = "MetalDefaultCopperCoreSideRoughnessRTF")]
+        public double core_side_roughness_rtf; //um [0.5-15]
+        [DataMember(Name = "MetalDefaultCopperCoreSideRoughnessVLP")]
+        public double core_side_roughness_vlp; //um [0.5-15]
+        [DataMember(Name = "MetalDefaultCopperCoreSideRoughnessVLP2")]
+        public double core_side_roughness_vlp2; //um [0.5-15]
+        [DataMember(Name = "MetalDefaultCopperCoreSideRoughnessHVLP")]
+        public double core_side_roughness_hvlp; //um [0.5-15]
+
+        //prepreg-side
+        [DataMember(Name = "MetalDefaultCopperPrepregSideRoughnessMB100LE")]
+        public double prepreg_side_roughness_mb100le; //um [0.5-1.0]
+        [DataMember(Name = "MetalDefaultCopperPrepregSideRoughnessAlphaPrep")]
+        public double prepreg_side_roughness_alphaprep; //um [0.9-1.1]
+        [DataMember(Name = "MetalDefaultCopperPrepregSideRoughnessMB100ZK")]
+        public double prepreg_side_roughness_mb100zk; //um [1.0-1.5]
+        [DataMember(Name = "MetalDefaultCopperPrepregSideRoughnessBF")]
+        public double prepreg_side_roughness_bf; //um [1.2-1.5]
+        [DataMember(Name = "MetalDefaultCopperPrepregSideRoughnessCZ8100")]
+        public double prepreg_side_roughness_cz8100; //um [1.5-2.0]
+        [DataMember(Name = "MetalDefaultCopperPrepregSideRoughnessMB100HP")]
+        public double prepreg_side_roughness_mb100hp; //um [2.0-2.5]
         
         //======================== Prepreg Thickness Adjustments
         [DataMember(Name = "PrepregThicknessAdjustmentsByCopperCoverage")]
@@ -500,14 +525,14 @@ namespace ZZero.ZPlanner.Settings
 
             //=============== File Locations
 #if ZSANDBOX
-            ProjectPath = ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory; //z0p
+            ProjectPath = ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory; //z0p
             UseLast = true;
-            ExportPath = ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory;
+            ExportPath = ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory;
 
-            DML_LocalPath = Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, "DML", "LocalLibrary.xml");
-            DML_NetworkPath = Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, "DML", "CorporateLibrary.xml");
+            DML_LocalPath = Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, "DML", "LocalLibrary.xml");
+            DML_NetworkPath = Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, "DML", "CorporateLibrary.xml");
 
-            LicensePath = Path.Combine(ZZero.ZSandbox.ZSandboxManager.ZPlannerDataDirectory, "License");
+            LicensePath = Path.Combine(ZZero.ZSolver.ZSolverManager.ZPlannerDataDirectory, "License");
 #else
             ProjectPath = ZPlannerManager.ZPlannerDataDirectory; //z0p
             UseLast = true;
@@ -536,8 +561,8 @@ namespace ZZero.ZPlanner.Settings
             Df = 0.018;
 
             //resin only
-            resin_Dk = 3.3; //[1-7]
-            resin_Df = 0.022;
+            resin_Dk = 3.2; //[1-7]
+            resin_Df = 0.012;
 
             //================== Metal Defaults
             trace_width = 5.0; //mils [2-100]
@@ -554,6 +579,21 @@ namespace ZZero.ZPlanner.Settings
             laminate_side_roughness = 5; //um [0.5-15]
             prepreg_side_roughness = 3.5; //um [0.5-15]
 
+            core_side_roughness_hte = 7.5; //um [0.5-15]
+            core_side_roughness_rtf = 5.0; //um [0.5-15]
+            core_side_roughness_vlp = 3.0; //um [0.5-15]
+            core_side_roughness_vlp2= 2.0; //um [0.5-15]
+            core_side_roughness_hvlp= 1.0; //um [0.5-15]
+
+            //prepreg-side
+            prepreg_side_roughness_mb100le   = 1.0; //um [0.5-1.0]
+            prepreg_side_roughness_alphaprep = 1.1; //um [0.9-1.1]
+            prepreg_side_roughness_mb100zk   = 1.5; //um [1.0-1.5]
+            prepreg_side_roughness_bf        = 1.5; //um [1.2-1.5]
+            prepreg_side_roughness_cz8100    = 2.0; //um [1.5-2.0]
+            prepreg_side_roughness_mb100hp   = 4.0; //um [2.5-4.0]
+
+            //copper thickness
             copper_thickness_05oz = 0.6;
             copper_thickness_10oz = 1.2;
             copper_thickness_15oz = 1.8;

@@ -220,6 +220,8 @@ namespace ZZero.ZPlanner.UI.Grid
             if (DataGridView == null
                 || (OwnerCell == null && ColumnSpan == 1 && RowSpan == 1 && !(this.OwningColumn is ZDataGridViewViaSpanColumn)))
             {
+                graphics.SetClip(clipBounds);
+
                 advancedBorderStyle = new DataGridViewAdvancedBorderStyle
                 {
                     Left = DataGridViewAdvancedCellBorderStyle.Outset,
@@ -273,13 +275,16 @@ namespace ZZero.ZPlanner.UI.Grid
             var titleClipBounds = ZDataGridView.GetSpannedColumnHeaderCellClipBounds(ownerCell, titleCellBounds,
                 ZDataGridView.SingleVerticalHeaderBorderAdded(DataGridView),
                 ZDataGridView.SingleHorizontalHeaderBorderAdded(DataGridView));
-            using (var g = DataGridView.CreateGraphics())
+            //using (var g = DataGridView.CreateGraphics())
             {
+                Graphics g = graphics;
                 g.SetClip(titleClipBounds);
                 //Paint the content.
                 advancedBorderStyle = ZDataGridView.AdjustHeaderBorderStyle(ownerCell);
                 ownerCell.OwningColumn.SortMode = DataGridViewColumnSortMode.NotSortable;
+                cellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
                 ownerCell.NativePaint(parameter, g, titleClipBounds, titleCellBounds, rowIndex, cellState, title, formattedTitle, errorText, cellStyle, advancedBorderStyle, paintParts & ~DataGridViewPaintParts.Border);
+                cellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 ownerCell.OwningColumn.SortMode = DataGridViewColumnSortMode.Programmatic;
                 //Paint the borders.
                 if ((paintParts & DataGridViewPaintParts.Border) != DataGridViewPaintParts.None)
@@ -299,8 +304,9 @@ namespace ZZero.ZPlanner.UI.Grid
             var subtitleCellBounds = new Rectangle(cellBounds.X, cellBounds.Y + titleCellBounds.Height + headerNameCellBounds.Height, cellBounds.Width, cellBounds.Height - titleCellBounds.Height - headerNameCellBounds.Height);
             var subtitleClipBounds = new Rectangle(clipBounds.X, clipBounds.Y + titleCellBounds.Height + headerNameClipBounds.Height, clipBounds.Width, clipBounds.Height - titleCellBounds.Height - headerNameClipBounds.Height);
 
-            using (var g = DataGridView.CreateGraphics())
+            //using (var g = DataGridView.CreateGraphics())
             {
+                Graphics g = graphics;
                 g.SetClip(subtitleClipBounds);
                 //Paint the content.
                 this.NativePaintWithFiltering(parameter, g, subtitleClipBounds, subtitleCellBounds, rowIndex, cellState, SubTitle, formattedSubTitle, errorText, cellStyle, advancedBorderStyle, paintParts & ~DataGridViewPaintParts.Border);

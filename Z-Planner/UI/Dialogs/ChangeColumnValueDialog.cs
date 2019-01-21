@@ -40,15 +40,26 @@ namespace ZZero.ZPlanner.UI.Dialogs
         {
             if (layerParameters.Count > 0)
             {
-                if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeColumnValuesCommand(layerParameters, layerParameters[0].Value, newValue);
+                string oldValue = layerParameters[0].Value;
+                
                 bool isIgnore = ZPlannerManager.Commands.SuspendCommandEvent();
 
-                foreach (ZLayerParameter layerParameter in layerParameters)
+                bool isIgnoreActive = ZPlannerManager.SuspendUpdateActiveStackupEvent();
+                try
                 {
-                    layerParameter.Value = newValue;
+                    foreach (ZLayerParameter layerParameter in layerParameters)
+                    {
+                        layerParameter.Value = newValue;
+                    }
+                }
+                finally
+                {
+                    ZPlannerManager.ResumeUpdateActiveStackupEvent(isIgnoreActive);
+                    ZPlannerManager.UpdateActiveStackup();
+                    ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
+                    if (!ZPlannerManager.Commands.IsIgnoreCommands) new ChangeColumnValuesCommand(layerParameters, oldValue, newValue);
                 }
 
-                ZPlannerManager.Commands.ResumeCommandEvent(isIgnore);
             }
 
             DialogResult = System.Windows.Forms.DialogResult.OK;
