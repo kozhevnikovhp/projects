@@ -19,9 +19,10 @@ CurlLib &CurlLib::instance()
 
 CurlLib::CurlLib()
 {
-    bEnabled_ = true;
-    bVerbose_ = false;
+    bPostEnabled_ = true;
+    bPostVerbose_ = bTftpVerbose_ = false;
     bVerifyPeer_ = false;
+    postTimeout_ = 10; // 10 seconds by default but configuarable
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
@@ -37,13 +38,15 @@ bool CurlLib::post(const std::string &data)
     CURL *pCurl = initCurl();
     if (pCurl)
     {
-        curl_easy_setopt(pCurl, CURLOPT_POST, 1);
-
         setSecurityOptions(pCurl);
 
-        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
+        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bPostVerbose_ ? 1L : 0L);
 
-        curl_easy_setopt(pCurl, CURLOPT_URL, URL_.c_str());
+        curl_easy_setopt(pCurl, CURLOPT_POST, 1L);
+
+        curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, postTimeout_);
+
+        curl_easy_setopt(pCurl, CURLOPT_URL, RestProxyURL_.c_str());
 
         curl_easy_setopt(pCurl, CURLOPT_POSTFIELDS, data.c_str());
 
@@ -57,7 +60,7 @@ bool CurlLib::post(const std::string &data)
         bSuccess = (res == CURLE_OK);
         // Check for errors
         if (!bSuccess)
-            log_error("REST proxy failed (%s)", curl_easy_strerror(res));
+            log_error("REST proxy failed to POST %s (%s)", RestProxyURL_.c_str(), curl_easy_strerror(res));
 
         curl_easy_cleanup(pCurl);
         curl_slist_free_all(pCurlHeader);
@@ -79,7 +82,7 @@ bool CurlLib::putFileTFTP(const std::string &fileFullPath, const std::string &tf
             return false; // can't continue
         }
 
-        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bVerbose_);
+        curl_easy_setopt(pCurl, CURLOPT_VERBOSE, bTftpVerbose_ ? 1L : 0L);
         curl_easy_setopt(pCurl, CURLOPT_READDATA, fd);
 
         // set timeout not to wait too long
@@ -107,9 +110,9 @@ bool CurlLib::putFileTFTP(const std::string &fileFullPath, const std::string &tf
         bSuccess = (res == CURLE_OK);
         // Check for errors
         if (bSuccess)
-            log_info("TFTP transfer succeded");
+            log_info("TFTP transfer to %s succeded", remoteURL.c_str());
         else
-            log_error("TFTP transfer failed (%s)", curl_easy_strerror(res));
+            log_error("TFTP transfer to %s failed (%s)", remoteURL.c_str(), curl_easy_strerror(res));
 
         curl_easy_cleanup(pCurl);
         fclose(fd);
@@ -153,21 +156,31 @@ void CurlLib::setSecurityOptions(CURL *pCurl)
     curl_easy_setopt(pCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 }
 
-void CurlLib::configure(const Configuration &cfg)
+void CurlLib::configure(const Configuration &cfg, bool bDaemon)
 {
-    bEnabled_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_ENABLED, "true");
+    bPostEnabled_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_ENABLED, true);
+    log_info("REST proxy enabled: %s", bPostEnabled_ ? "true" : "false");
 
-    URL_ = cfg.get(PSZ_KAFKA_REST_PROXY_URL, PSZ_KAFKA_REST_PROXY_URL_DEFAULT);
-    log_info("REST proxy: %s", URL_.c_str());
-    URL_ += "/topics/";
-    URL_ += cfg.get(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT);
+    RestProxyURL_ = cfg.get(PSZ_KAFKA_REST_PROXY_URL, PSZ_KAFKA_REST_PROXY_URL_DEFAULT);
+    log_info("REST proxy URL: %s", RestProxyURL_.c_str());
+    RestProxyURL_ += "/topics/";
+    RestProxyURL_ += cfg.get(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT);
+
+    postTimeout_ = cfg.getInteger(PSZ_KAFKA_REST_PROXY_TIMEOUT, postTimeout_);
+    if (postTimeout_ < 5)
+        postTimeout_ = 5;
+    log_info("REST proxy timeout: %d seconds", postTimeout_);
 
     certFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_CERT, "");
     keyFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_KEY, "");
     passPhrase_ = cfg.get(PSZ_KAFKA_REST_PROXY_PASSWORD, "");
     CAcertFile_ = cfg.get(PSZ_KAFKA_REST_PROXY_CACERT, "");
-    bVerifyPeer_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_VERIFY_PEER, "false");
+    bVerifyPeer_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_VERIFY_PEER, false);
 
-    bVerbose_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_VERBOSE, "false");
+    // for performance in daemon mode, just to not make libcurl create its verbose output and nullify it then
+    if (bDaemon)
+        bPostVerbose_ = bTftpVerbose_ = false;
+    else
+        bPostVerbose_ = cfg.getBoolean(PSZ_KAFKA_REST_PROXY_VERBOSE, false);
 }
 

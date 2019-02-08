@@ -16,6 +16,9 @@ extern const char *PSZ_FW_UPGRADE_MARKER_PATH;
 extern const char *PSZ_FW_UPGRADE_MARKER_FILE;
 extern const char *PSZ_FW_UPGRADE_PATH;
 
+extern const char *PSZ_CURRENT_STATE_PATH;
+extern const char *PSZ_CURRENT_STATE_FILE;
+
 extern const char *PSZ_DEVICE_NAME;
 
 extern const char *PSZ_JSON_VERSION;
@@ -27,6 +30,7 @@ extern const char *PSZ_KAFKA_BROKERS_DEFAULT;
 extern const char *PSZ_KAFKA_REST_PROXY_ENABLED;
 extern const char *PSZ_KAFKA_REST_PROXY_URL;
 extern const char *PSZ_KAFKA_REST_PROXY_URL_DEFAULT;
+extern const char *PSZ_KAFKA_REST_PROXY_TIMEOUT;
 extern const char *PSZ_KAFKA_REST_PROXY_CERT;
 extern const char *PSZ_KAFKA_REST_PROXY_KEY;
 extern const char *PSZ_KAFKA_REST_PROXY_PASSWORD;

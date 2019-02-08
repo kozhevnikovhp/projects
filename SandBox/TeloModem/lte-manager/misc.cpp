@@ -12,11 +12,26 @@
 
 #include <stdio.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include "misc.h"
 
 ////////////////////////////////////////////////////////////////////////
 // Misc
+
+time_t getCurrentTimeSec()
+{
+    timeval t;
+    gettimeofday(&t, nullptr);
+    return t.tv_sec;
+}
+
+time_t getCurrentTimeMSec()
+{
+    timeval t;
+    gettimeofday(&t, nullptr);
+    return t.tv_sec*1000 + t.tv_usec/1000;
+}
 
 IPADDRESS_TYPE getIP(const sockaddr_in *pSockAddr)
 {
@@ -142,7 +157,7 @@ bool putInterfaceDown(const std::string &ifaceName)
 
     bool bSuccess = true;
     struct ifreq iface;
-    bzero(&iface, sizeof(iface));
+    memset(&iface, 0, sizeof(iface));
     iface.ifr_addr.sa_family = AF_INET;
     strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
 
@@ -183,7 +198,7 @@ bool setInterfaceUp(const std::string &ifaceName)
 
     bool bSuccess = true;
     struct ifreq iface;
-    bzero(&iface, sizeof(iface));
+    memset(&iface, 0, sizeof(iface));
     iface.ifr_addr.sa_family = AF_INET;
     strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
 
@@ -224,7 +239,7 @@ bool getInterfaceAddressAndMask(const std::string &ifaceName, IPADDRESS_TYPE &if
 
     bool bSuccess = true;
     struct ifreq iface;
-    bzero(&iface, sizeof(iface));
+    memset(&iface, 0, sizeof(iface));
     iface.ifr_addr.sa_family = AF_INET;
     strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
 
@@ -271,7 +286,7 @@ bool setInterfaceIpAddress(const std::string &ifaceName, IPADDRESS_TYPE ifaceIP)
 
     bool bSuccess = true;
     struct ifreq iface;
-    bzero(&iface, sizeof(iface));
+    memset(&iface, 0, sizeof(iface));
     iface.ifr_addr.sa_family = AF_INET;
     strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
 
@@ -301,7 +316,7 @@ bool setInterfaceMask(const std::string &ifaceName, IPADDRESS_TYPE mask)
 
     bool bSuccess = true;
     struct ifreq iface;
-    bzero(&iface, sizeof(iface));
+    memset(&iface, 0, sizeof(iface));
     iface.ifr_addr.sa_family = AF_INET;
     strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
 
@@ -332,7 +347,7 @@ bool getInterfaceMacAddress(const std::string &ifaceName, void *pAddress)
 
     bool bSuccess = false;
     struct ifreq iface;
-    bzero(&iface, sizeof(iface));
+    memset(&iface, 0, sizeof(iface));
     iface.ifr_addr.sa_family = AF_INET;
     strncpy(iface.ifr_name, ifaceName.c_str(), IFNAMSIZ);
     int ec = ioctl(sock, SIOCGIFHWADDR, &iface);

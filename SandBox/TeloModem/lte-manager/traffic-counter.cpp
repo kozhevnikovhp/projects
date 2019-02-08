@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include "traffic-counter.h"
+#include "verbosity.h"
 #include "log.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -142,6 +143,8 @@ int TrafficCounter::doJob()
     if (!hasJob())
         return NotOK;
 
+    VERBOSE(2, __PRETTY_FUNCTION__);
+
     struct pollfd fds[256];
     nfds_t nfds = 0;
     memset(fds, 0, sizeof(fds));
@@ -159,9 +162,12 @@ int TrafficCounter::doJob()
                 iface.stopListening();
             continue;
         }
-        fds[nfds].fd = iface.getSelectableFd();
-        fds[nfds].events = POLLIN;
-        ++nfds;
+        if (iface.isListening() && (nfds < sizeof(fds)/sizeof(fds[0])))
+        {
+            fds[nfds].fd = iface.getSelectableFd();
+            fds[nfds].events = POLLIN;
+            ++nfds;
+        }
     }
     if (!nfds)
         return OK;
@@ -182,13 +188,10 @@ int TrafficCounter::doJob()
             }
             bContinue = true; // is anybody else in there?
         }
-        else if (rc < 0)
-        {
-            perror("  poll() failed");
-            bContinue = false;
-        }
         else
-            bContinue = false; // 0 means "timeout expired -> do nothing and exit
+        {
+            bContinue = false; // do nothing more and exit
+        }
     }
     return OK;
 }

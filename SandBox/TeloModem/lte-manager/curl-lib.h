@@ -21,8 +21,8 @@ class CurlLib
 
     bool post(const std::string &data);
     bool putFileTFTP(const std::string &fileFullPath, const std::string &tftpServer);
-    bool isEnabled() const { return bEnabled_; }
-    void configure(const Configuration &config);
+    bool isPostEnabled() const { return bPostEnabled_; }
+    void configure(const Configuration &config, bool bDaemon);
 
   private:
     CurlLib();
@@ -37,13 +37,14 @@ protected:
     CURL *initCurl();
     void setSecurityOptions(CURL *pCurl);
 
-    std::string URL_;
+    std::string RestProxyURL_;
     std::string certFile_;
     std::string keyFile_;
     std::string passPhrase_;
     std::string CAcertFile_;
-    bool bEnabled_;
+    bool bPostEnabled_;
     bool bVerifyPeer_;
-    bool bVerbose_;
+    int postTimeout_;
+    bool bPostVerbose_, bTftpVerbose_;
 };
 

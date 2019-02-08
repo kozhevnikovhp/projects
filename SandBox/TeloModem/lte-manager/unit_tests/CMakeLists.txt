@@ -12,6 +12,8 @@ ADD_EXECUTABLE(lte-manager-unit-tests
     ../log.cpp
     ../misc.cpp
     ../modem-gtc.cpp
+    ../verbosity.cpp
+    ../version.cpp
     )
 
 #C++11 support

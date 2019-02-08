@@ -25,6 +25,8 @@ bool Sniffer::waitForPacket()
     void *pPayload = nullptr;
     unsigned int nPayloadLen = 0;
 
+    if (!isListening())
+        return false;
     if (!doWaitForPacket(pEthernetHeader, pPayload, nPayloadLen))
         return false;
 

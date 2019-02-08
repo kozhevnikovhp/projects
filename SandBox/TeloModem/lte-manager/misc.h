@@ -13,6 +13,9 @@
 ////////////////////////////////////////////////////////////////////////
 // Misc
 
+time_t getCurrentTimeSec();
+time_t getCurrentTimeMSec();
+
 IPADDRESS_TYPE dotNotationToAddress(const std::string &str);
 IPADDRESS_TYPE dotNotationToAddress(const char *pszStr);
 

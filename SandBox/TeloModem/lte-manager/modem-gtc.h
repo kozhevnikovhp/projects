@@ -14,12 +14,10 @@
 #endif
 #include "json.h"
 
-void convertKeyValuePairTo(JsonContent &content, std::string &json);
-
 class ModemGTC
 {
 public:
-    ModemGTC(const std::string &deviceName);
+    ModemGTC(const std::string &deviceNameTemplate);
 
     bool connect();
     bool disconnect();
@@ -55,9 +53,10 @@ protected:
     bool execute(const std::string &command, int timeout);
 
     SerialConnection connection_;
+    char szReply_[2048];
 #endif
 
-    std::string deviceName_;
+    std::string deviceNameTemplate_;
     std::string raw_; // to avoid memory fragmentation
     JsonContent tmpContent_; // to avoid memory fragmentation
     int nCannotConnectReported_;

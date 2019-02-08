@@ -6,16 +6,16 @@
  */
 
 #include <fstream>
-#include <sys/time.h>
+#include <signal.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#include "const.h"
 #include "lte-parameters.h"
 #include "log.h"
-
-time_t getCurrentTimeSec()
-{
-    timeval t;
-    gettimeofday(&t, nullptr);
-    return t.tv_sec;
-}
+#include "misc.h"
+#include "verbosity.h"
+#include "version.h"
 
 //////////////////////////////////////////////////////////////////
 /// LteValuesGroup::LteParameterGroup
@@ -24,9 +24,15 @@ time_t getCurrentTimeSec()
 //static
 bool LteValuesGroup::bFirmwareUpdated_ = true; // query everything at start-up
 bool LteValuesGroup::bConnectionTypeChanged_ = true; // query everything at start-up
+bool LteValuesGroup::bHourlyFullUpdateRequired_ = true; // query everything at start-up
+bool LteValuesGroup::bSendOK_ = false; // query everything at start-up
+
+//static
+std::map<std::string, std::string> LteValuesGroup::currentState_;
+std::string LteValuesGroup::currentStateFileFullPath_;
 
 LteValuesGroup::LteValuesGroup()
-    : actualTime_(0), bForceQuery_(true)
+    : lastQueryTime_(0), lastFullReportTime_(0), bValuesSuccessfullyObtained_(false)
 {
 }
 
@@ -37,28 +43,30 @@ LteValuesGroup::~LteValuesGroup()
 
 bool LteValuesGroup::get(time_t basicDelay, JsonContent &allReport)
 {
-    //printf("get %s\n", getName());
     ReportAction action = REPORT_CHANGED_ONLY;
-    if (bForceQuery_ || bFirmwareUpdated_ || bConnectionTypeChanged_)
+    if (!bValuesSuccessfullyObtained_ || bFirmwareUpdated_ || bConnectionTypeChanged_ || bHourlyFullUpdateRequired_ || !bSendOK_)
         action = REPORT_EVERYTHING;
     else
     {
-        time_t elapsedTime = ::getCurrentTimeSec() - actualTime_;
-        if (elapsedTime < getMinExpirationTime()*basicDelay)
+        if ((::getCurrentTimeSec() - lastQueryTime_) < getMinExpirationTime()*basicDelay)
             action = REPORT_NOTHING; // never(!) query too frequently
-        else if (elapsedTime > getMaxExpirationTime()*basicDelay)
+        else if ((::getCurrentTimeSec() - lastFullReportTime_) > getMaxExpirationTime()*basicDelay)
             action = REPORT_EVERYTHING; // data received is obsolete
     }
     if (action == REPORT_NOTHING)
         return true;
 
     thisQueryResult_.clear();
-    //printf("\tdoGet %s\n", getName());
-    bool bSuccess = doGet(thisQueryResult_);
-    bForceQuery_ = !bSuccess;
-    if (bSuccess)
+
+    if (g_VerbosityLevel >=2)
+        printf("\tdoGet %s\n", getName());
+
+    bValuesSuccessfullyObtained_ = doGet(thisQueryResult_);
+    if (bValuesSuccessfullyObtained_)
     {
-        actualTime_ = ::getCurrentTimeSec();
+        lastQueryTime_ = ::getCurrentTimeSec();
+        if (action == REPORT_EVERYTHING)
+            lastFullReportTime_ = lastQueryTime_;
 
         for (auto &entry : thisQueryResult_)
         {
@@ -84,17 +92,89 @@ bool LteValuesGroup::get(time_t basicDelay, JsonContent &allReport)
             }
             if (bNeedToAdd)
                 allReport.emplace_back(entry);
+            // update current state
+            LteValuesGroup::currentState_[entry.first] = entry.second;
         }
 
         lastQueryResult_.swap(thisQueryResult_);
     }
-    return bSuccess;
+    return bValuesSuccessfullyObtained_;
+}
+
+//static
+void LteValuesGroup::userSigUsr1Handler(int signalNumber)
+{
+    if (signalNumber == SIGUSR1)
+    {
+        printf("Received SIGUSR1!\n");
+        LteValuesGroup::writeCurrentState();
+    }
+}
+
+//static
+void LteValuesGroup::prepareCurrentState()
+{
+    currentStateFileFullPath_ = std::string(PSZ_CURRENT_STATE_PATH);
+    currentStateFileFullPath_ += PSZ_CURRENT_STATE_FILE;
+    ::makeDirRecursively(PSZ_CURRENT_STATE_PATH, S_IRWXU | S_IRWXG | S_IRWXO);
+
+    signal(SIGUSR1, userSigUsr1Handler);
+}
+
+//static
+bool LteValuesGroup::writeCurrentState()
+{
+    FILE *pFile = fopen(currentStateFileFullPath_.c_str(), "w");
+    if (!pFile)
+    {
+        log_info("Cannot write LTE-status to file %s (%s)\n", currentStateFileFullPath_.c_str(), strerror(errno));
+        return false;
+    }
+    //fprintf(pFile, "{\n");
+    for (auto keyValue : currentState_)
+    {
+        fprintf(pFile, "%s : %s\n", keyValue.first.c_str(), keyValue.second.c_str());
+        //printf("%s : %s\n", keyValue.first.c_str(), keyValue.second.c_str());
+    }
+    //fprintf(pFile, "}\n");
+    fclose(pFile);
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////
+/// CommonParameterGroup
+
+CommonParameterGroup::CommonParameterGroup()
+{
+}
+
+//virtual
+bool CommonParameterGroup::doGet(JsonContent &content)
+{
+    // Version of TELO (content of /version file)
+    std::ifstream f("/version");
+    if (f.is_open())
+    {
+        std::string TeloVersion, line;
+        while (!f.eof() && !f.bad() && !f.fail())
+        {
+            line.clear();
+            std::getline(f, line);
+            TeloVersion += line;
+        }
+        if (!TeloVersion.empty())
+            content.emplace_back(KeyValue("telo_version", TeloVersion));
+    }
+
+    // version of LTE-Manager
+    content.emplace_back(KeyValue("lte_manager_version", PSZ_VERSION));
+    return true;
 }
 
 
-///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 /// ModemControlParameterGroup
-///
+
 ModemControlParameterGroup::ModemControlParameterGroup(ModemGTC &modem)
     : modem_(modem)
 {
@@ -113,7 +193,7 @@ bool ModemControlParameterGroup::doGet(JsonContent &content)
 
 ///////////////////////////////////////////////////////////////////
 ///  ConstantModemParameterGroup::ConstantModemParameterGroup
-///
+
 ConstantModemParameterGroup::ConstantModemParameterGroup(ModemGTC &modem)
     : modem_(modem)
 {
@@ -251,30 +331,16 @@ TrafficParameterGroup::TrafficParameterGroup(TrafficCounter &counter)
 //virtual
 bool TrafficParameterGroup::doGet(JsonContent &content)
 {
-    const char *const FORMAT_STRING = "%d";
-    char szString[128];
-
     if (counter_.getTeloOutputBytes())
-    {
-        sprintf(szString, FORMAT_STRING, counter_.getTeloOutputBytes());
-        content.emplace_back(KeyValue("telo_ooma_apps_lte_sent_bytes", szString));
-    }
+        content.emplace_back(KeyValue("telo_ooma_apps_lte_sent_bytes", std::to_string(counter_.getTeloOutputBytes())));
     if (counter_.getTeloInputBytes())
-    {
-        sprintf(szString, FORMAT_STRING, counter_.getTeloInputBytes());
-        content.emplace_back(KeyValue("telo_ooma_apps_lte_received_bytes", szString));
-    }
+        content.emplace_back(KeyValue("telo_ooma_apps_lte_received_bytes", std::to_string(counter_.getTeloInputBytes())));
 
     /*if (counter_.getUserOutputBytes())
-    {
-        sprintf(szString, FORMAT_STRING, counter_.getUserOutputBytes());
-        content.emplace_back(KeyValue("sent_bytes_user", szString));
-    }
+        content.emplace_back(KeyValue("sent_bytes_user", std::to_string(counter_.getUserOutputBytes())));
     if (counter_.getUserOutputBytes())
-    {
-        sprintf(szString, FORMAT_STRING, counter_.getUserInputBytes());
-        content.emplace_back(KeyValue("received_bytes_user", szString));
-    }*/
+        content.emplace_back(KeyValue("received_bytes_user", std::to_string(counter_.getUserInputBytes())));
+        */
 
     counter_.clearStatistics();
 
@@ -284,7 +350,7 @@ bool TrafficParameterGroup::doGet(JsonContent &content)
 
 ///////////////////////////////////////////////////////////////////
 /// WanSwitchStateGroup
-///
+
 const char *const WANSWITCH_DBUS_OBJECT_PATH_NAME = "/org/ooma/wanswitch";
 const char *const WANSWITCH_DBUS_INTERFACE_NAME = "org.ooma.wanswitch";
 const char *const WANSWITCH_DBUS_GET_SERVICE_METHOD_NAME = "GetService";
@@ -392,7 +458,6 @@ void WanSwitchStateGroup::reportDbusError()
 
 ///////////////////////////////////////////////////////////////////
 /// OomaServiceStatusGroup
-///
 
 OomaServiceStatusGroup::OomaServiceStatusGroup()
 {

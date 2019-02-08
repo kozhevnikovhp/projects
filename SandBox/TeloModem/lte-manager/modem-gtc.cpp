@@ -14,9 +14,10 @@
 #include "modem-gtc.h"
 #include "log.h"
 #include "misc.h"
+#include "verbosity.h"
 
-ModemGTC::ModemGTC(const std::string &deviceName)
-    : deviceName_(deviceName)
+ModemGTC::ModemGTC(const std::string &deviceNameTemplate)
+    : deviceNameTemplate_(deviceNameTemplate)
 {
     nCannotConnectReported_ = 0;
 }
@@ -24,14 +25,28 @@ ModemGTC::ModemGTC(const std::string &deviceName)
 bool ModemGTC::connect()
 {
 #ifndef PSEUDO_MODEM
-    if (!connection_.open(deviceName_.c_str(), true))
+    VERBOSE(3, __PRETTY_FUNCTION__);
+
+    const int MAX_DEVICE_INDEX = 3; // max number of device index in name like /dev/ttyACM<N>
+    bool bConnected = false;
+    std::string deviceName;
+    for (int i = 0; i <= MAX_DEVICE_INDEX; i++)
+    {
+        deviceName = deviceNameTemplate_ + std::to_string(i);
+        if (connection_.open(deviceName.c_str(), true))
+        {
+            bConnected = true;
+            break;
+        }
+    }
+    if (!bConnected)
     {
         if (nCannotConnectReported_ < 5)
-            log_error("Could not connect to device %s\n", deviceName_.c_str());
+            log_error("Could not connect to device %s<N>, where N = 0...%d\n", deviceNameTemplate_.c_str(), MAX_DEVICE_INDEX);
         ++nCannotConnectReported_;
         return false;
     }
-    log_info("Connected to the device %s", deviceName_.c_str());
+    log_info("Connected to the device %s", deviceName.c_str());
     connection_.setSpeed(B115200);
     nCannotConnectReported_ = 0; // clear counter, can complain again
     return true;
@@ -43,6 +58,7 @@ bool ModemGTC::connect()
 bool ModemGTC::disconnect()
 {
 #ifndef PSEUDO_MODEM
+    VERBOSE(3, __PRETTY_FUNCTION__);
     connection_.close();
     return true;
 #else
@@ -62,32 +78,49 @@ bool ModemGTC::isConnected() const
 #ifndef PSEUDO_MODEM
 bool ModemGTC::execute(const std::string &command, int timeout)
 {
+    VERBOSE(3, __PRETTY_FUNCTION__);
+    if (g_VerbosityLevel >= 3)
+        printf("AT-command %s, timeout %d\n", command.c_str(), timeout);
+
     raw_.clear();
 
     if (!connection_.isOpen())
         return false;
-    if (!connection_.write(command.c_str(), command.size()))
-        return false;
+    bool bWroteSomething = connection_.write(command.c_str(), command.size());
     const char *pszCRLF = "\r\n";
-    if (!connection_.write(pszCRLF, strlen(pszCRLF)))
-        return false;
+    if (bWroteSomething)
+        bWroteSomething &= connection_.write(pszCRLF, strlen(pszCRLF));
 
+    if (g_VerbosityLevel >= 3)
+        if (bWroteSomething)
+            printf("AT-command sent successfully\n");
+
+    bool bReadSomething = false;
     size_t nRead = 0;
-    char szReply[1024];
-    if (!connection_.read(szReply, sizeof(szReply), timeout, nRead))
-        return false;
-    szReply[nRead] = 0;
-    for (size_t i = 0; i < nRead; ++i)
+    memset(szReply_, 0, sizeof(szReply_));
+    if (bWroteSomething)
     {
-        char c = szReply[i];
-        if (c == '"')
-            continue; // skip all quotation marks
-        if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
-            raw_ += c;
+        if (!connection_.read(szReply_, sizeof(szReply_), timeout, nRead))
+             return false;
+        bReadSomething = (nRead != 0);
+        for (size_t i = 0; i < nRead; ++i)
+        {
+            char c = szReply_[i];
+            if (c == '"')
+                continue; // skip all quotation marks
+            if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
+                raw_ += c;
+        }
+        if (g_VerbosityLevel >= 3)
+            printf("%s\n", raw_.c_str());
     }
-    //printf("%s\n", raw_.c_str());
-    bool bSuccess = (raw_.find("ERROR") == std::string::npos);
-    return bSuccess;
+    if (!bWroteSomething || !bReadSomething)
+    {
+        log_info("LTE-dongle does not reply, disconnecting");
+        disconnect();
+    }
+
+    return bWroteSomething && bReadSomething && (raw_.find("ERROR") == std::string::npos);
 }
 
 #endif
@@ -203,19 +236,47 @@ bool ModemGTC::getFirmwareVersionInfo(JsonContent &content)
 bool ModemGTC::getImeiRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%GIMEISV?", 3000);
+    return execute("at+cgsn", 3000);
 #else
-    raw_ = "%GIMEISV: 8623430390034200\nOK\n";
+    raw_ = "at+cgsn\n\n351792090000297\n\nOK";
     return true;
 #endif
 }
 
 bool ModemGTC::getImei(JsonContent &content)
 {
-    Dictionary dictionary = { DictionaryEntry("%GIMEISV", "imei") };
     if (!getImeiRaw())
         return false;
-    return parseToContent(raw_, content, dictionary);
+    // special processing, select line with only digits
+    std::stringstream ss(raw_);
+    std::string line;
+    bool bSuccess = false;
+    while (!ss.eof() && !ss.bad() && !ss.fail())
+    {
+        std::getline(ss, line);
+        if (line.empty())
+            continue;
+        trimBlanks(line);
+        bool bDigitsOnly = true;
+        int nDigits = 0;
+        for (size_t i = 0; i < line.length(); ++i)
+        {
+            if (std::isdigit(line[i]))
+                ++nDigits;
+            else
+            {
+                bDigitsOnly = false;
+                break;
+            }
+        }
+        if (nDigits && bDigitsOnly)
+        {
+            content.emplace_back(KeyValue("imei", line));
+            bSuccess = true;
+            break;
+        }
+    }
+    return bSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +357,8 @@ bool ModemGTC::getStatusRaw()
     return execute("AT!GSTATUS", 3000);
 #else
     raw_ = "                                                                         \n\
-    Current Time : 0        Mode : ONLINE                                            \n\
+    Current Time : 0        Mode : ONLINE                         "
+                                                                  "                   \n\
     System mode : LTE       PS state : Attached                                      \n\
     LTE band : B25  LTE bw : 5MHz                                                    \n\
     LTE Rx chan : 8115      LTE Tx chan : 26115                                      \n\
@@ -317,15 +379,29 @@ bool ModemGTC::getStatus(JsonContent &content)
 {
     const char *pszMode = "mode";
     const char *pszPSState = "ps_state";
+    const char *pszCellID = "cell_id";
     const char *pszRSRP = "rsrp";
+    const char *pszRSRQ = "rsrq";
     const char *pszRSSI = "rssi";
     const char *pszSINR = "sinr";
+    const char *pszBand = "band";
+    const char *pszBandWidth = "bandwidth";
+    const char *pszRxChannel = "rx_channel";
+    const char *pszTxChannel = "tx_channel";
+    const char *pszTxPower = "tx_power";
 
     Dictionary dictionary = { DictionaryEntry("Mode", pszMode),
                               DictionaryEntry("PS state", pszPSState),
+                              DictionaryEntry("Cell ID", pszCellID),
                               DictionaryEntry("RSRP (dBm)", pszRSRP),
+                              DictionaryEntry("RSRQ (dBm)", pszRSRQ),
                               DictionaryEntry("RSSI (dBm)", pszRSSI),
-                              DictionaryEntry("SINR (dB)", pszSINR)
+                              DictionaryEntry("SINR (dB)", pszSINR),
+                              DictionaryEntry("LTE band", pszBand),
+                              DictionaryEntry("LTE bw", pszBandWidth),
+                              DictionaryEntry("LTE Rx chan", pszRxChannel),
+                              DictionaryEntry("LTE Tx chan", pszTxChannel),
+                              DictionaryEntry("Tx Power", pszTxPower)
                             };
     if (!getStatusRaw())
         return false;
@@ -344,6 +420,16 @@ bool ModemGTC::getStatus(JsonContent &content)
             tolower(strMode);
             content.emplace_back(KeyValue(pszMode, strMode));
         }
+        else if (!entry.first.compare(pszCellID))
+            content.emplace_back(KeyValue(pszCellID, entry.second));
+        else if (!entry.first.compare(pszBand))
+            content.emplace_back(KeyValue(pszBand, entry.second));
+        else if (!entry.first.compare(pszBandWidth))
+            content.emplace_back(KeyValue(pszBandWidth, entry.second));
+        else if (!entry.first.compare(pszRxChannel))
+            content.emplace_back(KeyValue(pszRxChannel, entry.second));
+        else if (!entry.first.compare(pszTxChannel))
+            content.emplace_back(KeyValue(pszTxChannel, entry.second));
         else if (!entry.first.compare(pszPSState))
         {
             strPSState = entry.second;
@@ -355,6 +441,8 @@ bool ModemGTC::getStatus(JsonContent &content)
             strRSRP = entry.second;
             content.emplace_back(KeyValue(pszRSRP, entry.second));
         }
+        else if (!entry.first.compare(pszRSRQ))
+            content.emplace_back(KeyValue(pszRSRQ, entry.second));
         else if (!entry.first.compare(pszRSSI))
             content.emplace_back(KeyValue(pszRSSI, entry.second));
         else if (!entry.first.compare(pszSINR))
@@ -362,6 +450,8 @@ bool ModemGTC::getStatus(JsonContent &content)
             strSINR = entry.second;
             content.emplace_back(KeyValue(pszSINR, strSINR));
         }
+        else if (!entry.first.compare(pszTxPower))
+            content.emplace_back(KeyValue(pszTxPower, entry.second));
     }
 
     // LTEstate

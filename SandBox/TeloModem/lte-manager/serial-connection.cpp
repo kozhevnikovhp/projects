@@ -19,6 +19,8 @@
 #include <linux/usbdevice_fs.h>
 
 #include "serial-connection.h"
+#include "misc.h"
+#include "verbosity.h"
 
 SerialConnection::SerialConnection()
 {
@@ -144,6 +146,8 @@ bool SerialConnection::setSpeed(speed_t speed)
 
 bool SerialConnection::write(const void *pBuffer, int nBytes)
 {
+    VERBOSE(3, __PRETTY_FUNCTION__);
+
     if (!isOpen())
         return false;
     int nWritten = ::write(fd_, pBuffer, nBytes);
@@ -151,9 +155,14 @@ bool SerialConnection::write(const void *pBuffer, int nBytes)
 }
 
 bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout, size_t &nBytesReadTotal)
-{
+{    
+    VERBOSE(3, __PRETTY_FUNCTION__);
+
+    nBytesReadTotal = 0;
     if (!isOpen())
         return false;
+
+    time_t start = getCurrentTimeMSec();
 
     struct pollfd fds;
     memset(&fds, 0, sizeof(fds));
@@ -164,6 +173,8 @@ bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout
     char *pCurrentPos = (char *)pBuffer;
     do
     {
+        if ((getCurrentTimeMSec() - start) > timeout)
+            break;
         nRead = 0;
         int ec = poll(&fds, 1, timeout); // 0 means "timeout expired" -> do nothing
         if (ec > 0)
@@ -185,6 +196,10 @@ bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout
           break;
         }
     } while (nRead && (nBytesReadTotal < nBufferSize));
+
+    if (g_VerbosityLevel >= 3)
+        printf("%d bytes read\n", (int)nBytesReadTotal);
+
     return true;
 }
 

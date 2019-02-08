@@ -21,7 +21,9 @@ public:
     void free();
 
     std::string get(const char *pszKey, const char *pszDefaultValue) const;
-    bool getBoolean(const char *pszKey, const char *pszDefaultValue) const;
+    bool getBoolean(const char *pszKey, bool bDefaultValue) const;
+    int getInteger(const char *pszKey, int defaultValue) const;
+    long getLong(const char *pszKey, long defaultValue) const;
 
 protected:
     std::string configFile_;

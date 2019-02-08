@@ -85,7 +85,7 @@ bool FirmwareUpgrader::isUpgradeAvailable(std::string &tgzFilePath)
     fds.events = POLLIN;
 
     bool bUpdateAvailable = false;
-    int ec = poll(&fds, 1, 1000); // 0 means "timeout expired" -> do nothing
+    int ec = poll(&fds, 1, 100); // 0 means "timeout expired" -> do nothing
     if (ec > 0)
     {
         if (fds.revents == POLLIN)
@@ -118,10 +118,6 @@ bool FirmwareUpgrader::isUpgradeAvailable(std::string &tgzFilePath)
             }
             fds.revents = 0;
         }
-    }
-    else if (ec < 0)
-    {
-        perror("  poll() failed");
     }
 
     if (bUpdateAvailable)

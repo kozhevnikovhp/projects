@@ -16,6 +16,9 @@ const char *PSZ_FW_UPGRADE_MARKER_PATH = "/opt/lte/";
 const char *PSZ_FW_UPGRADE_MARKER_FILE = "firmwareUpdated";
 const char *PSZ_FW_UPGRADE_PATH = "/update/firmware/lte-dongle/";
 
+const char *PSZ_CURRENT_STATE_PATH = "/var/";
+const char *PSZ_CURRENT_STATE_FILE = "lte_modem_state";
+
 const char *PSZ_DEVICE_NAME = "device_name";
 
 const char *PSZ_JSON_VERSION = "1";
@@ -26,6 +29,7 @@ const char *PSZ_KAFKA_BROKERS_DEFAULT = "52.53.80.222:9092";
 const char *PSZ_KAFKA_REST_PROXY_ENABLED = "kafka_rest_proxy_enabled";
 const char *PSZ_KAFKA_REST_PROXY_URL = "kafka_rest_proxy_url";
 const char *PSZ_KAFKA_REST_PROXY_URL_DEFAULT = "https://ec2-52-53-95-125.us-west-1.compute.amazonaws.com";
+const char *PSZ_KAFKA_REST_PROXY_TIMEOUT = "kafka_rest_proxy_timeout";
 const char *PSZ_KAFKA_REST_PROXY_CERT = "kafka_rest_proxy_cert";
 const char *PSZ_KAFKA_REST_PROXY_KEY = "kafka_rest_proxy_key";
 const char *PSZ_KAFKA_REST_PROXY_PASSWORD = "kafka_rest_proxy_password";

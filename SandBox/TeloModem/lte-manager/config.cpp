@@ -80,9 +80,25 @@ std::string Configuration::get(const char *pszKey, const char *pszDefaultValue) 
     return std::string(pszDefaultValue);
 }
 
-bool Configuration::getBoolean(const char *pszKey, const char *pszDefaultValue) const
+bool Configuration::getBoolean(const char *pszKey, bool bDefaultValue) const
 {
-    std::string value = get(pszKey, pszDefaultValue);
+    std::string value = get(pszKey, "");
+    if (value.empty())
+        return bDefaultValue;
     tolower(value);
     return (!value.compare("enable") || !value.compare("true"));
+}
+
+int Configuration::getInteger(const char *pszKey, int defaultValue) const
+{
+    std::string value = get(pszKey, std::to_string(defaultValue).c_str());
+    tolower(value);
+    return atoi(value.c_str());
+}
+
+long Configuration::getLong(const char *pszKey, long defaultValue) const
+{
+    std::string value = get(pszKey, std::to_string(defaultValue).c_str());
+    tolower(value);
+    return atol(value.c_str());
 }

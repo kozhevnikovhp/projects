@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <algorithm>
 
 #include <librdkafka/rdkafkacpp.h>
 
@@ -17,8 +18,10 @@
 #include "const.h"
 #include "log.h"
 #include "myxid.h"
+#include "misc.h"
 #include "fw-upgrade.h"
 #include "curl-lib.h"
+#include "verbosity.h"
 #include "version.h"
 
 static bool needToContinue(int nCycles)
@@ -36,28 +39,32 @@ int main(int argc, char *argv[])
     // quick and dirty - just iterate through the list of cmd-line args looking for -d option, meaning daemonizing.
     // TODO: make something better with ehhanced and sophisticated cmd-line processing
     bool bDaemonize = false;
-    bool bVerbose = false;
+    g_VerbosityLevel = 0;
     for (int i = 1; i < argc; ++i)
     {
         const char *pszArg = argv[i];
-        if (!strcasecmp(pszArg, "--daemon"))
+        if (!strcasecmp(pszArg, "--daemon") || !strcasecmp(pszArg, "-d"))
             bDaemonize = true;
-        if (!strcasecmp(pszArg, "--verbose"))
-            bVerbose = true;
+        if (!strcasecmp(pszArg, "--verbose") || !strcasecmp(pszArg, "-v"))
+            g_VerbosityLevel = std::max(1, g_VerbosityLevel); // do not reduce level in case of ambiguosity
+        if (!strcasecmp(pszArg, "--vv") || !strcasecmp(pszArg, "-vv"))
+            g_VerbosityLevel = std::max(2, g_VerbosityLevel); // do not reduce level in case of ambiguosity
+        if (!strcasecmp(pszArg, "--vvv") || !strcasecmp(pszArg, "-vvv"))
+            g_VerbosityLevel = std::max(3, g_VerbosityLevel); // do not reduce level in case of ambiguosity
         //  many options together like -abcdefghstuvwxyz possible in the future
         if (pszArg[0] == '-')
         {
             if (strchr(pszArg, 'd') || strchr(pszArg, 'D'))
                 bDaemonize = true;
             if (strchr(pszArg, 'v') || strchr(pszArg, 'V'))
-                bVerbose = true;
+                g_VerbosityLevel = std::max(1, g_VerbosityLevel); // do not reduce level in case of ambiguosity
         }
     }
     if (bDaemonize)
-        bVerbose = false; // silent in daemon mode
+        g_VerbosityLevel = 0; // silent in daemon mode
 
     int bLogToStderr = false;
-    if (bVerbose)
+    if (g_VerbosityLevel > 0)
         bLogToStderr = true;
 
     log_init(bLogToStderr);
@@ -85,26 +92,22 @@ int main(int argc, char *argv[])
         return 1;
     }
     log_info("MyxID = %s", myxID.c_str());
+    std::string keyForRestProxy = "\"key\" : \"" + myxID + "\",";
 
-    std::string basicDelayString = cfg.get(PSZ_BASIC_QUERY_DELAY, "60");
-    time_t basicDelay = atol(basicDelayString.c_str());
+    time_t basicDelay = cfg.getLong(PSZ_BASIC_QUERY_DELAY, 60);
     if (basicDelay < 10)
-    {
         basicDelay = 10;
-        log_info("Incorrect or wrong value for basic delay (%s), corrected automatically", basicDelayString.c_str());
-    }
     if (basicDelay > 7200)
-    {
         basicDelay = 7200;
-        log_info("Incorrect or wrong value for basic delay (%s), corrected automatically", basicDelayString.c_str());
-    }
     log_info("Basic delay: %d seconds", basicDelay);
 
     FirmwareUpgrader &FWupgrader = FirmwareUpgrader::instance();
     FWupgrader.configure(cfg);
 
-    std::string deviceName = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
-    ModemGTC modem(deviceName);
+    std::string deviceNameTemplate = cfg.get(PSZ_DEVICE_NAME, "/dev/ttyACM0");
+    // remove tailing digits for backward compatibility (to be able to work with existing cfg-files, device index 0...<N> will be added later)
+    deviceNameTemplate.erase(std::find_if(deviceNameTemplate.rbegin(), deviceNameTemplate.rend(), [](int c) { return !std::isdigit(c); }).base(), deviceNameTemplate.end());
+    ModemGTC modem(deviceNameTemplate);
 
 #ifndef PSEUDO_MODEM
     std::string trafficInterfaceName(PSZ_LTE_NETWORK_INTERFACE);
@@ -114,8 +117,10 @@ int main(int argc, char *argv[])
     TrafficCounter trafficCounter;
     trafficCounter.addInterface(trafficInterfaceName.c_str());
 
+    LteValuesGroup::prepareCurrentState();
+
     CurlLib &kafkaRestProxy = CurlLib::instance();
-    kafkaRestProxy.configure(cfg);
+    kafkaRestProxy.configure(cfg, bDaemonize);
 
     bool bKafkaConventionalEnabled = cfg.getBoolean(PSZ_KAFKA_ENABLED, "false");
     std::string kafkaBrokers = cfg.get(PSZ_KAFKA_BROKERS, PSZ_KAFKA_BROKERS_DEFAULT);
@@ -123,7 +128,7 @@ int main(int argc, char *argv[])
         log_info("Kafka brokers: %s", kafkaBrokers.c_str());
     std::string errstr;
     std::string kafkaTopic = cfg.get(PSZ_KAFKA_TOPIC, PSZ_KAFKA_TOPIC_DEFAULT);
-    log_info("Kafka topic: %s\n", kafkaTopic.c_str());
+    log_info("Kafka topic: %s", kafkaTopic.c_str());
 
     RdKafka::Conf *pConf = nullptr;
     if (bKafkaConventionalEnabled)
@@ -172,11 +177,13 @@ int main(int argc, char *argv[])
         }
         startedAs += " as a daemon";
     }
+    startedAs += ", PID = %d";
     // else ordinary program
-    log_info(startedAs.c_str());
+    log_info(startedAs.c_str(), getpid());
 
     std::vector<LteValuesGroup *> allGroups;
     allGroups.emplace_back(new NetworkParameterGroup()); // must be first in the list for easier enforcement full re-quering in case of connection type changed - other groups are processed later
+    allGroups.emplace_back(new CommonParameterGroup());
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
     allGroups.emplace_back(new ConstantModemParameterGroup(modem));
     allGroups.emplace_back(new VariableModemParameterGroup(modem));
@@ -188,6 +195,7 @@ int main(int argc, char *argv[])
     int nCyclesDone = 0;
     std::string fwTgzFilePath; // tgz file with real firmware file
 
+    time_t fullUpdateLastTime = ::getCurrentTimeSec();
     while (needToContinue(nCyclesDone))
     {
         if (!modem.isConnected())
@@ -197,8 +205,16 @@ int main(int argc, char *argv[])
 
         queryResult.clear();
 
+        time_t currentTime = ::getCurrentTimeSec();
+        if ((currentTime - fullUpdateLastTime) >= 3600)
+        {
+            fullUpdateLastTime = currentTime;
+            LteValuesGroup::bHourlyFullUpdateRequired_ = true;
+            log_info("Scheduled full update");
+        }
         for (auto pGroup : allGroups)
             pGroup->get(basicDelay, queryResult);
+        LteValuesGroup::bHourlyFullUpdateRequired_ = false;
 
         if (!queryResult.empty())
         {
@@ -207,16 +223,20 @@ int main(int argc, char *argv[])
             std::string json;
             toJSON(queryResult, json);
 
-            if (bVerbose)
+            if (g_VerbosityLevel > 0)
                 fprintf(stderr, "%s\n", json.c_str());
 
-            if (kafkaRestProxy.isEnabled()) // kafka REST proxy
+            LteValuesGroup::bSendOK_ = true;
+            if (kafkaRestProxy.isPostEnabled()) // kafka REST proxy
             {
-                std::string kafkaProxyJson = "{\"records\":[{\"value\":";
+                std::string kafkaProxyJson = "{\"records\":[{";
+                kafkaProxyJson += keyForRestProxy;
+                kafkaProxyJson += " \"value\" : ";
                 kafkaProxyJson += json;
                 kafkaProxyJson += "}]}";
-                //printf("%s\n", kafkaProxyJson.c_str());
-                kafkaRestProxy.post(kafkaProxyJson);
+                //fprintf(stderr, "%s\n", kafkaProxyJson.c_str());
+                if (!kafkaRestProxy.post(kafkaProxyJson))
+                    LteValuesGroup::bSendOK_ = false;
             }
 
             if (bKafkaConventionalEnabled) // conventional kafka
@@ -242,7 +262,7 @@ int main(int argc, char *argv[])
                 if (FWupgrader.upgrade(modem))
                 {
                     log_info("Firmware upgrade is done");
-                    log_info("Disconnecting %s", deviceName.c_str());
+                    log_info("Disconnecting dongle");
                     LteValuesGroup::bFirmwareUpdated_ = true; // to enforce querying of all parameters directly after FW update
                     modem.disconnect();
                     bUpdateSuccess = true;
