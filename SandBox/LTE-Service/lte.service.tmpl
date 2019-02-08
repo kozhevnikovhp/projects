@@ -1,0 +1,10 @@
+[Unit]
+Description=LTE Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+TimeoutStartSec=0
+ExecStart=/oomasw/service-OOMA_BRANCH_VERSION/lte/lte-OOMA_VERSION/docker-start.OOMA_IMAGE_TYPE start
+ExecStop=/oomasw/service-OOMA_BRANCH_VERSION/lte/lte-OOMA_VERSION/docker-start.OOMA_IMAGE_TYPE stop

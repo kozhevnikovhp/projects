@@ -1,21 +1,17 @@
 package LTEService;
 
-import java.util.Arrays;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        ApplicationContext ctx = SpringApplication.run(Application.class, args);
-        
-        System.out.println("LTE-Service started");
+public class Application
+{
+    private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
-        String[] beanNames = ctx.getBeanDefinitionNames();
-        Arrays.sort(beanNames);
-        for (String beanName : beanNames) System.out.println(beanName);
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+        LOGGER.info("LTE-Service started");
     }
 }

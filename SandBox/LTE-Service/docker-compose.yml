@@ -1,0 +1,28 @@
+version: '3'
+services:
+    lte-service:
+        #image: dhost.corp.ooma.com:5043/lte-management-service:latest
+        build: .
+        ports:
+            - "8080-8085:8080"
+        environment:
+            SPRING_KAFKA_BOOTSTRAP_SERVERS: "13.57.155.153:9092"
+            SPRING_KAFKA_TOPIC: "lte-service"
+            SPRING_KAFKA_GROUPID:
+            SPRING_PUSH_URL: "http://13.56.27.92:8000/api/v1/send"
+            SPRING_PUSH_SILENCE_TOLERANCE:
+            SPRING_PUSH_INACTIVE_NOTIFICATIONS:
+            SPRING_PUSH_NO_SIGNAL_NOTIFICATIONS:
+            SPRING_PUSH_BAD_SIGNAL_NOTIFICATIONS:
+            SPRING_PUSH_SILENCE_NOTIFICATIONS:
+            SPRING_PUSH_CONNECTION_DOWN_NOTIFICATIONS:
+            SPRING_MONGO_URI: "mongodb://root:!hello234@mongo:27017"
+            SPRING_MONGO_DATABASE:
+            SPRING_MONGO_CLEANUP:
+        restart: always
+    mongo:
+        image: mongo:3.6
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: "root"
+            MONGO_INITDB_ROOT_PASSWORD: "!hello234"

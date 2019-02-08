@@ -1,0 +1,28 @@
+version: '3'
+services:
+    lte-service:
+        # This specifies the image that is used to launch the lte-service container
+        image: 056365719515.dkr.ecr.us-west-1.amazonaws.com/lteservice-OOMA_IMAGE_TYPE:OOMA_VERSIONOOMA_IMAGE_TYPE
+        # image: dhost.corp.ooma.com:5043/lte-management-service:latest
+        # If the above image is not available, this specifies that the image should be built from a Dockerfile in . (the current directory)
+        build: .
+        ports:
+            - "8080:8080"
+        environment:
+            # This is the kafka cluster currently running in AWS
+            SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafkalte1:9092,kafkalte2:9092,kafkalte3:9092"
+            SPRING_KAFKA_TOPIC: "lte-service"
+            SPRING_KAFKA_GROUPID:
+            # This push server is also currently running in AWS
+            SPRING_PUSH_URL: "http://push:8000/api/v1/send"
+            SPRING_PUSH_SILENCE_TOLERANCE:
+            SPRING_PUSH_INACTIVE_NOTIFICATIONS:
+            SPRING_PUSH_NO_SIGNAL_NOTIFICATIONS:
+            SPRING_PUSH_BAD_SIGNAL_NOTIFICATIONS:
+            SPRING_PUSH_SILENCE_NOTIFICATIONS:
+            SPRING_PUSH_CONNECTION_DOWN_NOTIFICATIONS:
+            # This points to the mongo instance launched from this file, you'll need to change it if you choose to only launch LMS
+            SPRING_MONGO_URI: "${SPRING_MONGO_URI}"
+            SPRING_MONGO_DATABASE:
+            SPRING_MONGO_CLEANUP:
+        restart: always

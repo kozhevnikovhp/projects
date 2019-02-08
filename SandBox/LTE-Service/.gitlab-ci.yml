@@ -1,0 +1,87 @@
+image: docker:stable
+
+stages:
+- build
+- unit-test
+- functional-test
+- coverage
+
+# Only checks that docker build works without failure, doesn't check that the image works
+build_docker:
+    stage: build
+    before_script:
+        - /bin/sh docker-scripts/generate-dockerfile.sh Dockerfile.tmpl
+    script:
+        - docker build -t lteservice-build .  
+    after_script:
+        - docker rmi lteservice-build
+    tags:
+        - docker-only
+    when: on_success
+
+build_war:
+    stage: unit-test
+    before_script:
+        - /bin/sh docker-scripts/generate-dockerfile.sh Dockerfile.tmpl
+    script:
+        - docker build -t lteservice-war .
+        - docker run --name build-war lteservice-war "mvn clean war:war"
+        - mkdir build-outputs
+        - docker cp build-war:/lte-service/target/ build-outputs/
+    after_script:
+        - docker rm -f build-war
+        - docker rmi lteservice-war
+    artifacts:
+        when: always
+        expire_in: '2 mos'
+        paths:
+            - build-outputs/target/
+    tags: 
+        - docker-only
+    when: on_success
+
+unit_tests:
+    stage: unit-test
+    before_script:
+        - /bin/sh docker-scripts/generate-dockerfile.sh Dockerfile.tmpl
+    script:
+        - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD dhost.corp.ooma.com:5043
+        - docker build -t dhost.corp.ooma.com:5043/$IMAGE_NAME:temp .
+        - docker run --rm --name test-lte dhost.corp.ooma.com:5043/$IMAGE_NAME:temp "mvn test verify"
+        - docker run --name test-lte dhost.corp.ooma.com:5043/$IMAGE_NAME:temp "mvn surefire-report:report-only site -DgenerateReports=false"
+        - docker cp test-lte:/lte-service/target/site/surefire-report.html .
+        - docker push dhost.corp.ooma.com:5043/$IMAGE_NAME:temp 
+    after_script:
+        - docker rm test-lte
+        - docker rmi dhost.corp.ooma.com:5043/$IMAGE_NAME:temp 
+    artifacts:
+        when: always
+        expire_in: '2 mos'
+        name: "surefire-report"
+        paths: 
+            - ./surefire-report.html
+    tags:
+        - docker-only
+    when: on_success
+
+functional_tests:
+    image: centos:7
+    stage: functional-test
+    script:
+        - /bin/sh launch_functional.sh
+    artifacts:
+        expire_in: '2 mos'
+        name: "functional-test-outputs"
+        paths:
+            - ./functional-tests.out
+    tags:
+        - docker-only
+    when: on_success
+
+coverage:
+    stage: coverage
+    dependencies: 
+        - unit_tests
+    script:
+        - cat surefire-report.html
+    when: on_success

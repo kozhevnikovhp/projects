@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#
+# Must have awscli tools installed. Included in p4 depot
+# Must also have run aws configure, default region is us-west-1, and format is json
+#
+
+# Set environment variables
+# TBD
+# SPRING_KAFKA_BOOTSTRAP_SERVERS: address of kafka broker(s)
+# SPRING_KAFKA_TOPIC: kafka topic (lte-service)
+# SPRING_KAFKA_GROUPID: kafka group id (lte-service-group or similar)
+# SPRING_PUSH_URL: address of push server
+# SPRING_PUSH_SILENCE_TOLERANCE: time in minutes the telo can fail to contact LMS before LMS sends a silence push notification saying the telo is offline
+# SPRING_PUSH_INACTIVE_NOTIFICATIONS: number of dongle inactive notifications LMS will push before stopping (0 disables dongle inactive notifications)
+# SPRING_PUSH_NO_SIGNAL_NOTIFICATIONS: number of no signal notifications LMS will push before stopping (0 disables no signal notifications)
+# SPRING_PUSH_BAD_SIGNAL_NOTIFICATIONS: number of bad signal notifications LMS will push before stopping (0 disables bad signal notifications)
+# SPRING_PUSH_SILENCE_NOTIFICATIONS: number of silence notifications LMS will push before stopping (0 disables silence notifications)
+# SPRING_PUSH_CONNECTION_DOWN_NOTIFICATIONS: number of connection down notifications LMS will push before stopping (0 disables connection down notifications)
+# SPRING_MONGO_URI: mongo url
+# SPRING_MONGO_DATABASE: mongo database name
+# SPRING_MONGO_CLEANUP: number of days data is kept in the database 
+#
+# Grab non-default from opertools and set them before executing docker-compose
+
+OOMA_CONFIG_FILE=/oomasw/service-OOMA_BRANCH_VERSION/opertools/opertools-current/config/ooma_config.txt
+OOMA_NODE=$(grep "\<`uname -n`\>" ${OOMA_CONFIG_FILE} | grep ^INSTALL | awk -F: '{print $3}')
+
+if [ -f $(dirname ${OOMA_CONFIG_FILE})/hosts/${OOMA_NODE}/lte-service ]; then
+    source $(dirname ${OOMA_CONFIG_FILE})/hosts/${OOMA_NODE}/lte-service
+    set-ooma_opertools `uname -n`
+fi
+
+start() {
+# Authenticate for 12hr token
+/oomasw/aws/bin/aws ecr get-login --registry-ids 056365719515 --region us-west-1 --no-include-email | /bin/bash
+
+# Pull the image
+docker pull 056365719515.dkr.ecr.us-west-1.amazonaws.com/lteservice-OOMA_IMAGE_TYPE:OOMA_VERSIONOOMA_IMAGE_TYPE
+
+# Start the image
+/oomasw/service-OOMA_BRANCH_VERSION/lte/lte-OOMA_VERSION/opt/bin/docker-compose -f /oomasw/service-OOMA_BRANCH_VERSION/lte/lte-OOMA_VERSION/docker-compose.yml.OOMA_IMAGE_TYPE up
+
+}
+
+stop() {
+
+# Stop the image
+/oomasw/service-OOMA_BRANCH_VERSION/lte/lte-OOMA_VERSION/opt/bin/docker-compose -f /oomasw/service-OOMA_BRANCH_VERSION/lte/lte-OOMA_VERSION/docker-compose.yml.OOMA_IMAGE_TYPE down
+
+}
+
+case "$1" in
+    start) start ;;
+    stop)  stop ;;
+    restart) stop; start ;;
+esac

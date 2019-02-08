@@ -1,21 +1,29 @@
 package LTEService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+
 @Service
-public class LteKafkaConsumer {
-    @Autowired
-    DatabaseCache databaseCache_;
-    @Autowired
-    PushNotificator pushNotificator_;
+public class LteKafkaConsumer
+{
+    private static final Logger LOGGER = LogManager.getLogger(LteKafkaConsumer.class);
 
-    @KafkaListener(id = "foo", topics = "lte-service")
-    public void listen(String message) {
-        System.out.println("Received Message: " + message);
-        databaseCache_.newData(message);
+    @Autowired
+    private Database database_;
 
-        //pushNotificator_.send("myTitle", message, "2267EE", "go home, it's too late!");
+    @KafkaListener(groupId = "${spring.kafka.groupId}", topics = "${spring.kafka.topic}")
+    public void listen(String message)
+    {
+        LOGGER.info("Received Message: {}", message);
+        try {
+            database_.newData(message);
+        }
+        catch (Exception e){
+            LOGGER.error(e);
+        }
     }
 }

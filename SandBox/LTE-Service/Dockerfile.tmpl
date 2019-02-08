@@ -1,0 +1,16 @@
+# Dockerfile for building dhost.corp.ooma.com:5043/lte-management-service 
+# original base image: maven:3.5.4-jdk-8
+
+FROM dhost.corp.ooma.com:5043/ooma-maven:3.5.4-jdk-8
+
+COPY . /lte-service/
+WORKDIR /lte-service
+RUN chmod +x docker-scripts/docker-entrypoint.sh \
+    && mv docker-scripts/docker-entrypoint.sh /sbin/ \
+    && mvn clean package
+
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["docker-entrypoint.sh"]
+LABEL git-version="OOMA_GIT_SHA"
+LABEL perforce-version="OOMA_VERSION"
+
