@@ -13,7 +13,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -172,26 +171,23 @@ public class LteRestController {
         String message = EMPTY_VALUE;
         boolean bSuccess = true;
         JSONObject json = new JSONObject();
+        Database.TimedJson status = null;
         try {
-            JSONObject resultJson = new JSONObject();
-
             ObjectMapper objectMapper = new ObjectMapper();
             byte[] bytes = paramsJSON.getBytes();
             JsonNode rootNode = objectMapper.readTree(bytes);
             JsonNode parametersNode = rootNode.path("parameters");
             if (parametersNode != null) {
-                Iterator<JsonNode> elements = parametersNode.elements();
-                while (elements.hasNext()) {
-                    JsonNode paramNode = elements.next();
-                    String key = paramNode.asText();
-                    Object value = database_.getLastValue(myxID, key);
-                    if (value != null)
-                        resultJson.put(key, value);
-                    else
-                        resultJson.put(key, UNKNOWN_VALUE);
-                }
+                status = database_.getStatus(myxID, parametersNode);
+                if (status != null)
+                    json.put("parameters", status.getJson());
             }
-            json.put("parameters", resultJson);
+            else {
+                statusCode = STATUS_CODE_NOT_OK;
+                bSuccess = false;
+                errorMessage = "Absent 'parameters' section in query";
+                LOGGER.info("Invalid JSON {}", errorMessage);
+            }
         }
         catch (IOException e) {
             statusCode = STATUS_CODE_NOT_OK;
@@ -206,16 +202,10 @@ public class LteRestController {
             LOGGER.error("Internal error: {}", errorMessage);
         }
 
-        // Add timestamp - the latest value for this myxid
-        Object value = database_.getLastRealValueTimestamp(myxID);
-        if (value != null) {
-            json.put(TIMESTAMP, value);
-            // timestamp in human-readable format
-            Date date = new Date(Long.parseLong(value.toString()));
-            json.put("timestamp_", dateFormat_.format(date));
-        }
-        else {
-            json.put(TIMESTAMP, UNKNOWN_VALUE);
+        // Add timestamp - the latest value for this myxid in human-readable format
+        if (status != null) {
+            json.put(TIMESTAMP, status.getTime());
+            json.put("timestamp_", dateFormat_.format(new Date(status.getTime())));
         }
 
         json.put(STATUS, statusCode);

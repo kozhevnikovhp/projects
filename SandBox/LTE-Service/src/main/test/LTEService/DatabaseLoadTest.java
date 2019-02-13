@@ -38,26 +38,22 @@ public class DatabaseLoadTest {
                             " \"ooma_service_status\":\"live\", " +
                             " \"band\":\"B24\"," +
                             " \"bandwidth\":\"20MHz\"," +
-                            " \"signal_quality\":\"3\"," +
                             " \"carrier\":\"Sprint\"," +
                             " \"telo_version\":\"1234\"," +
                             " \"fw_version\":\"1.2.3.4\"," +
                             " \"sw_version\":\"1.2.3.4.5.6.7.8.9.0\"," +
                             " \"lte_manager_version\":\"1.1.234\"," +
                             " \"myx_id\":\"000000\"," +
-                            " \"lte_dongle\":\"active\"," +
-                            " \"connection_type\" : \"ethernet\" }"))
+                            " \"lte_dongle\":\"active\"}"));
                 ++n;
             if (database_.newData(
                     "{\"version\":\"1\"," +
-
                             " \"sinr\":\"11\"," +
                             " \"rssi\":\"87\"," +
                             " \"imei\":\"1234567890\"," +
                             " \"iccid\":\"0987654321\"," +
                             " \"band\":\"B24\"," +
                             " \"bandwidth\":\"20MHz\"," +
-                            " \"signal_quality\":\"5\"," +
                             " \"carrier\":\"Beeline\"," +
                             " \"ooma_service_status\":\"live\", " +
                             " \"telo_version\":\"1234\"," +
@@ -65,8 +61,7 @@ public class DatabaseLoadTest {
                             " \"sw_version\":\"1.2.3.4.5.6.7.8.9.0\"," +
                             " \"lte_manager_version\":\"1.1.234\"," +
                             " \"myx_id\":\"000000\"," +
-                            " \"lte_dongle\":\"active\"," +
-                            " \"connection_type\" : \"ethernet\" }"))
+                            " \"lte_dongle\":\"active\"}"));
                 ++n;
 
             if (database_.newData(
@@ -77,7 +72,6 @@ public class DatabaseLoadTest {
                             " \"iccid\":\"09sdgsdggdgsfgs87654321\"," +
                             " \"band\":\"B24\"," +
                             " \"bandwidth\":\"20MHz\"," +
-                            " \"signal_quality\":\"3\"," +
                             " \"carrier\":\"MTS\"," +
                             " \"ooma_service_status\":\"live\", " +
                             " \"telo_version\":\"1234\"," +
@@ -85,8 +79,7 @@ public class DatabaseLoadTest {
                             " \"sw_version\":\"1.2.3.4.5.6.7.8.9.0\"," +
                             " \"lte_manager_version\":\"1.1.234\"," +
                             " \"myx_id\":\"000002\"," +
-                            " \"lte_dongle\":\"active\"," +
-                            " \"connection_type\" : \"ethernet\" }"))
+                            " \"lte_dongle\":\"active\"}"));
                 ++n;
             if (database_.newData(
                     "{\"version\":\"1\"," +
@@ -96,7 +89,6 @@ public class DatabaseLoadTest {
                             " \"iccid\":\"0987654321\"," +
                             " \"band\":\"B24\"," +
                             " \"bandwidth\":\"20MHz\"," +
-                            " \"signal_quality\":\"5\"," +
                             " \"carrier\":\"Beeline\"," +
                             " \"ooma_service_status\":\"live\", " +
                             " \"telo_version\":\"1234\"," +
@@ -104,23 +96,10 @@ public class DatabaseLoadTest {
                             " \"sw_version\":\"1.2.3.A.B.C.D.9.0\"," +
                             " \"lte_manager_version\":\"1.1.234\"," +
                             " \"myx_id\":\"000001\"," +
-                            " \"lte_dongle\":\"active\"," +
-                            " \"connection_type\" : \"ethernet\" }"))
+                            " \"lte_dongle\":\"active\"}"));
                 ++n;
        }
         double timeElapsed = (new Date().getTime() - startTime)/1000.; // seconds
         System.out.println(n/timeElapsed + " newData per second");
-    }
-
-    @Test
-    public void newValue() {
-        long startTime = new Date().getTime();
-        int n = 0;
-        while ((new Date().getTime() - startTime) < 10*1000) {
-            database_.newValue(myxID, "sinr", "15", false);
-            ++n;
-        }
-        double timeElapsed = (new Date().getTime() - startTime)/1000.; // seconds
-        System.out.println(n/timeElapsed + " newValue per second");
     }
 }

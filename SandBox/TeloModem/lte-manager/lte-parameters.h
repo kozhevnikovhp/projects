@@ -126,7 +126,7 @@ public:
 
 protected:
     virtual const char *getName() { return "Network parameters"; }
-    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMinExpirationTime() const { return 0; }
     virtual time_t getMaxExpirationTime() const { return 20; }
     virtual bool doGet(JsonContent &content);
 
@@ -135,7 +135,6 @@ protected:
     std::string previousConnectionType_; // introduced to detect connection type change
     std::string connectionType_; // made a member, not heap var, just to avoid memory fragmentation
 };
-
 
 class TrafficParameterGroup : public LteValuesGroup
 {

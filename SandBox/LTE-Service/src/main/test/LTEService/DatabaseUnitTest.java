@@ -1,5 +1,6 @@
 package LTEService;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,48 +96,48 @@ public class DatabaseUnitTest {
     }
 
     @Test
-    public void newValue() {
+    public void newValueTest() {
         final String key = "rssi";
         final String value = "88";
 
-        database_.newValue(myxID, key, value, false);
+        newValue(myxID, key, value);
         checkLastValue(myxID, key, value);
     }
 
     @Test
-    public void wrongJson() {
+    public void wrongJsonTest() {
         boolean bSuccess = database_.newData("{\"version\":\"1\", \"sinr\":\"10\", \"myx_id\"::\"000000\" }");
         assertFalse(bSuccess);
     }
 
     @Test
-    public void wrongKey() {
+    public void wrongKeyTest() {
         Object obj = database_.getLastValue(myxID, "wrong_key");
         assertNull(obj);
     }
 
     @Test
-    public void resetStats() {
+    public void resetStatsTest() {
         database_.resetStats(myxID);
         checkLastValue(myxID, SENT_BYTES_TELO, "0");
         checkLastValue(myxID, RECV_BYTES_TELO, "0");
     }
 
     @Test
-    public void getTrafficStatistics() {
+    public void getTrafficStatisticsTest() {
         // 1. create data to have what to count and report
         try {
             Thread.sleep(2000); // to avoid strangers from the past
             Date start = new Date();
-            database_.newValue(myxID, SENT_BYTES_TELO, "10", true);
-            database_.newValue(myxID, RECV_BYTES_TELO, "20", true);
+            newValue(myxID, SENT_BYTES_TELO, "10");
+            newValue(myxID, RECV_BYTES_TELO, "20");
             Thread.sleep(2000);
-            database_.newValue(myxID, SENT_BYTES_TELO, "10", true);
-            database_.newValue(myxID, RECV_BYTES_TELO, "20", true);
+            newValue(myxID, SENT_BYTES_TELO, "10");
+            newValue(myxID, RECV_BYTES_TELO, "20");
             Date end = new Date();
             Thread.sleep(2000);
-            database_.newValue(myxID, SENT_BYTES_TELO, "10", true);
-            database_.newValue(myxID, RECV_BYTES_TELO, "20", true);
+            newValue(myxID, SENT_BYTES_TELO, "10");
+            newValue(myxID, RECV_BYTES_TELO, "20");
 
             // wrong parameter name, expects -1
             int nBytes = database_.getTrafficStatistics(myxID, "wrong_parameter_name", start, end);
@@ -153,20 +154,20 @@ public class DatabaseUnitTest {
     }
 
     @Test
-    public void getHistoricData() {
+    public void getHistoricDataTest() {
         // 1. create data to have what to count and report
         try {
             Thread.sleep(2000); // to avoid strangers from the past
             Date start = new Date();
-            database_.newValue(myxID, SINR, "10", false);
-            database_.newValue(myxID, TX_POWER, "100", false);
-           Thread.sleep(1000);
-            database_.newValue(myxID, SINR, "-11", false);
+            newValue(myxID, SINR, "10");
+            newValue(myxID, TX_POWER, "100");
             Thread.sleep(1000);
-            database_.newValue(myxID, SINR, "-12", false);
-            database_.newValue(myxID, TX_POWER, "101", false);
+            newValue(myxID, SINR, "-11");
             Thread.sleep(1000);
-            database_.newValue(myxID, SINR, "-13", false);
+            newValue(myxID, SINR, "-12");
+            newValue(myxID, TX_POWER, "101");
+            Thread.sleep(1000);
+            newValue(myxID, SINR, "-13");
             Thread.sleep(2000);
             Date end = new Date();
 
@@ -180,9 +181,9 @@ public class DatabaseUnitTest {
     }
 
     @Test
-    public void silenceAlarm() {
+    public void silenceAlarmTest() {
         // 1. ensure that myxID does exist
-        database_.newValue(myxID, RECV_BYTES_TELO, "1000", true);
+        newValue(myxID, RECV_BYTES_TELO, "1000");
 
         // sleep for couple of seconds to be sure that fake myxID is silent
         try {
@@ -231,51 +232,51 @@ public class DatabaseUnitTest {
     }
 
     @Test
-    public void dongleActiveInactive() {
-        database_.newValue(myxID, LTE_DONGLE, LTE_DONGLE_ACTIVE, false);
+    public void dongleActiveInactiveTest() {
+        newValue(myxID, LTE_DONGLE, LTE_DONGLE_ACTIVE);
         int nNotified = database_.howManyNotificationsSent(myxID, INACTIVE_NOTIFIED);
         assertEquals(0, nNotified);
-        database_.newValue(myxID, LTE_DONGLE, LTE_DONGLE_INACTIVE, false);
+        newValue(myxID, LTE_DONGLE, LTE_DONGLE_INACTIVE);
         nNotified = database_.howManyNotificationsSent(myxID, INACTIVE_NOTIFIED);
         assertEquals(1, nNotified);
     }
 
     @Test
-    public void noSignal() {
-        database_.newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_PERFECT, false);
+    public void noSignalTest() {
+        newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_PERFECT);
         int nNotified = database_.howManyNotificationsSent(myxID, NO_SIGNAL_NOTIFIED);
         assertEquals(0, nNotified);
-        database_.newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_NO, false);
+        newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_NO);
         nNotified = database_.howManyNotificationsSent(myxID, NO_SIGNAL_NOTIFIED);
         assertEquals(1, nNotified);
     }
 
     @Test
-    public void badSignal() {
-        database_.newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_GOOD, false);
+    public void badSignalTest() {
+        newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_GOOD);
         int nNotified = database_.howManyNotificationsSent(myxID, BAD_SIGNAL_NOTIFIED);
         assertEquals(0, nNotified);
-        database_.newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_BAD, false);
+        newValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_BAD);
         nNotified = database_.howManyNotificationsSent(myxID, BAD_SIGNAL_NOTIFIED);
         assertEquals(1, nNotified);
     }
 
     @Test
     public void lteState() {
-        database_.newValue(myxID, LTE_STATE, LTE_STATE_UP, false);
+        newValue(myxID, LTE_STATE, LTE_STATE_UP);
         int nNotified = database_.howManyNotificationsSent(myxID, CONN_DOWN_NOTIFIED);
         assertEquals(0, nNotified);
-        database_.newValue(myxID, LTE_STATE, LTE_STATE_DOWN, false);
+        newValue(myxID, LTE_STATE, LTE_STATE_DOWN);
         nNotified = database_.howManyNotificationsSent(myxID, CONN_DOWN_NOTIFIED);
         assertEquals(1, nNotified);
     }
 
     @Test
     public void connectionType() {
-        database_.newValue(myxID, CONNECTION_TYPE, UNKNOWN_VALUE, false);
-        database_.newValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_ETHERNET, false);
-        database_.newValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_WIFI, false);
-        database_.newValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_LTE, false);
+        newValue(myxID, CONNECTION_TYPE, UNKNOWN_VALUE);
+        newValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_ETHERNET);
+        newValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_WIFI);
+        newValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_LTE);
         checkLastValue(myxID, CONNECTION_TYPE, CONNECTION_TYPE_LTE);
     }
 
@@ -297,5 +298,13 @@ public class DatabaseUnitTest {
         database_.notificationsSent(myxID, paramName);
         int nAfter = database_.howManyNotificationsSent(myxID, paramName);
         assertEquals(1, nAfter-nBefore);
+    }
+
+    private void newValue(String myxID, String key, String value) {
+        JSONObject json = new JSONObject();
+        json.put("myx_id", myxID);
+        json.put("version", "1");
+        json.put(key, value);
+        database_.newData(json.toString());
     }
 }

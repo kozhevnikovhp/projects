@@ -12,6 +12,7 @@ import com.mongodb.client.result.DeleteResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.json.*;
@@ -56,6 +57,19 @@ public class Database
         private Object value_;
     };
 
+    public class TimedJson {
+        public TimedJson(long time, JSONObject json) {
+            time_ = time;
+            json_ = json;
+        }
+
+        public long getTime() { return time_; }
+        public JSONObject getJson() { return json_; }
+
+        private long time_;
+        private JSONObject json_;
+    }
+
     private static final String MYXID = "myx_id";
     private static final String VERSION = "version";
 
@@ -96,11 +110,12 @@ public class Database
     private static final String IP_MASK = "mask";
     private static final String GATEWAY = "gateway";
 
+    private static final String TIMESTAMP = "timestamp";
     private static final String TIME = "time";
     private static final String LAST_INFO = "last_info";
     private static final String KEY = "key";
     private static final String VALUE = "value";
-    private static final String PSEUDO = "pseudo";
+    private static final String PSEUDO = "pseudo"; // TO BE DELETED
 
     private static final String SENT_BYTES_TELO = "telo_ooma_apps_lte_sent_bytes";
     private static final String RECV_BYTES_TELO = "telo_ooma_apps_lte_received_bytes";
@@ -111,6 +126,7 @@ public class Database
     private static final String BAD_SIGNAL_NOTIFIED = "bad_signal_notified";
     private static final String SILENCE_NOTIFIED = "silence_notified";
 
+    private static final String UNKNOWN_VALUE = "unknown";
     private static final String OBSOLETE_VALUE = "obsolete";
     private static final String EMPTY_VALUE = "";
 
@@ -156,13 +172,18 @@ public class Database
                 notificationCollection_.createIndex(new BasicDBObject(MYXID, 1));
             }
 
+            stateCollection_ = db_.getCollection("state");
+            if (stateCollection_ != null) {
+                stateCollection_.createIndex(new BasicDBObject(MYXID, 1));
+            }
+
             parametersCollection_ = db_.getCollection("parameters");
             if (parametersCollection_ != null) {
                 // TODO: use compound index, it is faster
                 parametersCollection_.createIndex(new BasicDBObject(MYXID, 1));
                 parametersCollection_.createIndex(new BasicDBObject(KEY, 1));
                 parametersCollection_.createIndex(new BasicDBObject(TIME, 1));
-                parametersCollection_.createIndex(new BasicDBObject(PSEUDO, 1));
+                parametersCollection_.createIndex(new BasicDBObject(PSEUDO, 1)); // TO BE DELETED
             }
         }
         catch (MongoException e) {
@@ -208,6 +229,7 @@ public class Database
             if (myxID.isEmpty())
                 return false; // do nothing
 
+            List<Bson> updatesToState = new ArrayList<Bson>();
             Iterator<String> keysItr = json.keys();
             while (keysItr.hasNext()) {
                 String paramName = keysItr.next();
@@ -216,14 +238,16 @@ public class Database
                 if (paramName.equalsIgnoreCase(MYXID))
                     continue;
                 String value = json.get(paramName).toString();
-                newValue(myxID, paramName, value, true);
+                newValue(myxID, paramName, value, updatesToState, true);
             }
 
-            // update "notifications" collection with last telemetric info time (for silence detection)
-            // set current time and clear the counter of pushed notifications
-            Bson query = Filters.eq(MYXID, myxID);
-            Bson upsert = combine(Updates.set(LAST_INFO, new Date().getTime()), Updates.set(SILENCE_NOTIFIED, 0));
-            notificationCollection_.updateOne(query, upsert, new UpdateOptions().upsert(true));
+            // clear the counter of pushed notifications
+            notificationCollection_.updateOne(Filters.eq(MYXID, myxID), Updates.set(SILENCE_NOTIFIED, 0), new UpdateOptions().upsert(true));
+
+            // ... and do not forget about timestamp
+            updatesToState.add(Updates.set(LAST_INFO, new Date().getTime()));
+            Bson stateUpsert = combine(updatesToState);
+            stateCollection_.updateOne(Filters.eq(MYXID, myxID), stateUpsert, new UpdateOptions().upsert(true));
         } catch (JSONException e) {
             e.printStackTrace();
             LOGGER.error("Invalid JSON data: {}, {}", jsonStr, e.getMessage());
@@ -236,7 +260,7 @@ public class Database
         return  bSuccess;
     }
 
-    public void newValue(String myxID, String key, String value, boolean bSpecialProcessing) {
+    private void newValue(String myxID, String key, String value, List<Bson> updatesToState, boolean bSpecialProcessing) {
         if (parametersCollection_ != null) {
             // Update MongoDB
             Document document = new Document();
@@ -281,42 +305,42 @@ public class Database
                     resetNotificationCounter(myxID, CONN_DOWN_NOTIFIED);
                 }
             }
-            else if (key.equalsIgnoreCase(SIGNAL_QUALITY) &&
-                    (value.equalsIgnoreCase(SIGNAL_QUALITY_NO) || value.equalsIgnoreCase(SIGNAL_QUALITY_BAD))) {
-                // check connection type, and if it is "LTE" - send push notification
-                // if it is "ethernet", it might be OK
-                boolean bSend = true;
-                Object connectionType = getLastValue(myxID, CONNECTION_TYPE);
-                if (connectionType != null) {
-                    if (connectionType.toString() != CONNECTION_TYPE_LTE) {
-                        bSend = false;
-                        //System.out.println("Signal is inappropriate, but as connection type != LTE, is is OK");
-                    }
-                }
-                if (bSend) {
-                    if (value.equalsIgnoreCase(SIGNAL_QUALITY_NO)) {
-                        if (howManyNotificationsSent(myxID, NO_SIGNAL_NOTIFIED) < noSignalMaxNotifications_) {
-                            if (pushNotificator_.send(myxID, "No signal"))
-                                notificationsSent(myxID, NO_SIGNAL_NOTIFIED);
+            else if (key.equalsIgnoreCase(SIGNAL_QUALITY)) {
+                if (value.equalsIgnoreCase(SIGNAL_QUALITY_NO) || value.equalsIgnoreCase(SIGNAL_QUALITY_BAD)) {
+                    // check connection type, and if it is "LTE" - send push notification
+                    // if it is "ethernet", it might be OK
+                    boolean bSend = false;
+                    Object connectionType = getLastValue(myxID, CONNECTION_TYPE);
+                    if (connectionType != null) {
+                        if (connectionType.toString().equalsIgnoreCase(CONNECTION_TYPE_LTE)) {
+                            bSend = true;
+                            //System.out.println("Signal is inappropriate, but as connection type != LTE, is is OK");
                         }
                     }
-                    // temporarily removed (Dean's request)
-                    else if (value.equalsIgnoreCase(SIGNAL_QUALITY_BAD)) {
-                        if (howManyNotificationsSent(myxID, BAD_SIGNAL_NOTIFIED) < badSignalMaxNotifications_) {
-                            //if (pushNotificator_.send(myxID, "Bad signal")) TEMPORARILY REMOVED (Dean's request)
+                    if (bSend) {
+                        if (value.equalsIgnoreCase(SIGNAL_QUALITY_NO)) {
+                            if (howManyNotificationsSent(myxID, NO_SIGNAL_NOTIFIED) < noSignalMaxNotifications_) {
+                                if (pushNotificator_.send(myxID, "No signal"))
+                                    notificationsSent(myxID, NO_SIGNAL_NOTIFIED);
+                            }
+                        }
+                        // temporarily removed (Dean's request)
+                        else if (value.equalsIgnoreCase(SIGNAL_QUALITY_BAD)) {
+                            if (howManyNotificationsSent(myxID, BAD_SIGNAL_NOTIFIED) < badSignalMaxNotifications_) {
+                                //if (pushNotificator_.send(myxID, "Bad signal")) TEMPORARILY REMOVED (Dean's request)
                                 notificationsSent(myxID, BAD_SIGNAL_NOTIFIED);
+                            }
                         }
-                    }
-                    else {
-                        resetNotificationCounter(myxID, BAD_SIGNAL_NOTIFIED);
-                        resetNotificationCounter(myxID, NO_SIGNAL_NOTIFIED);
-                    }
+                    } // bSend
+                } // bad-signal or no-signal
+                else {
+                    resetNotificationCounter(myxID, BAD_SIGNAL_NOTIFIED);
+                    resetNotificationCounter (myxID, NO_SIGNAL_NOTIFIED);
                 }
-            }
+            } // signal_quality
 
             if (bSpecialProcessing) {
-                if (key.equalsIgnoreCase(SENT_BYTES_TELO) ||
-                        key.equalsIgnoreCase(RECV_BYTES_TELO)) {
+                if (key.equalsIgnoreCase(SENT_BYTES_TELO) || key.equalsIgnoreCase(RECV_BYTES_TELO)) {
                     // special processing for statistics! Bytes are being sent incrementally, we cannot replace, but have to increment
                     Object oldValue = getLastValue(myxID, key);
                     if (oldValue != null) {
@@ -332,40 +356,83 @@ public class Database
             document.put(VALUE, value);
             document.put(TIME, new Date().getTime());
             parametersCollection_.insertOne(document);
+
+            // update current state
+            if (updatesToState != null)
+                updatesToState.add(Updates.set(key, value));
         }
     }
 
-    public void newPseudoValue(String myxID, String key, String value) {
-        if (parametersCollection_ != null) {
-            // Update MongoDB
-            Document document = new Document();
-            document.put(MYXID, myxID);
-            document.put(KEY, key);
-            document.put(VALUE, value);
-            document.put(PSEUDO, true); // flag, indicating that it is pseudo-value, has not come from real TELO, but was generated by LMS itself (when TELO is silent, for example)
-            document.put(TIME, new Date().getTime());
-            parametersCollection_.insertOne(document);
+    public TimedJson getStatus(String myxID, JsonNode parametersNode)
+    {
+        JSONObject resultJson = new JSONObject();
+
+        Document doc = null;
+        if (stateCollection_ != null) {
+            doc = stateCollection_.find(eq(MYXID, myxID)).first();
         }
+
+        Iterator<JsonNode> elements = parametersNode.elements();
+        while (elements.hasNext()) {
+            JsonNode paramNode = elements.next();
+            String key = paramNode.asText();
+            Object value = null;
+            if (doc != null)
+                value = doc.get(key);
+            if (value == null)
+                value = getLastValue(myxID, key);
+
+            if (value != null)
+                resultJson.put(key, value);
+            else
+                resultJson.put(key, UNKNOWN_VALUE);
+        }
+        // Timestamp
+        long tstamp = 0;
+        if (doc != null) {
+            if (doc.containsKey(LAST_INFO))
+                tstamp = doc.getLong(LAST_INFO);
+        }
+        if (tstamp == 0)
+            tstamp = getLastRealValueTimestamp(myxID);
+
+        return new TimedJson(tstamp, resultJson);
     }
+
 
     public Object getLastValue(String myxID, String key) {
-        if (parametersCollection_ != null) {
-            Document doc = parametersCollection_.find(and(eq(MYXID, myxID), eq(KEY, key))).sort(descending(TIME)).first();
-            if (doc != null)
-                return doc.get(VALUE);
+        if (stateCollection_ != null) {
+            Document doc = stateCollection_.find(eq(MYXID, myxID)).first();
+            if (doc != null) {
+                Object value = doc.get(key);
+                if (value != null)
+                    return value;
+            }
         }
 
+        if (parametersCollection_ != null) {
+            Document doc = parametersCollection_.find(and(eq(MYXID, myxID), eq(KEY, key))).sort(descending(TIME)).first();
+            if (doc != null) {
+                Object value = doc.get(VALUE);
+                if (value != null)
+                    return value;
+            }
+        }
+
+        // not found :-(
         return null;
     }
 
     // returns the timestamp of the latest non-pseudo value for specified myxID (pseudo-values can be created by LMS itself in case when Telo is silent for a while)
-    public Object getLastRealValueTimestamp(String myxID) {
-        //if (parametersCollection_ != null) {
-            //Document doc = parametersCollection_.find(and(eq(MYXID, myxID), ne(PSEUDO, true))).sort(descending(TIME)).first();
-            //if (doc != null)
-            //    return doc.get(TIME);
+    public long getLastRealValueTimestamp(String myxID) {
+        if (stateCollection_ != null) {
+            Document doc = stateCollection_.find(eq(MYXID, myxID)).first();
+            if (doc != null) {
+                return doc.getLong(LAST_INFO);
+            }
+        }
 
-        //}
+        // TO BE DELETED after a while
         if (notificationCollection_ != null) {
             Document doc = notificationCollection_.find(eq(MYXID, myxID)).first();
             if (doc != null) {
@@ -373,12 +440,27 @@ public class Database
             }
         }
 
-        return null;
+        // TO BE DELETED after a while
+        if (parametersCollection_ != null) {
+            Document doc = parametersCollection_.find(and(eq(MYXID, myxID), ne(PSEUDO, true))).sort(descending(TIME)).first();
+            if (doc != null)
+                return doc.getLong(TIME);
+        }
+
+        return 0;
     }
 
     public void resetStats(String myxID) {
-        newValue(myxID, SENT_BYTES_TELO, "0", false);
-        newValue(myxID, RECV_BYTES_TELO, "0", false);
+        newValue(myxID, SENT_BYTES_TELO, "0", null,false);
+        newValue(myxID, RECV_BYTES_TELO, "0", null,false);
+        // Also update state collection
+        if (stateCollection_ != null) {
+            Bson query = Filters.eq(MYXID, myxID);
+            Bson upsert = combine(
+                    Updates.set(SENT_BYTES_TELO, 0),
+                    Updates.set(RECV_BYTES_TELO, 0));
+            stateCollection_.updateOne(query, upsert, new UpdateOptions().upsert(true));
+        }
     }
 
     public int getTrafficStatistics(String myxID, String key, Date fromTime, Date toTime) {
@@ -447,7 +529,7 @@ public class Database
     }
 
     public void doSilenceAlarm(long silenceTolerance) {
-        FindIterable<Document> docs = notificationCollection_.find(lte(LAST_INFO, new Date().getTime()-silenceTolerance));
+        FindIterable<Document> docs = stateCollection_.find(lte(LAST_INFO, new Date().getTime()-silenceTolerance));
         if (docs != null) {
             for (Document doc : docs) {
                 String myxID = doc.getString(MYXID);
@@ -457,25 +539,28 @@ public class Database
                         notificationsSent(myxID, SILENCE_NOTIFIED);
 
                     // add "obsolete" or "empty" values to the DB
-                    newPseudoValue(myxID, CARRIER, EMPTY_VALUE);
-                    newPseudoValue(myxID, CELL_ID, EMPTY_VALUE);
-                    newPseudoValue(myxID, BAND, EMPTY_VALUE);
-                    newPseudoValue(myxID, BANDWIDTH, EMPTY_VALUE);
-                    newPseudoValue(myxID, RX_CHANNEL, EMPTY_VALUE);
-                    newPseudoValue(myxID, TX_CHANNEL, EMPTY_VALUE);
-                    newPseudoValue(myxID, TX_POWER, EMPTY_VALUE);
-                    newPseudoValue(myxID, RSSI, EMPTY_VALUE);
-                    newPseudoValue(myxID, RSRP, EMPTY_VALUE);
-                    newPseudoValue(myxID, RSRQ, EMPTY_VALUE);
-                    newPseudoValue(myxID, SINR, EMPTY_VALUE);
-                    newPseudoValue(myxID, IP_ADDRESS, EMPTY_VALUE);
-                    newPseudoValue(myxID, IP_MASK, EMPTY_VALUE);
-                    newPseudoValue(myxID, GATEWAY, EMPTY_VALUE);
-                    newPseudoValue(myxID, CONNECTION_TYPE, OBSOLETE_VALUE);
-                    newPseudoValue(myxID, OOMA_SERVICE_STATUS, OBSOLETE_VALUE);
-                    newPseudoValue(myxID, LTE_DONGLE, LTE_DONGLE_INACTIVE);
-                    newPseudoValue(myxID, SIGNAL_QUALITY, SIGNAL_QUALITY_NO);
-                    newPseudoValue(myxID, LTE_STATE, LTE_STATE_DOWN);
+                    Bson query = Filters.eq(MYXID, myxID);
+                    Bson upsert = combine(
+                            Updates.set(CARRIER, EMPTY_VALUE),
+                            Updates.set(CELL_ID, EMPTY_VALUE),
+                            Updates.set(BAND, EMPTY_VALUE),
+                            Updates.set(BANDWIDTH, EMPTY_VALUE),
+                            Updates.set(RX_CHANNEL, EMPTY_VALUE),
+                            Updates.set(TX_CHANNEL, EMPTY_VALUE),
+                            Updates.set(TX_POWER, EMPTY_VALUE),
+                            Updates.set(RSSI, EMPTY_VALUE),
+                            Updates.set(RSRP, EMPTY_VALUE),
+                            Updates.set(RSRQ, EMPTY_VALUE),
+                            Updates.set(SINR, EMPTY_VALUE),
+                            Updates.set(IP_ADDRESS, EMPTY_VALUE),
+                            Updates.set(IP_MASK, EMPTY_VALUE),
+                            Updates.set(GATEWAY, EMPTY_VALUE),
+                            Updates.set(CONNECTION_TYPE, OBSOLETE_VALUE),
+                            Updates.set(OOMA_SERVICE_STATUS, OBSOLETE_VALUE),
+                            Updates.set(LTE_DONGLE, LTE_DONGLE_INACTIVE),
+                            Updates.set(SIGNAL_QUALITY, SIGNAL_QUALITY_NO),
+                            Updates.set(LTE_STATE, LTE_STATE_DOWN));
+                    stateCollection_.updateOne(query, upsert, new UpdateOptions().upsert(true));
                 }
             }
         }
@@ -509,5 +594,6 @@ public class Database
     private MongoDatabase db_ = null;
     private MongoCollection<Document> notificationCollection_ = null; // myxID, the time of latest telemetric info arrival, and how many times user was notified that some event happened
     private MongoCollection<Document> parametersCollection_ = null; // the collection of parameters with theit values and timestamps
+    private MongoCollection<Document>  stateCollection_ = null; // the collection of parameters with theit values and timestamps
 }
 
