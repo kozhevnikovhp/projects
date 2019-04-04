@@ -16,8 +16,8 @@ const char *PSZ_FW_UPGRADE_MARKER_PATH = "/opt/lte/";
 const char *PSZ_FW_UPGRADE_MARKER_FILE = "firmwareUpdated";
 const char *PSZ_FW_UPGRADE_PATH = "/update/firmware/lte-dongle/";
 
-const char *PSZ_CURRENT_STATE_PATH = "/var/";
-const char *PSZ_CURRENT_STATE_FILE = "lte_modem_state";
+const char *PSZ_CURRENT_STATE_PATH = "/var/state/lte/";
+const char *PSZ_CURRENT_STATE_FILE = "modem_state";
 
 const char *PSZ_DEVICE_NAME = "device_name";
 

@@ -181,7 +181,6 @@ int main(int argc, char *argv[])
     // else ordinary program
     log_info(startedAs.c_str(), getpid());
 
-    std::vector<LteValuesGroup *> allGroups;
     allGroups.emplace_back(new NetworkParameterGroup()); // must be first in the list for easier enforcement full re-quering in case of connection type changed - other groups are processed later
     allGroups.emplace_back(new CommonParameterGroup());
     allGroups.emplace_back(new ModemControlParameterGroup(modem));
@@ -284,7 +283,18 @@ int main(int argc, char *argv[])
             }
         }
 
-        sleep(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            bool bFullUpgradeRequired = false;
+            for (auto pGroup : allGroups)
+            {
+                if (pGroup->isFullUpdateRequired())
+                    bFullUpgradeRequired = true;
+            }
+            if (bFullUpgradeRequired)
+                break;
+            sleep(1);
+        }
 #ifdef VALGRIND
         ++nCyclesDone;
         printf("VALGRIND: %d cycles done\n", nCyclesDone);

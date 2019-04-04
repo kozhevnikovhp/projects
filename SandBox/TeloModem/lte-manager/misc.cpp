@@ -19,18 +19,25 @@
 ////////////////////////////////////////////////////////////////////////
 // Misc
 
-time_t getCurrentTimeSec()
+double getCurrentTimeSec()
 {
-    timeval t;
-    gettimeofday(&t, nullptr);
-    return t.tv_sec;
+    timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (double)t.tv_sec + t.tv_nsec/1.E+09;
 }
 
-time_t getCurrentTimeMSec()
+double getCurrentTimeMSec()
 {
-    timeval t;
-    gettimeofday(&t, nullptr);
-    return t.tv_sec*1000 + t.tv_usec/1000;
+    timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (double)t.tv_sec*1.E+03 + t.tv_nsec/1.E+06;
+}
+
+double getCurrentTimeUSec()
+{
+    timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (double)t.tv_sec*1.E+06 + t.tv_nsec/1.E+03;
 }
 
 IPADDRESS_TYPE getIP(const sockaddr_in *pSockAddr)

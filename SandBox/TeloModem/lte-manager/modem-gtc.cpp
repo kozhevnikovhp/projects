@@ -86,6 +86,7 @@ bool ModemGTC::execute(const std::string &command, int timeout)
 
     if (!connection_.isOpen())
         return false;
+    connection_.flushInputBuffer(500);
     bool bWroteSomething = connection_.write(command.c_str(), command.size());
     const char *pszCRLF = "\r\n";
     if (bWroteSomething)
@@ -96,16 +97,14 @@ bool ModemGTC::execute(const std::string &command, int timeout)
             printf("AT-command sent successfully\n");
 
     bool bReadSomething = false;
-    size_t nRead = 0;
-    memset(szReply_, 0, sizeof(szReply_));
+    replyBuffer_.clear();
     if (bWroteSomething)
     {
-        if (!connection_.read(szReply_, sizeof(szReply_), timeout, nRead))
+        if (!connection_.read(replyBuffer_, timeout))
              return false;
-        bReadSomething = (nRead != 0);
-        for (size_t i = 0; i < nRead; ++i)
+        bReadSomething = !replyBuffer_.empty();
+        for (char c : replyBuffer_)
         {
-            char c = szReply_[i];
             if (c == '"')
                 continue; // skip all quotation marks
             if (isalnum(c) || isspace(c) || ispunct(c) || c == 0x0A || c == 0x0D)
@@ -128,7 +127,7 @@ bool ModemGTC::execute(const std::string &command, int timeout)
 bool ModemGTC::isControllable()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT", 3000);
+    return execute("AT", 1000);
 #else
     return true;
 #endif
@@ -141,7 +140,7 @@ bool ModemGTC::isControllable()
 bool ModemGTC::getManufacturerInfoRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%SYSCMD=\"device --s\"", 5000);
+    return execute("AT%SYSCMD=\"device --s\"", 1000);
 #else
     raw_ = "\
     %SYSCMD: The device hardware info:\n\
@@ -215,7 +214,7 @@ bool ModemGTC::getManufacturerInfo(JsonContent &content)
 bool ModemGTC::getFirmwareVersionRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT+CGMR", 3000);
+    return execute("AT+CGMR", 1000);
 #else
     raw_ = "FW_VER: 0.3.2.4\nOK\n";
     return true;
@@ -236,7 +235,7 @@ bool ModemGTC::getFirmwareVersionInfo(JsonContent &content)
 bool ModemGTC::getImeiRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("at+cgsn", 3000);
+    return execute("at+cgsn", 1000);
 #else
     raw_ = "at+cgsn\n\n351792090000297\n\nOK";
     return true;
@@ -285,7 +284,7 @@ bool ModemGTC::getImei(JsonContent &content)
 bool ModemGTC::getIccIdRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%GICCID", 3000);
+    return execute("AT%GICCID", 1000);
 #else
     raw_ = "%GICCID: 89011202000218997994\nOK\n";
     return true;
@@ -306,7 +305,7 @@ bool ModemGTC::getIccId(JsonContent &content)
 bool ModemGTC::getCarrierRaw()
 {
 #ifndef PSEUDO_MODEM
-    return execute("AT%GSERNETWORK", 3000);
+    return execute("AT%GSERNETWORK", 1000);
 #else
     raw_ = "%GSERNETWORK: RegistrationState 1, CSDomain 0, PSDomain 1, Roaming 0, MCC 310, MNC 120, namesize 6, name Sprint, VOLTE 1\nOK\n";
     return true;

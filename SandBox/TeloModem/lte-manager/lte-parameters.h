@@ -30,6 +30,11 @@ public:
 public:
     bool get(time_t basicDelay, JsonContent &allReport);
 
+    // TODO: add syncronization
+    bool isFullUpdateRequired() const { return bFullUpdateRequired_; }
+    void setFullUpdateRequired() { bFullUpdateRequired_ = true; }
+    void clearFullUpdateRequired() { bFullUpdateRequired_ = false; }
+
     static bool bFirmwareUpdated_; // if just updated - re-query everything
     static bool bConnectionTypeChanged_; // if just changed - re-query everything
     static bool bHourlyFullUpdateRequired_; // every an hour - re-query everything, despite of anything (LTEDGL-250)
@@ -49,14 +54,17 @@ protected:
         return (lastEntry.second.compare(entry.second) != 0);
     }
 
+
     time_t lastQueryTime_, lastFullReportTime_;
     bool bValuesSuccessfullyObtained_;
     JsonContent thisQueryResult_, lastQueryResult_;
 
     static std::map<std::string, std::string> currentState_;
     static std::string currentStateFileFullPath_;
+    bool bFullUpdateRequired_;
 };
 
+extern std::vector<LteValuesGroup *> allGroups;
 
 // The version of LTE-Manager itself, etc
 class CommonParameterGroup : public LteValuesGroup
@@ -96,8 +104,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Constant parameters"; }
-    virtual time_t getMinExpirationTime() const { return 3; }
-    virtual time_t getMaxExpirationTime() const { return 60; }
+    virtual time_t getMinExpirationTime() const { return 1; }
+    virtual time_t getMaxExpirationTime() const { return 100; }
     virtual bool doGet(JsonContent &content);
 
     ModemGTC &modem_;
@@ -127,7 +135,7 @@ public:
 protected:
     virtual const char *getName() { return "Network parameters"; }
     virtual time_t getMinExpirationTime() const { return 0; }
-    virtual time_t getMaxExpirationTime() const { return 20; }
+    virtual time_t getMaxExpirationTime() const { return 100; }
     virtual bool doGet(JsonContent &content);
 
     bool getCurrentConnection(std::string &ifaceName);
@@ -143,8 +151,8 @@ public:
 
 protected:
     virtual const char *getName() { return "Traffic parameters"; }
-    virtual time_t getMinExpirationTime() const { return 10; }
-    virtual time_t getMaxExpirationTime() const { return 10; }
+    virtual time_t getMinExpirationTime() const { return 100; }
+    virtual time_t getMaxExpirationTime() const { return 100; }
     virtual bool doGet(JsonContent &content);
     virtual bool isValueChanged(const KeyValue &lastEntry, const KeyValue &entry) const { return true; }
 

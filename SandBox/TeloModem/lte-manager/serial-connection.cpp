@@ -154,55 +154,80 @@ bool SerialConnection::write(const void *pBuffer, int nBytes)
     return (nWritten == nBytes);
 }
 
-bool SerialConnection::read(const void *pBuffer, size_t nBufferSize, int timeout, size_t &nBytesReadTotal)
+bool SerialConnection::read(std::vector<char> &buffer, int timeout)
 {    
     VERBOSE(3, __PRETTY_FUNCTION__);
 
-    nBytesReadTotal = 0;
     if (!isOpen())
         return false;
 
-    time_t start = getCurrentTimeMSec();
+    double start = getCurrentTimeMSec();
 
     struct pollfd fds;
     memset(&fds, 0, sizeof(fds));
     fds.fd = fd_;
     fds.events = POLLIN;
 
-    size_t nRead = 0;
-    char *pCurrentPos = (char *)pBuffer;
-    do
+    ssize_t nRead = 0;
+    while ((getCurrentTimeMSec() - start) < (double)timeout)
     {
-        if ((getCurrentTimeMSec() - start) > timeout)
-            break;
         nRead = 0;
-        int ec = poll(&fds, 1, timeout); // 0 means "timeout expired" -> do nothing
+        int ec = poll(&fds, 1, std::max(1, timeout >> 4)); // 0 means "timeout expired" -> do nothing
         if (ec > 0)
         {
             if (fds.revents == POLLIN)
             {
-                nRead = ::read(fds.fd, pCurrentPos, 1);
-                if (nRead)
-                {
-                    pCurrentPos += nRead;
-                    nBytesReadTotal += nRead;
-                }
+                char c;
+                nRead = ::read(fds.fd, &c, 1);
+                if (nRead > 0)
+                    buffer.push_back(c);
                 fds.revents = 0;
             }
         }
-        else if (ec < 0)
-        {
-          perror("  poll() failed");
-          break;
-        }
-    } while (nRead && (nBytesReadTotal < nBufferSize));
+    }
 
     if (g_VerbosityLevel >= 3)
-        printf("%d bytes read\n", (int)nBytesReadTotal);
+        printf("%d bytes read\n", (int)buffer.size());
 
     return true;
 }
 
+bool SerialConnection::flushInputBuffer(int timeout)
+{
+    if (!isOpen())
+        return false;
 
+    struct pollfd fds;
+    memset(&fds, 0, sizeof(fds));
+    fds.fd = fd_;
+    fds.events = POLLIN;
+
+    double start = getCurrentTimeMSec();
+
+    bool bRead = true;
+    bool bSuccess = true;
+    while (bRead && ((getCurrentTimeMSec() - start) < (double)timeout))
+    {
+        bRead = false;
+        int ec = poll(&fds, 1, 1); // 0 means "timeout expired" -> do nothing
+        if (ec > 0)
+        {
+            if (fds.revents == POLLIN)
+            {
+                char c;
+                ssize_t nRead = ::read(fds.fd, &c, 1);
+                if (nRead > 0)
+                    bRead = true;
+                else if (nRead < 0)
+                {
+                    bSuccess = false;
+                    break; // error, do not wait
+                }
+                fds.revents = 0;
+            }
+        }
+    }
+    return bSuccess;
+}
 
 

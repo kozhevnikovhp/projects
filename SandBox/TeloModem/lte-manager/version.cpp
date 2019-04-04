@@ -7,5 +7,6 @@
 
 #include "version.h"
 
-const char *PSZ_VERSION = "2.1.23 (current state)";
+const char *PSZ_VERSION = "1.1.28";
+
 

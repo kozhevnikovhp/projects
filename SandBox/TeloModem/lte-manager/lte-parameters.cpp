@@ -17,6 +17,8 @@
 #include "verbosity.h"
 #include "version.h"
 
+std::vector<LteValuesGroup *> allGroups;
+
 //////////////////////////////////////////////////////////////////
 /// LteValuesGroup::LteParameterGroup
 ///
@@ -44,7 +46,7 @@ LteValuesGroup::~LteValuesGroup()
 bool LteValuesGroup::get(time_t basicDelay, JsonContent &allReport)
 {
     ReportAction action = REPORT_CHANGED_ONLY;
-    if (!bValuesSuccessfullyObtained_ || bFirmwareUpdated_ || bConnectionTypeChanged_ || bHourlyFullUpdateRequired_ || !bSendOK_)
+    if (!bValuesSuccessfullyObtained_ || bFirmwareUpdated_ || bConnectionTypeChanged_ || bHourlyFullUpdateRequired_ || isFullUpdateRequired() || !bSendOK_)
         action = REPORT_EVERYTHING;
     else
     {
@@ -53,6 +55,7 @@ bool LteValuesGroup::get(time_t basicDelay, JsonContent &allReport)
         else if ((::getCurrentTimeSec() - lastFullReportTime_) > getMaxExpirationTime()*basicDelay)
             action = REPORT_EVERYTHING; // data received is obsolete
     }
+    clearFullUpdateRequired();
     if (action == REPORT_NOTHING)
         return true;
 
@@ -106,8 +109,10 @@ void LteValuesGroup::userSigUsr1Handler(int signalNumber)
 {
     if (signalNumber == SIGUSR1)
     {
-        printf("Received SIGUSR1!\n");
+        //printf("Received SIGUSR1!\n");
         LteValuesGroup::writeCurrentState();
+        for (auto group : allGroups)
+            group->setFullUpdateRequired();
     }
 }
 
@@ -155,15 +160,15 @@ bool CommonParameterGroup::doGet(JsonContent &content)
     std::ifstream f("/version");
     if (f.is_open())
     {
-        std::string TeloVersion, line;
+        std::string TeloBuildNumber, line;
         while (!f.eof() && !f.bad() && !f.fail())
         {
             line.clear();
             std::getline(f, line);
-            TeloVersion += line;
+            TeloBuildNumber += line;
         }
-        if (!TeloVersion.empty())
-            content.emplace_back(KeyValue("telo_version", TeloVersion));
+        if (!TeloBuildNumber.empty())
+            content.emplace_back(KeyValue("telo_build_number", TeloBuildNumber));
     }
 
     // version of LTE-Manager

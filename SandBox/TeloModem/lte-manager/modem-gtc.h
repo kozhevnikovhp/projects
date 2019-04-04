@@ -53,7 +53,7 @@ protected:
     bool execute(const std::string &command, int timeout);
 
     SerialConnection connection_;
-    char szReply_[2048];
+    std::vector<char> replyBuffer_;
 #endif
 
     std::string deviceNameTemplate_;

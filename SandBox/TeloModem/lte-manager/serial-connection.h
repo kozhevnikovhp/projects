@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 #include <termios.h>
+#include <vector>
 
 class SerialConnection
 {
@@ -24,7 +25,8 @@ public:
 
     bool setSpeed(speed_t speed);
     bool write(const void *pBuffer, int nBytes);
-    bool read(const void *pBuffer, size_t nBufferSize, int timeout, size_t &nBytesReadTotal);
+    bool read(std::vector<char> &buffer, int timeout);
+    bool flushInputBuffer(int timeout);
 
 protected:
     int fd_;
