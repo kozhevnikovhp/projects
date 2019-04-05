@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tcp.h"
+#include "tcp-client.h"
 
 class TelnetSocket : public TcpClientSocket
 {

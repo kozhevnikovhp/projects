@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// TcpSocket
 
-TcpSocket::TcpSocket(int af) : af_(af)
+TcpSocket::TcpSocket(sa_family_t af) : af_(af)
 {
     socket_ = socket(af, SOCK_STREAM, 0);
 }
@@ -34,7 +34,7 @@ bool TcpSocket::send(const void *pBufferToSend, size_t nBytesToSend, ssize_t &nS
 {
     if (!isCreated())
 		return false;
-    nSentBytes = ::send(socket_, (char *)pBufferToSend, nBytesToSend, 0);
+    nSentBytes = ::send(socket_, (const char *)pBufferToSend, nBytesToSend, 0);
 	if (nSentBytes == SOCKET_ERROR)
 	{
         perror("send");
@@ -66,14 +66,14 @@ bool TcpSocket::getOption(int level, int optionName, void *pcValue, socklen_t &o
 bool TcpSocket::enableKeepAlive(bool bEnable)
 {
     int value = bEnable ? 1 : 0;
-    return setOption(SOL_SOCKET, SO_KEEPALIVE, (char *)&value, sizeof(value));
+    return setOption(SOL_SOCKET, SO_KEEPALIVE, &value, sizeof(value));
 }
 
 bool TcpSocket::isKeepAliveEnabled(bool &bEnabled)
 {
     int value = 0;
     socklen_t len;
-    bool bSuccess = getOption(SOL_SOCKET, SO_KEEPALIVE, (char *)&value, len);
+    bool bSuccess = getOption(SOL_SOCKET, SO_KEEPALIVE, &value, len);
     if (bSuccess)
         bEnabled = (value == 1) ? true : false;
     return bSuccess;
@@ -82,7 +82,7 @@ bool TcpSocket::isKeepAliveEnabled(bool &bEnabled)
 bool TcpSocket::setKeepAliveTime(int t)
 {
 #ifdef TCP_KEEPIDLE // unavailable on some platforms say SunOS/Solaris
-    return setOption(SOL_TCP, TCP_KEEPIDLE, (char *)&t, sizeof(t));
+    return setOption(SOL_TCP, TCP_KEEPIDLE, &t, sizeof(t));
 #else
 	return false;
 #endif
@@ -92,74 +92,11 @@ bool TcpSocket::getKeepAliveTime(int &t)
 {
 #ifdef TCP_KEEPIDLE // unavailable on some platforms say SunOS/Solaris
     socklen_t len;
-    return getOption(SOL_TCP, TCP_KEEPIDLE, (char *)&t, len);
+    return getOption(SOL_TCP, TCP_KEEPIDLE, &t, len);
 #else
 	return false;
 #endif
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// TcpClientSocket
-
-TcpClientSocket::TcpClientSocket(int af) : inherited(af), bConnected_(false)
-{
-}
-
-//virtual
-TcpClientSocket::~TcpClientSocket()
-{
-    disconnect();
-}
-
-bool TcpClientSocket::connect(const std::string &IpAddress, IPPORT portNo)
-{
-    connectionName_ = IpAddress;
-    IPADDRESS_TYPE IP = dotNotationToAddress(IpAddress.c_str());
-    if (0 == IP)
-        return false;
-    return connect(IP, portNo);
-}
-
-bool TcpClientSocket::connect(IPADDRESS_TYPE IP, IPPORT portNo)
-{
-    if (bConnected_)
-        return true; // Do nothing
-    bConnected_ = false;
-    struct sockaddr_in socketParams;
-    socketParams.sin_family = af_;
-    socketParams.sin_port = htons(portNo);
-    socketParams.sin_addr.s_addr = IP;
-    if (::connect(socket_, (sockaddr *)&socketParams, sizeof(sockaddr)) == SOCKET_ERROR)
-    {
-        perror("connect");
-        return false;
-    }
-    bConnected_ = true;
-    onConnected();
-    return true;
-}
-
-void TcpClientSocket::disconnect()
-{
-    if (isConnected())
-    {
-        onDisconnected();
-        bConnected_ = false;
-    }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// TcpServerSocket
-
-TcpServerSocket::TcpServerSocket(int af) : inherited(af)
-{
-}
-
-//virtual
-TcpServerSocket::~TcpServerSocket()
-{
-}
 
 

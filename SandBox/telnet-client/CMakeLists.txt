@@ -5,9 +5,11 @@ PROJECT(telnet-client)
 add_executable (telnet-client
     misc.cpp
     tcp.cpp
+    tcp-client.cpp
+    tcp-server.cpp
     telnet.cpp
-    telnet-telo-le.cpp
     telnet-client.cpp
+    telnet-gtc.cpp
 )
 
 #C++11 support

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "telnet-telo-le.h"
+#include "telnet-gtc.h"
 
 int main(int argc, char* argv[])
 {
@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    TelnetTeloLE teloLE(AF_INET);
+    TelnetGTC telnetGTC(AF_INET);
 
     return 0;
 }

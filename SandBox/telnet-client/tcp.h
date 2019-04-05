@@ -3,14 +3,11 @@
 #include <netinet/tcp.h>
 
 #include "ip.h"
-#include <string>
-
-// TcpSocket - stream sockets classes will be derived from it
 
 class TcpSocket
 {
 public:
-    TcpSocket(int af);
+    TcpSocket(sa_family_t af);
     virtual ~TcpSocket();
 
 public:
@@ -30,39 +27,7 @@ public:
 
 protected:
     int socket_;
-    int af_; // address family
+    sa_family_t af_; // address family
 };
 
-class TcpClientSocket : public TcpSocket
-{
-    typedef TcpSocket inherited;
-public:
-    TcpClientSocket(int af);
-    virtual ~TcpClientSocket();
 
-public:
-    bool connect(IPADDRESS_TYPE IP, IPPORT portNo);
-    bool connect(const std::string &IpAddress, IPPORT portNo);
-    bool isConnected() const { return bConnected_; }
-    const std::string &getConnectionName() const { return connectionName_; }
-    void disconnect();
-
-protected:
-    virtual void onConnected() {}
-    virtual void onDisconnected() {}
-
-    bool bConnected_;
-    std::string connectionName_;
-};
-
-class TcpServerSocket : public TcpSocket
-{
-    typedef TcpSocket inherited;
-public:
-    TcpServerSocket(int af);
-    virtual ~TcpServerSocket();
-
-public:
-
-protected:
-};

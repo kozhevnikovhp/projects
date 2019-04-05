@@ -2,12 +2,12 @@
 
 #include "telnet.h"
 
-class TelnetTeloLE : public TelnetSocket
+class TelnetGTC : public TelnetSocket
 {
     typedef TelnetSocket inherited;
 public:
-    TelnetTeloLE(int af);
-    virtual ~TelnetTeloLE();
+    TelnetGTC(int af);
+    virtual ~TelnetGTC();
 
 public:
 
